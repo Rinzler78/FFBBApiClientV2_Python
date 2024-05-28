@@ -2,4 +2,4 @@
 Contributors
 ============
 
-* Boris LECLERE <Borisleclere@gmail.com>
+* Rinzler78 <Borisleclere@gmail.com>

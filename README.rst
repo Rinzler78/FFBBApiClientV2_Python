@@ -22,6 +22,9 @@
     .. image:: https://img.shields.io/twitter/url/http/shields.io.svg?style=social&label=Twitter
         :alt: Twitter
         :target: https://twitter.com/FFBBApiClientV2_Python
+.. image:: https://img.shields.io/pypi/v/ffbb_api_client_v2.svg
+    :alt: PyPI-Server
+    :target: https://pypi.org/project/ffbb_api_client_v2/
 
 .. image:: https://img.shields.io/badge/-PyScaffold-005CA0?logo=pyscaffold
     :alt: Project generated with PyScaffold
@@ -37,31 +40,60 @@ FFBBApiClientV2_Python
     Allow to interact with the new FFBB apis
 
 
-A longer description of your project goes here...
+ffbb_api_client_v2 allow to interact with the new FFBB api.
+You can retrieve information about clubs, teams, matches, etc...
 
 
-.. _pyscaffold-notes:
+Installation
+============
 
-Making Changes & Contributing
-=============================
+.. code-block:: bash
 
-This project uses `pre-commit`_, please make sure to install it before making any
-changes::
+    pip install ffbb_api_client_v2
 
-    pip install pre-commit
-    cd FFBBApiClientV2_Python
-    pre-commit install
+Quick start
+===========
 
-It is a good idea to update the hooks to the latest version::
+.. code-block:: python
 
-    pre-commit autoupdate
+    import os
+    from ffbb_api_client import FFBBApiClient
 
-Don't forget to tell your contributors to also install and use pre-commit.
+    # Load env from file if needed
+    # from dotenv import load_dotenv
+    # load_dotenv()
 
-.. _pre-commit: https://pre-commit.com/
+    # Retrieve api user / pass
+    basic_auth_user = os.getenv("FFBB_BASIC_AUTH_USER")
+    basic_auth_pass = os.getenv("FFBB_BASIC_AUTH_PASS")
+
+    # Create an instance of the api client
+    api_client = FFBBApiClient(
+        basic_auth_user=basic_auth_user,
+        basic_auth_pass=basic_auth_pass
+    )
+
+Examples
+========
+
+Take a look at quick_start.py to see how to use the library.
 
 Note
 ====
 
 This project has been set up using PyScaffold 4.5. For details and usage
 information on PyScaffold see https://pyscaffold.org/.
+
+Licence
+=======
+
+ffbb_api_client is distributed under the Apache 2.0 license.
+
+Dev notes
+=========
+
+Command used to create this project:
+
+.. code-block:: bash
+
+    putup FFBBApiClientV2_Python -p ffbb_api_client_v2 -l Apache-2.0 -d "Allow to interact with the new FFBB apis" -u "https://github.com/Rinzler78/FFBBApiClientV2_Python" -v --github-actions --venv .venv

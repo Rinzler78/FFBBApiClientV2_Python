@@ -1,3 +1,6 @@
+python-dateutil
+python-dotenv
+requests_cache
 # Requirements file for ReadTheDocs, check .readthedocs.yml.
 # To build the module reference correctly, make sure every external package
 # under `install_requires` in `setup.cfg` is also listed here!

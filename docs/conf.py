@@ -99,7 +99,7 @@ copyright = "2024, Boris LECLERE"
 # If you don’t need the separation provided between version and release,
 # just set them both to the same value.
 try:
-    from ffbb_api_client_v2 import __version__ as version
+    from src import __version__ as version
 except ImportError:
     version = ""
 

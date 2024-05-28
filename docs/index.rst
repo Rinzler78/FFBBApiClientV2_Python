@@ -1,8 +1,8 @@
-======================
-FFBBApiClientV2_Python
-======================
+====================
+ffbb_api_client_v2
+====================
 
-This is the documentation of **FFBBApiClientV2_Python**.
+This is the documentation of **ffbb_api_client_v2**.
 
 .. note::
 
@@ -30,7 +30,6 @@ Contents
    :maxdepth: 2
 
    Overview <readme>
-   Contributions & Help <contributing>
    License <license>
    Authors <authors>
    Changelog <changelog>
