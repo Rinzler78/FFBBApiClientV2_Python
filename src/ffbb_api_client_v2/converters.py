@@ -1,9 +1,11 @@
 from datetime import datetime
-from typing import Any, Callable, List, Type, TypeVar, cast
+from enum import Enum
+from typing import Any, Callable, Dict, List, Type, TypeVar, cast
 
 import dateutil.parser
 
 T = TypeVar("T")
+EnumT = TypeVar("EnumT", bound=Enum)
 
 
 def from_none(x: Any) -> Any:
@@ -106,3 +108,19 @@ def from_list(f: Callable[[Any], T], x: Any) -> List[T]:
     """
     assert isinstance(x, list)
     return [f(y) for y in x]
+
+
+def from_dict(f: Callable[[Any], T], x: Any) -> Dict[str, T]:
+    """
+    Convert dict to dict of type T.
+    """
+    assert isinstance(x, dict)
+    return {k: f(v) for (k, v) in x.items()}
+
+
+def to_enum(c: Type[EnumT], x: Any) -> EnumT:
+    """
+    Convert Any to EnumT.
+    """
+    assert isinstance(x, c)
+    return x.value
