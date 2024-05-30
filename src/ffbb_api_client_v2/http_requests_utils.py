@@ -101,9 +101,9 @@ def http_post(
         start_time = time.time()
 
     if cached_session:
-        response = cached_session.post(url, headers=headers, data=data, timeout=timeout)
+        response = cached_session.post(url, headers=headers, json=data, timeout=timeout)
     else:
-        response = requests.post(url, headers=headers, data=data, timeout=timeout)
+        response = requests.post(url, headers=headers, json=data, timeout=timeout)
 
     if debug:
         end_time = time.time()
@@ -161,6 +161,7 @@ def http_post_json(
         Dict[str, Any]: The result of the request in JSON format.
     """
     filtered_data = {k: v for k, v in data.items() if v is not None} if data else None
+
     response = http_post(
         url,
         headers,

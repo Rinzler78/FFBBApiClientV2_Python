@@ -1,0 +1,27 @@
+from enum import Enum
+
+
+class GradientColor(Enum):
+    A01_A17 = "#a01a17"
+    B1_B3_B3 = "#b1b3b3"
+    B3_B2_B2 = "#b3b2b2"
+    BCBCBB = "#bcbcbb"
+    BDBCBC = "#bdbcbc"
+    BEBEBE = "#bebebe"
+    BFCED9 = "#bfced9"
+    BFD8_EC = "#bfd8ec"
+    E30066 = "#e30066"
+    E30072 = "#e30072"
+    E50069 = "#e50069"
+    E5_C0_BF = "#e5c0bf"
+    E60066 = "#e60066"
+    F5_AEBB = "#f5aebb"
+    THE_00_BEF5 = "#00bef5"
+    THE_01_B5_EA = "#01b5ea"
+    THE_01_B6_E8 = "#01b6e8"
+    THE_01_B6_ED = "#01b6ed"
+    THE_23328_A = "#23328a"
+    THE_2_F2_A85 = "#2f2a85"
+    THE_401407 = "#401407"
+    THE_878888 = "#878888"
+    THE_9_D9_E9_E = "#9d9e9e"

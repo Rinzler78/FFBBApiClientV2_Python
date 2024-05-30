@@ -1,13 +1,13 @@
 from enum import Enum
 
 
-class Sex(Enum):
+class Sexe(Enum):
+    FÉMININ = "Féminin"
     MASCULIN = "Masculin"
-    FEMININ = "Féminin"
     MIXTE = "Mixte"
 
 
-def extract_sex(input_str: str) -> Sex:
+def extract_sex(input_str: str) -> Sexe:
     """Extracts the sex from the input string.
 
     Args:
@@ -18,7 +18,7 @@ def extract_sex(input_str: str) -> Sex:
 
     """
     input_str = input_str.lower()
-    for sex in Sex:
+    for sex in Sexe:
         lower_value = sex.value.lower()
         if lower_value == input_str or lower_value in input_str:
             return sex

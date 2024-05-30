@@ -1,40 +1,46 @@
 from dataclasses import dataclass
 from typing import Any, Optional
 
-from .converters import from_none, from_str, from_union
+from ffbb_api_client_v2.Cartographie import Cartographie
+from ffbb_api_client_v2.converters import from_none, from_str, from_union, to_class
 
 
 @dataclass
 class Salle:
+    id: Optional[str] = None
     libelle: Optional[str] = None
-    libelle2: Optional[str] = None
+    adresse: Optional[str] = None
+    adresse_complement: Optional[str] = None
+    cartographie: Optional[Cartographie] = None
 
     @staticmethod
     def from_dict(obj: Any) -> "Salle":
-        """
-        Convert a dictionary object to a Salle instance.
-
-        Args:
-            obj (Any): The dictionary object to convert.
-
-        Returns:
-            Salle: The converted Salle instance.
-        """
         assert isinstance(obj, dict)
+        id = from_union([from_str, from_none], obj.get("id"))
         libelle = from_union([from_str, from_none], obj.get("libelle"))
-        libelle2 = from_union([from_str, from_none], obj.get("libelle2"))
-        return Salle(libelle, libelle2)
+        adresse = from_union([from_str, from_none], obj.get("adresse"))
+        adresse_complement = from_union(
+            [from_str, from_none], obj.get("adresseComplement")
+        )
+        cartographie = from_union(
+            [Cartographie.from_dict, from_none], obj.get("cartographie")
+        )
+        return Salle(id, libelle, adresse, adresse_complement, cartographie)
 
     def to_dict(self) -> dict:
-        """
-        Convert the Salle instance to a dictionary object.
-
-        Returns:
-            dict: The converted dictionary object.
-        """
         result: dict = {}
+        if self.id is not None:
+            result["id"] = from_union([from_str, from_none], self.id)
         if self.libelle is not None:
             result["libelle"] = from_union([from_str, from_none], self.libelle)
-        if self.libelle2 is not None:
-            result["libelle2"] = from_union([from_str, from_none], self.libelle2)
+        if self.adresse is not None:
+            result["adresse"] = from_union([from_str, from_none], self.adresse)
+        if self.adresse_complement is not None:
+            result["adresseComplement"] = from_union(
+                [from_str, from_none], self.adresse_complement
+            )
+        if self.cartographie is not None:
+            result["cartographie"] = from_union(
+                [lambda x: to_class(Cartographie, x), from_none], self.cartographie
+            )
         return result
