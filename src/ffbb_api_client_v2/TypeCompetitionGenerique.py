@@ -1,11 +1,9 @@
-from dataclasses import dataclass
 from typing import Any, Optional
 
-from ffbb_api_client_v2.converters import from_none, from_str, from_union, to_class
-from ffbb_api_client_v2.Logo import Logo
+from .converters import from_none, from_str, from_union, to_class
+from .Logo import Logo
 
 
-@dataclass
 class TypeCompetitionGenerique:
     id: Optional[str] = None
     logo: Optional[Logo] = None

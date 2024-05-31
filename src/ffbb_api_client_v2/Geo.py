@@ -1,13 +1,15 @@
-from dataclasses import dataclass
 from typing import Any, Optional
 
-from ffbb_api_client_v2.converters import from_float, from_none, from_union, to_float
+from .converters import from_float, from_none, from_union, to_float
 
 
-@dataclass
 class Geo:
     lat: Optional[float] = None
     lng: Optional[float] = None
+
+    def __init__(self, lat: Optional[float], lng: Optional[float]):
+        self.lat = lat
+        self.lng = lng
 
     @staticmethod
     def from_dict(obj: Any) -> "Geo":

@@ -38,12 +38,14 @@ class TestMeilisearchProdFFBBAPPClient(unittest.TestCase):
             ["a", "e", "i", "o", "u", "y", "b", "l", "m", "s"]
         )
         self.assertIsNotNone(result)
-        self.assertGreater(len(result), 0)
+        self.assertIsNotNone(result.results)
+        self.assertGreater(len(result.results), 0)
 
     def test_search_organismes_with_known_names(self):
         result = self.api_client.search_multiple_organismes(["Paris", "Senas", "Reims"])
         self.assertIsNotNone(result)
-        self.assertGreater(len(result), 0)
+        self.assertIsNotNone(result.results)
+        self.assertGreater(len(result.results), 0)
 
     def test_search_rencontres_with_empty_names(self):
         result = self.api_client.search_rencontres()
@@ -54,9 +56,11 @@ class TestMeilisearchProdFFBBAPPClient(unittest.TestCase):
             ["a", "e", "i", "o", "u", "y", "b", "l", "m", "s"]
         )
         self.assertIsNotNone(result)
-        self.assertGreater(len(result), 0)
+        self.assertIsNotNone(result.results)
+        self.assertGreater(len(result.results), 0)
 
     def test_search_rencontres_with_known_names(self):
         result = self.api_client.search_multiple_rencontres(["Paris", "Senas", "Reims"])
         self.assertIsNotNone(result)
-        self.assertGreater(len(result), 0)
+        self.assertIsNotNone(result.results)
+        self.assertGreater(len(result.results), 0)

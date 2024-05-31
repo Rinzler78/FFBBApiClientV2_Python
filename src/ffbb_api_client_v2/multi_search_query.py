@@ -1,26 +1,8 @@
-from dataclasses import dataclass
 from typing import Any, List, Optional
 
-from ffbb_api_client_v2.converters import (
-    from_int,
-    from_list,
-    from_none,
-    from_str,
-    from_union,
-)
-
-index_uids = [
-    "ffbbserver_organismes",
-    "ffbbserver_rencontres",
-    "ffbbserver_terrains",
-    "ffbbserver_salles",
-    "ffbbserver_tournois",
-    "ffbbserver_competitions",
-    "ffbbnational_pratiques",
-]
+from .converters import from_int, from_list, from_none, from_str, from_union
 
 
-@dataclass
 class MultiSearchQuery:
     index_uid: Optional[str] = None
     q: Optional[str] = None

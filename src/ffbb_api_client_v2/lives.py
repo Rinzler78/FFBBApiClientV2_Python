@@ -1,6 +1,7 @@
-from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, List, Optional
+
+from ffbb_api_client_v2.TeamEngagement import TeamEngagement
 
 from .converters import (
     from_datetime,
@@ -13,10 +14,8 @@ from .converters import (
     to_class,
 )
 from .external_id import ExternalID
-from .team_engagement import TeamEngagement
 
 
-@dataclass
 class Live:
     clock: None
     current_status: None
@@ -48,6 +47,64 @@ class Live:
     team_engagement_home: Optional[TeamEngagement] = None
     team_engagement_out: Optional[TeamEngagement] = None
 
+    def __init__(
+        self,
+        match_id: Optional[int],
+        match_time: Optional[datetime],
+        competition_abg_name: Optional[str],
+        score_q1_home: Optional[int],
+        score_q2_home: Optional[int],
+        score_q3_home: Optional[int],
+        score_q4_home: Optional[int],
+        score_q1_out: Optional[int],
+        score_q2_out: Optional[int],
+        score_q3_out: Optional[int],
+        score_q4_out: Optional[int],
+        score_ot1_home: Optional[int],
+        score_ot2_home: Optional[int],
+        score_ot1_out: Optional[int],
+        score_ot2_out: Optional[int],
+        score_home: Optional[int],
+        score_out: Optional[int],
+        clock: None,
+        competition_name: Optional[str],
+        current_status: None,
+        current_period: None,
+        match_status: Optional[str],
+        team_name_home: Optional[str],
+        team_name_out: Optional[str],
+        external_id: Optional[ExternalID],
+        team_engagement_home: Optional[TeamEngagement],
+        team_engagement_out: Optional[TeamEngagement],
+    ) -> None:
+        self.match_id = match_id
+        self.match_time = match_time
+        self.competition_abg_name = competition_abg_name
+        self.score_q1_home = score_q1_home
+        self.score_q2_home = score_q2_home
+        self.score_q3_home = score_q3_home
+        self.score_q4_home = score_q4_home
+        self.score_q1_out = score_q1_out
+        self.score_q2_out = score_q2_out
+        self.score_q3_out = score_q3_out
+        self.score_q4_out = score_q4_out
+        self.score_ot1_home = score_ot1_home
+        self.score_ot2_home = score_ot2_home
+        self.score_ot1_out = score_ot1_out
+        self.score_ot2_out = score_ot2_out
+        self.score_home = score_home
+        self.score_out = score_out
+        self.clock = clock
+        self.competition_name = competition_name
+        self.current_status = current_status
+        self.current_period = current_period
+        self.match_status = match_status
+        self.team_name_home = team_name_home
+        self.team_name_out = team_name_out
+        self.external_id = external_id
+        self.team_engagement_home = team_engagement_home
+        self.team_engagement_out = team_engagement_out
+
     @staticmethod
     def from_dict(obj: Any) -> "Live":
         """
@@ -61,7 +118,7 @@ class Live:
         """
         assert isinstance(obj, dict)
         match_id = from_union(
-            [from_none, lambda x: int(from_str(x))], obj.get("matchId")
+            [lambda x: int(from_str(x)), from_none], obj.get("matchId")
         )
         match_time = from_union([from_datetime, from_none], obj.get("matchTime"))
         competition_abg_name = from_union(

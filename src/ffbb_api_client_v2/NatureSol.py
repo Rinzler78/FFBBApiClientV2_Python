@@ -1,8 +1,8 @@
-from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Optional
 
-from ffbb_api_client_v2.converters import (
+from .Code import Code
+from .converters import (
     from_datetime,
     from_none,
     from_str,
@@ -11,16 +11,16 @@ from ffbb_api_client_v2.converters import (
     is_type,
     to_enum,
 )
-from ffbb_api_client_v2.multi_search_result_tournois import Code, Libelle
+
+# from .multi_search_result_tournois import Libelle
 
 
-@dataclass
 class NatureSol:
     code: Optional[Code] = None
     date_created: Optional[datetime] = None
     date_updated: Optional[datetime] = None
     id: Optional[str] = None
-    libelle: Optional[Libelle] = None
+    libelle: Optional[str] = None
     terrain: Optional[bool] = None
 
     @staticmethod
@@ -30,7 +30,7 @@ class NatureSol:
         date_created = from_union([from_datetime, from_none], obj.get("date_created"))
         date_updated = from_union([from_datetime, from_none], obj.get("date_updated"))
         id = from_union([from_str, from_none], obj.get("id"))
-        libelle = from_union([Libelle, from_none], obj.get("libelle"))
+        libelle = from_union([from_str, from_none], obj.get("libelle"))
         terrain = from_union(
             [from_none, lambda x: from_stringified_bool(from_str(x))],
             obj.get("terrain"),
@@ -54,9 +54,7 @@ class NatureSol:
         if self.id is not None:
             result["id"] = from_union([from_str, from_none], self.id)
         if self.libelle is not None:
-            result["libelle"] = from_union(
-                [lambda x: to_enum(Libelle, x), from_none], self.libelle
-            )
+            result["libelle"] = from_union([from_str, from_none], self.libelle)
         if self.terrain is not None:
             result["terrain"] = from_union(
                 [

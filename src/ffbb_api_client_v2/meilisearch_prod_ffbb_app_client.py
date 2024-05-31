@@ -2,8 +2,6 @@ from typing import List
 
 from requests_cache import CachedSession
 
-from ffbb_api_client_v2.Result import QueryResult
-
 from .ffbb_api_client_helper import catch_result, default_cached_session
 from .http_requests_utils import http_post_json
 from .multi_search_query import (
@@ -11,7 +9,7 @@ from .multi_search_query import (
     OrganismesMultiSearchQuery,
     RencontresMultiSearchQuery,
 )
-from .multi_search_results import MultiSearchResults, multi_search_results_from_dict
+from .MultiSearchResults import MultiSearchResults, multi_search_results_from_dict
 
 
 class MeilisearchProdFFBBAPPClient:
@@ -89,22 +87,22 @@ class MeilisearchProdFFBBAPPClient:
                 result.results[i].hits.sort(key=lambda x: x.nom)
         return result
 
-    def search_multiple_organismes(self, names: List[str] = None) -> List[QueryResult]:
+    def search_multiple_organismes(self, names: List[str] = None) -> MultiSearchResults:
         if not names:
             return None
 
         queries = [OrganismesMultiSearchQuery(name) for name in names]
-        return self.multi_search(queries).results
+        return self.multi_search(queries)
 
-    def search_organismes(self, name: str = None) -> QueryResult:
+    def search_organismes(self, name: str = None) -> MultiSearchResults:
         return self.search_multiple_organismes([name])
 
-    def search_multiple_rencontres(self, names: List[str] = None) -> List[QueryResult]:
+    def search_multiple_rencontres(self, names: List[str] = None) -> MultiSearchResults:
         if not names:
             return None
 
         queries = [RencontresMultiSearchQuery(name) for name in names]
-        return self.multi_search(queries).results
+        return self.multi_search(queries)
 
-    def search_rencontres(self, name: str = None) -> QueryResult:
+    def search_rencontres(self, name: str = None) -> MultiSearchResults:
         return self.search_multiple_rencontres([name])

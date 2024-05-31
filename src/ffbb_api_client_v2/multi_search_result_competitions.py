@@ -1,12 +1,10 @@
-from dataclasses import dataclass
 from datetime import datetime
-from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from ffbb_api_client_v2.CompetitionID import CompetitionID
-from ffbb_api_client_v2.CompetitionIDSexe import CompetitionIDSexe
-from ffbb_api_client_v2.CompetitionIDTypeCompetition import CompetitionIDTypeCompetition
-from ffbb_api_client_v2.converters import (
+from .CompetitionID import CompetitionID
+from .CompetitionIDSexe import CompetitionIDSexe
+from .CompetitionIDTypeCompetition import CompetitionIDTypeCompetition
+from .converters import (
     from_datetime,
     from_dict,
     from_int,
@@ -18,21 +16,22 @@ from ffbb_api_client_v2.converters import (
     to_class,
     to_enum,
 )
-from ffbb_api_client_v2.FacetStats import FacetStats
-from ffbb_api_client_v2.Geo import Geo
-from ffbb_api_client_v2.IDEngagementEquipe import IDEngagementEquipe
-from ffbb_api_client_v2.IDOrganismeEquipe import IDOrganismeEquipe
-from ffbb_api_client_v2.IDPoule import IDPoule
-from ffbb_api_client_v2.NiveauClass import NiveauClass
-from ffbb_api_client_v2.NiveauEnum import NiveauEnum
-from ffbb_api_client_v2.Organisateur import Organisateur
-from ffbb_api_client_v2.Pratique import Pratique
-from ffbb_api_client_v2.Saison import Saison
-from ffbb_api_client_v2.Salle import Salle
+from .FacetDistribution import FacetDistribution
+from .FacetStats import FacetStats
+from .Geo import Geo
+from .Hit import Hit
+from .IDEngagementEquipe import IDEngagementEquipe
+from .IDOrganismeEquipe import IDOrganismeEquipe
+from .IDPoule import IDPoule
+from .NiveauClass import NiveauClass
+from .NiveauEnum import NiveauEnum
+from .Organisateur import Organisateur
+from .Pratique import Pratique
+from .Saison import Saison
+from .Salle import Salle
 
 
-@dataclass
-class FacetDistribution:
+class CompetitionsFacetDistribution(FacetDistribution):
     competition_id_categorie_code: Optional[Dict[str, int]] = None
     competition_id_nom_extended: Optional[Dict[str, int]] = None
     competition_id_sexe: Optional[CompetitionIDSexe] = None
@@ -41,8 +40,26 @@ class FacetDistribution:
     organisateur_id: Optional[Dict[str, int]] = None
     organisateur_nom: Optional[Dict[str, int]] = None
 
+    def __init__(
+        self,
+        competition_id_categorie_code: Optional[Dict[str, int]],
+        competition_id_nom_extended: Optional[Dict[str, int]],
+        competition_id_sexe: Optional[CompetitionIDSexe],
+        competition_id_type_competition: Optional[CompetitionIDTypeCompetition],
+        niveau: Optional[NiveauClass],
+        organisateur_id: Optional[Dict[str, int]],
+        organisateur_nom: Optional[Dict[str, int]],
+    ) -> None:
+        self.competition_id_categorie_code = competition_id_categorie_code
+        self.competition_id_nom_extended = competition_id_nom_extended
+        self.competition_id_sexe = competition_id_sexe
+        self.competition_id_type_competition = competition_id_type_competition
+        self.niveau = niveau
+        self.organisateur_id = organisateur_id
+        self.organisateur_nom = organisateur_nom
+
     @staticmethod
-    def from_dict(obj: Any) -> "FacetDistribution":
+    def from_dict(obj: Any) -> "CompetitionsFacetDistribution":
         assert isinstance(obj, dict)
         competition_id_categorie_code = from_union(
             [lambda x: from_dict(from_int, x), from_none],
@@ -66,7 +83,7 @@ class FacetDistribution:
         organisateur_nom = from_union(
             [lambda x: from_dict(from_int, x), from_none], obj.get("organisateur.nom")
         )
-        return FacetDistribution(
+        return CompetitionsFacetDistribution(
             competition_id_categorie_code,
             competition_id_nom_extended,
             competition_id_sexe,
@@ -113,17 +130,16 @@ class FacetDistribution:
         return result
 
 
-class LibelleEnum(Enum):
-    SE = "SE"
-    SENIORS = "Seniors"
-    U11 = "U11"
-    U13 = "U13"
-    U15 = "U15"
-    U17 = "U17"
+# class LibelleEnum(Enum):
+#     SE = "SE"
+#     SENIORS = "Seniors"
+#     U11 = "U11"
+#     U13 = "U13"
+#     U15 = "U15"
+#     U17 = "U17"
 
 
-@dataclass
-class Hit:
+class CompetitionsHit(Hit):
     niveau: Optional[NiveauEnum] = None
     id: Optional[str] = None
     date: Optional[datetime] = None
@@ -153,8 +169,65 @@ class Hit:
     organisateur: Optional[Organisateur] = None
     niveau_nb: Optional[int] = None
 
+    def __init__(
+        self,
+        niveau: Optional[NiveauEnum],
+        id: Optional[str],
+        date: Optional[datetime],
+        date_rencontre: Optional[datetime],
+        horaire: Optional[int],
+        nom_equipe1: Optional[str],
+        nom_equipe2: Optional[str],
+        numero_journee: Optional[int],
+        pratique: Optional[Pratique],
+        gs_id: None,
+        officiels: Optional[List[str]],
+        competition_id: Optional[CompetitionID],
+        id_organisme_equipe1: Optional[IDOrganismeEquipe],
+        id_organisme_equipe2: Optional[IDOrganismeEquipe],
+        id_poule: Optional[IDPoule],
+        saison: Optional[Saison],
+        salle: Optional[Salle],
+        id_engagement_equipe1: Optional[IDEngagementEquipe],
+        id_engagement_equipe2: Optional[IDEngagementEquipe],
+        geo: Optional[Geo],
+        date_timestamp: Optional[int],
+        date_rencontre_timestamp: Optional[int],
+        creation_timestamp: Optional[int],
+        date_saisie_resultat_timestamp: None,
+        modification_timestamp: Optional[int],
+        thumbnail: None,
+        organisateur: Optional[Organisateur],
+        niveau_nb: Optional[int],
+    ) -> None:
+        self.niveau = niveau
+        self.id = id
+        self.date = date
+        self.date_rencontre = date_rencontre
+        self.horaire = horaire
+        self.nom_equipe1 = nom_equipe1
+        self.nom_equipe2 = nom_equipe2
+        self.numero_journee = numero_journee
+        self.pratique = pratique
+        self.gs_id = gs_id
+        self.officiels = officiels
+        self.competition_id = competition_id
+        self.id_organisme_equipe1 = id_organisme_equipe1
+        self.id_organisme_equipe2 = id_organisme_equipe2
+        self.id_poule = id_poule
+        self.saison = saison
+        self.salle = salle
+        self.id_engagement_equipe1 = id_engagement_equipe1
+        self.id_engagement_equipe2 = id_engagement_equipe2
+        self.geo = geo
+        self.date_timestamp = date_timestamp
+        self.date_rencontre_timestamp = date_rencontre_timestamp
+        self.creation_timestamp = creation_timestamp
+        self.date_saisie_resultat_timestamp = date_saisie_resultat_timestamp
+        self.modification_timestamp = modification_timestamp
+
     @staticmethod
-    def from_dict(obj: Any) -> "Hit":
+    def from_dict(obj: Any) -> "CompetitionsHit":
         assert isinstance(obj, dict)
         niveau = from_union([NiveauEnum, from_none], obj.get("niveau"))
         id = from_union([from_str, from_none], obj.get("id"))
@@ -163,12 +236,12 @@ class Hit:
             [from_datetime, from_none], obj.get("date_rencontre")
         )
         horaire = from_union(
-            [from_none, lambda x: int(from_str(x))], obj.get("horaire")
+            [lambda x: int(from_str(x)), from_none], obj.get("horaire")
         )
         nom_equipe1 = from_union([from_str, from_none], obj.get("nomEquipe1"))
         nom_equipe2 = from_union([from_str, from_none], obj.get("nomEquipe2"))
         numero_journee = from_union(
-            [from_none, lambda x: int(from_str(x))], obj.get("numeroJournee")
+            [lambda x: int(from_str(x)), from_none], obj.get("numeroJournee")
         )
         pratique = from_union([from_none, Pratique], obj.get("pratique"))
         gs_id = from_none(obj.get("gsId"))
@@ -212,9 +285,9 @@ class Hit:
             [Organisateur.from_dict, from_none], obj.get("organisateur")
         )
         niveau_nb = from_union(
-            [from_none, lambda x: int(from_str(x))], obj.get("niveau_nb")
+            [lambda x: int(from_str(x)), from_none], obj.get("niveau_nb")
         )
-        return Hit(
+        return CompetitionsHit(
             niveau,
             id,
             date,
@@ -372,112 +445,10 @@ class Hit:
         return result
 
 
-@dataclass
-class Result:
-    index_uid: Optional[str] = None
-    hits: Optional[List[Hit]] = None
-    query: Optional[str] = None
-    processing_time_ms: Optional[int] = None
-    limit: Optional[int] = None
-    offset: Optional[int] = None
-    estimated_total_hits: Optional[int] = None
-    facet_distribution: Optional[FacetDistribution] = None
-    facet_stats: Optional[FacetStats] = None
-
+class CompetitionsFacetStats(FacetStats):
     @staticmethod
-    def from_dict(obj: Any) -> "Result":
-        assert isinstance(obj, dict)
-        index_uid = from_union([from_str, from_none], obj.get("indexUid"))
-        hits = from_union(
-            [lambda x: from_list(Hit.from_dict, x), from_none], obj.get("hits")
-        )
-        query = from_union([from_str, from_none], obj.get("query"))
-        processing_time_ms = from_union(
-            [from_int, from_none], obj.get("processingTimeMs")
-        )
-        limit = from_union([from_int, from_none], obj.get("limit"))
-        offset = from_union([from_int, from_none], obj.get("offset"))
-        estimated_total_hits = from_union(
-            [from_int, from_none], obj.get("estimatedTotalHits")
-        )
-        facet_distribution = from_union(
-            [FacetDistribution.from_dict, from_none], obj.get("facetDistribution")
-        )
-        facet_stats = from_union(
-            [FacetStats.from_dict, from_none], obj.get("facetStats")
-        )
-        return Result(
-            index_uid,
-            hits,
-            query,
-            processing_time_ms,
-            limit,
-            offset,
-            estimated_total_hits,
-            facet_distribution,
-            facet_stats,
-        )
+    def from_dict(obj: Any) -> "CompetitionsFacetStats":
+        return CompetitionsFacetStats()
 
     def to_dict(self) -> dict:
-        result: dict = {}
-        if self.index_uid is not None:
-            result["indexUid"] = from_union([from_str, from_none], self.index_uid)
-        if self.hits is not None:
-            result["hits"] = from_union(
-                [lambda x: from_list(lambda x: to_class(Hit, x), x), from_none],
-                self.hits,
-            )
-        if self.query is not None:
-            result["query"] = from_union([from_str, from_none], self.query)
-        if self.processing_time_ms is not None:
-            result["processingTimeMs"] = from_union(
-                [from_int, from_none], self.processing_time_ms
-            )
-        if self.limit is not None:
-            result["limit"] = from_union([from_int, from_none], self.limit)
-        if self.offset is not None:
-            result["offset"] = from_union([from_int, from_none], self.offset)
-        if self.estimated_total_hits is not None:
-            result["estimatedTotalHits"] = from_union(
-                [from_int, from_none], self.estimated_total_hits
-            )
-        if self.facet_distribution is not None:
-            result["facetDistribution"] = from_union(
-                [lambda x: to_class(FacetDistribution, x), from_none],
-                self.facet_distribution,
-            )
-        if self.facet_stats is not None:
-            result["facetStats"] = from_union(
-                [lambda x: to_class(FacetStats, x), from_none], self.facet_stats
-            )
-        return result
-
-
-@dataclass
-class MultiSearchResults:
-    results: Optional[List[Result]] = None
-
-    @staticmethod
-    def from_dict(obj: Any) -> "MultiSearchResults":
-        assert isinstance(obj, dict)
-        results = from_union(
-            [lambda x: from_list(Result.from_dict, x), from_none], obj.get("results")
-        )
-        return MultiSearchResults(results)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        if self.results is not None:
-            result["results"] = from_union(
-                [lambda x: from_list(lambda x: to_class(Result, x), x), from_none],
-                self.results,
-            )
-        return result
-
-
-def multi_search_results_from_dict(s: Any) -> MultiSearchResults:
-    return MultiSearchResults.from_dict(s)
-
-
-def multi_search_results_to_dict(x: MultiSearchResults) -> Any:
-    return to_class(MultiSearchResults, x)
+        super().to_dict()

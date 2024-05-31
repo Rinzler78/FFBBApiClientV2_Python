@@ -1,11 +1,9 @@
-from dataclasses import dataclass
 from typing import Any, Optional
 from uuid import UUID
 
-from ffbb_api_client_v2.converters import from_none, from_union
+from .converters import from_none, from_union
 
 
-@dataclass
 class PurpleLogo:
     id: Optional[UUID] = None
 

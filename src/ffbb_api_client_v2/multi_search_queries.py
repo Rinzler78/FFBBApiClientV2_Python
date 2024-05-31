@@ -1,11 +1,9 @@
-from dataclasses import dataclass
 from typing import Any, List, Optional
 
-from ffbb_api_client_v2.converters import from_list, from_none, from_union, to_class
-from ffbb_api_client_v2.multi_search_query import MultiSearchQuery
+from .converters import from_list, from_none, from_union, to_class
+from .multi_search_query import MultiSearchQuery
 
 
-@dataclass
 class MultiSearchQueries:
     queries: Optional[List[MultiSearchQuery]] = None
 

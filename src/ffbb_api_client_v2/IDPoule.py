@@ -1,13 +1,15 @@
-from dataclasses import dataclass
 from typing import Any, Optional
 
-from ffbb_api_client_v2.converters import from_none, from_str, from_union
+from .converters import from_none, from_str, from_union
 
 
-@dataclass
 class IDPoule:
     id: Optional[str] = None
     nom: Optional[str] = None
+
+    def __init__(self, id: Optional[str] = None, nom: Optional[str] = None) -> None:
+        self.id = id
+        self.nom = nom
 
     @staticmethod
     def from_dict(obj: Any) -> "IDPoule":

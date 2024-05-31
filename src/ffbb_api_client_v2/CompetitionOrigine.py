@@ -1,23 +1,13 @@
-from dataclasses import dataclass
 from typing import Any, Optional
 
-from ffbb_api_client_v2.CompetitionOrigineCategorie import CompetitionOrigineCategorie
-from ffbb_api_client_v2.CompetitionOrigineTypeCompetition import (
-    CompetitionOrigineTypeCompetition,
-)
-from ffbb_api_client_v2.CompetitionOrigineTypeCompetitionGenerique import (
+from .CompetitionOrigineCategorie import CompetitionOrigineCategorie
+from .CompetitionOrigineTypeCompetition import CompetitionOrigineTypeCompetition
+from .CompetitionOrigineTypeCompetitionGenerique import (
     CompetitionOrigineTypeCompetitionGenerique,
 )
-from ffbb_api_client_v2.converters import (
-    from_none,
-    from_str,
-    from_union,
-    to_class,
-    to_enum,
-)
+from .converters import from_none, from_str, from_union, to_class, to_enum
 
 
-@dataclass
 class CompetitionOrigine:
     id: Optional[str] = None
     code: Optional[str] = None

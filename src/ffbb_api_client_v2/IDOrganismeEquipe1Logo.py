@@ -1,14 +1,16 @@
-from dataclasses import dataclass
 from typing import Any, Optional
 from uuid import UUID
 
-from ffbb_api_client_v2.converters import from_none, from_str, from_union
+from .converters import from_none, from_str, from_union
 
 
-@dataclass
 class IDOrganismeEquipe1Logo:
     id: Optional[UUID] = None
     gradient_color: Optional[str] = None
+
+    def __init__(self, id: Optional[UUID], gradient_color: Optional[str]) -> None:
+        self.id = id
+        self.gradient_color = gradient_color
 
     @staticmethod
     def from_dict(obj: Any) -> "IDOrganismeEquipe1Logo":

@@ -1,10 +1,8 @@
-from dataclasses import dataclass
 from typing import Any, Optional
 
-from ffbb_api_client_v2.converters import from_int, from_none, from_union
+from .converters import from_int, from_none, from_union
 
 
-@dataclass
 class TournoiTypeClass:
     open_plus: Optional[int] = None
     open_plus_access: Optional[int] = None

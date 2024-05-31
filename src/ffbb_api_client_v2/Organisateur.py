@@ -1,21 +1,17 @@
-from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, List, Optional
 from uuid import UUID
 
-from ffbb_api_client_v2.converters import (
+from .converters import (
     from_bool,
     from_datetime,
     from_list,
     from_none,
     from_str,
     from_union,
-    to_enum,
 )
-from ffbb_api_client_v2.TypeEnum import TypeEnum
 
 
-@dataclass
 class Organisateur:
     adresse: Optional[str] = None
     adresse_club_pro: None
@@ -30,7 +26,7 @@ class Organisateur:
     organisme_id_pere: Optional[str] = None
     salle: None
     telephone: Optional[str] = None
-    type: Optional[TypeEnum] = None
+    type: Optional[str] = None
     type_association: None
     url_site_web: Optional[str] = None
     logo: Optional[UUID] = None
@@ -51,6 +47,76 @@ class Organisateur:
     competitions: Optional[List[str]] = None
     organismes_fils: Optional[List[int]] = None
 
+    def __init__(
+        self,
+        adresse: Optional[str],
+        adresse_club_pro: None,
+        cartographie: Optional[str],
+        code: Optional[str],
+        commune: Optional[str],
+        commune_club_pro: None,
+        id: Optional[str],
+        mail: Optional[str],
+        nom: Optional[str],
+        nom_club_pro: Optional[str],
+        organisme_id_pere: Optional[str],
+        salle: None,
+        telephone: Optional[str],
+        type: Optional[str],
+        type_association: None,
+        url_site_web: Optional[str],
+        logo: Optional[UUID],
+        nom_simple: Optional[str],
+        date_affiliation: None,
+        saison_en_cours: Optional[bool],
+        entreprise: Optional[bool],
+        handibasket: Optional[bool],
+        omnisport: Optional[bool],
+        hors_association: Optional[bool],
+        offres_pratiques: Optional[List[Any]],
+        engagements: Optional[List[Any]],
+        labellisation: Optional[List[Any]],
+        membres: Optional[List[int]],
+        date_created: Optional[datetime],
+        date_updated: Optional[datetime],
+        logo_base64: None,
+        competitions: Optional[List[str]],
+        organismes_fils: Optional[List[int]],
+    ) -> None:
+        self.adresse = adresse
+        self.adresse_club_pro = adresse_club_pro
+        self.cartographie = cartographie
+        self.code = code
+        self.commune = commune
+        self.commune_club_pro = commune_club_pro
+        self.id = id
+        self.mail = mail
+        self.nom = nom
+        self.nom_club_pro = nom_club_pro
+        self.organisme_id_pere = organisme_id_pere
+        self.salle = salle
+        self.telephone = telephone
+        self.type = type
+        self.type_association = type_association
+        self.url_site_web = url_site_web
+        self.logo = logo
+        self.nom_simple = nom_simple
+        self.date_affiliation = date_affiliation
+        self.saison_en_cours = saison_en_cours
+        self.entreprise = entreprise
+        self.handibasket = handibasket
+        self.omnisport = omnisport
+        self.hors_association = hors_association
+        self.offres_pratiques = offres_pratiques
+        self.engagements = engagements
+        self.labellisation = labellisation
+        self.membres = membres
+        self.date_created = date_created
+        self.date_updated = date_updated
+        self.logo_base64 = logo_base64
+        self.competitions = competitions
+        self.organismes_fils = organismes_fils
+
     @staticmethod
     def from_dict(obj: Any) -> "Organisateur":
         assert isinstance(obj, dict)
@@ -69,7 +135,7 @@ class Organisateur:
         )
         salle = from_none(obj.get("salle"))
         telephone = from_union([from_str, from_none], obj.get("telephone"))
-        type = from_union([TypeEnum, from_none], obj.get("type"))
+        type = from_union([from_str, from_none], obj.get("type"))
         type_association = from_none(obj.get("type_association"))
         url_site_web = from_union([from_str, from_none], obj.get("urlSiteWeb"))
         logo = from_union([from_none, lambda x: UUID(x)], obj.get("logo"))
@@ -174,9 +240,7 @@ class Organisateur:
         if self.telephone is not None:
             result["telephone"] = from_union([from_str, from_none], self.telephone)
         if self.type is not None:
-            result["type"] = from_union(
-                [lambda x: to_enum(TypeEnum, x), from_none], self.type
-            )
+            result["type"] = from_union([from_str, from_none], self.type)
         if self.type_association is not None:
             result["type_association"] = from_none(self.type_association)
         if self.url_site_web is not None:

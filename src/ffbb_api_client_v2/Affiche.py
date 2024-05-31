@@ -1,11 +1,9 @@
-from dataclasses import dataclass
 from typing import Any, Optional
 from uuid import UUID
 
-from ffbb_api_client_v2.converters import from_int, from_none, from_str, from_union
+from .converters import from_int, from_none, from_str, from_union
 
 
-@dataclass
 class Affiche:
     id: Optional[UUID] = None
     gradient_color: Optional[str] = None

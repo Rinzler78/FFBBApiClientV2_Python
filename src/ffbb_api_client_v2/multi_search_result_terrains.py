@@ -1,12 +1,13 @@
-from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from typing import Any, List, Optional
 from uuid import UUID
 
-from ffbb_api_client_v2.Cartographie import Cartographie
-from ffbb_api_client_v2.Commune import Commune
-from ffbb_api_client_v2.converters import (
+from ffbb_api_client_v2.TournoiTypeEnum import TournoiTypeEnum
+
+from .Cartographie import Cartographie
+from .Commune import Commune
+from .converters import (
     from_datetime,
     from_int,
     from_list,
@@ -17,18 +18,26 @@ from ffbb_api_client_v2.converters import (
     to_class,
     to_enum,
 )
-from ffbb_api_client_v2.DocumentFlyer import DocumentFlyer
-from ffbb_api_client_v2.FacetStats import FacetStats
-from ffbb_api_client_v2.Geo import Geo
-from ffbb_api_client_v2.TournoiTypeClass import TournoiTypeClass
-from ffbb_api_client_v2.TypeLeague import TypeLeague
+from .DocumentFlyer import DocumentFlyer
+from .FacetDistribution import FacetDistribution
+from .FacetStats import FacetStats
+from .Geo import Geo
+from .Hit import Hit
+from .TournoiTypeClass import TournoiTypeClass
+from .TypeLeague import TypeLeague
 
 
-@dataclass
 class SexeClass:
     féminin: Optional[int] = None
     masculin: Optional[int] = None
     mixte: Optional[int] = None
+
+    def __init__(
+        self, féminin: Optional[int], masculin: Optional[int], mixte: Optional[int]
+    ) -> None:
+        self.féminin = féminin
+        self.masculin = masculin
+        self.mixte = mixte
 
     @staticmethod
     def from_dict(obj: Any) -> "SexeClass":
@@ -49,7 +58,6 @@ class SexeClass:
         return result
 
 
-@dataclass
 class TournoiTypes3X3Libelle:
     open_plus_junior_league_3_x3: Optional[int] = None
     open_plus_super_league_3_x3: Optional[int] = None
@@ -57,6 +65,22 @@ class TournoiTypes3X3Libelle:
     open_plus_access_super_league_3_x3: Optional[int] = None
     open_start_junior_league_3_x3: Optional[int] = None
     open_start_super_league_3_x3: Optional[int] = None
+
+    def __init__(
+        self,
+        open_plus_junior_league_3_x3: Optional[int],
+        open_plus_super_league_3_x3: Optional[int],
+        open_plus_access_junior_league_3_x3: Optional[int],
+        open_plus_access_super_league_3_x3: Optional[int],
+        open_start_junior_league_3_x3: Optional[int],
+        open_start_super_league_3_x3: Optional[int],
+    ) -> None:
+        self.open_plus_junior_league_3_x3 = open_plus_junior_league_3_x3
+        self.open_plus_super_league_3_x3 = open_plus_super_league_3_x3
+        self.open_plus_access_junior_league_3_x3 = open_plus_access_junior_league_3_x3
+        self.open_plus_access_super_league_3_x3 = open_plus_access_super_league_3_x3
+        self.open_start_junior_league_3_x3 = open_start_junior_league_3_x3
+        self.open_start_super_league_3_x3 = open_start_super_league_3_x3
 
     @staticmethod
     def from_dict(obj: Any) -> "TournoiTypes3X3Libelle":
@@ -117,14 +141,23 @@ class TournoiTypes3X3Libelle:
         return result
 
 
-@dataclass
-class FacetDistribution:
+class TerrainsFacetDistribution(FacetDistribution):
     sexe: Optional[SexeClass] = None
     tournoi_type: Optional[TournoiTypeClass] = None
     tournoi_types3_x3_libelle: Optional[TournoiTypes3X3Libelle] = None
 
+    def __init__(
+        self,
+        sexe: Optional[SexeClass],
+        tournoi_type: Optional[TournoiTypeClass],
+        tournoi_types3_x3_libelle: Optional[TournoiTypes3X3Libelle],
+    ) -> None:
+        self.sexe = sexe
+        self.tournoi_type = tournoi_type
+        self.tournoi_types3_x3_libelle = tournoi_types3_x3_libelle
+
     @staticmethod
-    def from_dict(obj: Any) -> "FacetDistribution":
+    def from_dict(obj: Any) -> "TerrainsFacetDistribution":
         assert isinstance(obj, dict)
         sexe = from_union([SexeClass.from_dict, from_none], obj.get("sexe"))
         tournoi_type = from_union(
@@ -134,7 +167,7 @@ class FacetDistribution:
             [TournoiTypes3X3Libelle.from_dict, from_none],
             obj.get("tournoiTypes3x3.libelle"),
         )
-        return FacetDistribution(sexe, tournoi_type, tournoi_types3_x3_libelle)
+        return TerrainsFacetDistribution(sexe, tournoi_type, tournoi_types3_x3_libelle)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -162,29 +195,14 @@ class Name(Enum):
     TOURNOIS = "Tournois"
 
 
-class Source(Enum):
-    FFBB_SERVEUR = "FFBB Serveur"
-
-
 class Storage(Enum):
     MINIO = "minio"
-
-
-class DocumentFlyerType(Enum):
-    IMAGE_JPEG = "image/jpeg"
-    IMAGE_PNG = "image/png"
 
 
 class SexeEnum(Enum):
     FÉMININ = "Féminin"
     MASCULIN = "Masculin"
     MIXTE = "Mixte"
-
-
-class TournoiTypeEnum(Enum):
-    OPEN_PLUS = "Open Plus"
-    OPEN_PLUS_ACCESS = "Open Plus Access"
-    OPEN_START = "Open Start"
 
 
 class Libelle(Enum):
@@ -196,12 +214,23 @@ class Libelle(Enum):
     OPEN_START_SUPER_LEAGUE_3_X3 = "Open Start - Super league 3x3"
 
 
-@dataclass
 class TournoiTypes3X3:
     libelle: Optional[Libelle] = None
     logo: Optional[UUID] = None
     type_league: Optional[TypeLeague] = None
     type_tournois: Optional[int] = None
+
+    def __init__(
+        self,
+        libelle: Optional[Libelle],
+        logo: Optional[UUID],
+        type_league: Optional[TypeLeague],
+        type_tournois: Optional[int],
+    ) -> None:
+        self.libelle = libelle
+        self.logo = logo
+        self.type_league = type_league
+        self.type_tournois = type_tournois
 
     @staticmethod
     def from_dict(obj: Any) -> "TournoiTypes3X3":
@@ -210,7 +239,7 @@ class TournoiTypes3X3:
         logo = from_union([lambda x: UUID(x), from_none], obj.get("logo"))
         type_league = from_union([TypeLeague, from_none], obj.get("type_league"))
         type_tournois = from_union(
-            [from_none, lambda x: int(from_str(x))], obj.get("type_tournois")
+            [lambda x: int(from_str(x)), from_none], obj.get("type_tournois")
         )
         return TournoiTypes3X3(libelle, logo, type_league, type_tournois)
 
@@ -239,8 +268,7 @@ class TournoiTypes3X3:
         return result
 
 
-@dataclass
-class Hit:
+class TerrainsHit(Hit):
     nom: Optional[str] = None
     sexe: Optional[SexeEnum] = None
     adresse: Optional[str] = None
@@ -273,8 +301,74 @@ class Hit:
     fin_timestamp: Optional[int] = None
     thumbnail: None
 
+    def __init__(
+        self,
+        nom: Optional[str],
+        sexe: Optional[SexeEnum],
+        adresse: Optional[str],
+        nom_organisateur: Optional[str],
+        description: Optional[str],
+        site_choisi: Optional[str],
+        id: Optional[int],
+        code: Optional[str],
+        date_created: Optional[datetime],
+        date_updated: Optional[datetime],
+        age_max: Optional[int],
+        age_min: Optional[int],
+        categorie_championnat3_x3_id: Optional[int],
+        categorie_championnat3_x3_libelle: Optional[CategorieChampionnat3X3Libelle],
+        debut: Optional[datetime],
+        fin: Optional[datetime],
+        mail_organisateur: Optional[str],
+        nb_participant_prevu: None,
+        tarif_organisateur: Optional[int],
+        telephone_organisateur: Optional[str],
+        url_organisateur: Optional[str],
+        adresse_complement: None,
+        tournoi_types3_x3: Optional[List[TournoiTypes3X3]],
+        cartographie: Optional[Cartographie],
+        commune: Optional[Commune],
+        document_flyer: Optional[DocumentFlyer],
+        tournoi_type: Optional[TournoiTypeEnum],
+        geo: Optional[Geo],
+        debut_timestamp: Optional[int],
+        fin_timestamp: Optional[int],
+        thumbnail: None,
+    ) -> None:
+        self.nom = nom
+        self.sexe = sexe
+        self.adresse = adresse
+        self.nom_organisateur = nom_organisateur
+        self.description = description
+        self.site_choisi = site_choisi
+        self.id = id
+        self.code = code
+        self.date_created = date_created
+        self.date_updated = date_updated
+        self.age_max = age_max
+        self.age_min = age_min
+        self.categorie_championnat3_x3_id = categorie_championnat3_x3_id
+        self.categorie_championnat3_x3_libelle = categorie_championnat3_x3_libelle
+        self.debut = debut
+        self.fin = fin
+        self.mail_organisateur = mail_organisateur
+        self.nb_participant_prevu = nb_participant_prevu
+        self.tarif_organisateur = tarif_organisateur
+        self.telephone_organisateur = telephone_organisateur
+        self.url_organisateur = url_organisateur
+        self.adresse_complement = adresse_complement
+        self.tournoi_types3_x3 = tournoi_types3_x3
+        self.cartographie = cartographie
+        self.commune = commune
+        self.document_flyer = document_flyer
+        self.tournoi_type = tournoi_type
+        self.geo = geo
+        self.debut_timestamp = debut_timestamp
+        self.fin_timestamp = fin_timestamp
+        self.thumbnail = thumbnail
+
     @staticmethod
-    def from_dict(obj: Any) -> "Hit":
+    def from_dict(obj: Any) -> "TerrainsHit":
         assert isinstance(obj, dict)
         nom = from_union([from_str, from_none], obj.get("nom"))
         sexe = from_union([SexeEnum, from_none], obj.get("sexe"))
@@ -282,14 +376,14 @@ class Hit:
         nom_organisateur = from_union([from_none, from_str], obj.get("nomOrganisateur"))
         description = from_union([from_str, from_none], obj.get("description"))
         site_choisi = from_union([from_str, from_none], obj.get("siteChoisi"))
-        id = from_union([from_none, lambda x: int(from_str(x))], obj.get("id"))
+        id = from_union([lambda x: int(from_str(x)), from_none], obj.get("id"))
         code = from_union([from_str, from_none], obj.get("code"))
         date_created = from_union([from_datetime, from_none], obj.get("date_created"))
         date_updated = from_union([from_datetime, from_none], obj.get("date_updated"))
         age_max = from_union([from_int, from_none], obj.get("ageMax"))
         age_min = from_union([from_int, from_none], obj.get("ageMin"))
         categorie_championnat3_x3_id = from_union(
-            [from_none, lambda x: int(from_str(x))],
+            [lambda x: int(from_str(x)), from_none],
             obj.get("categorieChampionnat3x3Id"),
         )
         categorie_championnat3_x3_libelle = from_union(
@@ -303,7 +397,7 @@ class Hit:
         )
         nb_participant_prevu = from_none(obj.get("nbParticipantPrevu"))
         tarif_organisateur = from_union(
-            [from_none, lambda x: int(from_str(x))], obj.get("tarifOrganisateur")
+            [lambda x: int(from_str(x)), from_none], obj.get("tarifOrganisateur")
         )
         telephone_organisateur = from_union(
             [from_str, from_none], obj.get("telephoneOrganisateur")
@@ -326,7 +420,7 @@ class Hit:
         debut_timestamp = from_union([from_int, from_none], obj.get("debut_timestamp"))
         fin_timestamp = from_union([from_int, from_none], obj.get("fin_timestamp"))
         thumbnail = from_none(obj.get("thumbnail"))
-        return Hit(
+        return TerrainsHit(
             nom,
             sexe,
             adresse,
@@ -490,112 +584,10 @@ class Hit:
         return result
 
 
-@dataclass
-class Result:
-    index_uid: Optional[str] = None
-    hits: Optional[List[Hit]] = None
-    query: Optional[str] = None
-    processing_time_ms: Optional[int] = None
-    limit: Optional[int] = None
-    offset: Optional[int] = None
-    estimated_total_hits: Optional[int] = None
-    facet_distribution: Optional[FacetDistribution] = None
-    facet_stats: Optional[FacetStats] = None
-
+class TerrainsFacetStats(FacetStats):
     @staticmethod
-    def from_dict(obj: Any) -> "Result":
-        assert isinstance(obj, dict)
-        index_uid = from_union([from_str, from_none], obj.get("indexUid"))
-        hits = from_union(
-            [lambda x: from_list(Hit.from_dict, x), from_none], obj.get("hits")
-        )
-        query = from_union([from_str, from_none], obj.get("query"))
-        processing_time_ms = from_union(
-            [from_int, from_none], obj.get("processingTimeMs")
-        )
-        limit = from_union([from_int, from_none], obj.get("limit"))
-        offset = from_union([from_int, from_none], obj.get("offset"))
-        estimated_total_hits = from_union(
-            [from_int, from_none], obj.get("estimatedTotalHits")
-        )
-        facet_distribution = from_union(
-            [FacetDistribution.from_dict, from_none], obj.get("facetDistribution")
-        )
-        facet_stats = from_union(
-            [FacetStats.from_dict, from_none], obj.get("facetStats")
-        )
-        return Result(
-            index_uid,
-            hits,
-            query,
-            processing_time_ms,
-            limit,
-            offset,
-            estimated_total_hits,
-            facet_distribution,
-            facet_stats,
-        )
+    def from_dict(obj: Any) -> "TerrainsFacetStats":
+        return TerrainsFacetStats()
 
     def to_dict(self) -> dict:
-        result: dict = {}
-        if self.index_uid is not None:
-            result["indexUid"] = from_union([from_str, from_none], self.index_uid)
-        if self.hits is not None:
-            result["hits"] = from_union(
-                [lambda x: from_list(lambda x: to_class(Hit, x), x), from_none],
-                self.hits,
-            )
-        if self.query is not None:
-            result["query"] = from_union([from_str, from_none], self.query)
-        if self.processing_time_ms is not None:
-            result["processingTimeMs"] = from_union(
-                [from_int, from_none], self.processing_time_ms
-            )
-        if self.limit is not None:
-            result["limit"] = from_union([from_int, from_none], self.limit)
-        if self.offset is not None:
-            result["offset"] = from_union([from_int, from_none], self.offset)
-        if self.estimated_total_hits is not None:
-            result["estimatedTotalHits"] = from_union(
-                [from_int, from_none], self.estimated_total_hits
-            )
-        if self.facet_distribution is not None:
-            result["facetDistribution"] = from_union(
-                [lambda x: to_class(FacetDistribution, x), from_none],
-                self.facet_distribution,
-            )
-        if self.facet_stats is not None:
-            result["facetStats"] = from_union(
-                [lambda x: to_class(FacetStats, x), from_none], self.facet_stats
-            )
-        return result
-
-
-@dataclass
-class MultiSearchResults:
-    results: Optional[List[Result]] = None
-
-    @staticmethod
-    def from_dict(obj: Any) -> "MultiSearchResults":
-        assert isinstance(obj, dict)
-        results = from_union(
-            [lambda x: from_list(Result.from_dict, x), from_none], obj.get("results")
-        )
-        return MultiSearchResults(results)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        if self.results is not None:
-            result["results"] = from_union(
-                [lambda x: from_list(lambda x: to_class(Result, x), x), from_none],
-                self.results,
-            )
-        return result
-
-
-def multi_search_results_from_dict(s: Any) -> MultiSearchResults:
-    return MultiSearchResults.from_dict(s)
-
-
-def multi_search_results_to_dict(x: MultiSearchResults) -> Any:
-    return to_class(MultiSearchResults, x)
+        super().to_dict()

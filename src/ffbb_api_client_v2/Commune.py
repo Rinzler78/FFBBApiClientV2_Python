@@ -1,17 +1,9 @@
-from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Optional
 
-from ffbb_api_client_v2.converters import (
-    from_datetime,
-    from_none,
-    from_str,
-    from_union,
-    is_type,
-)
+from .converters import from_datetime, from_none, from_str, from_union, is_type
 
 
-@dataclass
 class Commune:
     code_insee: None
     code_postal: Optional[int] = None
@@ -21,16 +13,34 @@ class Commune:
     libelle: Optional[str] = None
     departement: Optional[str] = None
 
+    def __init__(
+        self,
+        code_insee: None,
+        code_postal: Optional[int] = None,
+        date_created: Optional[datetime] = None,
+        date_updated: Optional[datetime] = None,
+        id: Optional[int] = None,
+        libelle: Optional[str] = None,
+        departement: Optional[str] = None,
+    ):
+        self.code_insee = code_insee
+        self.code_postal = code_postal
+        self.date_created = date_created
+        self.date_updated = date_updated
+        self.id = id
+        self.libelle = libelle
+        self.departement = departement
+
     @staticmethod
     def from_dict(obj: Any) -> "Commune":
         assert isinstance(obj, dict)
         code_insee = from_none(obj.get("codeInsee"))
         code_postal = from_union(
-            [from_none, lambda x: int(from_str(x))], obj.get("codePostal")
+            [lambda x: int(from_str(x)), from_none], obj.get("codePostal")
         )
         date_created = from_union([from_datetime, from_none], obj.get("date_created"))
         date_updated = from_union([from_datetime, from_none], obj.get("date_updated"))
-        id = from_union([from_none, lambda x: int(from_str(x))], obj.get("id"))
+        id = from_union([lambda x: int(from_str(x)), from_none], obj.get("id"))
         libelle = from_union([from_str, from_none], obj.get("libelle"))
         departement = from_union([from_str, from_none], obj.get("departement"))
         return Commune(

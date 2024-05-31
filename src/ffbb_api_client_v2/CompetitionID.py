@@ -1,26 +1,11 @@
-from dataclasses import dataclass
 from typing import Any, Optional
 
-from ffbb_api_client_v2.CompetitionIDCategorie import CompetitionIDCategorie
-from ffbb_api_client_v2.CompetitionIDTypeCompetitionEnum import (
-    CompetitionIDTypeCompetitionEnum,
-)
-from ffbb_api_client_v2.CompetitionIDTypeCompetitionGenerique import (
-    CompetitionIDTypeCompetitionGenerique,
-)
-from ffbb_api_client_v2.CompetitionOrigine import CompetitionOrigine
-from ffbb_api_client_v2.converters import (
-    from_bool,
-    from_none,
-    from_str,
-    from_union,
-    to_class,
-    to_enum,
-)
-from ffbb_api_client_v2.Sexe import Sexe
+from .CompetitionIDCategorie import CompetitionIDCategorie
+from .CompetitionIDTypeCompetitionGenerique import CompetitionIDTypeCompetitionGenerique
+from .CompetitionOrigine import CompetitionOrigine
+from .converters import from_bool, from_none, from_str, from_union, to_class
 
 
-@dataclass
 class CompetitionID:
     id: Optional[str] = None
     nom: Optional[str] = None
@@ -29,14 +14,48 @@ class CompetitionID:
     creation_en_cours: Optional[bool] = None
     live_stat: Optional[bool] = None
     publication_internet: Optional[str] = None
-    sexe: Optional[Sexe] = None
-    type_competition: Optional[CompetitionIDTypeCompetitionEnum] = None
+    sexe: Optional[str] = None
+    type_competition: Optional[str] = None
     pro: Optional[bool] = None
     logo: None
-    categorie: Optional[CompetitionIDCategorie] = None
+    categorie: Optional[str] = None
     type_competition_generique: Optional[CompetitionIDTypeCompetitionGenerique] = None
     competition_origine: Optional[CompetitionOrigine] = None
     nom_extended: Optional[str] = None
+
+    def __init__(
+        self,
+        id: Optional[str],
+        nom: Optional[str],
+        competition_origine_nom: Optional[str],
+        code: Optional[str],
+        creation_en_cours: Optional[bool],
+        live_stat: Optional[bool],
+        publication_internet: Optional[str],
+        sexe: Optional[str],
+        type_competition: Optional[str],
+        pro: Optional[bool],
+        logo: None,
+        categorie: Optional[str],
+        type_competition_generique: Optional[CompetitionIDTypeCompetitionGenerique],
+        competition_origine: Optional[CompetitionOrigine],
+        nom_extended: Optional[str],
+    ) -> None:
+        self.id = id
+        self.nom = nom
+        self.competition_origine_nom = competition_origine_nom
+        self.code = code
+        self.creation_en_cours = creation_en_cours
+        self.live_stat = live_stat
+        self.publication_internet = publication_internet
+        self.sexe = sexe
+        self.type_competition = type_competition
+        self.pro = pro
+        self.logo = logo
+        self.categorie = categorie
+        self.type_competition_generique = type_competition_generique
+        self.competition_origine = competition_origine
+        self.nom_extended = nom_extended
 
     @staticmethod
     def from_dict(obj: Any) -> "CompetitionID":
@@ -54,10 +73,8 @@ class CompetitionID:
         publication_internet = from_union(
             [from_str, from_none], obj.get("publicationInternet")
         )
-        sexe = from_union([Sexe, from_none], obj.get("sexe"))
-        type_competition = from_union(
-            [CompetitionIDTypeCompetitionEnum, from_none], obj.get("typeCompetition")
-        )
+        sexe = from_union([from_str, from_none], obj.get("sexe"))
+        type_competition = from_union([from_str, from_none], obj.get("typeCompetition"))
         pro = from_union([from_bool, from_none], obj.get("pro"))
         logo = from_none(obj.get("logo"))
         categorie = from_union(
@@ -113,12 +130,10 @@ class CompetitionID:
                 self.publication_internet,
             )
         if self.sexe is not None:
-            result["sexe"] = from_union(
-                [lambda x: to_enum(Sexe, x), from_none], self.sexe
-            )
+            result["sexe"] = from_union([from_str, from_none], self.sexe)
         if self.type_competition is not None:
             result["typeCompetition"] = from_union(
-                [lambda x: to_enum(CompetitionIDTypeCompetitionEnum, x), from_none],
+                [from_str, from_none],
                 self.type_competition,
             )
         if self.pro is not None:

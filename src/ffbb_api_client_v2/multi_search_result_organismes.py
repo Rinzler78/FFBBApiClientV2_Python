@@ -1,11 +1,14 @@
-from dataclasses import dataclass
-from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from ffbb_api_client_v2.Affiche import Affiche
-from ffbb_api_client_v2.Cartographie import Cartographie
-from ffbb_api_client_v2.converters import (
+from ffbb_api_client_v2.Commune import Commune
+from ffbb_api_client_v2.Logo import Logo
+from ffbb_api_client_v2.OrganismeIDPere import OrganismeIDPere
+from ffbb_api_client_v2.TypeAssociation import TypeAssociation
+
+from .Cartographie import Cartographie
+from .converters import (
+    from_bool,
     from_datetime,
     from_dict,
     from_int,
@@ -13,41 +16,71 @@ from ffbb_api_client_v2.converters import (
     from_none,
     from_str,
     from_union,
-    is_type,
     to_class,
-    to_enum,
 )
-from ffbb_api_client_v2.FacetStats import FacetStats
-from ffbb_api_client_v2.Geo import Geo
-from ffbb_api_client_v2.Jour import Jour
-from ffbb_api_client_v2.Label import Label
-from ffbb_api_client_v2.Objectif import Objectif
-from ffbb_api_client_v2.TypeClass import TypeClass
+from .FacetDistribution import FacetDistribution
+from .FacetStats import FacetStats
+from .Geo import Geo
+from .Hit import Hit
+from .Labellisation import Labellisation
+from .TypeAssociationLibelle import TypeAssociationLibelle
+from .TypeClass import TypeClass
 
 
-@dataclass
-class FacetDistribution:
-    label: Optional[Dict[str, int]] = None
+class OrganismesFacetDistribution(FacetDistribution):
+    labellisation: Optional[Labellisation] = None
+    offres_pratiques: Optional[Dict[str, int]] = None
     type: Optional[TypeClass] = None
+    type_association_libelle: Optional[TypeAssociationLibelle] = None
+
+    def __init__(
+        self,
+        labellisation: Optional[Labellisation],
+        offres_pratiques: Optional[Dict[str, int]],
+        type: Optional[TypeClass],
+        type_association_libelle: Optional[TypeAssociationLibelle],
+    ) -> None:
+        self.labellisation = labellisation
+        self.offres_pratiques = offres_pratiques
+        self.type = type
+        self.type_association_libelle = type_association_libelle
 
     @staticmethod
-    def from_dict(obj: Any) -> "FacetDistribution":
+    def from_dict(obj: Any) -> "OrganismesFacetDistribution":
         assert isinstance(obj, dict)
-        label = from_union(
-            [lambda x: from_dict(from_int, x), from_none], obj.get("label")
+        labellisation = from_union(
+            [Labellisation.from_dict, from_none], obj.get("labellisation")
+        )
+        offres_pratiques = from_union(
+            [lambda x: from_dict(from_int, x), from_none], obj.get("offresPratiques")
         )
         type = from_union([TypeClass.from_dict, from_none], obj.get("type"))
-        return FacetDistribution(label, type)
+        type_association_libelle = from_union(
+            [TypeAssociationLibelle.from_dict, from_none],
+            obj.get("type_association.libelle"),
+        )
+        return OrganismesFacetDistribution(
+            labellisation, offres_pratiques, type, type_association_libelle
+        )
 
     def to_dict(self) -> dict:
         result: dict = {}
-        if self.label is not None:
-            result["label"] = from_union(
-                [lambda x: from_dict(from_int, x), from_none], self.label
+        if self.labellisation is not None:
+            result["labellisation"] = from_union(
+                [lambda x: to_class(Labellisation, x), from_none], self.labellisation
+            )
+        if self.offres_pratiques is not None:
+            result["offresPratiques"] = from_union(
+                [lambda x: from_dict(from_int, x), from_none], self.offres_pratiques
             )
         if self.type is not None:
             result["type"] = from_union(
                 [lambda x: to_class(TypeClass, x), from_none], self.type
+            )
+        if self.type_association_libelle is not None:
+            result["type_association.libelle"] = from_union(
+                [lambda x: to_class(TypeAssociationLibelle, x), from_none],
+                self.type_association_libelle,
             )
         return result
 
@@ -60,447 +93,241 @@ class HitType(Enum):
     MICRO_BASKET = "Micro Basket"
 
 
-@dataclass
-class Hit:
-    titre: Optional[str] = None
-    type: Optional[HitType] = None
+class OrganismesHit(Hit):
+    nom_club_pro: Optional[str] = None
+    nom: Optional[str] = None
     adresse: Optional[str] = None
-    description: Optional[str] = None
-    id: Optional[int] = None
-    date_created: Optional[datetime] = None
-    date_debut: Optional[datetime] = None
-    date_demande: Optional[int] = None
-    date_fin: Optional[datetime] = None
-    date_updated: Optional[datetime] = None
-    facebook: None
-    site_web: Optional[str] = None
-    twitter: None
-    action: Optional[str] = None
-    adresse_salle: Optional[str] = None
-    adresse_structure: Optional[str] = None
-    assurance: Optional[str] = None
+    adresse_club_pro: None
     code: Optional[str] = None
-    cp_salle: Optional[str] = None
-    date_inscription: Optional[int] = None
-    email: Optional[str] = None
-    engagement: Optional[str] = None
-    horaires_seances: Optional[str] = None
-    inscriptions: Optional[str] = None
-    jours: Optional[List[Jour]] = None
-    label: Optional[Label] = None
-    latitude: None
-    longitude: None
-    mail_demandeur: Optional[str] = None
-    mail_structure: Optional[str] = None
-    nom_demandeur: Optional[str] = None
-    nom_salle: Optional[str] = None
-    nom_structure: Optional[str] = None
-    nombre_personnes: Optional[str] = None
-    nombre_seances: Optional[str] = None
-    objectif: Optional[Objectif] = None
-    prenom_demandeur: Optional[str] = None
-    public: Optional[str] = None
+    id: Optional[str] = None
+    engagements_noms: Optional[str] = None
+    mail: Optional[str] = None
     telephone: Optional[str] = None
-    ville_salle: Optional[str] = None
+    type: Optional[str] = None
+    url_site_web: Optional[str] = None
+    nom_simple: None
+    date_affiliation: None
+    saison_en_cours: Optional[bool] = None
+    offres_pratiques: Optional[List[str]] = None
+    labellisation: Optional[List[str]] = None
     cartographie: Optional[Cartographie] = None
-    affiche: Optional[Affiche] = None
+    organisme_id_pere: Optional[OrganismeIDPere] = None
+    commune: Optional[Commune] = None
+    commune_club_pro: None
+    type_association: Optional[TypeAssociation] = None
+    logo: Optional[Logo] = None
     geo: Optional[Geo] = None
-    date_debut_timestamp: Optional[int] = None
-    date_fin_timestamp: Optional[int] = None
     thumbnail: Optional[str] = None
+
+    def __init__(
+        self,
+        nom_club_pro: Optional[str],
+        nom: Optional[str],
+        adresse: Optional[str],
+        adresse_club_pro: None,
+        code: Optional[str],
+        id: Optional[str],
+        engagements_noms: Optional[str],
+        mail: Optional[str],
+        telephone: Optional[str],
+        type: Optional[str],
+        url_site_web: Optional[str],
+        nom_simple: None,
+        date_affiliation: None,
+        saison_en_cours: Optional[bool],
+        offres_pratiques: Optional[List[str]],
+        labellisation: Optional[List[str]],
+        cartographie: Optional[Cartographie],
+        organisme_id_pere: Optional[OrganismeIDPere],
+        commune: Optional[Commune],
+        commune_club_pro: None,
+        type_association: Optional[TypeAssociation],
+        logo: Optional[Logo],
+        geo: Optional[Geo],
+        thumbnail: Optional[str],
+    ) -> None:
+        self.nom_club_pro = nom_club_pro
+        self.nom = nom
+        self.adresse = adresse
+        self.adresse_club_pro = adresse_club_pro
+        self.code = code
+        self.id = id
+        self.engagements_noms = engagements_noms
+        self.mail = mail
+        self.telephone = telephone
+        self.type = type
+        self.url_site_web = url_site_web
+        self.nom_simple = nom_simple
+        self.date_affiliation = date_affiliation
+        self.saison_en_cours = saison_en_cours
+        self.offres_pratiques = offres_pratiques
+        self.labellisation = labellisation
+        self.cartographie = cartographie
+        self.organisme_id_pere = organisme_id_pere
+        self.commune = commune
+        self.commune_club_pro = commune_club_pro
+        self.type_association = type_association
+        self.logo = logo
+        self.geo = geo
+        self.thumbnail = thumbnail
 
     @staticmethod
     def from_dict(obj: Any) -> "Hit":
-        assert isinstance(obj, dict)
-        titre = from_union([from_str, from_none], obj.get("titre"))
-        type = from_union([HitType, from_none], obj.get("type"))
-        adresse = from_union([from_str, from_none], obj.get("adresse"))
-        description = from_union([from_none, from_str], obj.get("description"))
-        id = from_union([from_none, lambda x: int(from_str(x))], obj.get("id"))
-        date_created = from_union([from_datetime, from_none], obj.get("date_created"))
-        date_debut = from_union([from_datetime, from_none], obj.get("date_debut"))
-        date_demande = from_union(
-            [from_none, lambda x: int(from_str(x))], obj.get("date_demande")
-        )
-        date_fin = from_union([from_datetime, from_none], obj.get("date_fin"))
-        date_updated = from_union([from_datetime, from_none], obj.get("date_updated"))
-        facebook = from_none(obj.get("facebook"))
-        site_web = from_union([from_none, from_str], obj.get("site_web"))
-        twitter = from_none(obj.get("twitter"))
-        action = from_union([from_str, from_none], obj.get("action"))
-        adresse_salle = from_union([from_str, from_none], obj.get("adresse_salle"))
-        adresse_structure = from_union(
-            [from_none, from_str], obj.get("adresse_structure")
-        )
-        assurance = from_union([from_none, from_str], obj.get("assurance"))
-        code = from_union([from_none, from_str], obj.get("code"))
-        cp_salle = from_union([from_str, from_none], obj.get("cp_salle"))
-        date_inscription = from_union(
-            [from_none, lambda x: int(from_str(x))], obj.get("date_inscription")
-        )
-        email = from_union([from_none, from_str], obj.get("email"))
-        engagement = from_union([from_none, from_str], obj.get("engagement"))
-        horaires_seances = from_union(
-            [from_none, from_str], obj.get("horaires_seances")
-        )
-        inscriptions = from_union([from_none, from_str], obj.get("inscriptions"))
-        jours = from_union([lambda x: from_list(Jour, x), from_none], obj.get("jours"))
-        label = from_union([Label, from_none], obj.get("label"))
-        latitude = from_none(obj.get("latitude"))
-        longitude = from_none(obj.get("longitude"))
-        mail_demandeur = from_union([from_none, from_str], obj.get("mail_demandeur"))
-        mail_structure = from_union([from_none, from_str], obj.get("mail_structure"))
-        nom_demandeur = from_union([from_none, from_str], obj.get("nom_demandeur"))
-        nom_salle = from_union([from_str, from_none], obj.get("nom_salle"))
-        nom_structure = from_union([from_none, from_str], obj.get("nom_structure"))
-        nombre_personnes = from_union(
-            [from_none, from_str], obj.get("nombre_personnes")
-        )
-        nombre_seances = from_union([from_none, from_str], obj.get("nombre_seances"))
-        objectif = from_union([from_none, Objectif], obj.get("objectif"))
-        prenom_demandeur = from_union(
-            [from_none, from_str], obj.get("prenom_demandeur")
-        )
-        public = from_union([from_none, from_str], obj.get("public"))
-        telephone = from_union([from_none, from_str], obj.get("telephone"))
-        ville_salle = from_union([from_str, from_none], obj.get("ville_salle"))
-        cartographie = from_union(
-            [Cartographie.from_dict, from_none], obj.get("cartographie")
-        )
-        affiche = from_union([from_none, Affiche.from_dict], obj.get("affiche"))
-        geo = from_union([Geo.from_dict, from_none], obj.get("_geo"))
-        date_debut_timestamp = from_union(
-            [from_int, from_none], obj.get("date_debut_timestamp")
-        )
-        date_fin_timestamp = from_union(
-            [from_int, from_none], obj.get("date_fin_timestamp")
-        )
-        thumbnail = from_union([from_none, from_str], obj.get("thumbnail"))
-        return Hit(
-            titre,
-            type,
-            adresse,
-            description,
-            id,
-            date_created,
-            date_debut,
-            date_demande,
-            date_fin,
-            date_updated,
-            facebook,
-            site_web,
-            twitter,
-            action,
-            adresse_salle,
-            adresse_structure,
-            assurance,
-            code,
-            cp_salle,
-            date_inscription,
-            email,
-            engagement,
-            horaires_seances,
-            inscriptions,
-            jours,
-            label,
-            latitude,
-            longitude,
-            mail_demandeur,
-            mail_structure,
-            nom_demandeur,
-            nom_salle,
-            nom_structure,
-            nombre_personnes,
-            nombre_seances,
-            objectif,
-            prenom_demandeur,
-            public,
-            telephone,
-            ville_salle,
-            cartographie,
-            affiche,
-            geo,
-            date_debut_timestamp,
-            date_fin_timestamp,
-            thumbnail,
-        )
+        try:
+            assert isinstance(obj, dict)
+            nom_club_pro = from_union([from_str, from_none], obj.get("nomClubPro"))
+            nom = from_union([from_str, from_none], obj.get("nom"))
+            adresse = from_union([from_str, from_none], obj.get("adresse"))
+            adresse_club_pro = from_none(obj.get("adresseClubPro"))
+            code = from_union([from_str, from_none], obj.get("code"))
+            id = from_union([from_str, from_none], obj.get("id"))
+            engagements_noms = from_union(
+                [from_str, from_none], obj.get("engagements_noms")
+            )
+            mail = from_union([from_str, from_none], obj.get("mail"))
+            telephone = from_union([from_str, from_none], obj.get("telephone"))
+            type = from_union([from_str, from_none], obj.get("type"))
+            url_site_web = from_union([from_str, from_none], obj.get("urlSiteWeb"))
+            nom_simple = from_union([from_str, from_none], obj.get("nom_simple"))
+            date_affiliation = from_union(
+                [from_datetime, from_none], obj.get("dateAffiliation")
+            )
+            saison_en_cours = from_union(
+                [from_bool, from_none], obj.get("saison_en_cours")
+            )
+            offres_pratiques = from_union(
+                [lambda x: from_list(from_str, x), from_none],
+                obj.get("offresPratiques"),
+            )
+            labellisation = from_union(
+                [lambda x: from_list(from_str, x), from_none], obj.get("labellisation")
+            )
+            cartographie = from_union(
+                [Cartographie.from_dict, from_none], obj.get("cartographie")
+            )
+            organisme_id_pere = from_union(
+                [OrganismeIDPere.from_dict, from_none], obj.get("organisme_id_pere")
+            )
+            commune = from_union([Commune.from_dict, from_none], obj.get("commune"))
+            commune_club_pro = from_union(
+                [Commune.from_dict, from_none], obj.get("communeClubPro")
+            )
+            type_association = from_union(
+                [TypeAssociation.from_dict, from_none], obj.get("type_association")
+            )
+            logo = from_union([Logo.from_dict, from_none], obj.get("logo"))
+            geo = from_union([Geo.from_dict, from_none], obj.get("_geo"))
+            thumbnail = from_union([from_none, from_str], obj.get("thumbnail"))
+            return OrganismesHit(
+                nom_club_pro,
+                nom,
+                adresse,
+                adresse_club_pro,
+                code,
+                id,
+                engagements_noms,
+                mail,
+                telephone,
+                type,
+                url_site_web,
+                nom_simple,
+                date_affiliation,
+                saison_en_cours,
+                offres_pratiques,
+                labellisation,
+                cartographie,
+                organisme_id_pere,
+                commune,
+                commune_club_pro,
+                type_association,
+                logo,
+                geo,
+                thumbnail,
+            )
+        except Exception as e:
+            raise ValueError("Invalid `OrganismesHit` object: %s" % e)
 
     def to_dict(self) -> dict:
         result: dict = {}
-        if self.titre is not None:
-            result["titre"] = from_union([from_str, from_none], self.titre)
-        if self.type is not None:
-            result["type"] = from_union(
-                [lambda x: to_enum(HitType, x), from_none], self.type
-            )
+        if self.nom_club_pro is not None:
+            result["nomClubPro"] = from_union([from_str, from_none], self.nom_club_pro)
+        if self.nom is not None:
+            result["nom"] = from_union([from_str, from_none], self.nom)
         if self.adresse is not None:
             result["adresse"] = from_union([from_str, from_none], self.adresse)
-        if self.description is not None:
-            result["description"] = from_union([from_none, from_str], self.description)
-        if self.id is not None:
-            result["id"] = from_union(
-                [
-                    lambda x: from_none((lambda x: is_type(type(None), x))(x)),
-                    lambda x: from_str(
-                        (lambda x: str((lambda x: is_type(int, x))(x)))(x)
-                    ),
-                ],
-                self.id,
-            )
-        if self.date_created is not None:
-            result["date_created"] = from_union(
-                [lambda x: x.isoformat(), from_none], self.date_created
-            )
-        if self.date_debut is not None:
-            result["date_debut"] = from_union(
-                [lambda x: x.isoformat(), from_none], self.date_debut
-            )
-        if self.date_demande is not None:
-            result["date_demande"] = from_union(
-                [
-                    lambda x: from_none((lambda x: is_type(type(None), x))(x)),
-                    lambda x: from_str(
-                        (lambda x: str((lambda x: is_type(int, x))(x)))(x)
-                    ),
-                ],
-                self.date_demande,
-            )
-        if self.date_fin is not None:
-            result["date_fin"] = from_union(
-                [lambda x: x.isoformat(), from_none], self.date_fin
-            )
-        if self.date_updated is not None:
-            result["date_updated"] = from_union(
-                [lambda x: x.isoformat(), from_none], self.date_updated
-            )
-        if self.facebook is not None:
-            result["facebook"] = from_none(self.facebook)
-        if self.site_web is not None:
-            result["site_web"] = from_union([from_none, from_str], self.site_web)
-        if self.twitter is not None:
-            result["twitter"] = from_none(self.twitter)
-        if self.action is not None:
-            result["action"] = from_union([from_str, from_none], self.action)
-        if self.adresse_salle is not None:
-            result["adresse_salle"] = from_union(
-                [from_str, from_none], self.adresse_salle
-            )
-        if self.adresse_structure is not None:
-            result["adresse_structure"] = from_union(
-                [from_none, from_str], self.adresse_structure
-            )
-        if self.assurance is not None:
-            result["assurance"] = from_union([from_none, from_str], self.assurance)
+        if self.adresse_club_pro is not None:
+            result["adresseClubPro"] = from_none(self.adresse_club_pro)
         if self.code is not None:
-            result["code"] = from_union([from_none, from_str], self.code)
-        if self.cp_salle is not None:
-            result["cp_salle"] = from_union([from_str, from_none], self.cp_salle)
-        if self.date_inscription is not None:
-            result["date_inscription"] = from_union(
-                [
-                    lambda x: from_none((lambda x: is_type(type(None), x))(x)),
-                    lambda x: from_str(
-                        (lambda x: str((lambda x: is_type(int, x))(x)))(x)
-                    ),
-                ],
-                self.date_inscription,
+            result["code"] = from_union([from_str, from_none], self.code)
+        if self.id is not None:
+            result["id"] = from_union([from_str, from_none], self.id)
+        if self.engagements_noms is not None:
+            result["engagements_noms"] = from_union(
+                [from_str, from_none], self.engagements_noms
             )
-        if self.email is not None:
-            result["email"] = from_union([from_none, from_str], self.email)
-        if self.engagement is not None:
-            result["engagement"] = from_union([from_none, from_str], self.engagement)
-        if self.horaires_seances is not None:
-            result["horaires_seances"] = from_union(
-                [from_none, from_str], self.horaires_seances
-            )
-        if self.inscriptions is not None:
-            result["inscriptions"] = from_union(
-                [from_none, from_str], self.inscriptions
-            )
-        if self.jours is not None:
-            result["jours"] = from_union(
-                [lambda x: from_list(lambda x: to_enum(Jour, x), x), from_none],
-                self.jours,
-            )
-        if self.label is not None:
-            result["label"] = from_union(
-                [lambda x: to_enum(Label, x), from_none], self.label
-            )
-        if self.latitude is not None:
-            result["latitude"] = from_none(self.latitude)
-        if self.longitude is not None:
-            result["longitude"] = from_none(self.longitude)
-        if self.mail_demandeur is not None:
-            result["mail_demandeur"] = from_union(
-                [from_none, from_str], self.mail_demandeur
-            )
-        if self.mail_structure is not None:
-            result["mail_structure"] = from_union(
-                [from_none, from_str], self.mail_structure
-            )
-        if self.nom_demandeur is not None:
-            result["nom_demandeur"] = from_union(
-                [from_none, from_str], self.nom_demandeur
-            )
-        if self.nom_salle is not None:
-            result["nom_salle"] = from_union([from_str, from_none], self.nom_salle)
-        if self.nom_structure is not None:
-            result["nom_structure"] = from_union(
-                [from_none, from_str], self.nom_structure
-            )
-        if self.nombre_personnes is not None:
-            result["nombre_personnes"] = from_union(
-                [from_none, from_str], self.nombre_personnes
-            )
-        if self.nombre_seances is not None:
-            result["nombre_seances"] = from_union(
-                [from_none, from_str], self.nombre_seances
-            )
-        if self.objectif is not None:
-            result["objectif"] = from_union(
-                [from_none, lambda x: to_enum(Objectif, x)], self.objectif
-            )
-        if self.prenom_demandeur is not None:
-            result["prenom_demandeur"] = from_union(
-                [from_none, from_str], self.prenom_demandeur
-            )
-        if self.public is not None:
-            result["public"] = from_union([from_none, from_str], self.public)
+        if self.mail is not None:
+            result["mail"] = from_union([from_str, from_none], self.mail)
         if self.telephone is not None:
-            result["telephone"] = from_union([from_none, from_str], self.telephone)
-        if self.ville_salle is not None:
-            result["ville_salle"] = from_union([from_str, from_none], self.ville_salle)
+            result["telephone"] = from_union([from_str, from_none], self.telephone)
+        if self.type is not None:
+            result["type"] = from_union([from_str, from_none], self.type)
+        if self.url_site_web is not None:
+            result["urlSiteWeb"] = from_union([from_str, from_none], self.url_site_web)
+        if self.nom_simple is not None:
+            result["nom_simple"] = from_none(self.nom_simple)
+        if self.date_affiliation is not None:
+            result["dateAffiliation"] = from_none(self.date_affiliation)
+        if self.saison_en_cours is not None:
+            result["saison_en_cours"] = from_union(
+                [from_bool, from_none], self.saison_en_cours
+            )
+        if self.offres_pratiques is not None:
+            result["offresPratiques"] = from_union(
+                [lambda x: from_list(from_str, x), from_none], self.offres_pratiques
+            )
+        if self.labellisation is not None:
+            result["labellisation"] = from_union(
+                [lambda x: from_list(from_str, x), from_none], self.labellisation
+            )
         if self.cartographie is not None:
             result["cartographie"] = from_union(
                 [lambda x: to_class(Cartographie, x), from_none], self.cartographie
             )
-        if self.affiche is not None:
-            result["affiche"] = from_union(
-                [from_none, lambda x: to_class(Affiche, x)], self.affiche
+        if self.organisme_id_pere is not None:
+            result["organisme_id_pere"] = from_union(
+                [lambda x: to_class(OrganismeIDPere, x), from_none],
+                self.organisme_id_pere,
+            )
+        if self.commune is not None:
+            result["commune"] = from_union(
+                [lambda x: to_class(Commune, x), from_none], self.commune
+            )
+        if self.commune_club_pro is not None:
+            result["communeClubPro"] = from_union(
+                [lambda x: to_class(Commune, x), from_none], self.commune_club_pro
+            )
+        if self.type_association is not None:
+            result["type_association"] = from_union(
+                [lambda x: to_class(TypeAssociation, x), from_none],
+                self.type_association,
+            )
+        if self.logo is not None:
+            result["logo"] = from_union(
+                [lambda x: to_class(Logo, x), from_none], self.logo
             )
         if self.geo is not None:
             result["_geo"] = from_union(
                 [lambda x: to_class(Geo, x), from_none], self.geo
-            )
-        if self.date_debut_timestamp is not None:
-            result["date_debut_timestamp"] = from_union(
-                [from_int, from_none], self.date_debut_timestamp
-            )
-        if self.date_fin_timestamp is not None:
-            result["date_fin_timestamp"] = from_union(
-                [from_int, from_none], self.date_fin_timestamp
             )
         if self.thumbnail is not None:
             result["thumbnail"] = from_union([from_none, from_str], self.thumbnail)
         return result
 
 
-@dataclass
-class Result:
-    index_uid: Optional[str] = None
-    hits: Optional[List[Hit]] = None
-    query: Optional[str] = None
-    processing_time_ms: Optional[int] = None
-    limit: Optional[int] = None
-    offset: Optional[int] = None
-    estimated_total_hits: Optional[int] = None
-    facet_distribution: Optional[FacetDistribution] = None
-    facet_stats: Optional[FacetStats] = None
-
+class OrganismesFacetStats(FacetStats):
     @staticmethod
-    def from_dict(obj: Any) -> "Result":
-        assert isinstance(obj, dict)
-        index_uid = from_union([from_str, from_none], obj.get("indexUid"))
-        hits = from_union(
-            [lambda x: from_list(Hit.from_dict, x), from_none], obj.get("hits")
-        )
-        query = from_union([from_str, from_none], obj.get("query"))
-        processing_time_ms = from_union(
-            [from_int, from_none], obj.get("processingTimeMs")
-        )
-        limit = from_union([from_int, from_none], obj.get("limit"))
-        offset = from_union([from_int, from_none], obj.get("offset"))
-        estimated_total_hits = from_union(
-            [from_int, from_none], obj.get("estimatedTotalHits")
-        )
-        facet_distribution = from_union(
-            [FacetDistribution.from_dict, from_none], obj.get("facetDistribution")
-        )
-        facet_stats = from_union(
-            [FacetStats.from_dict, from_none], obj.get("facetStats")
-        )
-        return Result(
-            index_uid,
-            hits,
-            query,
-            processing_time_ms,
-            limit,
-            offset,
-            estimated_total_hits,
-            facet_distribution,
-            facet_stats,
-        )
+    def from_dict(obj: Any) -> "OrganismesFacetStats":
+        return OrganismesFacetStats()
 
     def to_dict(self) -> dict:
-        result: dict = {}
-        if self.index_uid is not None:
-            result["indexUid"] = from_union([from_str, from_none], self.index_uid)
-        if self.hits is not None:
-            result["hits"] = from_union(
-                [lambda x: from_list(lambda x: to_class(Hit, x), x), from_none],
-                self.hits,
-            )
-        if self.query is not None:
-            result["query"] = from_union([from_str, from_none], self.query)
-        if self.processing_time_ms is not None:
-            result["processingTimeMs"] = from_union(
-                [from_int, from_none], self.processing_time_ms
-            )
-        if self.limit is not None:
-            result["limit"] = from_union([from_int, from_none], self.limit)
-        if self.offset is not None:
-            result["offset"] = from_union([from_int, from_none], self.offset)
-        if self.estimated_total_hits is not None:
-            result["estimatedTotalHits"] = from_union(
-                [from_int, from_none], self.estimated_total_hits
-            )
-        if self.facet_distribution is not None:
-            result["facetDistribution"] = from_union(
-                [lambda x: to_class(FacetDistribution, x), from_none],
-                self.facet_distribution,
-            )
-        if self.facet_stats is not None:
-            result["facetStats"] = from_union(
-                [lambda x: to_class(FacetStats, x), from_none], self.facet_stats
-            )
-        return result
-
-
-@dataclass
-class MultiSearchResults:
-    results: Optional[List[Result]] = None
-
-    @staticmethod
-    def from_dict(obj: Any) -> "MultiSearchResults":
-        assert isinstance(obj, dict)
-        results = from_union(
-            [lambda x: from_list(Result.from_dict, x), from_none], obj.get("results")
-        )
-        return MultiSearchResults(results)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        if self.results is not None:
-            result["results"] = from_union(
-                [lambda x: from_list(lambda x: to_class(Result, x), x), from_none],
-                self.results,
-            )
-        return result
-
-
-def multi_search_results_from_dict(s: Any) -> MultiSearchResults:
-    return MultiSearchResults.from_dict(s)
-
-
-def multi_search_results_to_dict(x: MultiSearchResults) -> Any:
-    return to_class(MultiSearchResults, x)
+        super().to_dict()

@@ -1,11 +1,9 @@
-from dataclasses import dataclass
 from typing import Any, Optional
 
-from ffbb_api_client_v2.converters import from_none, from_str, from_union, to_class
-from ffbb_api_client_v2.IDOrganismeEquipe1Logo import IDOrganismeEquipe1Logo
+from .converters import from_none, from_str, from_union, to_class
+from .IDOrganismeEquipe1Logo import IDOrganismeEquipe1Logo
 
 
-@dataclass
 class IDOrganismeEquipe:
     id: Optional[str] = None
     nom: Optional[str] = None
@@ -13,6 +11,22 @@ class IDOrganismeEquipe:
     code: Optional[str] = None
     nom_club_pro: Optional[str] = None
     logo: Optional[IDOrganismeEquipe1Logo] = None
+
+    def __init__(
+        self,
+        id: Optional[str],
+        nom: Optional[str],
+        nom_simple: None,
+        code: Optional[str],
+        nom_club_pro: Optional[str],
+        logo: Optional[IDOrganismeEquipe1Logo],
+    ) -> None:
+        self.id = id
+        self.nom = nom
+        self.nom_simple = nom_simple
+        self.code = code
+        self.nom_club_pro = nom_club_pro
+        self.logo = logo
 
     @staticmethod
     def from_dict(obj: Any) -> "IDOrganismeEquipe":

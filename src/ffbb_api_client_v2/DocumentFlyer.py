@@ -1,9 +1,11 @@
-from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, List, Optional
 from uuid import UUID
 
-from ffbb_api_client_v2.converters import (
+from ffbb_api_client_v2.DocumentFlyerType import DocumentFlyerType
+from ffbb_api_client_v2.Source import Source
+
+from .converters import (
     from_datetime,
     from_int,
     from_list,
@@ -14,19 +16,13 @@ from ffbb_api_client_v2.converters import (
     to_class,
     to_enum,
 )
-from ffbb_api_client_v2.FacetStats import FacetStats
-from ffbb_api_client_v2.Folder import Folder
-from ffbb_api_client_v2.multi_search_result_terrains import (
-    DocumentFlyerType,
-    Source,
-    Storage,
-)
+from .FacetStats import FacetStats
+from .Folder import Folder
 
 
-@dataclass
 class DocumentFlyer:
     id: Optional[UUID] = None
-    storage: Optional[Storage] = None
+    storage: Optional[str] = None
     filename_disk: Optional[str] = None
     filename_download: Optional[str] = None
     title: Optional[str] = None
@@ -64,7 +60,7 @@ class DocumentFlyer:
     def from_dict(obj: Any) -> "DocumentFlyer":
         assert isinstance(obj, dict)
         id = from_union([lambda x: UUID(x), from_none], obj.get("id"))
-        storage = from_union([Storage, from_none], obj.get("storage"))
+        storage = from_union([from_str, from_none], obj.get("storage"))
         filename_disk = from_union([from_str, from_none], obj.get("filename_disk"))
         filename_download = from_union(
             [from_str, from_none], obj.get("filename_download")
@@ -75,7 +71,7 @@ class DocumentFlyer:
         modified_on = from_union([from_datetime, from_none], obj.get("modified_on"))
         charset = from_none(obj.get("charset"))
         filesize = from_union(
-            [from_none, lambda x: int(from_str(x))], obj.get("filesize")
+            [lambda x: int(from_str(x)), from_none], obj.get("filesize")
         )
         width = from_union([from_int, from_none], obj.get("width"))
         height = from_union([from_int, from_none], obj.get("height"))
@@ -149,9 +145,7 @@ class DocumentFlyer:
         if self.id is not None:
             result["id"] = from_union([lambda x: str(x), from_none], self.id)
         if self.storage is not None:
-            result["storage"] = from_union(
-                [lambda x: to_enum(Storage, x), from_none], self.storage
-            )
+            result["storage"] = from_union([from_str, from_none], self.storage)
         if self.filename_disk is not None:
             result["filename_disk"] = from_union(
                 [from_str, from_none], self.filename_disk

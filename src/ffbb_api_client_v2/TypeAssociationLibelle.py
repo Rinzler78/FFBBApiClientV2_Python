@@ -1,13 +1,17 @@
-from dataclasses import dataclass
 from typing import Any, Optional
 
-from ffbb_api_client_v2.converters import from_int, from_none, from_union
+from .converters import from_int, from_none, from_union
 
 
-@dataclass
 class TypeAssociationLibelle:
     club: Optional[int] = None
     coopération_territoriale_club: Optional[int] = None
+
+    def __init__(
+        self, club: Optional[int], coopération_territoriale_club: Optional[int]
+    ) -> None:
+        self.club = club
+        self.coopération_territoriale_club = coopération_territoriale_club
 
     @staticmethod
     def from_dict(obj: Any) -> "TypeAssociationLibelle":

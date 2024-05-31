@@ -1,17 +1,29 @@
-from dataclasses import dataclass
 from typing import Any, Optional
 
-from ffbb_api_client_v2.Cartographie import Cartographie
-from ffbb_api_client_v2.converters import from_none, from_str, from_union, to_class
+from .Cartographie import Cartographie
+from .converters import from_none, from_str, from_union, to_class
 
 
-@dataclass
 class Salle:
     id: Optional[str] = None
     libelle: Optional[str] = None
     adresse: Optional[str] = None
     adresse_complement: Optional[str] = None
     cartographie: Optional[Cartographie] = None
+
+    def __init__(
+        self,
+        id: Optional[str] = None,
+        libelle: Optional[str] = None,
+        adresse: Optional[str] = None,
+        adresse_complement: Optional[str] = None,
+        cartographie: Optional[Cartographie] = None,
+    ) -> None:
+        self.id = id
+        self.libelle = libelle
+        self.adresse = adresse
+        self.adresse_complement = adresse_complement
+        self.cartographie = cartographie
 
     @staticmethod
     def from_dict(obj: Any) -> "Salle":

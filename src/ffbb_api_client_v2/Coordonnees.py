@@ -1,20 +1,15 @@
-from dataclasses import dataclass
 from typing import Any, List, Optional
 
-from ffbb_api_client_v2.converters import (
-    from_float,
-    from_list,
-    from_none,
-    from_str,
-    from_union,
-    to_float,
-)
+from .converters import from_float, from_list, from_none, from_str, from_union, to_float
 
 
-@dataclass
 class Coordonnees:
     type: Optional[str] = None
     coordinates: Optional[List[float]] = None
+
+    def __init__(self, type: Optional[str], coordinates: Optional[List[float]]):
+        self.type = type
+        self.coordinates = coordinates
 
     @staticmethod
     def from_dict(obj: Any) -> "Coordonnees":

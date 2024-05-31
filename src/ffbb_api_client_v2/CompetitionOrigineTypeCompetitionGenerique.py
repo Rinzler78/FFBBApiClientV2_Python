@@ -1,11 +1,9 @@
-from dataclasses import dataclass
 from typing import Any, Optional
 
-from ffbb_api_client_v2.converters import from_none, from_union, to_class
-from ffbb_api_client_v2.PurpleLogo import PurpleLogo
+from .converters import from_none, from_union, to_class
+from .PurpleLogo import PurpleLogo
 
 
-@dataclass
 class CompetitionOrigineTypeCompetitionGenerique:
     logo: Optional[PurpleLogo] = None
 

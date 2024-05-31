@@ -1,7 +1,6 @@
-from dataclasses import dataclass
 from typing import Any, Optional
 
-from ffbb_api_client_v2.converters import (
+from .converters import (
     from_float,
     from_none,
     from_str,
@@ -10,10 +9,9 @@ from ffbb_api_client_v2.converters import (
     to_class,
     to_float,
 )
-from ffbb_api_client_v2.Coordonnees import Coordonnees
+from .Coordonnees import Coordonnees
 
 
-@dataclass
 class Cartographie:
     adresse: Optional[str] = None
     code_postal: Optional[int] = None
@@ -27,12 +25,38 @@ class Cartographie:
     ville: Optional[str] = None
     status: Optional[str] = None
 
+    def __init__(
+        self,
+        adresse: Optional[str],
+        code_postal: Optional[int],
+        coordonnees: Optional[Coordonnees],
+        date_created: None,
+        date_updated: None,
+        id: Optional[str],
+        latitude: Optional[float],
+        longitude: Optional[float],
+        title: Optional[str],
+        ville: Optional[str],
+        status: Optional[str],
+    ):
+        self.adresse = adresse
+        self.code_postal = code_postal
+        self.coordonnees = coordonnees
+        self.date_created = date_created
+        self.date_updated = date_updated
+        self.id = id
+        self.latitude = latitude
+        self.longitude = longitude
+        self.title = title
+        self.ville = ville
+        self.status = status
+
     @staticmethod
     def from_dict(obj: Any) -> "Cartographie":
         assert isinstance(obj, dict)
         adresse = from_union([from_str, from_none], obj.get("adresse"))
         code_postal = from_union(
-            [from_none, lambda x: int(from_str(x))], obj.get("codePostal")
+            [lambda x: int(from_str(x)), from_none], obj.get("codePostal")
         )
         coordonnees = from_union(
             [Coordonnees.from_dict, from_none], obj.get("coordonnees")

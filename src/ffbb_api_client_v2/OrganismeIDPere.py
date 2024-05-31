@@ -1,9 +1,8 @@
-from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, List, Optional
 from uuid import UUID
 
-from ffbb_api_client_v2.converters import (
+from .converters import (
     from_bool,
     from_datetime,
     from_list,
@@ -14,7 +13,6 @@ from ffbb_api_client_v2.converters import (
 )
 
 
-@dataclass
 class OrganismeIDPere:
     adresse: Optional[str] = None
     adresse_club_pro: None
@@ -46,6 +44,68 @@ class OrganismeIDPere:
     engagements: Optional[List[Any]] = None
     labellisation: Optional[List[Any]] = None
 
+    def __init__(
+        self,
+        adresse: Optional[str],
+        adresse_club_pro: None,
+        cartographie: Optional[str],
+        code: Optional[str],
+        commune: Optional[int],
+        commune_club_pro: None,
+        date_created: Optional[datetime],
+        date_updated: Optional[datetime],
+        id: Optional[int],
+        mail: Optional[str],
+        nom: Optional[str],
+        nom_club_pro: Optional[str],
+        organisme_id_pere: Optional[str],
+        salle: None,
+        telephone: Optional[str],
+        type: Optional[str],
+        type_association: None,
+        url_site_web: Optional[str],
+        logo: Optional[UUID],
+        nom_simple: Optional[str],
+        date_affiliation: None,
+        saison_en_cours: Optional[bool],
+        entreprise: Optional[bool],
+        handibasket: Optional[bool],
+        omnisport: Optional[bool],
+        hors_association: Optional[bool],
+        offres_pratiques: Optional[List[Any]],
+        engagements: Optional[List[Any]],
+        labellisation: Optional[List[Any]],
+    ) -> None:
+        self.adresse = adresse
+        self.adresse_club_pro = adresse_club_pro
+        self.cartographie = cartographie
+        self.code = code
+        self.commune = commune
+        self.commune_club_pro = commune_club_pro
+        self.date_created = date_created
+        self.date_updated = date_updated
+        self.id = id
+        self.mail = mail
+        self.nom = nom
+        self.nom_club_pro = nom_club_pro
+        self.organisme_id_pere = organisme_id_pere
+        self.salle = salle
+        self.telephone = telephone
+        self.type = type
+        self.type_association = type_association
+        self.url_site_web = url_site_web
+        self.logo = logo
+        self.nom_simple = nom_simple
+        self.date_affiliation = date_affiliation
+        self.saison_en_cours = saison_en_cours
+        self.entreprise = entreprise
+        self.handibasket = handibasket
+        self.omnisport = omnisport
+        self.hors_association = hors_association
+        self.offres_pratiques = offres_pratiques
+        self.engagements = engagements
+        self.labellisation = labellisation
+
     @staticmethod
     def from_dict(obj: Any) -> "OrganismeIDPere":
         assert isinstance(obj, dict)
@@ -54,12 +114,12 @@ class OrganismeIDPere:
         cartographie = from_union([from_str, from_none], obj.get("cartographie"))
         code = from_union([from_str, from_none], obj.get("code"))
         commune = from_union(
-            [from_none, lambda x: int(from_str(x))], obj.get("commune")
+            [lambda x: int(from_str(x)), from_none], obj.get("commune")
         )
         commune_club_pro = from_none(obj.get("communeClubPro"))
         date_created = from_union([from_datetime, from_none], obj.get("date_created"))
         date_updated = from_union([from_datetime, from_none], obj.get("date_updated"))
-        id = from_union([from_none, lambda x: int(from_str(x))], obj.get("id"))
+        id = from_union([lambda x: int(from_str(x)), from_none], obj.get("id"))
         mail = from_union([from_str, from_none], obj.get("mail"))
         nom = from_union([from_str, from_none], obj.get("nom"))
         nom_club_pro = from_union([from_str, from_none], obj.get("nomClubPro"))
@@ -71,7 +131,7 @@ class OrganismeIDPere:
         type = from_union([from_str, from_none], obj.get("type"))
         type_association = from_none(obj.get("type_association"))
         url_site_web = from_union([from_str, from_none], obj.get("urlSiteWeb"))
-        logo = from_union([from_none, lambda x: UUID(x)], obj.get("logo"))
+        logo = from_union([lambda x: UUID(x), from_none], obj.get("logo"))
         nom_simple = from_union([from_str, from_none], obj.get("nom_simple"))
         date_affiliation = from_none(obj.get("dateAffiliation"))
         saison_en_cours = from_union([from_bool, from_none], obj.get("saison_en_cours"))

@@ -1,23 +1,42 @@
-from dataclasses import dataclass
 from typing import Any, Optional
 
-from .competition import Competition
+from ffbb_api_client_v2.IDOrganismeEquipe import IDOrganismeEquipe
+from ffbb_api_client_v2.IDPoule import IDPoule
+from ffbb_api_client_v2.Salle import Salle
+
+from .CompetitionID import CompetitionID
 from .converters import from_none, from_str, from_union, is_type, to_class
-from .id_organisme_equipe import IDOrganismeEquipe
-from .id_poule import IDPoule
-from .salle import Salle
 
 
-@dataclass
 class ExternalID:
     nom_equipe1: Optional[str] = None
     nom_equipe2: Optional[str] = None
     numero_journee: Optional[int] = None
-    competition_id: Optional[Competition] = None
+    competition_id: Optional[CompetitionID] = None
     id_organisme_equipe1: Optional[IDOrganismeEquipe] = None
     id_organisme_equipe2: Optional[IDOrganismeEquipe] = None
     salle: Optional[Salle] = None
     id_poule: Optional[IDPoule] = None
+
+    def __init__(
+        self,
+        nom_equipe1: Optional[str],
+        nom_equipe2: Optional[str],
+        numero_journee: Optional[int],
+        competition_id: Optional[CompetitionID],
+        id_organisme_equipe1: Optional[IDOrganismeEquipe],
+        id_organisme_equipe2: Optional[IDOrganismeEquipe],
+        salle: Optional[Salle],
+        id_poule: Optional[IDPoule],
+    ) -> None:
+        self.nom_equipe1 = nom_equipe1
+        self.nom_equipe2 = nom_equipe2
+        self.numero_journee = numero_journee
+        self.competition_id = competition_id
+        self.id_organisme_equipe1 = id_organisme_equipe1
+        self.id_organisme_equipe2 = id_organisme_equipe2
+        self.salle = salle
+        self.id_poule = id_poule
 
     @staticmethod
     def from_dict(obj: Any) -> "ExternalID":
@@ -34,10 +53,10 @@ class ExternalID:
         nom_equipe1 = from_union([from_str, from_none], obj.get("nomEquipe1"))
         nom_equipe2 = from_union([from_str, from_none], obj.get("nomEquipe2"))
         numero_journee = from_union(
-            [from_none, lambda x: int(from_str(x))], obj.get("numeroJournee")
+            [lambda x: int(from_str(x)), from_none], obj.get("numeroJournee")
         )
         competition_id = from_union(
-            [Competition.from_dict, from_none], obj.get("competitionId")
+            [CompetitionID.from_dict, from_none], obj.get("competitionId")
         )
         id_organisme_equipe1 = from_union(
             [IDOrganismeEquipe.from_dict, from_none], obj.get("idOrganismeEquipe1")
@@ -82,7 +101,7 @@ class ExternalID:
             )
         if self.competition_id is not None:
             result["competitionId"] = from_union(
-                [lambda x: to_class(Competition, x), from_none], self.competition_id
+                [lambda x: to_class(CompetitionID, x), from_none], self.competition_id
             )
         if self.id_organisme_equipe1 is not None:
             result["idOrganismeEquipe1"] = from_union(

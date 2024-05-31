@@ -1,30 +1,29 @@
-from dataclasses import dataclass
 from datetime import datetime
-from enum import Enum
-from typing import Any, List, Optional
+from typing import Any, Optional
 
-from ffbb_api_client_v2.Cartographie import Cartographie
-from ffbb_api_client_v2.Commune import Commune
-from ffbb_api_client_v2.converters import (
-    from_datetime,
-    from_int,
-    from_list,
-    from_none,
-    from_str,
-    from_union,
-    to_class,
-    to_enum,
-)
-from ffbb_api_client_v2.Geo import Geo
-from ffbb_api_client_v2.TypeAssociation import TypeAssociation
+from .Cartographie import Cartographie
+from .Commune import Commune
+from .converters import from_datetime, from_none, from_str, from_union, to_class
+from .FacetDistribution import FacetDistribution
+from .FacetStats import FacetStats
+from .Geo import Geo
+from .Hit import Hit
+from .TypeAssociation import TypeAssociation
+
+# class LibelleEnum(Enum):
+#     SALLE = "Salle"
 
 
-class LibelleEnum(Enum):
-    SALLE = "Salle"
+class SallesFacetDistribution(FacetDistribution):
+    @staticmethod
+    def from_dict(obj: Any) -> "FacetDistribution":
+        FacetDistribution.from_dict(obj)
+
+    def to_dict(self) -> dict:
+        super().to_dict()
 
 
-@dataclass
-class Hit:
+class SallesHit(Hit):
     libelle: Optional[str] = None
     adresse: Optional[str] = None
     id: Optional[str] = None
@@ -40,11 +39,49 @@ class Hit:
     commune: Optional[Commune] = None
     geo: Optional[Geo] = None
     thumbnail: None
-    type: Optional[LibelleEnum] = None
+    type: Optional[str] = None
     type_association: Optional[TypeAssociation] = None
 
+    def __init__(
+        self,
+        libelle: Optional[str] = None,
+        adresse: Optional[str] = None,
+        id: Optional[str] = None,
+        adresse_complement: Optional[str] = None,
+        capacite_spectateur: Optional[str] = None,
+        date_created: Optional[datetime] = None,
+        date_updated: Optional[datetime] = None,
+        libelle2: Optional[str] = None,
+        mail: Optional[str] = None,
+        numero: Optional[str] = None,
+        telephone: Optional[str] = None,
+        cartographie: Optional[Cartographie] = None,
+        commune: Optional[Commune] = None,
+        geo: Optional[Geo] = None,
+        thumbnail: None = None,
+        type: Optional[str] = None,
+        type_association: Optional[TypeAssociation] = None,
+    ) -> None:
+        self.libelle = libelle
+        self.adresse = adresse
+        self.id = id
+        self.adresse_complement = adresse_complement
+        self.capacite_spectateur = capacite_spectateur
+        self.date_created = date_created
+        self.date_updated = date_updated
+        self.libelle2 = libelle2
+        self.mail = mail
+        self.numero = numero
+        self.telephone = telephone
+        self.cartographie = cartographie
+        self.commune = commune
+        self.geo = geo
+        self.thumbnail = thumbnail
+        self.type = type
+        self.type_association = type_association
+
     @staticmethod
-    def from_dict(obj: Any) -> "Hit":
+    def from_dict(obj: Any) -> "SallesHit":
         assert isinstance(obj, dict)
         libelle = from_union([from_str, from_none], obj.get("libelle"))
         adresse = from_union([from_none, from_str], obj.get("adresse"))
@@ -67,11 +104,11 @@ class Hit:
         commune = from_union([Commune.from_dict, from_none], obj.get("commune"))
         geo = from_union([Geo.from_dict, from_none], obj.get("_geo"))
         thumbnail = from_none(obj.get("thumbnail"))
-        type = from_union([LibelleEnum, from_none], obj.get("type"))
+        type = from_union([from_str, from_none], obj.get("type"))
         type_association = from_union(
             [TypeAssociation.from_dict, from_none], obj.get("type_association")
         )
-        return Hit(
+        return SallesHit(
             libelle,
             adresse,
             id,
@@ -138,9 +175,7 @@ class Hit:
         if self.thumbnail is not None:
             result["thumbnail"] = from_none(self.thumbnail)
         if self.type is not None:
-            result["type"] = from_union(
-                [lambda x: to_enum(LibelleEnum, x), from_none], self.type
-            )
+            result["type"] = from_union([from_str, from_none], self.type)
         if self.type_association is not None:
             result["type_association"] = from_union(
                 [lambda x: to_class(TypeAssociation, x), from_none],
@@ -149,93 +184,10 @@ class Hit:
         return result
 
 
-@dataclass
-class Result:
-    index_uid: Optional[str] = None
-    hits: Optional[List[Hit]] = None
-    query: Optional[str] = None
-    processing_time_ms: Optional[int] = None
-    limit: Optional[int] = None
-    offset: Optional[int] = None
-    estimated_total_hits: Optional[int] = None
-
+class SallesFacetStats(FacetStats):
     @staticmethod
-    def from_dict(obj: Any) -> "Result":
-        assert isinstance(obj, dict)
-        index_uid = from_union([from_str, from_none], obj.get("indexUid"))
-        hits = from_union(
-            [lambda x: from_list(Hit.from_dict, x), from_none], obj.get("hits")
-        )
-        query = from_union([from_str, from_none], obj.get("query"))
-        processing_time_ms = from_union(
-            [from_int, from_none], obj.get("processingTimeMs")
-        )
-        limit = from_union([from_int, from_none], obj.get("limit"))
-        offset = from_union([from_int, from_none], obj.get("offset"))
-        estimated_total_hits = from_union(
-            [from_int, from_none], obj.get("estimatedTotalHits")
-        )
-        return Result(
-            index_uid,
-            hits,
-            query,
-            processing_time_ms,
-            limit,
-            offset,
-            estimated_total_hits,
-        )
+    def from_dict(obj: Any) -> "SallesFacetStats":
+        return SallesFacetStats()
 
     def to_dict(self) -> dict:
-        result: dict = {}
-        if self.index_uid is not None:
-            result["indexUid"] = from_union([from_str, from_none], self.index_uid)
-        if self.hits is not None:
-            result["hits"] = from_union(
-                [lambda x: from_list(lambda x: to_class(Hit, x), x), from_none],
-                self.hits,
-            )
-        if self.query is not None:
-            result["query"] = from_union([from_str, from_none], self.query)
-        if self.processing_time_ms is not None:
-            result["processingTimeMs"] = from_union(
-                [from_int, from_none], self.processing_time_ms
-            )
-        if self.limit is not None:
-            result["limit"] = from_union([from_int, from_none], self.limit)
-        if self.offset is not None:
-            result["offset"] = from_union([from_int, from_none], self.offset)
-        if self.estimated_total_hits is not None:
-            result["estimatedTotalHits"] = from_union(
-                [from_int, from_none], self.estimated_total_hits
-            )
-        return result
-
-
-@dataclass
-class MultiSearchResults:
-    results: Optional[List[Result]] = None
-
-    @staticmethod
-    def from_dict(obj: Any) -> "MultiSearchResults":
-        assert isinstance(obj, dict)
-        results = from_union(
-            [lambda x: from_list(Result.from_dict, x), from_none], obj.get("results")
-        )
-        return MultiSearchResults(results)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        if self.results is not None:
-            result["results"] = from_union(
-                [lambda x: from_list(lambda x: to_class(Result, x), x), from_none],
-                self.results,
-            )
-        return result
-
-
-def multi_search_results_from_dict(s: Any) -> MultiSearchResults:
-    return MultiSearchResults.from_dict(s)
-
-
-def multi_search_results_to_dict(x: MultiSearchResults) -> Any:
-    return to_class(MultiSearchResults, x)
+        super().to_dict()
