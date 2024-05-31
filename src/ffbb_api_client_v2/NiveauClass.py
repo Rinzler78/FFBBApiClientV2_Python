@@ -7,6 +7,10 @@ class NiveauClass:
     départemental: Optional[int] = None
     régional: Optional[int] = None
 
+    def __init__(self, départemental: Optional[int], régional: Optional[int]) -> None:
+        self.départemental = départemental
+        self.régional = régional
+
     @staticmethod
     def from_dict(obj: Any) -> "NiveauClass":
         assert isinstance(obj, dict)

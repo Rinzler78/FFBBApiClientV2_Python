@@ -7,6 +7,10 @@ class CompetitionIDTypeCompetition:
     championnat: Optional[int] = None
     coupe: Optional[int] = None
 
+    def __init__(self, championnat: Optional[int], coupe: Optional[int]) -> None:
+        self.championnat = championnat
+        self.coupe = coupe
+
     @staticmethod
     def from_dict(obj: Any) -> "CompetitionIDTypeCompetition":
         assert isinstance(obj, dict)

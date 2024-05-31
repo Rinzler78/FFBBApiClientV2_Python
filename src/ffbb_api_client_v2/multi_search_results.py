@@ -32,15 +32,15 @@ class MultiSearchResult(Generic[HitType, FacetDistributionType, FacetStatsType])
 
     def __init__(
         self,
-        index_uid: Optional[str] = None,
-        hits: Optional[List[HitType]] = None,
-        query: Optional[str] = None,
-        processing_time_ms: Optional[int] = None,
-        limit: Optional[int] = None,
-        offset: Optional[int] = None,
-        estimated_total_hits: Optional[int] = None,
-        facet_distribution: Optional[FacetDistributionType] = None,
-        facet_stats: Optional[FacetStatsType] = None,
+        index_uid: Optional[str],
+        hits: Optional[List[HitType]],
+        query: Optional[str],
+        processing_time_ms: Optional[int],
+        limit: Optional[int],
+        offset: Optional[int],
+        estimated_total_hits: Optional[int],
+        facet_distribution: Optional[FacetDistributionType],
+        facet_stats: Optional[FacetStatsType],
     ) -> None:
         self.index_uid = index_uid
         self.hits = hits

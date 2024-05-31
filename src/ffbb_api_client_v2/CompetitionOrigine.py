@@ -18,6 +18,24 @@ class CompetitionOrigine:
         None
     )
 
+    def __init__(
+        self,
+        id: Optional[str],
+        code: Optional[str],
+        nom: Optional[str],
+        type_competition: Optional[CompetitionOrigineTypeCompetition],
+        categorie: Optional[CompetitionOrigineCategorie],
+        type_competition_generique: Optional[
+            CompetitionOrigineTypeCompetitionGenerique
+        ],
+    ) -> None:
+        self.id = id
+        self.code = code
+        self.nom = nom
+        self.type_competition = type_competition
+        self.categorie = categorie
+        self.type_competition_generique = type_competition_generique
+
     @staticmethod
     def from_dict(obj: Any) -> "CompetitionOrigine":
         assert isinstance(obj, dict)
@@ -25,7 +43,8 @@ class CompetitionOrigine:
         code = from_union([from_str, from_none], obj.get("code"))
         nom = from_union([from_str, from_none], obj.get("nom"))
         type_competition = from_union(
-            [CompetitionOrigineTypeCompetition, from_none], obj.get("typeCompetition")
+            [CompetitionOrigineTypeCompetition.parse, from_none],
+            obj.get("typeCompetition"),
         )
         categorie = from_union(
             [CompetitionOrigineCategorie.from_dict, from_none], obj.get("categorie")

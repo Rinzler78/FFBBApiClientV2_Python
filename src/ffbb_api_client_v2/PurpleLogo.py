@@ -7,6 +7,9 @@ from .converters import from_none, from_union
 class PurpleLogo:
     id: Optional[UUID] = None
 
+    def __init__(self, id: Optional[UUID] = None) -> None:
+        self.id = id
+
     @staticmethod
     def from_dict(obj: Any) -> "PurpleLogo":
         assert isinstance(obj, dict)

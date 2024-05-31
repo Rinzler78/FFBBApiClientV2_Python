@@ -50,6 +50,8 @@ class TestMeilisearchProdFFBBAPPClient(unittest.TestCase):
     def test_search_rencontres_with_empty_names(self):
         result = self.api_client.search_rencontres()
         self.assertIsNotNone(result)
+        self.assertIsNotNone(result.results)
+        self.assertGreater(len(result.results), 0)
 
     def test_search_rencontres_with_most_used_letters(self):
         result = self.api_client.search_multiple_rencontres(

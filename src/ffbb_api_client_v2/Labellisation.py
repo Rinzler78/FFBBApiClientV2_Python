@@ -9,8 +9,8 @@ class Labellisation:
 
     def __init__(
         self,
-        basket_santé_résolutions: Optional[int] = None,
-        micro_basket: Optional[int] = None,
+        basket_santé_résolutions: Optional[int],
+        micro_basket: Optional[int],
     ) -> None:
         self.basket_santé_résolutions = basket_santé_résolutions
         self.micro_basket = micro_basket

@@ -16,12 +16,12 @@ class Commune:
     def __init__(
         self,
         code_insee: None,
-        code_postal: Optional[int] = None,
-        date_created: Optional[datetime] = None,
-        date_updated: Optional[datetime] = None,
-        id: Optional[int] = None,
-        libelle: Optional[str] = None,
-        departement: Optional[str] = None,
+        code_postal: Optional[int],
+        date_created: Optional[datetime],
+        date_updated: Optional[datetime],
+        id: Optional[int],
+        libelle: Optional[str],
+        departement: Optional[str],
     ):
         self.code_insee = code_insee
         self.code_postal = code_postal

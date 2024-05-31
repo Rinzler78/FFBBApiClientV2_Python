@@ -8,6 +8,13 @@ class CompetitionIDCategorie:
     libelle: Optional[str] = None
     ordre: Optional[int] = None
 
+    def __init__(
+        self, code: Optional[str], libelle: Optional[str], ordre: Optional[int]
+    ) -> None:
+        self.code = code
+        self.libelle = libelle
+        self.ordre = ordre
+
     @staticmethod
     def from_dict(obj: Any) -> "CompetitionIDCategorie":
         assert isinstance(obj, dict)

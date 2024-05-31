@@ -70,7 +70,6 @@ class MeilisearchProdFFBBAPPClient:
         for i in range(len(result.results)):
             query_result = result.results[i]
             querie = queries[i]
-            query_result.hits.sort(key=lambda x: x.nom)
             nb_hits = len(query_result.hits)
 
             if nb_hits < (query_result.estimated_total_hits - querie.offset):
@@ -84,25 +83,32 @@ class MeilisearchProdFFBBAPPClient:
             for i in range(len(new_result.results)):
                 query_result = new_result.results[i]
                 result.results[i].hits.extend(query_result.hits)
-                result.results[i].hits.sort(key=lambda x: x.nom)
         return result
 
-    def search_multiple_organismes(self, names: List[str] = None) -> MultiSearchResults:
+    def search_multiple_organismes(
+        self, names: List[str] = None, cached_session: CachedSession = None
+    ) -> MultiSearchResults:
         if not names:
             return None
 
         queries = [OrganismesMultiSearchQuery(name) for name in names]
-        return self.multi_search(queries)
+        return self.multi_search(queries, cached_session)
 
-    def search_organismes(self, name: str = None) -> MultiSearchResults:
-        return self.search_multiple_organismes([name])
+    def search_organismes(
+        self, name: str = None, cached_session: CachedSession = None
+    ) -> MultiSearchResults:
+        return self.search_multiple_organismes([name], cached_session)
 
-    def search_multiple_rencontres(self, names: List[str] = None) -> MultiSearchResults:
+    def search_multiple_rencontres(
+        self, names: List[str] = None, cached_session: CachedSession = None
+    ) -> MultiSearchResults:
         if not names:
             return None
 
         queries = [RencontresMultiSearchQuery(name) for name in names]
-        return self.multi_search(queries)
+        return self.multi_search(queries, cached_session)
 
-    def search_rencontres(self, name: str = None) -> MultiSearchResults:
-        return self.search_multiple_rencontres([name])
+    def search_rencontres(
+        self, name: str = None, cached_session: CachedSession = None
+    ) -> MultiSearchResults:
+        return self.search_multiple_rencontres([name], cached_session)

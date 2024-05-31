@@ -8,6 +8,13 @@ class CompetitionIDSexe:
     masculin: Optional[int] = None
     mixte: Optional[int] = None
 
+    def __init__(
+        self, féminin: Optional[int], masculin: Optional[int], mixte: Optional[int]
+    ) -> None:
+        self.féminin = féminin
+        self.masculin = masculin
+        self.mixte = mixte
+
     @staticmethod
     def from_dict(obj: Any) -> "CompetitionIDSexe":
         assert isinstance(obj, dict)

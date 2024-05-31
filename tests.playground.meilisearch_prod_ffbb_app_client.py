@@ -19,11 +19,11 @@ meilisearch_prod_ffbb_app_client: MeilisearchProdFFBBAPPClient = (
 
 test = TestMeilisearchProdFFBBAPPClient()
 test.setUp()
-# test.test_multi_search_with_empty_queries()
+test.test_multi_search_with_empty_queries()
 
-# test.test_search_organismes_with_empty_name()
-# test.test_search_organismes_with_most_used_letters()
-# test.test_search_organismes_with_known_names()
+test.test_search_organismes_with_empty_name()
+test.test_search_organismes_with_most_used_letters()
+test.test_search_organismes_with_known_names()
 
 test.test_search_rencontres_with_empty_names()
 test.test_search_rencontres_with_most_used_letters()

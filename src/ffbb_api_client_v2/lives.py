@@ -17,7 +17,7 @@ from .external_id import ExternalID
 
 
 class Live:
-    clock: None
+    clock: datetime
     current_status: None
     current_period: None
     match_id: Optional[int] = None
@@ -66,7 +66,7 @@ class Live:
         score_ot2_out: Optional[int],
         score_home: Optional[int],
         score_out: Optional[int],
-        clock: None,
+        clock: datetime,
         competition_name: Optional[str],
         current_status: None,
         current_period: None,
@@ -138,10 +138,10 @@ class Live:
         score_ot2_out = from_union([from_int, from_none], obj.get("score_ot2_out"))
         score_home = from_union([from_int, from_none], obj.get("score_home"))
         score_out = from_union([from_int, from_none], obj.get("score_out"))
-        clock = from_none(obj.get("clock"))
+        clock = score_out = from_union([from_datetime, from_none], obj.get("clock"))
         competition_name = from_union([from_str, from_none], obj.get("competitionName"))
-        current_status = from_none(obj.get("currentStatus"))
-        current_period = from_none(obj.get("currentPeriod"))
+        current_status = from_union([from_str, from_none], obj.get("currentStatus"))
+        current_period = from_union([from_str, from_none], obj.get("currentPeriod"))
         match_status = from_union([from_str, from_none], obj.get("matchStatus"))
         team_name_home = from_union([from_str, from_none], obj.get("teamName_home"))
         team_name_out = from_union([from_str, from_none], obj.get("teamName_out"))
@@ -263,15 +263,19 @@ class Live:
         if self.score_out is not None:
             result["score_out"] = from_union([from_int, from_none], self.score_out)
         if self.clock is not None:
-            result["clock"] = from_none(self.clock)
+            result["clock"] = from_union([from_datetime, from_none], self.clock)
         if self.competition_name is not None:
             result["competitionName"] = from_union(
                 [from_str, from_none], self.competition_name
             )
         if self.current_status is not None:
-            result["currentStatus"] = from_none(self.current_status)
+            result["currentStatus"] = from_union(
+                [from_str, from_none], self.current_status
+            )
         if self.current_period is not None:
-            result["currentPeriod"] = from_none(self.current_period)
+            result["currentPeriod"] = from_union(
+                [from_str, from_none], self.current_period
+            )
         if self.match_status is not None:
             result["matchStatus"] = from_union([from_str, from_none], self.match_status)
         if self.team_name_home is not None:

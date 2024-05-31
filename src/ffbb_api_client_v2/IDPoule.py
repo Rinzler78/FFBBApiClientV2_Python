@@ -7,7 +7,7 @@ class IDPoule:
     id: Optional[str] = None
     nom: Optional[str] = None
 
-    def __init__(self, id: Optional[str] = None, nom: Optional[str] = None) -> None:
+    def __init__(self, id: Optional[str], nom: Optional[str] = None) -> None:
         self.id = id
         self.nom = nom
 

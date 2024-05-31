@@ -7,6 +7,9 @@ from .PurpleLogo import PurpleLogo
 class CompetitionOrigineTypeCompetitionGenerique:
     logo: Optional[PurpleLogo] = None
 
+    def __init__(self, logo: Optional[PurpleLogo]) -> None:
+        self.logo = logo
+
     @staticmethod
     def from_dict(obj: Any) -> "CompetitionOrigineTypeCompetitionGenerique":
         assert isinstance(obj, dict)

@@ -6,6 +6,9 @@ from .converters import from_int, from_none, from_union
 class CompetitionOrigineCategorie:
     ordre: Optional[int] = None
 
+    def __init__(self, ordre: Optional[int] = None) -> None:
+        self.ordre = ordre
+
     @staticmethod
     def from_dict(obj: Any) -> "CompetitionOrigineCategorie":
         assert isinstance(obj, dict)

@@ -1,5 +1,7 @@
 from typing import Any, Optional
 
+from ffbb_api_client_v2.Logo import Logo
+
 from .CompetitionIDCategorie import CompetitionIDCategorie
 from .CompetitionIDTypeCompetitionGenerique import CompetitionIDTypeCompetitionGenerique
 from .CompetitionOrigine import CompetitionOrigine
@@ -17,7 +19,7 @@ class CompetitionID:
     sexe: Optional[str] = None
     type_competition: Optional[str] = None
     pro: Optional[bool] = None
-    logo: None
+    logo: Logo
     categorie: Optional[str] = None
     type_competition_generique: Optional[CompetitionIDTypeCompetitionGenerique] = None
     competition_origine: Optional[CompetitionOrigine] = None
@@ -35,7 +37,7 @@ class CompetitionID:
         sexe: Optional[str],
         type_competition: Optional[str],
         pro: Optional[bool],
-        logo: None,
+        logo: Logo,
         categorie: Optional[str],
         type_competition_generique: Optional[CompetitionIDTypeCompetitionGenerique],
         competition_origine: Optional[CompetitionOrigine],
@@ -59,52 +61,58 @@ class CompetitionID:
 
     @staticmethod
     def from_dict(obj: Any) -> "CompetitionID":
-        assert isinstance(obj, dict)
-        id = from_union([from_str, from_none], obj.get("id"))
-        nom = from_union([from_str, from_none], obj.get("nom"))
-        competition_origine_nom = from_union(
-            [from_str, from_none], obj.get("competition_origine_nom")
-        )
-        code = from_union([from_str, from_none], obj.get("code"))
-        creation_en_cours = from_union(
-            [from_bool, from_none], obj.get("creationEnCours")
-        )
-        live_stat = from_union([from_bool, from_none], obj.get("liveStat"))
-        publication_internet = from_union(
-            [from_str, from_none], obj.get("publicationInternet")
-        )
-        sexe = from_union([from_str, from_none], obj.get("sexe"))
-        type_competition = from_union([from_str, from_none], obj.get("typeCompetition"))
-        pro = from_union([from_bool, from_none], obj.get("pro"))
-        logo = from_none(obj.get("logo"))
-        categorie = from_union(
-            [CompetitionIDCategorie.from_dict, from_none], obj.get("categorie")
-        )
-        type_competition_generique = from_union(
-            [CompetitionIDTypeCompetitionGenerique.from_dict, from_none],
-            obj.get("typeCompetitionGenerique"),
-        )
-        competition_origine = from_union(
-            [CompetitionOrigine.from_dict, from_none], obj.get("competition_origine")
-        )
-        nom_extended = from_union([from_str, from_none], obj.get("nomExtended"))
-        return CompetitionID(
-            id,
-            nom,
-            competition_origine_nom,
-            code,
-            creation_en_cours,
-            live_stat,
-            publication_internet,
-            sexe,
-            type_competition,
-            pro,
-            logo,
-            categorie,
-            type_competition_generique,
-            competition_origine,
-            nom_extended,
-        )
+        try:
+            assert isinstance(obj, dict)
+            id = from_union([from_str, from_none], obj.get("id"))
+            nom = from_union([from_str, from_none], obj.get("nom"))
+            competition_origine_nom = from_union(
+                [from_str, from_none], obj.get("competition_origine_nom")
+            )
+            code = from_union([from_str, from_none], obj.get("code"))
+            creation_en_cours = from_union(
+                [from_bool, from_none], obj.get("creationEnCours")
+            )
+            live_stat = from_union([from_bool, from_none], obj.get("liveStat"))
+            publication_internet = from_union(
+                [from_str, from_none], obj.get("publicationInternet")
+            )
+            sexe = from_union([from_str, from_none], obj.get("sexe"))
+            type_competition = from_union(
+                [from_str, from_none], obj.get("typeCompetition")
+            )
+            pro = from_union([from_bool, from_none], obj.get("pro"))
+            logo = from_union([Logo.from_dict, from_none], obj.get("logo"))
+            categorie = from_union(
+                [CompetitionIDCategorie.from_dict, from_none], obj.get("categorie")
+            )
+            type_competition_generique = from_union(
+                [CompetitionIDTypeCompetitionGenerique.from_dict, from_none],
+                obj.get("typeCompetitionGenerique"),
+            )
+            competition_origine = from_union(
+                [CompetitionOrigine.from_dict, from_none],
+                obj.get("competition_origine"),
+            )
+            nom_extended = from_union([from_str, from_none], obj.get("nomExtended"))
+            return CompetitionID(
+                id,
+                nom,
+                competition_origine_nom,
+                code,
+                creation_en_cours,
+                live_stat,
+                publication_internet,
+                sexe,
+                type_competition,
+                pro,
+                logo,
+                categorie,
+                type_competition_generique,
+                competition_origine,
+                nom_extended,
+            )
+        except Exception as e:
+            raise ValueError("Invalid CompetitionID object") from e
 
     def to_dict(self) -> dict:
         result: dict = {}

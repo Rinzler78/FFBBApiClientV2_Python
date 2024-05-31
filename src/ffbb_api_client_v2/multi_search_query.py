@@ -14,9 +14,9 @@ class MultiSearchQuery:
 
     def __init__(
         self,
-        index_uid: Optional[str] = None,
-        q: Optional[str] = None,
-        facets: Optional[List[str]] = None,
+        index_uid: Optional[str],
+        q: Optional[str],
+        facets: Optional[List[str]],
         limit: Optional[int] = 1000,
         offset: Optional[int] = 0,
         filter=[],
@@ -76,7 +76,7 @@ class MultiSearchQuery:
 class OrganismesMultiSearchQuery(MultiSearchQuery):
     def __init__(
         self,
-        q: Optional[str] = None,
+        q: Optional[str],
         limit: Optional[int] = 1000,
         offset: Optional[int] = 0,
         filter=[],
@@ -101,7 +101,7 @@ class OrganismesMultiSearchQuery(MultiSearchQuery):
 class RencontresMultiSearchQuery(MultiSearchQuery):
     def __init__(
         self,
-        q: Optional[str] = None,
+        q: Optional[str],
         limit: Optional[int] = 1000,
         offset: Optional[int] = 0,
         filter=[],
@@ -129,7 +129,7 @@ class RencontresMultiSearchQuery(MultiSearchQuery):
 class TerrainsMultiSearchQuery(MultiSearchQuery):
     def __init__(
         self,
-        q: Optional[str] = None,
+        q: Optional[str],
         limit: Optional[int] = 1000,
         offset: Optional[int] = 0,
         filter=[],
@@ -148,7 +148,7 @@ class TerrainsMultiSearchQuery(MultiSearchQuery):
 class SallesMultiSearchQuery(MultiSearchQuery):
     def __init__(
         self,
-        q: Optional[str] = None,
+        q: Optional[str],
         limit: Optional[int] = 1000,
         offset: Optional[int] = 0,
         filter=[],
@@ -167,7 +167,7 @@ class SallesMultiSearchQuery(MultiSearchQuery):
 class TournoisMultiSearchQuery(MultiSearchQuery):
     def __init__(
         self,
-        q: Optional[str] = None,
+        q: Optional[str],
         limit: Optional[int] = 1000,
         offset: Optional[int] = 0,
         filter=[],
@@ -186,7 +186,7 @@ class TournoisMultiSearchQuery(MultiSearchQuery):
 class CompetitionsMultiSearchQuery(MultiSearchQuery):
     def __init__(
         self,
-        q: Optional[str] = None,
+        q: Optional[str],
         limit: Optional[int] = 1000,
         offset: Optional[int] = 0,
         filter=[],
@@ -205,7 +205,7 @@ class CompetitionsMultiSearchQuery(MultiSearchQuery):
 class PratiquesMultiSearchQuery(MultiSearchQuery):
     def __init__(
         self,
-        q: Optional[str] = None,
+        q: Optional[str],
         limit: Optional[int] = 1000,
         offset: Optional[int] = 0,
         filter=[],

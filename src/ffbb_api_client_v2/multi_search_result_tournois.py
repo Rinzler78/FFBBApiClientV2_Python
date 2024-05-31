@@ -62,9 +62,9 @@ class TournoisFacetDistribution(FacetDistribution):
 
     def __init__(
         self,
-        sexe: Optional[SexeClass] = None,
-        tournoi_type: Optional[TournoiTypeClass] = None,
-        tournoi_types3_x3_libelle: Optional[TournoiTypes3X3Libelle] = None,
+        sexe: Optional[SexeClass],
+        tournoi_type: Optional[TournoiTypeClass],
+        tournoi_types3_x3_libelle: Optional[TournoiTypes3X3Libelle],
     ) -> None:
         self.sexe = sexe
         self.tournoi_type = tournoi_type
@@ -130,21 +130,21 @@ class TournoisHit(Hit):
 
     def __init__(
         self,
-        nom: Optional[str] = None,
-        rue: Optional[str] = None,
-        id: Optional[int] = None,
-        acces_libre: Optional[bool] = None,
-        date_created: Optional[datetime] = None,
-        date_updated: Optional[datetime] = None,
-        largeur: Optional[int] = None,
-        longueur: Optional[int] = None,
-        numero: Optional[int] = None,
-        cartographie: Optional[Cartographie] = None,
-        commune: Optional[Commune] = None,
-        nature_sol: Optional[NatureSol] = None,
-        geo: Optional[Geo] = None,
-        thumbnail: None = None,
-        type: Optional[HitType] = None,
+        nom: Optional[str],
+        rue: Optional[str],
+        id: Optional[int],
+        acces_libre: Optional[bool],
+        date_created: Optional[datetime],
+        date_updated: Optional[datetime],
+        largeur: Optional[int],
+        longueur: Optional[int],
+        numero: Optional[int],
+        cartographie: Optional[Cartographie],
+        commune: Optional[Commune],
+        nature_sol: Optional[NatureSol],
+        geo: Optional[Geo],
+        thumbnail: None,
+        type: Optional[HitType],
     ) -> None:
         self.nom = nom
         self.rue = rue

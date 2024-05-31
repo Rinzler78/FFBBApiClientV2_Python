@@ -13,11 +13,11 @@ class Salle:
 
     def __init__(
         self,
-        id: Optional[str] = None,
-        libelle: Optional[str] = None,
-        adresse: Optional[str] = None,
-        adresse_complement: Optional[str] = None,
-        cartographie: Optional[Cartographie] = None,
+        id: Optional[str],
+        libelle: Optional[str],
+        adresse: Optional[str],
+        adresse_complement: Optional[str],
+        cartographie: Optional[Cartographie],
     ) -> None:
         self.id = id
         self.libelle = libelle
