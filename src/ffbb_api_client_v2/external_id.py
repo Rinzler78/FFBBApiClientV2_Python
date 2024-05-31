@@ -4,8 +4,49 @@ from ffbb_api_client_v2.IDOrganismeEquipe import IDOrganismeEquipe
 from ffbb_api_client_v2.IDPoule import IDPoule
 from ffbb_api_client_v2.Salle import Salle
 
-from .CompetitionID import CompetitionID
 from .converters import from_none, from_str, from_union, is_type, to_class
+
+
+class CompetitionID:
+    code: Optional[str] = None
+    nom: Optional[str] = None
+    sexe: Optional[str] = None
+    type_competition: Optional[str] = None
+
+    def __init__(
+        self,
+        code: Optional[str],
+        nom: Optional[str],
+        sexe: Optional[str],
+        type_competition: Optional[str],
+    ) -> None:
+        self.code = code
+        self.nom = nom
+        self.sexe = sexe
+        self.type_competition = type_competition
+
+    @staticmethod
+    def from_dict(obj: Any) -> "CompetitionID":
+        assert isinstance(obj, dict)
+        code = from_union([from_str, from_none], obj.get("code"))
+        nom = from_union([from_str, from_none], obj.get("nom"))
+        sexe = from_union([from_str, from_none], obj.get("sexe"))
+        type_competition = from_union([from_str, from_none], obj.get("typeCompetition"))
+        return CompetitionID(code, nom, sexe, type_competition)
+
+    def to_dict(self) -> dict:
+        result: dict = {}
+        if self.code is not None:
+            result["code"] = from_union([from_str, from_none], self.code)
+        if self.nom is not None:
+            result["nom"] = from_union([from_str, from_none], self.nom)
+        if self.sexe is not None:
+            result["sexe"] = from_union([from_str, from_none], self.sexe)
+        if self.type_competition is not None:
+            result["typeCompetition"] = from_union(
+                [from_str, from_none], self.type_competition
+            )
+        return result
 
 
 class ExternalID:

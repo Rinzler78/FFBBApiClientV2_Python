@@ -28,3 +28,7 @@ test.test_search_organismes_with_known_names()
 test.test_search_rencontres_with_empty_names()
 test.test_search_rencontres_with_most_used_letters()
 test.test_search_rencontres_with_known_names()
+
+test.test_search_terrains_with_empty_names()
+test.test_search_terrains_with_most_used_letters()
+test.test_search_terrains_with_known_names()

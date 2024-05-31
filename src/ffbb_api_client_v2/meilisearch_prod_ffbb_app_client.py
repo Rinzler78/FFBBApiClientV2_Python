@@ -8,6 +8,7 @@ from .multi_search_query import (
     MultiSearchQuery,
     OrganismesMultiSearchQuery,
     RencontresMultiSearchQuery,
+    TerrainsMultiSearchQuery,
 )
 from .MultiSearchResults import MultiSearchResults, multi_search_results_from_dict
 
@@ -112,3 +113,17 @@ class MeilisearchProdFFBBAPPClient:
         self, name: str = None, cached_session: CachedSession = None
     ) -> MultiSearchResults:
         return self.search_multiple_rencontres([name], cached_session)
+
+    def search_multiple_terrains(
+        self, names: List[str] = None, cached_session: CachedSession = None
+    ) -> MultiSearchResults:
+        if not names:
+            return None
+
+        queries = [TerrainsMultiSearchQuery(name) for name in names]
+        return self.multi_search(queries, cached_session)
+
+    def search_terrains(
+        self, name: str = None, cached_session: CachedSession = None
+    ) -> MultiSearchResults:
+        return self.search_multiple_terrains([name], cached_session)

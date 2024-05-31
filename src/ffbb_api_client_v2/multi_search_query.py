@@ -130,6 +130,7 @@ class TerrainsMultiSearchQuery(MultiSearchQuery):
     def __init__(
         self,
         q: Optional[str],
+        facets: Optional[List[str]] = None,
         limit: Optional[int] = 1000,
         offset: Optional[int] = 0,
         filter=[],
@@ -138,6 +139,7 @@ class TerrainsMultiSearchQuery(MultiSearchQuery):
         super().__init__(
             index_uid="ffbbserver_terrains",
             q=q,
+            facets=facets,
             limit=limit,
             offset=offset,
             filter=filter,

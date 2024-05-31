@@ -16,8 +16,27 @@ from .converters import (
 from .external_id import ExternalID
 
 
+class Clock:
+    minutes: int
+    seconds: int
+    milliseconds: int
+
+    def __init__(self, minutes: int, seconds: int, milliseconds: int):
+        self.minutes = minutes
+        self.seconds = seconds
+        self.milliseconds = milliseconds
+
+    @staticmethod
+    def from_str(obj: str) -> "Clock":
+        minutes, seconds, milliseconds = obj.split(":") if obj else ["0", "0", "0"]
+        return Clock(int(minutes), int(seconds), int(milliseconds))
+
+    def to_str(self) -> str:
+        return f"{self.minutes}:{self.seconds}:{self.milliseconds}"
+
+
 class Live:
-    clock: datetime
+    clock: Clock
     current_status: None
     current_period: None
     match_id: Optional[int] = None
@@ -66,7 +85,7 @@ class Live:
         score_ot2_out: Optional[int],
         score_home: Optional[int],
         score_out: Optional[int],
-        clock: datetime,
+        clock: Clock,
         competition_name: Optional[str],
         current_status: None,
         current_period: None,
@@ -138,7 +157,7 @@ class Live:
         score_ot2_out = from_union([from_int, from_none], obj.get("score_ot2_out"))
         score_home = from_union([from_int, from_none], obj.get("score_home"))
         score_out = from_union([from_int, from_none], obj.get("score_out"))
-        clock = score_out = from_union([from_datetime, from_none], obj.get("clock"))
+        clock = from_union([Clock.from_str, from_none], obj.get("clock"))
         competition_name = from_union([from_str, from_none], obj.get("competitionName"))
         current_status = from_union([from_str, from_none], obj.get("currentStatus"))
         current_period = from_union([from_str, from_none], obj.get("currentPeriod"))
@@ -263,7 +282,7 @@ class Live:
         if self.score_out is not None:
             result["score_out"] = from_union([from_int, from_none], self.score_out)
         if self.clock is not None:
-            result["clock"] = from_union([from_datetime, from_none], self.clock)
+            result["clock"] = from_union([Clock.to_str, from_none], self.clock)
         if self.competition_name is not None:
             result["competitionName"] = from_union(
                 [from_str, from_none], self.competition_name
