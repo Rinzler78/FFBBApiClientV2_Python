@@ -8,16 +8,16 @@ from .multi_search_result_organismes import (
 from .multi_search_results import MultiSearchResult
 
 
-class MultiSearchResultOrganismes(
+class OrganismesMultiSearchResult(
     MultiSearchResult[OrganismesHit, OrganismesFacetDistribution, OrganismesFacetStats]
 ):
 
     @staticmethod
-    def from_dict(obj: Any) -> "MultiSearchResultOrganismes":
+    def from_dict(obj: Any) -> "OrganismesMultiSearchResult":
         return MultiSearchResult.from_dict(
             obj,
             OrganismesHit,
             OrganismesFacetDistribution,
             OrganismesFacetStats,
-            MultiSearchResultOrganismes,
+            OrganismesMultiSearchResult,
         )

@@ -9,18 +9,18 @@ from .multi_search_result_competitions import (
 )
 
 
-class MultiSearchResultCompetitions(
+class CompetitionsMultiSearchResult(
     MultiSearchResult[
         CompetitionsHit, CompetitionsFacetDistribution, CompetitionsFacetStats
     ]
 ):
 
     @staticmethod
-    def from_dict(obj: Any) -> "MultiSearchResultCompetitions":
+    def from_dict(obj: Any) -> "CompetitionsMultiSearchResult":
         return MultiSearchResult.from_dict(
             obj,
             CompetitionsHit,
             CompetitionsFacetDistribution,
             CompetitionsFacetStats,
-            MultiSearchResultCompetitions,
+            CompetitionsMultiSearchResult,
         )

@@ -2,12 +2,12 @@ from typing import Any, List, Optional
 
 from .converters import from_list, from_none, from_union, to_class
 from .multi_search_results import MultiSearchResult
-from .MultiSearchResultCompetitions import MultiSearchResultCompetitions
-from .MultiSearchResultOrganismes import MultiSearchResultOrganismes
-from .MultiSearchResultRencontres import MultiSearchResultRencontres
-from .MultiSearchResultSalles import MultiSearchResultSalles
-from .MultiSearchResultTerrains import MultiSearchResultTerrains
-from .MultiSearchResultTournois import MultiSearchResultTournois
+from .MultiSearchResultCompetitions import CompetitionsMultiSearchResult
+from .MultiSearchResultOrganismes import OrganismesMultiSearchResult
+from .MultiSearchResultRencontres import RencontresMultiSearchResult
+from .MultiSearchResultSalles import SallesMultiSearchResult
+from .MultiSearchResultTerrains import TerrainsMultiSearchResult
+from .MultiSearchResultTournois import TournoisMultiSearchResult
 
 index_uids = [
     "ffbbserver_organismes",
@@ -20,12 +20,12 @@ index_uids = [
 ]
 
 index_uids_converters = {
-    index_uids[0]: lambda x: MultiSearchResultOrganismes.from_dict(x),
-    index_uids[1]: lambda x: MultiSearchResultRencontres.from_dict(x),
-    index_uids[2]: lambda x: MultiSearchResultTerrains.from_dict(x),
-    index_uids[3]: lambda x: MultiSearchResultSalles.from_dict(x),
-    index_uids[4]: lambda x: MultiSearchResultTournois.from_dict(x),
-    index_uids[5]: lambda x: MultiSearchResultCompetitions.from_dict(x),
+    index_uids[0]: lambda x: OrganismesMultiSearchResult.from_dict(x),
+    index_uids[1]: lambda x: RencontresMultiSearchResult.from_dict(x),
+    index_uids[2]: lambda x: TerrainsMultiSearchResult.from_dict(x),
+    index_uids[3]: lambda x: SallesMultiSearchResult.from_dict(x),
+    index_uids[4]: lambda x: TournoisMultiSearchResult.from_dict(x),
+    index_uids[5]: lambda x: CompetitionsMultiSearchResult.from_dict(x),
 }
 
 

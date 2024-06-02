@@ -1,6 +1,6 @@
 import os
 
-from ffbb_api_client_v2.meilisearch_ffbb_app_client import (
+from ffbb_api_client_v2.meilisearch_ffbb_app_client_helper import (
     MeilisearchFFBBAPPClientHelper,
 )
 from tests.test_meilisearch_ffbb_app_client_helper import (
@@ -21,6 +21,8 @@ meilisearch_prod_ffbb_app_client: MeilisearchFFBBAPPClientHelper = (
 
 test = TestMeilisearchFFBBAPPClientHelper()
 test.setUp()
+
+test.test_multi_search_with_all_possible_empty_queries()
 
 # test.test_search_organismes_with_empty_name()
 # test.test_search_organismes_with_most_used_letters()

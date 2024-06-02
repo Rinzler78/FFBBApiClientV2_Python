@@ -1,10 +1,20 @@
 import os
 import unittest
+from typing import List
 
 from dotenv import load_dotenv
 
-from ffbb_api_client_v2.meilisearch_ffbb_app_client import (
+from ffbb_api_client_v2.meilisearch_ffbb_app_client_helper import (
     MeilisearchFFBBAPPClientHelper,
+)
+from ffbb_api_client_v2.multi_search_query import (
+    CompetitionsMultiSearchQuery,
+    MultiSearchQuery,
+    OrganismesMultiSearchQuery,
+    RencontresMultiSearchQuery,
+    SallesMultiSearchQuery,
+    TerrainsMultiSearchQuery,
+    TournoisMultiSearchQuery,
 )
 from ffbb_api_client_v2.multi_search_result_competitions import (
     CompetitionsFacetDistribution,
@@ -37,13 +47,13 @@ from ffbb_api_client_v2.multi_search_result_tournois import (
     TournoisHit,
 )
 from ffbb_api_client_v2.MultiSearchResultCompetitions import (
-    MultiSearchResultCompetitions,
+    CompetitionsMultiSearchResult,
 )
-from ffbb_api_client_v2.MultiSearchResultOrganismes import MultiSearchResultOrganismes
-from ffbb_api_client_v2.MultiSearchResultRencontres import MultiSearchResultRencontres
-from ffbb_api_client_v2.MultiSearchResultSalles import MultiSearchResultSalles
-from ffbb_api_client_v2.MultiSearchResultTerrains import MultiSearchResultTerrains
-from ffbb_api_client_v2.MultiSearchResultTournois import MultiSearchResultTournois
+from ffbb_api_client_v2.MultiSearchResultOrganismes import OrganismesMultiSearchResult
+from ffbb_api_client_v2.MultiSearchResultRencontres import RencontresMultiSearchResult
+from ffbb_api_client_v2.MultiSearchResultSalles import SallesMultiSearchResult
+from ffbb_api_client_v2.MultiSearchResultTerrains import TerrainsMultiSearchResult
+from ffbb_api_client_v2.MultiSearchResultTournois import TournoisMultiSearchResult
 
 load_dotenv()
 
@@ -69,13 +79,41 @@ class TestMeilisearchFFBBAPPClientHelper(unittest.TestCase):
         result = self.api_client.multi_search()
         self.assertIsNotNone(result)
 
+    def __generate_queries(self, search_name: str = None):
+        return [
+            OrganismesMultiSearchQuery(search_name),
+            RencontresMultiSearchQuery(search_name),
+            TerrainsMultiSearchQuery(search_name),
+            CompetitionsMultiSearchQuery(search_name),
+            SallesMultiSearchQuery(search_name),
+            TournoisMultiSearchQuery(search_name),
+        ]
+
+    def __validate_test_multi_search_with_all_possible_queries(
+        self, queries: List[MultiSearchQuery], search_result
+    ):
+        self.assertIsNotNone(search_result)
+        self.assertIsNotNone(search_result.results)
+        self.assertGreater(len(search_result.results), 0)
+
+        for i in range(0, len(search_result.results)):
+            result = search_result.results[i]
+            query = queries[i]
+
+            self.assertTrue(query.is_valid_result(result))
+
+    def test_multi_search_with_all_possible_empty_queries(self):
+        queries = self.__generate_queries()
+        result = self.api_client.multi_search(queries)
+        self.__validate_test_multi_search_with_all_possible_queries(queries, result)
+
     def __validate_test_search_organismes(self, search_organismes_result):
         self.assertIsNotNone(search_organismes_result)
         self.assertIsNotNone(search_organismes_result.results)
         self.assertGreater(len(search_organismes_result.results), 0)
 
         for result in search_organismes_result.results:
-            self.assertEqual(type(result), MultiSearchResultOrganismes)
+            self.assertEqual(type(result), OrganismesMultiSearchResult)
 
             if result.facet_distribution:
                 self.assertEqual(
@@ -115,7 +153,7 @@ class TestMeilisearchFFBBAPPClientHelper(unittest.TestCase):
         self.assertGreater(len(search_rencontres_result.results), 0)
 
         for result in search_rencontres_result.results:
-            self.assertEqual(type(result), MultiSearchResultRencontres)
+            self.assertEqual(type(result), RencontresMultiSearchResult)
 
             if result.facet_distribution:
                 self.assertEqual(
@@ -150,7 +188,7 @@ class TestMeilisearchFFBBAPPClientHelper(unittest.TestCase):
         self.assertGreater(len(search_terrains_result.results), 0)
 
         for result in search_terrains_result.results:
-            self.assertEqual(type(result), MultiSearchResultTerrains)
+            self.assertEqual(type(result), TerrainsMultiSearchResult)
 
             if result.facet_distribution:
                 self.assertEqual(
@@ -187,7 +225,7 @@ class TestMeilisearchFFBBAPPClientHelper(unittest.TestCase):
         self.assertGreater(len(search_competitions_result.results), 0)
 
         for result in search_competitions_result.results:
-            self.assertEqual(type(result), MultiSearchResultCompetitions)
+            self.assertEqual(type(result), CompetitionsMultiSearchResult)
 
             if result.facet_distribution:
                 self.assertEqual(
@@ -222,7 +260,7 @@ class TestMeilisearchFFBBAPPClientHelper(unittest.TestCase):
         self.assertGreater(len(search_salles_result.results), 0)
 
         for result in search_salles_result.results:
-            self.assertEqual(type(result), MultiSearchResultSalles)
+            self.assertEqual(type(result), SallesMultiSearchResult)
 
             if result.facet_distribution:
                 self.assertEqual(
@@ -257,7 +295,7 @@ class TestMeilisearchFFBBAPPClientHelper(unittest.TestCase):
         self.assertGreater(len(search_tournois_result.results), 0)
 
         for result in search_tournois_result.results:
-            self.assertEqual(type(result), MultiSearchResultTournois)
+            self.assertEqual(type(result), TournoisMultiSearchResult)
 
             if result.facet_distribution:
                 self.assertEqual(
