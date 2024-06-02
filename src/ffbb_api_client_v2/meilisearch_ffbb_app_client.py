@@ -9,7 +9,9 @@ from .multi_search_query import (
     MultiSearchQuery,
     OrganismesMultiSearchQuery,
     RencontresMultiSearchQuery,
+    SallesMultiSearchQuery,
     TerrainsMultiSearchQuery,
+    TournoisMultiSearchQuery,
 )
 from .MultiSearchResults import MultiSearchResults, multi_search_results_from_dict
 
@@ -156,3 +158,31 @@ class MeilisearchFFBBAPPClientHelper:
         self, name: str = None, cached_session: CachedSession = None
     ) -> MultiSearchResults:
         return self.search_multiple_competitions([name], cached_session)
+
+    def search_multiple_salles(
+        self, names: List[str] = None, cached_session: CachedSession = None
+    ) -> MultiSearchResults:
+        if not names:
+            return None
+
+        queries = [SallesMultiSearchQuery(name) for name in names]
+        return self.multi_search(queries, cached_session)
+
+    def search_salles(
+        self, name: str = None, cached_session: CachedSession = None
+    ) -> MultiSearchResults:
+        return self.search_multiple_salles([name], cached_session)
+
+    def search_multiple_tournois(
+        self, names: List[str] = None, cached_session: CachedSession = None
+    ) -> MultiSearchResults:
+        if not names:
+            return None
+
+        queries = [TournoisMultiSearchQuery(name) for name in names]
+        return self.multi_search(queries, cached_session)
+
+    def search_tournois(
+        self, name: str = None, cached_session: CachedSession = None
+    ) -> MultiSearchResults:
+        return self.search_multiple_tournois([name], cached_session)

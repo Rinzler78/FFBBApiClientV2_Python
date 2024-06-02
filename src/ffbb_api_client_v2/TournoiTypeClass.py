@@ -8,6 +8,16 @@ class TournoiTypeClass:
     open_plus_access: Optional[int] = None
     open_start: Optional[int] = None
 
+    def __init__(
+        self,
+        open_plus: Optional[int] = None,
+        open_plus_access: Optional[int] = None,
+        open_start: Optional[int] = None,
+    ):
+        self.open_plus = open_plus
+        self.open_plus_access = open_plus_access
+        self.open_start = open_start
+
     @staticmethod
     def from_dict(obj: Any) -> "TournoiTypeClass":
         assert isinstance(obj, dict)

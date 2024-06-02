@@ -34,6 +34,14 @@ test.setUp()
 # test.test_search_terrains_with_most_used_letters()
 # test.test_search_terrains_with_known_names()
 
-test.test_search_competitions_with_empty_names()
-test.test_search_competitions_with_most_used_letters()
-test.test_search_competitions_with_known_names()
+# test.test_search_competitions_with_empty_names()
+# test.test_search_competitions_with_most_used_letters()
+# test.test_search_competitions_with_known_names()
+
+# test.test_search_salles_with_empty_names()
+# test.test_search_salles_with_most_used_letters()
+# test.test_search_salles_with_known_names()
+
+test.test_search_tournois_with_empty_names()
+test.test_search_tournois_with_most_used_letters()
+test.test_search_tournois_with_known_names()
