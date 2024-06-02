@@ -16,11 +16,11 @@ class MultiSearchQuery:
         self,
         index_uid: Optional[str],
         q: Optional[str],
-        facets: Optional[List[str]],
+        facets: Optional[List[str]] = None,
         limit: Optional[int] = 1000,
         offset: Optional[int] = 0,
-        filter=[],
-        sort=[],
+        filter: List[str] = None,
+        sort: List[str] = None,
     ):
         self.index_uid = index_uid
         self.q = q
@@ -79,8 +79,8 @@ class OrganismesMultiSearchQuery(MultiSearchQuery):
         q: Optional[str],
         limit: Optional[int] = 1000,
         offset: Optional[int] = 0,
-        filter=[],
-        sort=[],
+        filter: List[str] = None,
+        sort: List[str] = None,
     ):
         super().__init__(
             index_uid="ffbbserver_organismes",
@@ -104,8 +104,8 @@ class RencontresMultiSearchQuery(MultiSearchQuery):
         q: Optional[str],
         limit: Optional[int] = 1000,
         offset: Optional[int] = 0,
-        filter=[],
-        sort=[],
+        filter: List[str] = None,
+        sort: List[str] = None,
     ):
         super().__init__(
             index_uid="ffbbserver_rencontres",
@@ -133,8 +133,8 @@ class TerrainsMultiSearchQuery(MultiSearchQuery):
         facets: Optional[List[str]] = None,
         limit: Optional[int] = 1000,
         offset: Optional[int] = 0,
-        filter=[],
-        sort=[],
+        filter: List[str] = None,
+        sort: List[str] = None,
     ):
         super().__init__(
             index_uid="ffbbserver_terrains",
@@ -153,8 +153,8 @@ class SallesMultiSearchQuery(MultiSearchQuery):
         q: Optional[str],
         limit: Optional[int] = 1000,
         offset: Optional[int] = 0,
-        filter=[],
-        sort=[],
+        filter: List[str] = None,
+        sort: List[str] = None,
     ):
         super().__init__(
             index_uid="ffbbserver_salles",
@@ -172,8 +172,8 @@ class TournoisMultiSearchQuery(MultiSearchQuery):
         q: Optional[str],
         limit: Optional[int] = 1000,
         offset: Optional[int] = 0,
-        filter=[],
-        sort=[],
+        filter: List[str] = None,
+        sort: List[str] = None,
     ):
         super().__init__(
             index_uid="ffbbserver_tournois",
@@ -191,8 +191,8 @@ class CompetitionsMultiSearchQuery(MultiSearchQuery):
         q: Optional[str],
         limit: Optional[int] = 1000,
         offset: Optional[int] = 0,
-        filter=[],
-        sort=[],
+        filter: List[str] = None,
+        sort: List[str] = None,
     ):
         super().__init__(
             index_uid="ffbbserver_competitions",
@@ -210,8 +210,8 @@ class PratiquesMultiSearchQuery(MultiSearchQuery):
         q: Optional[str],
         limit: Optional[int] = 1000,
         offset: Optional[int] = 0,
-        filter=[],
-        sort=[],
+        filter: List[str] = None,
+        sort: List[str] = None,
     ):
         super().__init__(
             index_uid="ffbbnational_pratiques",

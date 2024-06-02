@@ -8,6 +8,10 @@ class TypeCompetitionGenerique:
     id: Optional[str] = None
     logo: Optional[Logo] = None
 
+    def __init__(self, id: Optional[str], logo: Optional[Logo]) -> None:
+        self.id = id
+        self.logo = logo
+
     @staticmethod
     def from_dict(obj: Any) -> "TypeCompetitionGenerique":
         assert isinstance(obj, dict)

@@ -3,8 +3,13 @@ import unittest
 
 from dotenv import load_dotenv
 
-from ffbb_api_client_v2.meilisearch_prod_ffbb_app_client import (
-    MeilisearchProdFFBBAPPClient,
+from ffbb_api_client_v2.meilisearch_ffbb_app_client import (
+    MeilisearchFFBBAPPClientHelper,
+)
+from ffbb_api_client_v2.multi_search_result_competitions import (
+    CompetitionsFacetDistribution,
+    CompetitionsFacetStats,
+    CompetitionsHit,
 )
 from ffbb_api_client_v2.multi_search_result_organismes import (
     OrganismesFacetDistribution,
@@ -21,6 +26,9 @@ from ffbb_api_client_v2.multi_search_result_terrains import (
     TerrainsFacetStats,
     TerrainsHit,
 )
+from ffbb_api_client_v2.MultiSearchResultCompetitions import (
+    MultiSearchResultCompetitions,
+)
 from ffbb_api_client_v2.MultiSearchResultOrganismes import MultiSearchResultOrganismes
 from ffbb_api_client_v2.MultiSearchResultRencontres import MultiSearchResultRencontres
 from ffbb_api_client_v2.MultiSearchResultTerrains import MultiSearchResultTerrains
@@ -32,12 +40,14 @@ MEILISEARCH_PROD_FFBB_APP_BEARER_TOKEN = os.getenv(
 )
 
 
-class TestMeilisearchProdFFBBAPPClient(unittest.TestCase):
+class TestMeilisearchFFBBAPPClientHelper(unittest.TestCase):
 
     def setUp(self):
-        self.api_client = MeilisearchProdFFBBAPPClient(
-            MEILISEARCH_PROD_FFBB_APP_BEARER_TOKEN,
-            debug=True,
+        self.api_client: MeilisearchFFBBAPPClientHelper = (
+            MeilisearchFFBBAPPClientHelper(
+                MEILISEARCH_PROD_FFBB_APP_BEARER_TOKEN,
+                debug=True,
+            )
         )
 
     def setup_method(self, method):
@@ -158,3 +168,38 @@ class TestMeilisearchProdFFBBAPPClient(unittest.TestCase):
             ["Paris", "Senas", "Reims"]
         )
         self.__validate_test_search_terrains(search_terrains_result)
+
+    def __validate_test_search_competitions(self, search_competitions_result):
+        self.assertIsNotNone(search_competitions_result)
+        self.assertIsNotNone(search_competitions_result.results)
+        self.assertGreater(len(search_competitions_result.results), 0)
+
+        for result in search_competitions_result.results:
+            self.assertEqual(type(result), MultiSearchResultCompetitions)
+
+            if result.facet_distribution:
+                self.assertEqual(
+                    type(result.facet_distribution), CompetitionsFacetDistribution
+                )
+
+            if result.facet_stats:
+                self.assertEqual(type(result.facet_stats), CompetitionsFacetStats)
+
+            for hit in result.hits:
+                self.assertEqual(type(hit), CompetitionsHit)
+
+    def test_search_competitions_with_empty_names(self):
+        search_competitions_result = self.api_client.search_competitions()
+        self.__validate_test_search_competitions(search_competitions_result)
+
+    def test_search_competitions_with_most_used_letters(self):
+        search_competitions_result = self.api_client.search_multiple_competitions(
+            ["a", "e", "i", "o", "u", "y", "b", "l", "m", "s"]
+        )
+        self.__validate_test_search_competitions(search_competitions_result)
+
+    def test_search_competitions_with_known_names(self):
+        search_competitions_result = self.api_client.search_multiple_competitions(
+            ["Paris", "Senas", "Reims"]
+        )
+        self.__validate_test_search_competitions(search_competitions_result)

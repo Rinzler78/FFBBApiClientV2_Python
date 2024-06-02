@@ -1,10 +1,21 @@
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from .CompetitionID import CompetitionID
+from ffbb_api_client_v2.Categorie import Categorie
+from ffbb_api_client_v2.Etat import Etat
+from ffbb_api_client_v2.Logo import Logo
+from ffbb_api_client_v2.Niveau import Niveau
+from ffbb_api_client_v2.PhaseCode import PhaseCode
+from ffbb_api_client_v2.Poule import Poule
+from ffbb_api_client_v2.PublicationInternet import PublicationInternet
+from ffbb_api_client_v2.Sexe import Sexe
+from ffbb_api_client_v2.TypeCompetition import TypeCompetition
+from ffbb_api_client_v2.TypeCompetitionGenerique import TypeCompetitionGenerique
+
 from .CompetitionIDSexe import CompetitionIDSexe
 from .CompetitionIDTypeCompetition import CompetitionIDTypeCompetition
 from .converters import (
+    from_bool,
     from_datetime,
     from_dict,
     from_int,
@@ -18,17 +29,10 @@ from .converters import (
 )
 from .FacetDistribution import FacetDistribution
 from .FacetStats import FacetStats
-from .Geo import Geo
 from .Hit import Hit
-from .IDEngagementEquipe import IDEngagementEquipe
-from .IDOrganismeEquipe import IDOrganismeEquipe
-from .IDPoule import IDPoule
 from .NiveauClass import NiveauClass
-from .NiveauEnum import NiveauEnum
 from .Organisateur import Organisateur
-from .Pratique import Pratique
 from .Saison import Saison
-from .Salle import Salle
 
 
 class CompetitionsFacetDistribution(FacetDistribution):
@@ -140,298 +144,287 @@ class CompetitionsFacetDistribution(FacetDistribution):
 
 
 class CompetitionsHit(Hit):
-    niveau: Optional[NiveauEnum] = None
+    nom: Optional[str] = None
+    code: Optional[str] = None
+    niveau: Optional[Niveau] = None
+    type_competition: Optional[TypeCompetition] = None
+    sexe: Optional[Sexe] = None
     id: Optional[str] = None
-    date: Optional[datetime] = None
-    date_rencontre: Optional[datetime] = None
-    horaire: Optional[int] = None
-    nom_equipe1: Optional[str] = None
-    nom_equipe2: Optional[str] = None
-    numero_journee: Optional[int] = None
-    pratique: Optional[Pratique] = None
-    gs_id: None
-    officiels: Optional[List[str]] = None
-    competition_id: Optional[CompetitionID] = None
-    id_organisme_equipe1: Optional[IDOrganismeEquipe] = None
-    id_organisme_equipe2: Optional[IDOrganismeEquipe] = None
-    id_poule: Optional[IDPoule] = None
-    saison: Optional[Saison] = None
-    salle: Optional[Salle] = None
-    id_engagement_equipe1: Optional[IDEngagementEquipe] = None
-    id_engagement_equipe2: Optional[IDEngagementEquipe] = None
-    geo: Optional[Geo] = None
-    date_timestamp: Optional[int] = None
-    date_rencontre_timestamp: Optional[int] = None
-    creation_timestamp: Optional[int] = None
-    date_saisie_resultat_timestamp: None
-    modification_timestamp: Optional[int] = None
-    thumbnail: None
+    creation_en_cours: Optional[bool] = None
+    date_created: Optional[datetime] = None
+    date_updated: Optional[datetime] = None
+    emarque_v2: Optional[bool] = None
+    live_stat: Optional[bool] = None
+    publication_internet: Optional[PublicationInternet] = None
+    pro: Optional[bool] = None
+    competition_origine: Optional[str] = None
+    competition_origine_niveau: Optional[int] = None
+    phase_code: Optional[PhaseCode] = None
+    competition_origine_nom: Optional[str] = None
+    etat: Optional[Etat] = None
+    poules: Optional[List[Poule]] = None
+    phases: Optional[List[str]] = None
+    categorie: Optional[Categorie] = None
+    id_competition_pere: None
     organisateur: Optional[Organisateur] = None
+    saison: Optional[Saison] = None
+    logo: Optional[Logo] = None
+    type_competition_generique: Optional[TypeCompetitionGenerique] = None
+    thumbnail: Optional[str] = None
     niveau_nb: Optional[int] = None
 
     def __init__(
         self,
-        niveau: Optional[NiveauEnum],
+        nom: Optional[str],
+        code: Optional[str],
+        niveau: Optional[Niveau],
+        type_competition: Optional[TypeCompetition],
+        sexe: Optional[Sexe],
         id: Optional[str],
-        date: Optional[datetime],
-        date_rencontre: Optional[datetime],
-        horaire: Optional[int],
-        nom_equipe1: Optional[str],
-        nom_equipe2: Optional[str],
-        numero_journee: Optional[int],
-        pratique: Optional[Pratique],
-        gs_id: None,
-        officiels: Optional[List[str]],
-        competition_id: Optional[CompetitionID],
-        id_organisme_equipe1: Optional[IDOrganismeEquipe],
-        id_organisme_equipe2: Optional[IDOrganismeEquipe],
-        id_poule: Optional[IDPoule],
-        saison: Optional[Saison],
-        salle: Optional[Salle],
-        id_engagement_equipe1: Optional[IDEngagementEquipe],
-        id_engagement_equipe2: Optional[IDEngagementEquipe],
-        geo: Optional[Geo],
-        date_timestamp: Optional[int],
-        date_rencontre_timestamp: Optional[int],
-        creation_timestamp: Optional[int],
-        date_saisie_resultat_timestamp: None,
-        modification_timestamp: Optional[int],
-        thumbnail: None,
+        creation_en_cours: Optional[bool],
+        date_created: Optional[datetime],
+        date_updated: Optional[datetime],
+        emarque_v2: Optional[bool],
+        live_stat: Optional[bool],
+        publication_internet: Optional[PublicationInternet],
+        pro: Optional[bool],
+        competition_origine: Optional[str],
+        competition_origine_niveau: Optional[int],
+        phase_code: Optional[PhaseCode],
+        competition_origine_nom: Optional[str],
+        etat: Optional[Etat],
+        poules: Optional[List[Poule]],
+        phases: Optional[List[str]],
+        categorie: Optional[Categorie],
+        id_competition_pere: None,
         organisateur: Optional[Organisateur],
+        saison: Optional[Saison],
+        logo: Optional[Logo],
+        type_competition_generique: Optional[TypeCompetitionGenerique],
+        thumbnail: Optional[str],
         niveau_nb: Optional[int],
     ) -> None:
+        self.nom = nom
+        self.code = code
         self.niveau = niveau
+        self.type_competition = type_competition
+        self.sexe = sexe
         self.id = id
-        self.date = date
-        self.date_rencontre = date_rencontre
-        self.horaire = horaire
-        self.nom_equipe1 = nom_equipe1
-        self.nom_equipe2 = nom_equipe2
-        self.numero_journee = numero_journee
-        self.pratique = pratique
-        self.gs_id = gs_id
-        self.officiels = officiels
-        self.competition_id = competition_id
-        self.id_organisme_equipe1 = id_organisme_equipe1
-        self.id_organisme_equipe2 = id_organisme_equipe2
-        self.id_poule = id_poule
+        self.creation_en_cours = creation_en_cours
+        self.date_created = date_created
+        self.date_updated = date_updated
+        self.emarque_v2 = emarque_v2
+        self.live_stat = live_stat
+        self.publication_internet = publication_internet
+        self.pro = pro
+        self.competition_origine = competition_origine
+        self.competition_origine_niveau = competition_origine_niveau
+        self.phase_code = phase_code
+        self.competition_origine_nom = competition_origine_nom
+        self.etat = etat
+        self.poules = poules
+        self.phases = phases
+        self.categorie = categorie
+        self.id_competition_pere = id_competition_pere
+        self.organisateur = organisateur
         self.saison = saison
-        self.salle = salle
-        self.id_engagement_equipe1 = id_engagement_equipe1
-        self.id_engagement_equipe2 = id_engagement_equipe2
-        self.geo = geo
-        self.date_timestamp = date_timestamp
-        self.date_rencontre_timestamp = date_rencontre_timestamp
-        self.creation_timestamp = creation_timestamp
-        self.date_saisie_resultat_timestamp = date_saisie_resultat_timestamp
-        self.modification_timestamp = modification_timestamp
+        self.logo = logo
+        self.type_competition_generique = type_competition_generique
+        self.thumbnail = thumbnail
+        self.niveau_nb = niveau_nb
 
     @staticmethod
-    def from_dict(obj: Any) -> "CompetitionsHit":
-        assert isinstance(obj, dict)
-        niveau = from_union([NiveauEnum, from_none], obj.get("niveau"))
-        id = from_union([from_str, from_none], obj.get("id"))
-        date = from_union([from_datetime, from_none], obj.get("date"))
-        date_rencontre = from_union(
-            [from_datetime, from_none], obj.get("date_rencontre")
-        )
-        horaire = from_union(
-            [lambda x: int(from_str(x)), from_none], obj.get("horaire")
-        )
-        nom_equipe1 = from_union([from_str, from_none], obj.get("nomEquipe1"))
-        nom_equipe2 = from_union([from_str, from_none], obj.get("nomEquipe2"))
-        numero_journee = from_union(
-            [lambda x: int(from_str(x)), from_none], obj.get("numeroJournee")
-        )
-        pratique = from_union([from_none, Pratique], obj.get("pratique"))
-        gs_id = from_none(obj.get("gsId"))
-        officiels = from_union(
-            [lambda x: from_list(from_str, x), from_none], obj.get("officiels")
-        )
-        competition_id = from_union(
-            [CompetitionID.from_dict, from_none], obj.get("competitionId")
-        )
-        id_organisme_equipe1 = from_union(
-            [IDOrganismeEquipe.from_dict, from_none], obj.get("idOrganismeEquipe1")
-        )
-        id_organisme_equipe2 = from_union(
-            [IDOrganismeEquipe.from_dict, from_none], obj.get("idOrganismeEquipe2")
-        )
-        id_poule = from_union([IDPoule.from_dict, from_none], obj.get("idPoule"))
-        saison = from_union([Saison.from_dict, from_none], obj.get("saison"))
-        salle = from_union([Salle.from_dict, from_none], obj.get("salle"))
-        id_engagement_equipe1 = from_union(
-            [IDEngagementEquipe.from_dict, from_none], obj.get("idEngagementEquipe1")
-        )
-        id_engagement_equipe2 = from_union(
-            [IDEngagementEquipe.from_dict, from_none], obj.get("idEngagementEquipe2")
-        )
-        geo = from_union([Geo.from_dict, from_none], obj.get("_geo"))
-        date_timestamp = from_union([from_int, from_none], obj.get("date_timestamp"))
-        date_rencontre_timestamp = from_union(
-            [from_int, from_none], obj.get("date_rencontre_timestamp")
-        )
-        creation_timestamp = from_union(
-            [from_int, from_none], obj.get("creation_timestamp")
-        )
-        date_saisie_resultat_timestamp = from_none(
-            obj.get("dateSaisieResultat_timestamp")
-        )
-        modification_timestamp = from_union(
-            [from_int, from_none], obj.get("modification_timestamp")
-        )
-        thumbnail = from_none(obj.get("thumbnail"))
-        organisateur = from_union(
-            [Organisateur.from_dict, from_none], obj.get("organisateur")
-        )
-        niveau_nb = from_union(
-            [lambda x: int(from_str(x)), from_none], obj.get("niveau_nb")
-        )
-        return CompetitionsHit(
-            niveau,
-            id,
-            date,
-            date_rencontre,
-            horaire,
-            nom_equipe1,
-            nom_equipe2,
-            numero_journee,
-            pratique,
-            gs_id,
-            officiels,
-            competition_id,
-            id_organisme_equipe1,
-            id_organisme_equipe2,
-            id_poule,
-            saison,
-            salle,
-            id_engagement_equipe1,
-            id_engagement_equipe2,
-            geo,
-            date_timestamp,
-            date_rencontre_timestamp,
-            creation_timestamp,
-            date_saisie_resultat_timestamp,
-            modification_timestamp,
-            thumbnail,
-            organisateur,
-            niveau_nb,
-        )
+    def from_dict(obj: Any) -> "Hit":
+        try:
+            assert isinstance(obj, dict)
+            nom = from_union([from_str, from_none], obj.get("nom"))
+            code = from_union([from_str, from_none], obj.get("code"))
+            niveau = from_union([Niveau, from_none], obj.get("niveau"))
+            type_competition = from_union(
+                [TypeCompetition, from_none], obj.get("typeCompetition")
+            )
+            sexe = from_union([Sexe, from_none], obj.get("sexe"))
+            id = from_union([from_str, from_none], obj.get("id"))
+            creation_en_cours = from_union(
+                [from_bool, from_none], obj.get("creationEnCours")
+            )
+            date_created = from_union(
+                [from_datetime, from_none], obj.get("date_created")
+            )
+            date_updated = from_union(
+                [from_datetime, from_none], obj.get("date_updated")
+            )
+            emarque_v2 = from_union([from_bool, from_none], obj.get("emarqueV2"))
+            live_stat = from_union([from_bool, from_none], obj.get("liveStat"))
+            publication_internet = from_union(
+                [PublicationInternet, from_none], obj.get("publicationInternet")
+            )
+            pro = from_union([from_bool, from_none], obj.get("pro"))
+            competition_origine = from_union(
+                [from_str, from_none], obj.get("competition_origine")
+            )
+            competition_origine_niveau = from_union(
+                [from_int, from_none], obj.get("competition_origine_niveau")
+            )
+            phase_code = from_union([PhaseCode, from_none], obj.get("phase_code"))
+            competition_origine_nom = from_union(
+                [from_str, from_none], obj.get("competition_origine_nom")
+            )
+            etat = from_union([Etat, from_none], obj.get("etat"))
+            poules = from_union(
+                [lambda x: from_list(Poule.from_dict, x), from_none], obj.get("poules")
+            )
+            phases = from_union(
+                [lambda x: from_list(from_str, x), from_none], obj.get("phases")
+            )
+            categorie = from_union(
+                [Categorie.from_dict, from_none], obj.get("categorie")
+            )
+            id_competition_pere = from_none(obj.get("idCompetitionPere"))
+            organisateur = from_union(
+                [Organisateur.from_dict, from_none], obj.get("organisateur")
+            )
+            saison = from_union([Saison.from_dict, from_none], obj.get("saison"))
+            logo = from_union([Logo.from_dict, from_none], obj.get("logo"))
+            type_competition_generique = from_union(
+                [TypeCompetitionGenerique.from_dict, from_none],
+                obj.get("typeCompetitionGenerique"),
+            )
+            thumbnail = from_union([from_none, from_str], obj.get("thumbnail"))
+            niveau_nb = from_union(
+                [from_none, lambda x: int(from_str(x))], obj.get("niveau_nb")
+            )
+            return CompetitionsHit(
+                nom,
+                code,
+                niveau,
+                type_competition,
+                sexe,
+                id,
+                creation_en_cours,
+                date_created,
+                date_updated,
+                emarque_v2,
+                live_stat,
+                publication_internet,
+                pro,
+                competition_origine,
+                competition_origine_niveau,
+                phase_code,
+                competition_origine_nom,
+                etat,
+                poules,
+                phases,
+                categorie,
+                id_competition_pere,
+                organisateur,
+                saison,
+                logo,
+                type_competition_generique,
+                thumbnail,
+                niveau_nb,
+            )
+        except Exception as e:
+            raise ValueError(f"Invalid `Hit.from_dict` input: {e}")
 
     def to_dict(self) -> dict:
         result: dict = {}
+        if self.nom is not None:
+            result["nom"] = from_union([from_str, from_none], self.nom)
+        if self.code is not None:
+            result["code"] = from_union([from_str, from_none], self.code)
         if self.niveau is not None:
             result["niveau"] = from_union(
-                [lambda x: to_enum(NiveauEnum, x), from_none], self.niveau
+                [lambda x: to_enum(Niveau, x), from_none], self.niveau
+            )
+        if self.type_competition is not None:
+            result["typeCompetition"] = from_union(
+                [lambda x: to_enum(TypeCompetition, x), from_none],
+                self.type_competition,
+            )
+        if self.sexe is not None:
+            result["sexe"] = from_union(
+                [lambda x: to_enum(Sexe, x), from_none], self.sexe
             )
         if self.id is not None:
             result["id"] = from_union([from_str, from_none], self.id)
-        if self.date is not None:
-            result["date"] = from_union([lambda x: x.isoformat(), from_none], self.date)
-        if self.date_rencontre is not None:
-            result["date_rencontre"] = from_union(
-                [lambda x: x.isoformat(), from_none], self.date_rencontre
+        if self.creation_en_cours is not None:
+            result["creationEnCours"] = from_union(
+                [from_bool, from_none], self.creation_en_cours
             )
-        if self.horaire is not None:
-            result["horaire"] = from_union(
-                [
-                    lambda x: from_none((lambda x: is_type(type(None), x))(x)),
-                    lambda x: from_str(
-                        (lambda x: str((lambda x: is_type(int, x))(x)))(x)
-                    ),
-                ],
-                self.horaire,
+        if self.date_created is not None:
+            result["date_created"] = from_union(
+                [lambda x: x.isoformat(), from_none], self.date_created
             )
-        if self.nom_equipe1 is not None:
-            result["nomEquipe1"] = from_union([from_str, from_none], self.nom_equipe1)
-        if self.nom_equipe2 is not None:
-            result["nomEquipe2"] = from_union([from_str, from_none], self.nom_equipe2)
-        if self.numero_journee is not None:
-            result["numeroJournee"] = from_union(
-                [
-                    lambda x: from_none((lambda x: is_type(type(None), x))(x)),
-                    lambda x: from_str(
-                        (lambda x: str((lambda x: is_type(int, x))(x)))(x)
-                    ),
-                ],
-                self.numero_journee,
+        if self.date_updated is not None:
+            result["date_updated"] = from_union(
+                [lambda x: x.isoformat(), from_none], self.date_updated
             )
-        if self.pratique is not None:
-            result["pratique"] = from_union(
-                [from_none, lambda x: to_enum(Pratique, x)], self.pratique
+        if self.emarque_v2 is not None:
+            result["emarqueV2"] = from_union([from_bool, from_none], self.emarque_v2)
+        if self.live_stat is not None:
+            result["liveStat"] = from_union([from_bool, from_none], self.live_stat)
+        if self.publication_internet is not None:
+            result["publicationInternet"] = from_union(
+                [lambda x: to_enum(PublicationInternet, x), from_none],
+                self.publication_internet,
             )
-        if self.gs_id is not None:
-            result["gsId"] = from_none(self.gs_id)
-        if self.officiels is not None:
-            result["officiels"] = from_union(
-                [lambda x: from_list(from_str, x), from_none], self.officiels
+        if self.pro is not None:
+            result["pro"] = from_union([from_bool, from_none], self.pro)
+        if self.competition_origine is not None:
+            result["competition_origine"] = from_union(
+                [from_str, from_none], self.competition_origine
             )
-        if self.competition_id is not None:
-            result["competitionId"] = from_union(
-                [lambda x: to_class(CompetitionID, x), from_none], self.competition_id
+        if self.competition_origine_niveau is not None:
+            result["competition_origine_niveau"] = from_union(
+                [from_int, from_none], self.competition_origine_niveau
             )
-        if self.id_organisme_equipe1 is not None:
-            result["idOrganismeEquipe1"] = from_union(
-                [lambda x: to_class(IDOrganismeEquipe, x), from_none],
-                self.id_organisme_equipe1,
+        if self.phase_code is not None:
+            result["phase_code"] = from_union(
+                [lambda x: to_enum(PhaseCode, x), from_none], self.phase_code
             )
-        if self.id_organisme_equipe2 is not None:
-            result["idOrganismeEquipe2"] = from_union(
-                [lambda x: to_class(IDOrganismeEquipe, x), from_none],
-                self.id_organisme_equipe2,
+        if self.competition_origine_nom is not None:
+            result["competition_origine_nom"] = from_union(
+                [from_str, from_none], self.competition_origine_nom
             )
-        if self.id_poule is not None:
-            result["idPoule"] = from_union(
-                [lambda x: to_class(IDPoule, x), from_none], self.id_poule
+        if self.etat is not None:
+            result["etat"] = from_union(
+                [lambda x: to_enum(Etat, x), from_none], self.etat
+            )
+        if self.poules is not None:
+            result["poules"] = from_union(
+                [lambda x: from_list(lambda x: to_class(Poule, x), x), from_none],
+                self.poules,
+            )
+        if self.phases is not None:
+            result["phases"] = from_union(
+                [lambda x: from_list(from_str, x), from_none], self.phases
+            )
+        if self.categorie is not None:
+            result["categorie"] = from_union(
+                [lambda x: to_class(Categorie, x), from_none], self.categorie
+            )
+        if self.id_competition_pere is not None:
+            result["idCompetitionPere"] = from_none(self.id_competition_pere)
+        if self.organisateur is not None:
+            result["organisateur"] = from_union(
+                [lambda x: to_class(Organisateur, x), from_none], self.organisateur
             )
         if self.saison is not None:
             result["saison"] = from_union(
                 [lambda x: to_class(Saison, x), from_none], self.saison
             )
-        if self.salle is not None:
-            result["salle"] = from_union(
-                [lambda x: to_class(Salle, x), from_none], self.salle
+        if self.logo is not None:
+            result["logo"] = from_union(
+                [lambda x: to_class(Logo, x), from_none], self.logo
             )
-        if self.id_engagement_equipe1 is not None:
-            result["idEngagementEquipe1"] = from_union(
-                [lambda x: to_class(IDEngagementEquipe, x), from_none],
-                self.id_engagement_equipe1,
-            )
-        if self.id_engagement_equipe2 is not None:
-            result["idEngagementEquipe2"] = from_union(
-                [lambda x: to_class(IDEngagementEquipe, x), from_none],
-                self.id_engagement_equipe2,
-            )
-        if self.geo is not None:
-            result["_geo"] = from_union(
-                [lambda x: to_class(Geo, x), from_none], self.geo
-            )
-        if self.date_timestamp is not None:
-            result["date_timestamp"] = from_union(
-                [from_int, from_none], self.date_timestamp
-            )
-        if self.date_rencontre_timestamp is not None:
-            result["date_rencontre_timestamp"] = from_union(
-                [from_int, from_none], self.date_rencontre_timestamp
-            )
-        if self.creation_timestamp is not None:
-            result["creation_timestamp"] = from_union(
-                [from_int, from_none], self.creation_timestamp
-            )
-        if self.date_saisie_resultat_timestamp is not None:
-            result["dateSaisieResultat_timestamp"] = from_none(
-                self.date_saisie_resultat_timestamp
-            )
-        if self.modification_timestamp is not None:
-            result["modification_timestamp"] = from_union(
-                [from_int, from_none], self.modification_timestamp
+        if self.type_competition_generique is not None:
+            result["typeCompetitionGenerique"] = from_union(
+                [lambda x: to_class(TypeCompetitionGenerique, x), from_none],
+                self.type_competition_generique,
             )
         if self.thumbnail is not None:
-            result["thumbnail"] = from_none(self.thumbnail)
-        if self.organisateur is not None:
-            result["organisateur"] = from_union(
-                [lambda x: to_class(Organisateur, x), from_none], self.organisateur
-            )
+            result["thumbnail"] = from_union([from_none, from_str], self.thumbnail)
         if self.niveau_nb is not None:
             result["niveau_nb"] = from_union(
                 [

@@ -5,6 +5,7 @@ from requests_cache import CachedSession
 from .ffbb_api_client_helper import catch_result, default_cached_session
 from .http_requests_utils import http_post_json
 from .multi_search_query import (
+    CompetitionsMultiSearchQuery,
     MultiSearchQuery,
     OrganismesMultiSearchQuery,
     RencontresMultiSearchQuery,
@@ -13,7 +14,7 @@ from .multi_search_query import (
 from .MultiSearchResults import MultiSearchResults, multi_search_results_from_dict
 
 
-class MeilisearchProdFFBBAPPClient:
+class MeilisearchFFBBAPPClient:
     def __init__(
         self,
         bearer_token: str,
@@ -39,7 +40,7 @@ class MeilisearchProdFFBBAPPClient:
             "Content-Type": "application/json",
         }
 
-    def __multi_search(
+    def multi_search(
         self,
         queries: List[MultiSearchQuery] = None,
         cached_session: CachedSession = None,
@@ -60,12 +61,26 @@ class MeilisearchProdFFBBAPPClient:
 
         return result
 
+
+class MeilisearchFFBBAPPClientHelper:
+    def __init__(
+        self,
+        bearer_token: str,
+        url: str = "https://meilisearch-prod.ffbb.app/",
+        debug: bool = False,
+        cached_session: CachedSession = default_cached_session,
+    ):
+
+        self._meilisearch_ffbb_app_client = MeilisearchFFBBAPPClient(
+            bearer_token, url, debug, cached_session
+        )
+
     def multi_search(
         self,
         queries: List[MultiSearchQuery] = None,
         cached_session: CachedSession = None,
     ) -> MultiSearchResults:
-        result = self.__multi_search(queries, cached_session)
+        result = self._meilisearch_ffbb_app_client.multi_search(queries, cached_session)
         next_queries = []
 
         for i in range(len(result.results)):
@@ -127,3 +142,17 @@ class MeilisearchProdFFBBAPPClient:
         self, name: str = None, cached_session: CachedSession = None
     ) -> MultiSearchResults:
         return self.search_multiple_terrains([name], cached_session)
+
+    def search_multiple_competitions(
+        self, names: List[str] = None, cached_session: CachedSession = None
+    ) -> MultiSearchResults:
+        if not names:
+            return None
+
+        queries = [CompetitionsMultiSearchQuery(name) for name in names]
+        return self.multi_search(queries, cached_session)
+
+    def search_competitions(
+        self, name: str = None, cached_session: CachedSession = None
+    ) -> MultiSearchResults:
+        return self.search_multiple_competitions([name], cached_session)

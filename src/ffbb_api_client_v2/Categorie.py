@@ -12,6 +12,22 @@ class Categorie:
     libelle: Optional[str] = None
     ordre: Optional[int] = None
 
+    def __init__(
+        self,
+        code: Optional[str] = None,
+        date_created: Optional[datetime] = None,
+        date_updated: Optional[datetime] = None,
+        id: Optional[str] = None,
+        libelle: Optional[str] = None,
+        ordre: Optional[int] = None,
+    ) -> None:
+        self.code = code
+        self.date_created = date_created
+        self.date_updated = date_updated
+        self.id = id
+        self.libelle = libelle
+        self.ordre = ordre
+
     @staticmethod
     def from_dict(obj: Any) -> "Categorie":
         assert isinstance(obj, dict)
