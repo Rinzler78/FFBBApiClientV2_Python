@@ -11,6 +11,7 @@ from ffbb_api_client_v2.multi_search_query import (
     CompetitionsMultiSearchQuery,
     MultiSearchQuery,
     OrganismesMultiSearchQuery,
+    PratiquesMultiSearchQuery,
     RencontresMultiSearchQuery,
     SallesMultiSearchQuery,
     TerrainsMultiSearchQuery,
@@ -25,6 +26,11 @@ from ffbb_api_client_v2.multi_search_result_organismes import (
     OrganismesFacetDistribution,
     OrganismesFacetStats,
     OrganismesHit,
+)
+from ffbb_api_client_v2.multi_search_result_pratiques import (
+    PratiquesFacetDistribution,
+    PratiquesFacetStats,
+    PratiquesHit,
 )
 from ffbb_api_client_v2.multi_search_result_rencontres import (
     RencontresFacetDistribution,
@@ -50,6 +56,7 @@ from ffbb_api_client_v2.MultiSearchResultCompetitions import (
     CompetitionsMultiSearchResult,
 )
 from ffbb_api_client_v2.MultiSearchResultOrganismes import OrganismesMultiSearchResult
+from ffbb_api_client_v2.MultiSearchResultPratiques import PratiquesMultiSearchResult
 from ffbb_api_client_v2.MultiSearchResultRencontres import RencontresMultiSearchResult
 from ffbb_api_client_v2.MultiSearchResultSalles import SallesMultiSearchResult
 from ffbb_api_client_v2.MultiSearchResultTerrains import TerrainsMultiSearchResult
@@ -87,6 +94,7 @@ class TestMeilisearchFFBBAPPClientHelper(unittest.TestCase):
             CompetitionsMultiSearchQuery(search_name),
             SallesMultiSearchQuery(search_name),
             TournoisMultiSearchQuery(search_name),
+            PratiquesMultiSearchQuery(search_name),
         ]
 
     def __validate_test_multi_search_with_all_possible_queries(
@@ -323,3 +331,38 @@ class TestMeilisearchFFBBAPPClientHelper(unittest.TestCase):
             ["Paris", "Senas", "Reims"]
         )
         self.__validate_test_search_tournois(search_tournois_result)
+
+    def __validate_test_search_pratiques(self, search_pratiques_result):
+        self.assertIsNotNone(search_pratiques_result)
+        self.assertIsNotNone(search_pratiques_result.results)
+        self.assertGreater(len(search_pratiques_result.results), 0)
+
+        for result in search_pratiques_result.results:
+            self.assertEqual(type(result), PratiquesMultiSearchResult)
+
+            if result.facet_distribution:
+                self.assertEqual(
+                    type(result.facet_distribution), PratiquesFacetDistribution
+                )
+
+            if result.facet_stats:
+                self.assertEqual(type(result.facet_stats), PratiquesFacetStats)
+
+            for hit in result.hits:
+                self.assertEqual(type(hit), PratiquesHit)
+
+    def test_search_pratiques_with_empty_names(self):
+        search_pratiques_result = self.api_client.search_pratiques()
+        self.__validate_test_search_pratiques(search_pratiques_result)
+
+    def test_search_pratiques_with_most_used_letters(self):
+        search_pratiques_result = self.api_client.search_multiple_pratiques(
+            ["a", "e", "i", "o", "u", "y", "b", "l", "m", "s"]
+        )
+        self.__validate_test_search_pratiques(search_pratiques_result)
+
+    def test_search_pratiques_with_known_names(self):
+        search_pratiques_result = self.api_client.search_multiple_pratiques(
+            ["Paris", "Senas", "Reims"]
+        )
+        self.__validate_test_search_pratiques(search_pratiques_result)

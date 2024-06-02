@@ -1,5 +1,7 @@
 from typing import Any, List, Optional
 
+from ffbb_api_client_v2.MultiSearchResultPratiques import PratiquesMultiSearchResult
+
 from .converters import from_list, from_none, from_union, to_class
 from .multi_search_results import MultiSearchResult
 from .MultiSearchResultCompetitions import CompetitionsMultiSearchResult
@@ -26,6 +28,7 @@ index_uids_converters = {
     index_uids[3]: lambda x: SallesMultiSearchResult.from_dict(x),
     index_uids[4]: lambda x: TournoisMultiSearchResult.from_dict(x),
     index_uids[5]: lambda x: CompetitionsMultiSearchResult.from_dict(x),
+    index_uids[6]: lambda x: PratiquesMultiSearchResult.from_dict(x),
 }
 
 

@@ -8,6 +8,7 @@ from ffbb_api_client_v2.multi_search_query import (
     CompetitionsMultiSearchQuery,
     MultiSearchQuery,
     OrganismesMultiSearchQuery,
+    PratiquesMultiSearchQuery,
     RencontresMultiSearchQuery,
     SallesMultiSearchQuery,
     TerrainsMultiSearchQuery,
@@ -138,3 +139,17 @@ class MeilisearchFFBBAPPClientHelper:
         self, name: str = None, cached_session: CachedSession = None
     ) -> MultiSearchResults:
         return self.search_multiple_tournois([name], cached_session)
+
+    def search_multiple_pratiques(
+        self, names: List[str] = None, cached_session: CachedSession = None
+    ) -> MultiSearchResults:
+        if not names:
+            return None
+
+        queries = [PratiquesMultiSearchQuery(name) for name in names]
+        return self.multi_search(queries, cached_session)
+
+    def search_pratiques(
+        self, name: str = None, cached_session: CachedSession = None
+    ) -> MultiSearchResults:
+        return self.search_multiple_pratiques([name], cached_session)

@@ -10,6 +10,10 @@ from ffbb_api_client_v2.multi_search_result_organismes import (
     OrganismesFacetDistribution,
     OrganismesFacetStats,
 )
+from ffbb_api_client_v2.multi_search_result_pratiques import (
+    PratiquesFacetDistribution,
+    PratiquesFacetStats,
+)
 from ffbb_api_client_v2.multi_search_result_rencontres import (
     RencontresFacetDistribution,
     RencontresFacetStats,
@@ -31,6 +35,7 @@ from ffbb_api_client_v2.MultiSearchResultCompetitions import (
     CompetitionsMultiSearchResult,
 )
 from ffbb_api_client_v2.MultiSearchResultOrganismes import OrganismesMultiSearchResult
+from ffbb_api_client_v2.MultiSearchResultPratiques import PratiquesMultiSearchResult
 from ffbb_api_client_v2.MultiSearchResultRencontres import RencontresMultiSearchResult
 from ffbb_api_client_v2.MultiSearchResultSalles import SallesMultiSearchResult
 from ffbb_api_client_v2.MultiSearchResultTerrains import TerrainsMultiSearchResult
@@ -347,4 +352,17 @@ class PratiquesMultiSearchQuery(MultiSearchQuery):
             offset=offset,
             filter=filter,
             sort=sort,
+        )
+
+    def is_valid_result(self, result: MultiSearchResult):
+        return result and (
+            isinstance(result, PratiquesMultiSearchResult)
+            and (
+                result.facet_distribution is None
+                or isinstance(result.facet_distribution, PratiquesFacetDistribution)
+            )
+            and (
+                result.facet_stats is None
+                or isinstance(result.facet_stats, PratiquesFacetStats)
+            )
         )
