@@ -1,47 +1,35 @@
 from typing import Any, List, Optional
 
-from ffbb_api_client_v2.FacetDistribution import FacetDistribution
-from ffbb_api_client_v2.FacetStats import FacetStats
-from ffbb_api_client_v2.multi_search_result_competitions import (
+from .converters import from_int, from_list, from_none, from_str, from_union
+from .FacetDistribution import FacetDistribution
+from .FacetStats import FacetStats
+from .multi_search_result_competitions import (
     CompetitionsFacetDistribution,
     CompetitionsFacetStats,
 )
-from ffbb_api_client_v2.multi_search_result_organismes import (
+from .multi_search_result_organismes import (
     OrganismesFacetDistribution,
     OrganismesFacetStats,
 )
-from ffbb_api_client_v2.multi_search_result_pratiques import (
+from .multi_search_result_pratiques import (
     PratiquesFacetDistribution,
     PratiquesFacetStats,
 )
-from ffbb_api_client_v2.multi_search_result_rencontres import (
+from .multi_search_result_rencontres import (
     RencontresFacetDistribution,
     RencontresFacetStats,
 )
-from ffbb_api_client_v2.multi_search_result_salles import (
-    SallesFacetDistribution,
-    SallesFacetStats,
-)
-from ffbb_api_client_v2.multi_search_result_terrains import (
-    TerrainsFacetDistribution,
-    TerrainsFacetStats,
-)
-from ffbb_api_client_v2.multi_search_result_tournois import (
-    TournoisFacetDistribution,
-    TournoisFacetStats,
-)
-from ffbb_api_client_v2.multi_search_results import MultiSearchResult
-from ffbb_api_client_v2.MultiSearchResultCompetitions import (
-    CompetitionsMultiSearchResult,
-)
-from ffbb_api_client_v2.MultiSearchResultOrganismes import OrganismesMultiSearchResult
-from ffbb_api_client_v2.MultiSearchResultPratiques import PratiquesMultiSearchResult
-from ffbb_api_client_v2.MultiSearchResultRencontres import RencontresMultiSearchResult
-from ffbb_api_client_v2.MultiSearchResultSalles import SallesMultiSearchResult
-from ffbb_api_client_v2.MultiSearchResultTerrains import TerrainsMultiSearchResult
-from ffbb_api_client_v2.MultiSearchResultTournois import TournoisMultiSearchResult
-
-from .converters import from_int, from_list, from_none, from_str, from_union
+from .multi_search_result_salles import SallesFacetDistribution, SallesFacetStats
+from .multi_search_result_terrains import TerrainsFacetDistribution, TerrainsFacetStats
+from .multi_search_result_tournois import TournoisFacetDistribution, TournoisFacetStats
+from .multi_search_results import MultiSearchResult
+from .MultiSearchResultCompetitions import CompetitionsMultiSearchResult
+from .MultiSearchResultOrganismes import OrganismesMultiSearchResult
+from .MultiSearchResultPratiques import PratiquesMultiSearchResult
+from .MultiSearchResultRencontres import RencontresMultiSearchResult
+from .MultiSearchResultSalles import SallesMultiSearchResult
+from .MultiSearchResultTerrains import TerrainsMultiSearchResult
+from .MultiSearchResultTournois import TournoisMultiSearchResult
 
 
 class MultiSearchQuery:

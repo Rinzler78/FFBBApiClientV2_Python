@@ -3,8 +3,6 @@ from enum import Enum
 from typing import Any, List, Optional
 from uuid import UUID
 
-from ffbb_api_client_v2.TournoiTypeEnum import TournoiTypeEnum
-
 from .Cartographie import Cartographie
 from .Commune import Commune
 from .converters import (
@@ -24,6 +22,7 @@ from .FacetStats import FacetStats
 from .Geo import Geo
 from .Hit import Hit
 from .TournoiTypeClass import TournoiTypeClass
+from .TournoiTypeEnum import TournoiTypeEnum
 from .TypeLeague import TypeLeague
 
 

@@ -1,12 +1,8 @@
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from ffbb_api_client_v2.Commune import Commune
-from ffbb_api_client_v2.Logo import Logo
-from ffbb_api_client_v2.OrganismeIDPere import OrganismeIDPere
-from ffbb_api_client_v2.TypeAssociation import TypeAssociation
-
 from .Cartographie import Cartographie
+from .Commune import Commune
 from .converters import (
     from_bool,
     from_datetime,
@@ -23,6 +19,9 @@ from .FacetStats import FacetStats
 from .Geo import Geo
 from .Hit import Hit
 from .Labellisation import Labellisation
+from .logo import Logo
+from .OrganismeIDPere import OrganismeIDPere
+from .TypeAssociation import TypeAssociation
 from .TypeAssociationLibelle import TypeAssociationLibelle
 from .TypeClass import TypeClass
 

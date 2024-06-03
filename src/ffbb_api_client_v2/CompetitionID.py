@@ -1,11 +1,10 @@
 from typing import Any, Optional
 
-from ffbb_api_client_v2.Logo import Logo
-
 from .CompetitionIDCategorie import CompetitionIDCategorie
 from .CompetitionIDTypeCompetitionGenerique import CompetitionIDTypeCompetitionGenerique
 from .CompetitionOrigine import CompetitionOrigine
 from .converters import from_bool, from_none, from_str, from_union, to_class
+from .logo import Logo
 
 
 class CompetitionID:

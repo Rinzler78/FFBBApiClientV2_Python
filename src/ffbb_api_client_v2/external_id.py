@@ -1,10 +1,9 @@
 from typing import Any, Optional
 
-from ffbb_api_client_v2.IDOrganismeEquipe import IDOrganismeEquipe
-from ffbb_api_client_v2.IDPoule import IDPoule
-from ffbb_api_client_v2.Salle import Salle
-
 from .converters import from_none, from_str, from_union, is_type, to_class
+from .IDOrganismeEquipe import IDOrganismeEquipe
+from .IDPoule import IDPoule
+from .salle import Salle
 
 
 class CompetitionID:

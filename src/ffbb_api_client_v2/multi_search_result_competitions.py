@@ -1,17 +1,7 @@
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from ffbb_api_client_v2.Categorie import Categorie
-from ffbb_api_client_v2.Etat import Etat
-from ffbb_api_client_v2.Logo import Logo
-from ffbb_api_client_v2.Niveau import Niveau
-from ffbb_api_client_v2.PhaseCode import PhaseCode
-from ffbb_api_client_v2.Poule import Poule
-from ffbb_api_client_v2.PublicationInternet import PublicationInternet
-from ffbb_api_client_v2.Sexe import Sexe
-from ffbb_api_client_v2.TypeCompetition import TypeCompetition
-from ffbb_api_client_v2.TypeCompetitionGenerique import TypeCompetitionGenerique
-
+from .Categorie import Categorie
 from .CompetitionIDSexe import CompetitionIDSexe
 from .CompetitionIDTypeCompetition import CompetitionIDTypeCompetition
 from .converters import (
@@ -27,12 +17,21 @@ from .converters import (
     to_class,
     to_enum,
 )
+from .Etat import Etat
 from .FacetDistribution import FacetDistribution
 from .FacetStats import FacetStats
 from .Hit import Hit
+from .logo import Logo
+from .Niveau import Niveau
 from .NiveauClass import NiveauClass
 from .Organisateur import Organisateur
+from .PhaseCode import PhaseCode
+from .Poule import Poule
+from .PublicationInternet import PublicationInternet
 from .Saison import Saison
+from .Sexe import Sexe
+from .TypeCompetition import TypeCompetition
+from .TypeCompetitionGenerique import TypeCompetitionGenerique
 
 
 class CompetitionsFacetDistribution(FacetDistribution):

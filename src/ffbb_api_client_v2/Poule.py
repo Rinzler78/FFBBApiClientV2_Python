@@ -1,13 +1,7 @@
 from typing import Any, List, Optional
 
-from ffbb_api_client_v2.converters import (
-    from_list,
-    from_none,
-    from_str,
-    from_union,
-    to_class,
-)
-from ffbb_api_client_v2.multi_search_result_rencontres import Engagement
+from .converters import from_list, from_none, from_str, from_union, to_class
+from .multi_search_result_rencontres import Engagement
 
 
 class Poule:

@@ -2,9 +2,6 @@ from datetime import datetime
 from typing import Any, List, Optional
 from uuid import UUID
 
-from ffbb_api_client_v2.DocumentFlyerType import DocumentFlyerType
-from ffbb_api_client_v2.Source import Source
-
 from .converters import (
     from_datetime,
     from_int,
@@ -16,8 +13,10 @@ from .converters import (
     to_class,
     to_enum,
 )
+from .DocumentFlyerType import DocumentFlyerType
 from .FacetStats import FacetStats
 from .Folder import Folder
+from .Source import Source
 
 
 class DocumentFlyer:

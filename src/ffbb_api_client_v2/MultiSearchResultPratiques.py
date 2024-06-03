@@ -1,11 +1,10 @@
 from typing import Any
 
-from ffbb_api_client_v2.multi_search_result_pratiques import (
+from .multi_search_result_pratiques import (
     PratiquesFacetDistribution,
     PratiquesFacetStats,
     PratiquesHit,
 )
-
 from .multi_search_results import MultiSearchResult
 
 

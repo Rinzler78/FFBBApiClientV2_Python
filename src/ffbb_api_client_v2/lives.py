@@ -1,8 +1,6 @@
 from datetime import datetime
 from typing import Any, List, Optional
 
-from ffbb_api_client_v2.TeamEngagement import TeamEngagement
-
 from .converters import (
     from_datetime,
     from_int,
@@ -14,6 +12,7 @@ from .converters import (
     to_class,
 )
 from .external_id import ExternalID
+from .TeamEngagement import TeamEngagement
 
 
 class Clock:

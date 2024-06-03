@@ -1,8 +1,7 @@
 from typing import Any, Optional
 
-from ffbb_api_client_v2.Logo import Logo
-
 from .converters import from_none, from_str, from_union
+from .logo import Logo
 
 
 class IDEngagementEquipe:

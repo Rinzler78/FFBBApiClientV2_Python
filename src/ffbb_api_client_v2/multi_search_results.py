@@ -1,14 +1,6 @@
 from typing import Any, Generic, List, Optional, Type, TypeVar, cast
 
-from ffbb_api_client_v2.converters import (
-    from_int,
-    from_list,
-    from_none,
-    from_str,
-    from_union,
-    to_class,
-)
-
+from .converters import from_int, from_list, from_none, from_str, from_union, to_class
 from .FacetDistribution import FacetDistribution
 from .FacetStats import FacetStats
 from .Hit import Hit

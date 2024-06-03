@@ -3,7 +3,7 @@ from enum import Enum
 from typing import Any, Dict, List, Optional
 from uuid import UUID
 
-from ffbb_api_client_v2.converters import (
+from .converters import (
     from_datetime,
     from_dict,
     from_float,
@@ -17,9 +17,9 @@ from ffbb_api_client_v2.converters import (
     to_enum,
     to_float,
 )
-from ffbb_api_client_v2.FacetDistribution import FacetDistribution
-from ffbb_api_client_v2.FacetStats import FacetStats
-from ffbb_api_client_v2.Hit import Hit
+from .FacetDistribution import FacetDistribution
+from .FacetStats import FacetStats
+from .Hit import Hit
 
 
 class TypeClass:

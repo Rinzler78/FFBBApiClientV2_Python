@@ -2,9 +2,9 @@ from typing import List
 
 from requests_cache import CachedSession
 
-from ffbb_api_client_v2.api_ffbb_app_client_helper import default_cached_session
-from ffbb_api_client_v2.meilisearch_ffbb_app_client import MeilisearchFFBBAPPClient
-from ffbb_api_client_v2.multi_search_query import (
+from .api_ffbb_app_client_helper import default_cached_session
+from .meilisearch_ffbb_app_client import MeilisearchFFBBAPPClient
+from .multi_search_query import (
     CompetitionsMultiSearchQuery,
     MultiSearchQuery,
     OrganismesMultiSearchQuery,
@@ -14,7 +14,7 @@ from ffbb_api_client_v2.multi_search_query import (
     TerrainsMultiSearchQuery,
     TournoisMultiSearchQuery,
 )
-from ffbb_api_client_v2.MultiSearchResults import MultiSearchResults
+from .MultiSearchResults import MultiSearchResults
 
 
 class MeilisearchFFBBAPPClientHelper:

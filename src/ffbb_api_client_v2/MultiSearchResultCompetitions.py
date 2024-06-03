@@ -1,12 +1,11 @@
 from typing import Any
 
-from ffbb_api_client_v2.multi_search_results import MultiSearchResult
-
 from .multi_search_result_competitions import (
     CompetitionsFacetDistribution,
     CompetitionsFacetStats,
     CompetitionsHit,
 )
+from .multi_search_results import MultiSearchResult
 
 
 class CompetitionsMultiSearchResult(

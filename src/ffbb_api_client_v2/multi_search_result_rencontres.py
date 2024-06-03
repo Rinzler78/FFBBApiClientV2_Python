@@ -1,15 +1,7 @@
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from ffbb_api_client_v2.CompetitionID import CompetitionID
-from ffbb_api_client_v2.Geo import Geo
-from ffbb_api_client_v2.IDEngagementEquipe import IDEngagementEquipe
-from ffbb_api_client_v2.IDOrganismeEquipe import IDOrganismeEquipe
-from ffbb_api_client_v2.IDPoule import IDPoule
-from ffbb_api_client_v2.NiveauEnum import NiveauEnum
-from ffbb_api_client_v2.Pratique import Pratique
-from ffbb_api_client_v2.Salle import Salle
-
+from .CompetitionID import CompetitionID
 from .CompetitionIDSexe import CompetitionIDSexe
 from .CompetitionIDTypeCompetition import CompetitionIDTypeCompetition
 from .converters import (
@@ -26,10 +18,17 @@ from .converters import (
 )
 from .FacetDistribution import FacetDistribution
 from .FacetStats import FacetStats
+from .Geo import Geo
 from .Hit import Hit
+from .IDEngagementEquipe import IDEngagementEquipe
+from .IDOrganismeEquipe import IDOrganismeEquipe
+from .IDPoule import IDPoule
 from .NiveauClass import NiveauClass
+from .NiveauEnum import NiveauEnum
 from .Organisateur import Organisateur
+from .Pratique import Pratique
 from .Saison import Saison
+from .salle import Salle
 
 
 class RencontresFacetDistribution(FacetDistribution):
