@@ -8,7 +8,7 @@ class Categorie:
     code: Optional[str] = None
     date_created: Optional[datetime] = None
     date_updated: Optional[datetime] = None
-    id: Optional[str] = None
+    categorie_id: Optional[str] = None
     libelle: Optional[str] = None
     ordre: Optional[int] = None
 
@@ -24,7 +24,7 @@ class Categorie:
         self.code = code
         self.date_created = date_created
         self.date_updated = date_updated
-        self.id = id
+        self.categorie_id = id
         self.libelle = libelle
         self.ordre = ordre
 
@@ -34,10 +34,10 @@ class Categorie:
         code = from_union([from_str, from_none], obj.get("code"))
         date_created = from_union([from_datetime, from_none], obj.get("date_created"))
         date_updated = from_union([from_datetime, from_none], obj.get("date_updated"))
-        id = from_union([from_str, from_none], obj.get("id"))
+        categorie_id = from_union([from_str, from_none], obj.get("id"))
         libelle = from_union([from_str, from_none], obj.get("libelle"))
         ordre = from_union([from_int, from_none], obj.get("ordre"))
-        return Categorie(code, date_created, date_updated, id, libelle, ordre)
+        return Categorie(code, date_created, date_updated, categorie_id, libelle, ordre)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -51,8 +51,8 @@ class Categorie:
             result["date_updated"] = from_union(
                 [lambda x: x.isoformat(), from_none], self.date_updated
             )
-        if self.id is not None:
-            result["id"] = from_union([from_str, from_none], self.id)
+        if self.categorie_id is not None:
+            result["id"] = from_union([from_str, from_none], self.categorie_id)
         if self.libelle is not None:
             result["libelle"] = from_union([from_str, from_none], self.libelle)
         if self.ordre is not None:

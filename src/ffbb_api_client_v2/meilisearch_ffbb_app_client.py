@@ -41,7 +41,7 @@ class MeilisearchFFBBAPPClient:
     ) -> MultiSearchResults:
         url = f"{self.url}multi-search"
         params = {"queries": [query.to_dict() for query in queries] if queries else []}
-        result = catch_result(
+        return catch_result(
             lambda: multi_search_results_from_dict(
                 http_post_json(
                     url,
@@ -52,5 +52,3 @@ class MeilisearchFFBBAPPClient:
                 )
             )
         )
-
-        return result

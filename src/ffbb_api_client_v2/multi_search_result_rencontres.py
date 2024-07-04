@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from .CompetitionID import CompetitionID
+from .competitionID import CompetitionID
 from .CompetitionIDSexe import CompetitionIDSexe
 from .CompetitionIDTypeCompetition import CompetitionIDTypeCompetition
 from .converters import (
@@ -269,8 +269,14 @@ class RencontresHit(Hit):
             )
             nom_equipe1 = from_union([from_str, from_none], obj.get("nomEquipe1"))
             nom_equipe2 = from_union([from_str, from_none], obj.get("nomEquipe2"))
+
+            numero_journee_tmp = obj.get("numeroJournee")
+            numero_journee_tmp = (
+                numero_journee_tmp if len(numero_journee_tmp) > 0 else None
+            )
+
             numero_journee = from_union(
-                [from_none, lambda x: int(from_str(x))], obj.get("numeroJournee")
+                [from_none, lambda x: int(from_str(x))], numero_journee_tmp
             )
             pratique = from_union([from_none, Pratique], obj.get("pratique"))
             gs_id = from_union([from_str, from_none], obj.get("gsId"))
@@ -351,7 +357,7 @@ class RencontresHit(Hit):
                 niveau_nb,
             )
         except Exception as e:
-            raise ValueError("Invalid `Hit` object: %s" % e)
+            raise ValueError(f"Invalid `Hit` object: {e}")
 
     def to_dict(self) -> dict:
         result: dict = {}

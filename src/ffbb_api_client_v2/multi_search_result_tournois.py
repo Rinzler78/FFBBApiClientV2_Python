@@ -2,8 +2,8 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Optional
 
-from .Cartographie import Cartographie
-from .Commune import Commune
+from .cartographie import Cartographie
+from .commune import Commune
 from .converters import (
     from_bool,
     from_datetime,

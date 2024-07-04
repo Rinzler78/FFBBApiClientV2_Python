@@ -4,12 +4,10 @@ from ffbb_api_client_v2.meilisearch_ffbb_app_client import MeilisearchFFBBAPPCli
 from tests.test_meilisearch_ffbb_app_client import TestMeilisearchFFBBAPPClient
 
 # Retrieve api user / pass
-MEILISEARCH_PROD_FFBB_APP_BEARER_TOKEN = os.getenv(
-    "MEILISEARCH_PROD_FFBB_APP_BEARER_TOKEN"
-)
+meilisearch_ffbb_app_token = os.getenv("MEILISEARCH_PROD_FFBB_APP_BEARER_TOKEN")
 
 meilisearch_prod_ffbb_app_client: MeilisearchFFBBAPPClient = MeilisearchFFBBAPPClient(
-    MEILISEARCH_PROD_FFBB_APP_BEARER_TOKEN,
+    meilisearch_ffbb_app_token,
     debug=True,
 )
 

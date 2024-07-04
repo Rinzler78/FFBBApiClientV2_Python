@@ -22,8 +22,8 @@ def to_json_from_response(response: Response) -> Dict[str, Any]:
 
     try:
         return json.loads(data_str)
-    except json.JSONDecodeError:
-        pass
+    except json.JSONDecodeError as e:
+        print(f"Error in to_json_from_response: {e}")
 
     if data_str.endswith(","):
         data_str = data_str[:-1]
@@ -183,8 +183,7 @@ def encode_params(params: Dict[str, Any]) -> str:
     Returns:
         str: The encoded query string.
     """
-    encoded_params = urlencode({k: v for k, v in params.items() if v is not None})
-    return encoded_params
+    return urlencode({k: v for k, v in params.items() if v is not None})
 
 
 def url_with_params(url: str, params: Dict[str, Any]) -> str:
@@ -198,8 +197,7 @@ def url_with_params(url: str, params: Dict[str, Any]) -> str:
     Returns:
         str: The URL with the request parameters.
     """
-    encoded_params = encode_params(params)
-    if encoded_params:
+    if encoded_params := encode_params(params):
         return f"{url}?{encoded_params}"
     else:
         return url

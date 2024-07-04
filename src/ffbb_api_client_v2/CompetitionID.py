@@ -1,6 +1,6 @@
 from typing import Any, Optional
 
-from .CompetitionIDCategorie import CompetitionIDCategorie
+from .competitionIDCategorie import CompetitionIDCategorie
 from .CompetitionIDTypeCompetitionGenerique import CompetitionIDTypeCompetitionGenerique
 from .CompetitionOrigine import CompetitionOrigine
 from .converters import from_bool, from_none, from_str, from_union, to_class

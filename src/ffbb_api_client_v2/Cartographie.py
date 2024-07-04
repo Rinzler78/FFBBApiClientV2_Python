@@ -18,7 +18,7 @@ class Cartographie:
     coordonnees: Optional[Coordonnees] = None
     date_created: None
     date_updated: None
-    id: Optional[str] = None
+    cartographie_id: Optional[str] = None
     latitude: Optional[float] = None
     longitude: Optional[float] = None
     title: Optional[str] = None
@@ -44,7 +44,7 @@ class Cartographie:
         self.coordonnees = coordonnees
         self.date_created = date_created
         self.date_updated = date_updated
-        self.id = id
+        self.cartographie_id = id
         self.latitude = latitude
         self.longitude = longitude
         self.title = title
@@ -63,7 +63,7 @@ class Cartographie:
         )
         date_created = from_none(obj.get("date_created"))
         date_updated = from_none(obj.get("date_updated"))
-        id = from_union([from_str, from_none], obj.get("id"))
+        cartographie_id = from_union([from_str, from_none], obj.get("id"))
         latitude = from_union([from_float, from_none], obj.get("latitude"))
         longitude = from_union([from_float, from_none], obj.get("longitude"))
         title = from_union([from_str, from_none], obj.get("title"))
@@ -75,7 +75,7 @@ class Cartographie:
             coordonnees,
             date_created,
             date_updated,
-            id,
+            cartographie_id,
             latitude,
             longitude,
             title,
@@ -105,8 +105,8 @@ class Cartographie:
             result["date_created"] = from_none(self.date_created)
         if self.date_updated is not None:
             result["date_updated"] = from_none(self.date_updated)
-        if self.id is not None:
-            result["id"] = from_union([from_str, from_none], self.id)
+        if self.cartographie_id is not None:
+            result["id"] = from_union([from_str, from_none], self.cartographie_id)
         if self.latitude is not None:
             result["latitude"] = from_union([to_float, from_none], self.latitude)
         if self.longitude is not None:

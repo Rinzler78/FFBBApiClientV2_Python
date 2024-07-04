@@ -3,8 +3,8 @@ from enum import Enum
 from typing import Any, List, Optional
 from uuid import UUID
 
-from .Cartographie import Cartographie
-from .Commune import Commune
+from .cartographie import Cartographie
+from .commune import Commune
 from .converters import (
     from_datetime,
     from_int,

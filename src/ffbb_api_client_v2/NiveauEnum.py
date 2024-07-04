@@ -5,3 +5,4 @@ class NiveauEnum(Enum):
     DÉPARTEMENTAL = "Départemental"
     RÉGIONAL = "Régional"
     NATIONAL = "National"
+    INTERNATIONAL = "International"

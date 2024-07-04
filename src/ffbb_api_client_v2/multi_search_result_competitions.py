@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from .Categorie import Categorie
+from .categorie import Categorie
 from .CompetitionIDSexe import CompetitionIDSexe
 from .CompetitionIDTypeCompetition import CompetitionIDTypeCompetition
 from .converters import (

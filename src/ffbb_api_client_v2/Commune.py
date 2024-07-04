@@ -9,7 +9,7 @@ class Commune:
     code_postal: Optional[int] = None
     date_created: Optional[datetime] = None
     date_updated: Optional[datetime] = None
-    id: Optional[int] = None
+    commune_id: Optional[int] = None
     libelle: Optional[str] = None
     departement: Optional[str] = None
 
@@ -27,7 +27,7 @@ class Commune:
         self.code_postal = code_postal
         self.date_created = date_created
         self.date_updated = date_updated
-        self.id = id
+        self.commune_id = id
         self.libelle = libelle
         self.departement = departement
 
@@ -40,7 +40,7 @@ class Commune:
         )
         date_created = from_union([from_datetime, from_none], obj.get("date_created"))
         date_updated = from_union([from_datetime, from_none], obj.get("date_updated"))
-        id = from_union([lambda x: int(from_str(x)), from_none], obj.get("id"))
+        commune_id = from_union([lambda x: int(from_str(x)), from_none], obj.get("id"))
         libelle = from_union([from_str, from_none], obj.get("libelle"))
         departement = from_union([from_str, from_none], obj.get("departement"))
         return Commune(
@@ -48,7 +48,7 @@ class Commune:
             code_postal,
             date_created,
             date_updated,
-            id,
+            commune_id,
             libelle,
             departement,
         )
@@ -75,7 +75,7 @@ class Commune:
             result["date_updated"] = from_union(
                 [lambda x: x.isoformat(), from_none], self.date_updated
             )
-        if self.id is not None:
+        if self.commune_id is not None:
             result["id"] = from_union(
                 [
                     lambda x: from_none((lambda x: is_type(type(None), x))(x)),
@@ -83,7 +83,7 @@ class Commune:
                         (lambda x: str((lambda x: is_type(int, x))(x)))(x)
                     ),
                 ],
-                self.id,
+                self.commune_id,
             )
         if self.libelle is not None:
             result["libelle"] = from_union([from_str, from_none], self.libelle)

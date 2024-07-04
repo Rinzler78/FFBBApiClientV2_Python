@@ -1,8 +1,8 @@
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from .Cartographie import Cartographie
-from .Commune import Commune
+from .cartographie import Cartographie
+from .commune import Commune
 from .converters import (
     from_bool,
     from_datetime,
@@ -244,7 +244,7 @@ class OrganismesHit(Hit):
                 thumbnail,
             )
         except Exception as e:
-            raise ValueError("Invalid `OrganismesHit` object: %s" % e)
+            raise ValueError(f"Invalid `OrganismesHit` object: {e}")
 
     def to_dict(self) -> dict:
         result: dict = {}

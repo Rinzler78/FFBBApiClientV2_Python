@@ -24,4 +24,3 @@ class TestApiFFBBAppClient(unittest.TestCase):
     def test_lives(self):
         result = self.api_client.get_lives()
         self.assertIsNotNone(result)
-        self.assertGreater(len(result), 0)

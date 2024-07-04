@@ -37,7 +37,7 @@ def catch_result(callback, is_retrieving: bool = False):
 def create_cache_key(request, **kwargs):
     url = request.url
     method = request.method
-    data_hash = request.body if request.body else "empty"
+    data_hash = request.body or "empty"
     return f"{method} {url} {data_hash}"
 
 
