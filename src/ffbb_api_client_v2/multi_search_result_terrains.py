@@ -3,8 +3,8 @@ from enum import Enum
 from typing import Any, List, Optional
 from uuid import UUID
 
-from .cartographie import Cartographie
-from .commune import Commune
+from .Cartographie import Cartographie
+from .Commune import Commune
 from .converters import (
     from_datetime,
     from_int,
@@ -335,13 +335,27 @@ class TerrainsHit(Hit):
         thumbnail: None,
     ) -> None:
         self.nom = nom
+        self.lower_nom = nom.lower() if nom else None
+
         self.sexe = sexe
         self.adresse = adresse
+        self.lower_addresse = adresse.lower() if adresse else None
+
         self.nom_organisateur = nom_organisateur
+        self.lower_nom_organisateur = (
+            nom_organisateur.lower() if nom_organisateur else None
+        )
+
         self.description = description
+        self.lower_description = description.lower() if description else None
+
         self.site_choisi = site_choisi
+        self.lower_site_choisi = site_choisi.lower() if site_choisi else None
+
         self.id = id
         self.code = code
+        self.lower_code = code.lower() if code else None
+
         self.date_created = date_created
         self.date_updated = date_updated
         self.age_max = age_max
@@ -581,6 +595,18 @@ class TerrainsHit(Hit):
         if self.thumbnail is not None:
             result["thumbnail"] = from_none(self.thumbnail)
         return result
+
+    def is_valid_for_query(self, query: str) -> bool:
+        return (
+            not query
+            or (self.lower_nom and query in self.lower_nom)
+            or (self.lower_addresse and query in self.lower_addresse)
+            or (self.lower_description and query in self.lower_description)
+            or (self.lower_code and query in self.lower_code)
+            or (self.lower_nom_organisateur and query in self)
+            or (self.lower_nom_organisateur and query in self.lower_nom_organisateur)
+            or (self.lower_site_choisi and query in self.lower_site_choisi)
+        )
 
 
 class TerrainsFacetStats(FacetStats):

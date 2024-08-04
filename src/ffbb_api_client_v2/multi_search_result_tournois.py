@@ -2,8 +2,8 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Optional
 
-from .cartographie import Cartographie
-from .commune import Commune
+from .Cartographie import Cartographie
+from .Commune import Commune
 from .converters import (
     from_bool,
     from_datetime,
@@ -148,6 +148,8 @@ class TournoisHit(Hit):
     ) -> None:
         self.nom = nom
         self.rue = rue
+        self.lower_nom = nom.lower() if nom else None
+        self.lower_rue = rue.lower() if rue else None
         self.id = id
         self.acces_libre = acces_libre
         self.date_created = date_created
@@ -255,6 +257,23 @@ class TournoisHit(Hit):
                 [lambda x: to_enum(HitType, x), from_none], self.type
             )
         return result
+
+    def is_valid_for_query(self, query: str) -> bool:
+        return (
+            not query
+            or (self.lower_nom and query in self.lower_nom)
+            or (self.lower_rue and query in self.lower_rue)
+            or (
+                self.commune
+                and (
+                    (self.commune.lower_libelle and query in self.commune.lower_libelle)
+                    or (
+                        self.commune.lower_departement
+                        and query in self.commune.lower_departement
+                    )
+                )
+            )
+        )
 
 
 class TournoisFacetStats(FacetStats):

@@ -30,12 +30,33 @@ class MeilisearchFFBBAPPClientHelper:
     def __init__(self, meilisearch_ffbb_app_client: MeilisearchFFBBAPPClient):
         self._meilisearch_ffbb_app_client = meilisearch_ffbb_app_client
 
+    def multi_search(
+        self,
+        queries: List[MultiSearchQuery] = None,
+        cached_session: CachedSession = None,
+    ) -> MultiSearchResults:
+
+        results = self._meilisearch_ffbb_app_client.multi_search(
+            queries, cached_session
+        )
+
+        # Should filter results.hits according to query.q
+        if queries:
+            for i in range(len(results.results)):
+                query = queries[i]
+
+                if query.q:
+                    result = results.results[i]
+                    results.results[i] = query.filter_result(result)
+
+        return results
+
     def recursive_multi_search(
         self,
         queries: List[MultiSearchQuery] = None,
         cached_session: CachedSession = None,
     ) -> MultiSearchResults:
-        result = self._meilisearch_ffbb_app_client.multi_search(queries, cached_session)
+        result = self.multi_search(queries, cached_session)
         next_queries = []
 
         for i in range(len(result.results)):

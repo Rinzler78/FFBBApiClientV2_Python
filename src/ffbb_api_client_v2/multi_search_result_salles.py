@@ -1,8 +1,8 @@
 from datetime import datetime
 from typing import Any, Optional
 
-from .cartographie import Cartographie
-from .commune import Commune
+from .Cartographie import Cartographie
+from .Commune import Commune
 from .converters import from_datetime, from_none, from_str, from_union, to_class
 from .FacetDistribution import FacetDistribution
 from .FacetStats import FacetStats
@@ -63,13 +63,23 @@ class SallesHit(Hit):
         type_association: Optional[TypeAssociation],
     ) -> None:
         self.libelle = libelle
+        self.lower_libelle = libelle.lower() if libelle else None
+
         self.adresse = adresse
+        self.lower_addresse = adresse.lower() if adresse else None
+
         self.id = id
         self.adresse_complement = adresse_complement
+        self.lower_adresse_complement = (
+            adresse_complement.lower() if adresse_complement else None
+        )
+
         self.capacite_spectateur = capacite_spectateur
         self.date_created = date_created
         self.date_updated = date_updated
         self.libelle2 = libelle2
+        self.lower_libelle2 = libelle2.lower() if libelle2 else None
+
         self.mail = mail
         self.numero = numero
         self.telephone = telephone
@@ -182,6 +192,27 @@ class SallesHit(Hit):
                 self.type_association,
             )
         return result
+
+    def is_valid_for_query(self, query: str) -> bool:
+        return (
+            not query
+            or (self.lower_addresse and query in self.lower_addresse)
+            or (
+                self.lower_adresse_complement and query in self.lower_adresse_complement
+            )
+            or (self.lower_libelle and query in self.lower_libelle)
+            or (self.lower_libelle2 and query in self.lower_libelle2)
+            or (
+                self.commune
+                and (
+                    (self.commune.lower_libelle and query in self.commune.lower_libelle)
+                    or (
+                        self.commune.lower_departement
+                        and query in self.commune.lower_departement
+                    )
+                )
+            )
+        )
 
 
 class SallesFacetStats(FacetStats):

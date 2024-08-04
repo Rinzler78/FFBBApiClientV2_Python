@@ -475,9 +475,15 @@ class PratiquesHit(Hit):
         thumbnail: Optional[str],
     ) -> None:
         self.titre = titre
+        self.lower_titre = titre.lower() if titre else None
+
         self.type = type
         self.adresse = adresse
+        self.lower_addresse = adresse.lower() if adresse else None
+
         self.description = description
+        self.lower_description = description.lower() if description else None
+
         self.id = id
         self.date_created = date_created
         self.date_debut = date_debut
@@ -486,10 +492,20 @@ class PratiquesHit(Hit):
         self.date_updated = date_updated
         self.facebook = facebook
         self.site_web = site_web
+        self.lower_site_web = site_web.lower() if site_web else None
+
         self.twitter = twitter
         self.action = action
+        self.lower_action = action.lower() if action else None
+
         self.adresse_salle = adresse_salle
+        self.lower_adresse_salle = adresse_salle.lower() if adresse_salle else None
+
         self.adresse_structure = adresse_structure
+        self.lower_adresse_structure = (
+            adresse_structure.lower() if adresse_structure else None
+        )
+
         self.assurance = assurance
         self.code = code
         self.cp_salle = cp_salle
@@ -506,7 +522,11 @@ class PratiquesHit(Hit):
         self.mail_structure = mail_structure
         self.nom_demandeur = nom_demandeur
         self.nom_salle = nom_salle
+        self.lower_nom_salle = nom_salle.lower() if nom_salle else None
+
         self.nom_structure = nom_structure
+        self.lower_nom_structure = nom_structure.lower() if nom_structure else None
+
         self.nombre_personnes = nombre_personnes
         self.nombre_seances = nombre_seances
         self.objectif = objectif
@@ -514,6 +534,8 @@ class PratiquesHit(Hit):
         self.public = public
         self.telephone = telephone
         self.ville_salle = ville_salle
+        self.lower_ville_salle = ville_salle.lower() if ville_salle else None
+
         self.cartographie = cartographie
         self.affiche = affiche
         self.geo = geo
@@ -805,3 +827,17 @@ class PratiquesHit(Hit):
         if self.thumbnail is not None:
             result["thumbnail"] = from_union([from_none, from_str], self.thumbnail)
         return result
+
+    def is_valid_for_query(self, query: str) -> bool:
+        return not query or (
+            (self.lower_titre and query in self.lower_titre)
+            or (self.lower_addresse and query in self.lower_addresse)
+            or (self.lower_description and query in self.lower_description)
+            or (self.lower_site_web and query in self.lower_site_web)
+            or (self.lower_action and query in self.lower_action)
+            or (self.lower_adresse_salle and query in self.lower_adresse_salle)
+            or (self.lower_adresse_structure and query in self.lower_adresse_structure)
+            or (self.lower_nom_salle and query in self.lower_nom_salle)
+            or (self.lower_nom_structure and query in self.lower_nom_structure)
+            or (self.lower_ville_salle and query in self.lower_ville_salle)
+        )

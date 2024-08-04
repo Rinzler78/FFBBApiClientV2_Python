@@ -25,7 +25,9 @@ meilisearch_prod_ffbb_app_client: MeilisearchFFBBAPPClientHelper = (
 test = TestMeilisearchFFBBAPPClientHelper()
 test.setUp()
 
+# test.test_recursive_multi_search_with_empty_queries()
 # test.test_multi_search_with_all_possible_empty_queries()
+test.test_multi_search_with_all_possible_queries()
 
 # test.test_search_organismes_with_empty_name()
 # test.test_search_organismes_with_most_used_letters()
@@ -51,6 +53,6 @@ test.setUp()
 # test.test_search_tournois_with_most_used_letters()
 # test.test_search_tournois_with_known_names()
 
-test.test_search_pratiques_with_empty_names()
-test.test_search_pratiques_with_most_used_letters()
-test.test_search_pratiques_with_known_names()
+# test.test_search_pratiques_with_empty_names()
+# test.test_search_pratiques_with_most_used_letters()
+# test.test_search_pratiques_with_known_names()

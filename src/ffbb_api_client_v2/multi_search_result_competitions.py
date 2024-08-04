@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from .categorie import Categorie
+from .Categorie import Categorie
 from .CompetitionIDSexe import CompetitionIDSexe
 from .CompetitionIDTypeCompetition import CompetitionIDTypeCompetition
 from .converters import (
@@ -204,11 +204,17 @@ class CompetitionsHit(Hit):
         niveau_nb: Optional[int],
     ) -> None:
         self.nom = nom
+        self.lower_nom = nom.lower() if nom else None
+
         self.code = code
+        self.lower_code = code.lower() if code else None
+
         self.niveau = niveau
         self.type_competition = type_competition
         self.sexe = sexe
         self.id = id
+        self.lower_id = id.lower() if id else None
+
         self.creation_en_cours = creation_en_cours
         self.date_created = date_created
         self.date_updated = date_updated
@@ -217,9 +223,17 @@ class CompetitionsHit(Hit):
         self.publication_internet = publication_internet
         self.pro = pro
         self.competition_origine = competition_origine
+        self.lower_competition_origine = (
+            competition_origine.lower() if competition_origine else None
+        )
+
         self.competition_origine_niveau = competition_origine_niveau
-        self.phase_code = phase_code
         self.competition_origine_nom = competition_origine_nom
+        self.lower_competition_origine_nom = (
+            competition_origine_nom.lower() if competition_origine_nom else None
+        )
+
+        self.phase_code = phase_code
         self.etat = etat
         self.poules = poules
         self.phases = phases
@@ -435,6 +449,22 @@ class CompetitionsHit(Hit):
                 self.niveau_nb,
             )
         return result
+
+    def is_valid_for_query(self, query: str) -> bool:
+        return (
+            not query
+            or (self.lower_nom and query in self.lower_nom)
+            or (self.lower_code and query in self.lower_code)
+            or (self.lower_id and query in self.lower_id)
+            or (
+                self.lower_competition_origine
+                and query in self.lower_competition_origine
+            )
+            or (
+                self.lower_competition_origine_nom
+                and query in self.lower_competition_origine_nom
+            )
+        )
 
 
 class CompetitionsFacetStats(FacetStats):

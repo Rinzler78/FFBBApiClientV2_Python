@@ -1,8 +1,8 @@
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from .cartographie import Cartographie
-from .commune import Commune
+from .Cartographie import Cartographie
+from .Commune import Commune
 from .converters import (
     from_bool,
     from_datetime,
@@ -146,12 +146,20 @@ class OrganismesHit(Hit):
         thumbnail: Optional[str],
     ) -> None:
         self.nom_club_pro = nom_club_pro
+        self.lower_nom_club_pro = nom_club_pro.lower() if nom_club_pro else None
+
         self.nom = nom
+        self.lower_nom = nom.lower() if nom else None
+
         self.adresse = adresse
         self.adresse_club_pro = adresse_club_pro
         self.code = code
         self.id = id
         self.engagements_noms = engagements_noms
+        self.lower_engagements_noms = (
+            self.engagements_noms.lower() if self.engagements_noms else None
+        )
+
         self.mail = mail
         self.telephone = telephone
         self.type = type
@@ -321,6 +329,24 @@ class OrganismesHit(Hit):
         if self.thumbnail is not None:
             result["thumbnail"] = from_union([from_none, from_str], self.thumbnail)
         return result
+
+    def is_valid_for_query(self, query: str) -> bool:
+        return (
+            not query
+            or (self.lower_nom and query in self.lower_nom)
+            or (self.lower_nom_club_pro and query in self.lower_nom_club_pro)
+            or (self.lower_engagements_noms and query in self.lower_engagements_noms)
+            or (
+                self.commune
+                and (
+                    (self.commune.lower_libelle and query in self.commune.lower_libelle)
+                    or (
+                        self.commune.lower_departement
+                        and query in self.commune.lower_departement
+                    )
+                )
+            )
+        )
 
 
 class OrganismesFacetStats(FacetStats):

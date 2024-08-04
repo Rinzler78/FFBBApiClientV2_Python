@@ -1,6 +1,6 @@
 import os
 import unittest
-from typing import List
+from typing import List, Optional
 
 from dotenv import load_dotenv
 
@@ -36,15 +36,15 @@ class TestMeilisearchFFBBAPPClient(unittest.TestCase):
         result = self.api_client.multi_search()
         self.assertIsNotNone(result)
 
-    def __generate_queries(self, search_name: str = None):
+    def __generate_queries(self, search_name: str = None, limit: Optional[int] = 10000):
         return [
-            OrganismesMultiSearchQuery(search_name),
-            RencontresMultiSearchQuery(search_name),
-            TerrainsMultiSearchQuery(search_name),
-            CompetitionsMultiSearchQuery(search_name),
-            SallesMultiSearchQuery(search_name),
-            TournoisMultiSearchQuery(search_name),
-            PratiquesMultiSearchQuery(search_name),
+            OrganismesMultiSearchQuery(search_name, limit=limit),
+            RencontresMultiSearchQuery(search_name, limit=limit),
+            TerrainsMultiSearchQuery(search_name, limit=limit),
+            CompetitionsMultiSearchQuery(search_name, limit=limit),
+            SallesMultiSearchQuery(search_name, limit=limit),
+            TournoisMultiSearchQuery(search_name, limit=limit),
+            PratiquesMultiSearchQuery(search_name, limit=limit),
         ]
 
     def __validate_test_recursive_multi_search_with_all_possible_queries(

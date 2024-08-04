@@ -1,6 +1,6 @@
 from typing import Any, Optional
 
-from .cartographie import Cartographie
+from .Cartographie import Cartographie
 from .converters import from_none, from_str, from_union, to_class
 
 
@@ -21,8 +21,15 @@ class Salle:
     ) -> None:
         self.id = id
         self.libelle = libelle
+        self.lower_libelle = libelle.lower() if libelle else None
+
         self.adresse = adresse
+        self.lower_adresse = adresse.lower() if adresse else None
+
         self.adresse_complement = adresse_complement
+        self.lower_adresse_complement = (
+            adresse_complement.lower() if adresse_complement else None
+        )
         self.cartographie = cartographie
 
     @staticmethod

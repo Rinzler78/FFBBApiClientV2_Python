@@ -10,3 +10,7 @@ class Hit(ABC):
     @abstractmethod
     def to_dict(self) -> dict:
         raise NotImplementedError
+
+    @abstractmethod
+    def is_valid_for_query(self, query: str) -> bool:
+        raise NotImplementedError

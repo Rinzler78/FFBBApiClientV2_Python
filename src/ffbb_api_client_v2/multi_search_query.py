@@ -3,6 +3,7 @@ from typing import Any, List, Optional
 from .converters import from_int, from_list, from_none, from_str, from_union
 from .FacetDistribution import FacetDistribution
 from .FacetStats import FacetStats
+from .Hit import Hit
 from .multi_search_result_competitions import (
     CompetitionsFacetDistribution,
     CompetitionsFacetStats,
@@ -46,13 +47,15 @@ class MultiSearchQuery:
         index_uid: Optional[str],
         q: Optional[str],
         facets: Optional[List[str]] = None,
-        limit: Optional[int] = 1000,
+        limit: Optional[int] = 10,
         offset: Optional[int] = 0,
         filter: List[str] = None,
         sort: List[str] = None,
     ):
         self.index_uid = index_uid
         self.q = q
+        self.lower_q = q.lower() if q else None
+
         self.facets = facets
         self.limit = limit
         self.offset = offset
@@ -113,12 +116,28 @@ class MultiSearchQuery:
             )
         )
 
+    def is_valid_hit(self, hit: Hit):
+        return True
+
+    def filter_result(self, result: MultiSearchResult) -> MultiSearchResult:
+        if self.lower_q and result.hits:
+            invalid_hits = [
+                hit for hit in result.hits if not hit.is_valid_for_query(self.lower_q)
+            ]
+
+            if invalid_hits:
+                result.estimated_total_hits -= len(invalid_hits)
+
+                for hit in invalid_hits:
+                    result.hits.remove(hit)
+        return result
+
 
 class OrganismesMultiSearchQuery(MultiSearchQuery):
     def __init__(
         self,
         q: Optional[str],
-        limit: Optional[int] = 1000,
+        limit: Optional[int] = 10,
         offset: Optional[int] = 0,
         filter: List[str] = None,
         sort: List[str] = None,
@@ -156,7 +175,7 @@ class RencontresMultiSearchQuery(MultiSearchQuery):
     def __init__(
         self,
         q: Optional[str],
-        limit: Optional[int] = 1000,
+        limit: Optional[int] = 10,
         offset: Optional[int] = 0,
         filter: List[str] = None,
         sort: List[str] = None,
@@ -198,7 +217,7 @@ class TerrainsMultiSearchQuery(MultiSearchQuery):
         self,
         q: Optional[str],
         facets: Optional[List[str]] = None,
-        limit: Optional[int] = 1000,
+        limit: Optional[int] = 10,
         offset: Optional[int] = 0,
         filter: List[str] = None,
         sort: List[str] = None,
@@ -231,7 +250,7 @@ class SallesMultiSearchQuery(MultiSearchQuery):
     def __init__(
         self,
         q: Optional[str],
-        limit: Optional[int] = 1000,
+        limit: Optional[int] = 10,
         offset: Optional[int] = 0,
         filter: List[str] = None,
         sort: List[str] = None,
@@ -263,7 +282,7 @@ class TournoisMultiSearchQuery(MultiSearchQuery):
     def __init__(
         self,
         q: Optional[str],
-        limit: Optional[int] = 1000,
+        limit: Optional[int] = 10,
         offset: Optional[int] = 0,
         filter: List[str] = None,
         sort: List[str] = None,
@@ -295,7 +314,7 @@ class CompetitionsMultiSearchQuery(MultiSearchQuery):
     def __init__(
         self,
         q: Optional[str],
-        limit: Optional[int] = 1000,
+        limit: Optional[int] = 10,
         offset: Optional[int] = 0,
         filter: List[str] = None,
         sort: List[str] = None,
@@ -327,7 +346,7 @@ class PratiquesMultiSearchQuery(MultiSearchQuery):
     def __init__(
         self,
         q: Optional[str],
-        limit: Optional[int] = 1000,
+        limit: Optional[int] = 10,
         offset: Optional[int] = 0,
         filter: List[str] = None,
         sort: List[str] = None,

@@ -29,7 +29,10 @@ class Commune:
         self.date_updated = date_updated
         self.commune_id = id
         self.libelle = libelle
+        self.lower_libelle = libelle.lower() if libelle else None
+
         self.departement = departement
+        self.lower_departement = departement.lower() if departement else None
 
     @staticmethod
     def from_dict(obj: Any) -> "Commune":

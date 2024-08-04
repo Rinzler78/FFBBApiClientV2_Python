@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from .competitionID import CompetitionID
+from .CompetitionID import CompetitionID
 from .CompetitionIDSexe import CompetitionIDSexe
 from .CompetitionIDTypeCompetition import CompetitionIDTypeCompetition
 from .converters import (
@@ -227,15 +227,24 @@ class RencontresHit(Hit):
     ):
         self.niveau = niveau
         self.id = id
+        self.lower_id = id.lower() if id else None
+
         self.date = date
         self.date_rencontre = date_rencontre
         self.horaire = horaire
         self.nom_equipe1 = nom_equipe1
         self.nom_equipe2 = nom_equipe2
+        self.lower_nom_equipe1 = nom_equipe1.lower() if nom_equipe1 else None
+        self.lower_nom_equipe2 = nom_equipe2.lower() if nom_equipe2 else None
+
         self.numero_journee = numero_journee
         self.pratique = pratique
         self.gs_id = gs_id
+        self.lower_gs_id = gs_id.lower() if gs_id else None
+
         self.officiels = officiels
+        self.lower_officiels = [o.lower() for o in officiels] if officiels else None
+
         self.competition_id = competition_id
         self.id_organisme_equipe1 = id_organisme_equipe1
         self.id_organisme_equipe2 = id_organisme_equipe2
@@ -484,6 +493,25 @@ class RencontresHit(Hit):
                 self.niveau_nb,
             )
         return result
+
+    def is_valid_for_query(self, query: str) -> bool:
+        return (
+            not query
+            or (self.lower_gs_id and query in self.lower_gs_id)
+            or (self.lower_id and query in self.lower_id)
+            or (self.lower_officiels and query in self.lower_officiels)
+            or (
+                self.salle
+                and (
+                    (self.salle.lower_adresse and query in self.salle.lower_adresse)
+                    or (
+                        self.salle.lower_adresse_complement
+                        and query in self.salle.lower_adresse
+                    )
+                    or (self.salle.lower_libelle and query in self.salle.lower_libelle)
+                )
+            )
+        )
 
 
 class RencontresFacetStats(FacetStats):
