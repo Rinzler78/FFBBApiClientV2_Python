@@ -14,14 +14,14 @@ from ffbb_api_client_v2 import (
 from ffbb_api_client_v2.lives import Live
 
 from .api_ffbb_app_client import ApiFFBBAppClient
-from .meilisearch_ffbb_app_client_helper import MeilisearchFFBBAPPClientHelper
+from .meilisearch_ffbb_client import MeilisearchFFBBClient
 
 
 class FFBBAPIClientV2:
     def __init__(
         self,
         api_ffbb_client: ApiFFBBAppClient,
-        meilisearch_ffbb_app_client_helper: MeilisearchFFBBAPPClientHelper,
+        meilisearch_ffbb_app_client_helper: MeilisearchFFBBClient,
     ):
         self.api_ffbb_client = api_ffbb_client
         self.meilisearch_ffbb_app_client = meilisearch_ffbb_app_client_helper

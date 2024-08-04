@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from dotenv import load_dotenv
 
-from ffbb_api_client_v2.meilisearch_ffbb_app_client import MeilisearchFFBBAPPClient
+from ffbb_api_client_v2.meilisearch_client import MeilisearchClient
 from ffbb_api_client_v2.multi_search_query import (
     CompetitionsMultiSearchQuery,
     MultiSearchQuery,
@@ -21,10 +21,10 @@ load_dotenv()
 meilisearch_ffbb_app_token = os.getenv("MEILISEARCH_PROD_FFBB_APP_BEARER_TOKEN")
 
 
-class TestMeilisearchFFBBAPPClient(unittest.TestCase):
+class TestMeilisearchClient(unittest.TestCase):
 
     def setUp(self):
-        self.api_client: MeilisearchFFBBAPPClient = MeilisearchFFBBAPPClient(
+        self.api_client: MeilisearchClient = MeilisearchClient(
             meilisearch_ffbb_app_token,
             debug=True,
         )
@@ -66,3 +66,7 @@ class TestMeilisearchFFBBAPPClient(unittest.TestCase):
         self.__validate_test_recursive_multi_search_with_all_possible_queries(
             queries, result
         )
+
+
+if __name__ == "__main__":
+    unittest.main()

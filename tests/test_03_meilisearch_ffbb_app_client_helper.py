@@ -4,10 +4,7 @@ from typing import Any, List, Optional, Type
 
 from dotenv import load_dotenv
 
-from ffbb_api_client_v2.meilisearch_ffbb_app_client import MeilisearchFFBBAPPClient
-from ffbb_api_client_v2.meilisearch_ffbb_app_client_helper import (
-    MeilisearchFFBBAPPClientHelper,
-)
+from ffbb_api_client_v2.meilisearch_ffbb_client import MeilisearchFFBBClient
 from ffbb_api_client_v2.multi_search_query import (
     CompetitionsMultiSearchQuery,
     MultiSearchQuery,
@@ -71,12 +68,9 @@ meilisearch_ffbb_app_token = os.getenv("MEILISEARCH_PROD_FFBB_APP_BEARER_TOKEN")
 class TestMeilisearchFFBBAPPClientHelper(unittest.TestCase):
 
     def setUp(self):
-        self.api_client: MeilisearchFFBBAPPClientHelper = (
-            MeilisearchFFBBAPPClientHelper(
-                meilisearch_ffbb_app_client=MeilisearchFFBBAPPClient(
-                    meilisearch_ffbb_app_token
-                )
-            )
+        self.api_client: MeilisearchFFBBClient = MeilisearchFFBBClient(
+            meilisearch_ffbb_app_token,
+            debug=True,
         )
 
     def setup_method(self, method):
@@ -115,20 +109,6 @@ class TestMeilisearchFFBBAPPClientHelper(unittest.TestCase):
         queries = self.__generate_queries("Senas")
         result = self.api_client.multi_search(queries)
         self.__validate_multi_search_with_all_possible_queries(queries, result)
-
-    def test_recursive_multi_search_with_all_possible_empty_queries(self):
-        queries = self.__generate_queries()
-        result = self.api_client.recursive_multi_search(queries)
-        self.__validate_multi_search_with_all_possible_queries(queries, result)
-
-    def test_recursive_multi_search_with_all_possible_queries(self):
-        queries = self.__generate_queries("Senas")
-        result = self.api_client.recursive_multi_search(queries)
-        self.__validate_multi_search_with_all_possible_queries(queries, result)
-
-    def test_recursive_multi_search_with_empty_queries(self):
-        result = self.api_client.recursive_multi_search()
-        self.assertIsNotNone(result)
 
     def __validate_test_search(
         self,
