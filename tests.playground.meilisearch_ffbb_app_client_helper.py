@@ -2,9 +2,7 @@ import os
 
 from ffbb_api_client_v2.meilisearch_client import MeilisearchClient
 from ffbb_api_client_v2.meilisearch_ffbb_client import MeilisearchFFBBClient
-from tests.test_03_meilisearch_ffbb_app_client_helper import (
-    TestMeilisearchFFBBAPPClientHelper,
-)
+from tests.test_03_meilisearch_ffbb_client import Test_03_MeilisearchFFBBClient
 
 meilisearch_ffbb_app_token = os.getenv("MEILISEARCH_PROD_FFBB_APP_BEARER_TOKEN")
 
@@ -20,7 +18,7 @@ meilisearch_prod_ffbb_app_client: MeilisearchFFBBClient = MeilisearchFFBBClient(
     meilisearch_prod_ffbb_app_client
 )
 
-test = TestMeilisearchFFBBAPPClientHelper()
+test = Test_03_MeilisearchFFBBClient()
 test.setUp()
 
 # test.test_recursive_multi_search_with_empty_queries()

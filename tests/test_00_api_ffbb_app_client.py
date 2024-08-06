@@ -10,7 +10,7 @@ load_dotenv()
 API_FFBB_APP_BEARER_TOKEN = os.getenv("API_FFBB_APP_BEARER_TOKEN")
 
 
-class TestApiFFBBAppClient(unittest.TestCase):
+class Test_00_ApiFFBBAppClient(unittest.TestCase):
 
     def setUp(self):
         self.api_client = ApiFFBBAppClient(

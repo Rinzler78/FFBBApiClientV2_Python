@@ -1,20 +1,12 @@
 import os
 import unittest
-from typing import Any, List, Optional, Type
+from typing import Any, List, Type
 
 from dotenv import load_dotenv
 
 from ffbb_api_client_v2.meilisearch_ffbb_client import MeilisearchFFBBClient
-from ffbb_api_client_v2.multi_search_query import (
-    CompetitionsMultiSearchQuery,
-    MultiSearchQuery,
-    OrganismesMultiSearchQuery,
-    PratiquesMultiSearchQuery,
-    RencontresMultiSearchQuery,
-    SallesMultiSearchQuery,
-    TerrainsMultiSearchQuery,
-    TournoisMultiSearchQuery,
-)
+from ffbb_api_client_v2.multi_search_query import MultiSearchQuery
+from ffbb_api_client_v2.multi_search_query_helper import generate_queries
 from ffbb_api_client_v2.multi_search_result_competitions import (
     CompetitionsFacetDistribution,
     CompetitionsFacetStats,
@@ -65,7 +57,7 @@ load_dotenv()
 meilisearch_ffbb_app_token = os.getenv("MEILISEARCH_PROD_FFBB_APP_BEARER_TOKEN")
 
 
-class TestMeilisearchFFBBAPPClientHelper(unittest.TestCase):
+class Test_03_MeilisearchFFBBClient(unittest.TestCase):
 
     def setUp(self):
         self.api_client: MeilisearchFFBBClient = MeilisearchFFBBClient(
@@ -75,17 +67,6 @@ class TestMeilisearchFFBBAPPClientHelper(unittest.TestCase):
 
     def setup_method(self, method):
         self.setUp()
-
-    def __generate_queries(self, search_name: str = None, limit: Optional[int] = 1):
-        return [
-            OrganismesMultiSearchQuery(search_name, limit=limit),
-            RencontresMultiSearchQuery(search_name, limit=limit),
-            TerrainsMultiSearchQuery(search_name, limit=limit),
-            CompetitionsMultiSearchQuery(search_name, limit=limit),
-            SallesMultiSearchQuery(search_name, limit=limit),
-            TournoisMultiSearchQuery(search_name, limit=limit),
-            PratiquesMultiSearchQuery(search_name, limit=limit),
-        ]
 
     def __validate_multi_search_with_all_possible_queries(
         self, queries: List[MultiSearchQuery], search_result
@@ -101,12 +82,12 @@ class TestMeilisearchFFBBAPPClientHelper(unittest.TestCase):
             self.assertTrue(query.is_valid_result(result))
 
     def test_multi_search_with_all_possible_empty_queries(self):
-        queries = self.__generate_queries()
+        queries = generate_queries()
         result = self.api_client.multi_search(queries)
         self.__validate_multi_search_with_all_possible_queries(queries, result)
 
     def test_multi_search_with_all_possible_queries(self):
-        queries = self.__generate_queries("Senas")
+        queries = generate_queries("Senas")
         result = self.api_client.multi_search(queries)
         self.__validate_multi_search_with_all_possible_queries(queries, result)
 
@@ -119,10 +100,9 @@ class TestMeilisearchFFBBAPPClientHelper(unittest.TestCase):
         hit_type: Type,
     ):
         self.assertIsNotNone(search_result)
-        self.assertIsNotNone(search_result.results)
-        self.assertGreater(len(search_result.results), 0)
+        self.assertEqual(type(search_result), list)
 
-        for result in search_result.results:
+        for result in search_result:
             self.assertEqual(type(result), result_type)
 
             if result.facet_distribution:
