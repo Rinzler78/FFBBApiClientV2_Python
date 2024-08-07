@@ -4,14 +4,16 @@ from typing import List
 
 from dotenv import load_dotenv
 
-from ffbb_api_client_v2.meilisearch_client import MeilisearchClient
-from ffbb_api_client_v2.meilisearch_client_extension import MeilisearchClientExtension
-from ffbb_api_client_v2.multi_search_query import MultiSearchQuery
-from ffbb_api_client_v2.multi_search_query_helper import generate_queries
+from ffbb_api_client_v2 import (
+    MeilisearchClient,
+    MeilisearchClientExtension,
+    MultiSearchQuery,
+    generate_queries,
+)
 
 load_dotenv()
 
-meilisearch_ffbb_app_token = os.getenv("MEILISEARCH_PROD_FFBB_APP_BEARER_TOKEN")
+meilisearch_ffbb_app_token = os.getenv("MEILISEARCH_BEARER_TOKEN")
 
 
 class Test_02_MeilisearchClientExtension(unittest.TestCase):

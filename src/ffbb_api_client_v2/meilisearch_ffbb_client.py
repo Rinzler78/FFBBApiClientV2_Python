@@ -48,8 +48,8 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
 
     def search_organismes(
         self, name: str = None, cached_session: CachedSession = None
-    ) -> List[OrganismesMultiSearchResult]:
-        return self.search_multiple_organismes([name], cached_session)
+    ) -> OrganismesMultiSearchResult:
+        return self.search_multiple_organismes([name], cached_session)[0]
 
     def search_multiple_rencontres(
         self, names: List[str] = None, cached_session: CachedSession = None
@@ -64,8 +64,8 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
 
     def search_rencontres(
         self, name: str = None, cached_session: CachedSession = None
-    ) -> List[RencontresMultiSearchResult]:
-        return self.search_multiple_rencontres([name], cached_session)
+    ) -> RencontresMultiSearchResult:
+        return self.search_multiple_rencontres([name], cached_session)[0]
 
     def search_multiple_terrains(
         self, names: List[str] = None, cached_session: CachedSession = None
@@ -80,8 +80,8 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
 
     def search_terrains(
         self, name: str = None, cached_session: CachedSession = None
-    ) -> List[TerrainsMultiSearchResult]:
-        return self.search_multiple_terrains([name], cached_session)
+    ) -> TerrainsMultiSearchResult:
+        return self.search_multiple_terrains([name], cached_session)[0]
 
     def search_multiple_competitions(
         self, names: List[str] = None, cached_session: CachedSession = None
@@ -96,8 +96,8 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
 
     def search_competitions(
         self, name: str = None, cached_session: CachedSession = None
-    ) -> List[CompetitionsMultiSearchResult]:
-        return self.search_multiple_competitions([name], cached_session)
+    ) -> CompetitionsMultiSearchResult:
+        return self.search_multiple_competitions([name], cached_session)[0]
 
     def search_multiple_salles(
         self, names: List[str] = None, cached_session: CachedSession = None
@@ -112,8 +112,8 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
 
     def search_salles(
         self, name: str = None, cached_session: CachedSession = None
-    ) -> List[SallesMultiSearchResult]:
-        return self.search_multiple_salles([name], cached_session)
+    ) -> SallesMultiSearchResult:
+        return self.search_multiple_salles([name], cached_session)[0]
 
     def search_multiple_tournois(
         self, names: List[str] = None, cached_session: CachedSession = None
@@ -128,8 +128,8 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
 
     def search_tournois(
         self, name: str = None, cached_session: CachedSession = None
-    ) -> List[TournoisMultiSearchResult]:
-        return self.search_multiple_tournois([name], cached_session)
+    ) -> TournoisMultiSearchResult:
+        return self.search_multiple_tournois([name], cached_session)[0]
 
     def search_multiple_pratiques(
         self, names: List[str] = None, cached_session: CachedSession = None
@@ -144,5 +144,5 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
 
     def search_pratiques(
         self, name: str = None, cached_session: CachedSession = None
-    ) -> List[PratiquesMultiSearchResult]:
-        return self.search_multiple_pratiques([name], cached_session)
+    ) -> PratiquesMultiSearchResult:
+        return self.search_multiple_pratiques([name], cached_session)[0]

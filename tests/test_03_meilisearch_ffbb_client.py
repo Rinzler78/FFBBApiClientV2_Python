@@ -1,60 +1,44 @@
 import os
 import unittest
-from typing import Any, List, Type
+from typing import Any, Type
 
 from dotenv import load_dotenv
 
-from ffbb_api_client_v2.meilisearch_ffbb_client import MeilisearchFFBBClient
-from ffbb_api_client_v2.multi_search_query import MultiSearchQuery
-from ffbb_api_client_v2.multi_search_query_helper import generate_queries
-from ffbb_api_client_v2.multi_search_result_competitions import (
+from ffbb_api_client_v2 import (
     CompetitionsFacetDistribution,
     CompetitionsFacetStats,
     CompetitionsHit,
-)
-from ffbb_api_client_v2.multi_search_result_organismes import (
+    CompetitionsMultiSearchResult,
+    MeilisearchFFBBClient,
     OrganismesFacetDistribution,
     OrganismesFacetStats,
     OrganismesHit,
-)
-from ffbb_api_client_v2.multi_search_result_pratiques import (
+    OrganismesMultiSearchResult,
     PratiquesFacetDistribution,
     PratiquesFacetStats,
     PratiquesHit,
-)
-from ffbb_api_client_v2.multi_search_result_rencontres import (
+    PratiquesMultiSearchResult,
     RencontresFacetDistribution,
     RencontresFacetStats,
     RencontresHit,
-)
-from ffbb_api_client_v2.multi_search_result_salles import (
+    RencontresMultiSearchResult,
     SallesFacetDistribution,
     SallesFacetStats,
     SallesHit,
-)
-from ffbb_api_client_v2.multi_search_result_terrains import (
+    SallesMultiSearchResult,
     TerrainsFacetDistribution,
     TerrainsFacetStats,
     TerrainsHit,
-)
-from ffbb_api_client_v2.multi_search_result_tournois import (
+    TerrainsMultiSearchResult,
     TournoisFacetDistribution,
     TournoisFacetStats,
     TournoisHit,
+    TournoisMultiSearchResult,
 )
-from ffbb_api_client_v2.MultiSearchResultCompetitions import (
-    CompetitionsMultiSearchResult,
-)
-from ffbb_api_client_v2.MultiSearchResultOrganismes import OrganismesMultiSearchResult
-from ffbb_api_client_v2.MultiSearchResultPratiques import PratiquesMultiSearchResult
-from ffbb_api_client_v2.MultiSearchResultRencontres import RencontresMultiSearchResult
-from ffbb_api_client_v2.MultiSearchResultSalles import SallesMultiSearchResult
-from ffbb_api_client_v2.MultiSearchResultTerrains import TerrainsMultiSearchResult
-from ffbb_api_client_v2.MultiSearchResultTournois import TournoisMultiSearchResult
 
 load_dotenv()
 
-meilisearch_ffbb_app_token = os.getenv("MEILISEARCH_PROD_FFBB_APP_BEARER_TOKEN")
+meilisearch_ffbb_app_token = os.getenv("MEILISEARCH_BEARER_TOKEN")
 
 
 class Test_03_MeilisearchFFBBClient(unittest.TestCase):
@@ -68,30 +52,29 @@ class Test_03_MeilisearchFFBBClient(unittest.TestCase):
     def setup_method(self, method):
         self.setUp()
 
-    def __validate_multi_search_with_all_possible_queries(
-        self, queries: List[MultiSearchQuery], search_result
+    def __validate_test_search(
+        self,
+        search_result: Any,
+        result_type: Type,
+        facet_distribution_type: Type,
+        facet_stats_type: Type,
+        hit_type: Type,
     ):
         self.assertIsNotNone(search_result)
-        self.assertIsNotNone(search_result.results)
-        self.assertGreater(len(search_result.results), 0)
+        self.assertEqual(type(search_result), result_type)
 
-        for i in range(0, len(search_result.results)):
-            result = search_result.results[i]
-            query = queries[i]
+        if search_result.facet_distribution:
+            self.assertEqual(
+                type(search_result.facet_distribution), facet_distribution_type
+            )
 
-            self.assertTrue(query.is_valid_result(result))
+        if search_result.facet_stats:
+            self.assertEqual(type(search_result.facet_stats), facet_stats_type)
 
-    def test_multi_search_with_all_possible_empty_queries(self):
-        queries = generate_queries()
-        result = self.api_client.multi_search(queries)
-        self.__validate_multi_search_with_all_possible_queries(queries, result)
+        for hit in search_result.hits:
+            self.assertEqual(type(hit), hit_type)
 
-    def test_multi_search_with_all_possible_queries(self):
-        queries = generate_queries("Senas")
-        result = self.api_client.multi_search(queries)
-        self.__validate_multi_search_with_all_possible_queries(queries, result)
-
-    def __validate_test_search(
+    def __validate_test_search_multi(
         self,
         search_result: Any,
         result_type: Type,
@@ -103,18 +86,9 @@ class Test_03_MeilisearchFFBBClient(unittest.TestCase):
         self.assertEqual(type(search_result), list)
 
         for result in search_result:
-            self.assertEqual(type(result), result_type)
-
-            if result.facet_distribution:
-                self.assertEqual(
-                    type(result.facet_distribution), facet_distribution_type
-                )
-
-            if result.facet_stats:
-                self.assertEqual(type(result.facet_stats), facet_stats_type)
-
-            for hit in result.hits:
-                self.assertEqual(type(hit), hit_type)
+            self.__validate_test_search(
+                result, result_type, facet_distribution_type, facet_stats_type, hit_type
+            )
 
     def test_search_organismes_with_empty_name(self):
         search_organismes_result = self.api_client.search_organismes()
@@ -130,7 +104,7 @@ class Test_03_MeilisearchFFBBClient(unittest.TestCase):
         search_organismes_result = self.api_client.search_multiple_organismes(
             ["a", "e", "i", "o", "u", "y", "b", "l", "m", "s"]
         )
-        self.__validate_test_search(
+        self.__validate_test_search_multi(
             search_organismes_result,
             OrganismesMultiSearchResult,
             OrganismesFacetDistribution,
@@ -142,7 +116,7 @@ class Test_03_MeilisearchFFBBClient(unittest.TestCase):
         search_organismes_result = self.api_client.search_multiple_organismes(
             ["Paris", "Senas", "Reims"]
         )
-        self.__validate_test_search(
+        self.__validate_test_search_multi(
             search_organismes_result,
             OrganismesMultiSearchResult,
             OrganismesFacetDistribution,
@@ -164,7 +138,7 @@ class Test_03_MeilisearchFFBBClient(unittest.TestCase):
         search_rencontres_result = self.api_client.search_multiple_rencontres(
             ["a", "e", "i", "o", "u", "y", "b", "l", "m", "s"]
         )
-        self.__validate_test_search(
+        self.__validate_test_search_multi(
             search_rencontres_result,
             RencontresMultiSearchResult,
             RencontresFacetDistribution,
@@ -176,7 +150,7 @@ class Test_03_MeilisearchFFBBClient(unittest.TestCase):
         search_rencontres_result = self.api_client.search_multiple_rencontres(
             ["Paris", "Senas", "Reims"]
         )
-        self.__validate_test_search(
+        self.__validate_test_search_multi(
             search_rencontres_result,
             RencontresMultiSearchResult,
             RencontresFacetDistribution,
@@ -198,7 +172,7 @@ class Test_03_MeilisearchFFBBClient(unittest.TestCase):
         search_terrains_result = self.api_client.search_multiple_terrains(
             ["a", "e", "i", "o", "u", "y", "b", "l", "m", "s"]
         )
-        self.__validate_test_search(
+        self.__validate_test_search_multi(
             search_terrains_result,
             TerrainsMultiSearchResult,
             TerrainsFacetDistribution,
@@ -210,7 +184,7 @@ class Test_03_MeilisearchFFBBClient(unittest.TestCase):
         search_terrains_result = self.api_client.search_multiple_terrains(
             ["Paris", "Senas", "Reims"]
         )
-        self.__validate_test_search(
+        self.__validate_test_search_multi(
             search_terrains_result,
             TerrainsMultiSearchResult,
             TerrainsFacetDistribution,
@@ -232,7 +206,7 @@ class Test_03_MeilisearchFFBBClient(unittest.TestCase):
         search_competitions_result = self.api_client.search_multiple_competitions(
             ["a", "e", "i", "o", "u", "y", "b", "l", "m", "s"]
         )
-        self.__validate_test_search(
+        self.__validate_test_search_multi(
             search_competitions_result,
             CompetitionsMultiSearchResult,
             CompetitionsFacetDistribution,
@@ -244,7 +218,7 @@ class Test_03_MeilisearchFFBBClient(unittest.TestCase):
         search_competitions_result = self.api_client.search_multiple_competitions(
             ["Paris", "Senas", "Reims"]
         )
-        self.__validate_test_search(
+        self.__validate_test_search_multi(
             search_competitions_result,
             CompetitionsMultiSearchResult,
             CompetitionsFacetDistribution,
@@ -266,7 +240,7 @@ class Test_03_MeilisearchFFBBClient(unittest.TestCase):
         search_salles_result = self.api_client.search_multiple_salles(
             ["a", "e", "i", "o", "u", "y", "b", "l", "m", "s"]
         )
-        self.__validate_test_search(
+        self.__validate_test_search_multi(
             search_salles_result,
             SallesMultiSearchResult,
             SallesFacetDistribution,
@@ -278,7 +252,7 @@ class Test_03_MeilisearchFFBBClient(unittest.TestCase):
         search_salles_result = self.api_client.search_multiple_salles(
             ["Paris", "Senas", "Reims"]
         )
-        self.__validate_test_search(
+        self.__validate_test_search_multi(
             search_salles_result,
             SallesMultiSearchResult,
             SallesFacetDistribution,
@@ -300,7 +274,7 @@ class Test_03_MeilisearchFFBBClient(unittest.TestCase):
         search_tournois_result = self.api_client.search_multiple_tournois(
             ["a", "e", "i", "o", "u", "y", "b", "l", "m", "s"]
         )
-        self.__validate_test_search(
+        self.__validate_test_search_multi(
             search_tournois_result,
             TournoisMultiSearchResult,
             TournoisFacetDistribution,
@@ -312,7 +286,7 @@ class Test_03_MeilisearchFFBBClient(unittest.TestCase):
         search_tournois_result = self.api_client.search_multiple_tournois(
             ["Paris", "Senas", "Reims"]
         )
-        self.__validate_test_search(
+        self.__validate_test_search_multi(
             search_tournois_result,
             TournoisMultiSearchResult,
             TournoisFacetDistribution,
@@ -334,7 +308,7 @@ class Test_03_MeilisearchFFBBClient(unittest.TestCase):
         search_pratiques_result = self.api_client.search_multiple_pratiques(
             ["a", "e", "i", "o", "u", "y", "b", "l", "m", "s"]
         )
-        self.__validate_test_search(
+        self.__validate_test_search_multi(
             search_pratiques_result,
             PratiquesMultiSearchResult,
             PratiquesFacetDistribution,
@@ -346,7 +320,7 @@ class Test_03_MeilisearchFFBBClient(unittest.TestCase):
         search_pratiques_result = self.api_client.search_multiple_pratiques(
             ["Paris", "Senas", "Reims"]
         )
-        self.__validate_test_search(
+        self.__validate_test_search_multi(
             search_pratiques_result,
             PratiquesMultiSearchResult,
             PratiquesFacetDistribution,

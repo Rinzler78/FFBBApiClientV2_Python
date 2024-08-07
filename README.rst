@@ -57,21 +57,42 @@ Quick start
 .. code-block:: python
 
     import os
-    from ffbb_api_client import FFBBApiClient
+    from ffbb_api_client_v2 import FFBBAPIClientV2
 
     # Load env from file if needed
     # from dotenv import load_dotenv
     # load_dotenv()
 
-    # Retrieve api user / pass
-    basic_auth_user = os.getenv("FFBB_BASIC_AUTH_USER")
-    basic_auth_pass = os.getenv("FFBB_BASIC_AUTH_PASS")
+    # Retrieve apis bearer tokens
+    MEILISEARCH_BEARER_TOKEN = os.getenv("MEILISEARCH_BEARER_TOKEN")
+    API_FFBB_APP_BEARER_TOKEN = os.getenv("API_FFBB_APP_BEARER_TOKEN")
 
     # Create an instance of the api client
-    api_client = FFBBApiClient(
-        basic_auth_user=basic_auth_user,
-        basic_auth_pass=basic_auth_pass
-    )
+    ffbb_api_client = FFBBAPIClientV2.create(MEILISEARCH_BEARER_TOKEN, API_FFBB_APP_BEARER_TOKEN)
+
+    # Get the lives
+    lives = ffbb_api_client.get_lives()
+
+    # Get the organismes
+    organismes = ffbb_api_client.search_organismes("Paris")
+
+    # Get the rencontres
+    rencontres = ffbb_api_client.search_rencontres("Basket")
+
+    # Get the terrains
+    terrains = ffbb_api_client.search_terrains("Basket")
+
+    # Get the competitions
+    competitions = ffbb_api_client.search_competitions("Basket")
+
+    # Get the salles
+    salles = ffbb_api_client.search_salles("Basket")
+
+    # Get pratiques
+    pratiques = ffbb_api_client.search_pratiques("Basket")
+
+    # Get tournois
+    tournois = ffbb_api_client.search_tournois("Basket")
 
 Examples
 ========
@@ -87,7 +108,7 @@ information on PyScaffold see https://pyscaffold.org/.
 Licence
 =======
 
-ffbb_api_client is distributed under the Apache 2.0 license.
+ffbb_api_client_v2 is distributed under the Apache 2.0 license.
 
 Dev notes
 =========
