@@ -1,6 +1,6 @@
 from typing import Optional
 
-from ffbb_api_client_v2.multi_search_query import (
+from .multi_search_query import (
     CompetitionsMultiSearchQuery,
     OrganismesMultiSearchQuery,
     PratiquesMultiSearchQuery,

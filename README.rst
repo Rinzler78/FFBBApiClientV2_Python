@@ -64,11 +64,11 @@ Quick start
     # load_dotenv()
 
     # Retrieve apis bearer tokens
-    MEILISEARCH_BEARER_TOKEN = os.getenv("MEILISEARCH_BEARER_TOKEN")
-    API_FFBB_APP_BEARER_TOKEN = os.getenv("API_FFBB_APP_BEARER_TOKEN")
+    MEILISEARCH_TOKEN = os.getenv("MEILISEARCH_TOKEN")
+    API_TOKEN = os.getenv("API_TOKEN")
 
     # Create an instance of the api client
-    ffbb_api_client = FFBBAPIClientV2.create(MEILISEARCH_BEARER_TOKEN, API_FFBB_APP_BEARER_TOKEN)
+    ffbb_api_client = FFBBAPIClientV2.create(MEILISEARCH_TOKEN, API_TOKEN)
 
     # Get the lives
     lives = ffbb_api_client.get_lives()

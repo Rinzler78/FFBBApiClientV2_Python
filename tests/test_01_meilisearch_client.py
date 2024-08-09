@@ -2,20 +2,20 @@ import os
 import unittest
 from typing import List
 
-from dotenv import load_dotenv
-
 from ffbb_api_client_v2 import MeilisearchClient, MultiSearchQuery, generate_queries
-
-load_dotenv()
-
-meilisearch_ffbb_app_token = os.getenv("MEILISEARCH_BEARER_TOKEN")
 
 
 class Test_01_MeilisearchClient(unittest.TestCase):
 
     def setUp(self):
+        mls_token = os.getenv("MEILISEARCH_TOKEN")
+
+        if not mls_token:
+            raise Exception("MEILISEARCH_TOKEN environment variable not set")
+
         self.api_client: MeilisearchClient = MeilisearchClient(
-            meilisearch_ffbb_app_token,
+            bearer_token=mls_token,
+            url="https://meilisearch-prod.ffbb.app/",
             debug=True,
         )
 
@@ -26,9 +26,7 @@ class Test_01_MeilisearchClient(unittest.TestCase):
         result = self.api_client.multi_search()
         self.assertIsNotNone(result)
 
-    def __validate_test_recursive_multi_search_with_all_possible_queries(
-        self, queries: List[MultiSearchQuery], search_result
-    ):
+    def __validate_result(self, queries: List[MultiSearchQuery], search_result):
         self.assertIsNotNone(search_result)
         self.assertIsNotNone(search_result.results)
         self.assertGreater(len(search_result.results), 0)
@@ -42,9 +40,7 @@ class Test_01_MeilisearchClient(unittest.TestCase):
     def test_multi_search_with_all_possible_empty_queries(self):
         queries = generate_queries()
         result = self.api_client.multi_search(queries)
-        self.__validate_test_recursive_multi_search_with_all_possible_queries(
-            queries, result
-        )
+        self.__validate_result(queries, result)
 
 
 if __name__ == "__main__":

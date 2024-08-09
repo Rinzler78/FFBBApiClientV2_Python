@@ -12,7 +12,7 @@ class MeilisearchClient:
     def __init__(
         self,
         bearer_token: str,
-        url: str = "https://meilisearch-prod.ffbb.app/",
+        url: str,
         debug: bool = False,
         cached_session: CachedSession = default_cached_session,
     ):
@@ -21,11 +21,18 @@ class MeilisearchClient:
 
         Args:
             bearer_token (str): The bearer token used for authentication.
-            url (str, optional): The base URL. Defaults to "https://api.ffbb.app/".
+            url (str, optional): The base URL.
             debug (bool, optional): Whether to enable debug mode. Defaults to False.
             cached_session (CachedSession, optional): The cached session to use.
         """
+        if not bearer_token:
+            raise ValueError("Bearer token cannot be None or empty.")
+
         self.bearer_token = bearer_token
+
+        if not url:
+            raise ValueError("URL cannot be None or empty.")
+
         self.url = url
         self.debug = debug
         self.cached_session = cached_session

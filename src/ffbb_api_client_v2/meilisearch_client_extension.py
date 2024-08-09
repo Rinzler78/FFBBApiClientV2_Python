@@ -2,17 +2,17 @@ from typing import List
 
 from requests_cache import CachedSession
 
-from ffbb_api_client_v2.http_requests_helper import default_cached_session
-from ffbb_api_client_v2.meilisearch_client import MeilisearchClient
-from ffbb_api_client_v2.multi_search_query import MultiSearchQuery
-from ffbb_api_client_v2.MultiSearchResults import MultiSearchResults
+from .http_requests_helper import default_cached_session
+from .meilisearch_client import MeilisearchClient
+from .multi_search_query import MultiSearchQuery
+from .MultiSearchResults import MultiSearchResults
 
 
 class MeilisearchClientExtension(MeilisearchClient):
     def __init__(
         self,
         bearer_token: str,
-        url: str = "https://meilisearch-prod.ffbb.app/",
+        url: str,
         debug: bool = False,
         cached_session: CachedSession = default_cached_session,
     ):
@@ -37,7 +37,7 @@ class MeilisearchClientExtension(MeilisearchClient):
 
         return results
 
-    def recursive_multi_search(
+    def recursive_smart_multi_search(
         self,
         queries: List[MultiSearchQuery] = None,
         cached_session: CachedSession = None,
@@ -56,7 +56,7 @@ class MeilisearchClientExtension(MeilisearchClient):
                 next_queries.append(querie)
 
         if next_queries:
-            new_result = self.recursive_multi_search(next_queries, cached_session)
+            new_result = self.recursive_smart_multi_search(next_queries, cached_session)
 
             for i in range(len(new_result.results)):
                 query_result = new_result.results[i]

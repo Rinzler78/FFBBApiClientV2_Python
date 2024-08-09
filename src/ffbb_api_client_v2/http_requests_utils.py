@@ -69,6 +69,7 @@ def http_get(
     if debug:
         end_time = time.time()
         print(f"GET request to {url} took {end_time - start_time} seconds.")
+        print(f"GET response: {response.text}")
 
     return response
 
@@ -108,6 +109,7 @@ def http_post(
     if debug:
         end_time = time.time()
         print(f"POST request to {url} {data_str} took {end_time - start_time} seconds.")
+        print(f"POST response: {response.text}")
 
     return response
 

@@ -5,16 +5,14 @@ from dotenv import load_dotenv
 
 from ffbb_api_client_v2.api_ffbb_app_client import ApiFFBBAppClient
 
-load_dotenv()
-
-API_FFBB_APP_BEARER_TOKEN = os.getenv("API_FFBB_APP_BEARER_TOKEN")
-
 
 class Test_00_ApiFFBBAppClient(unittest.TestCase):
 
     def setUp(self):
+        load_dotenv()
+
         self.api_client = ApiFFBBAppClient(
-            API_FFBB_APP_BEARER_TOKEN,
+            bearer_token=os.getenv("API_TOKEN"),
             debug=True,
         )
 

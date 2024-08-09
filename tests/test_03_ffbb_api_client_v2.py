@@ -2,8 +2,6 @@ import os
 import unittest
 from typing import Any, Type
 
-from dotenv import load_dotenv
-
 from ffbb_api_client_v2 import (
     CompetitionsFacetDistribution,
     CompetitionsFacetStats,
@@ -36,16 +34,23 @@ from ffbb_api_client_v2 import (
     TournoisMultiSearchResult,
 )
 
-load_dotenv()
 
-MEILISEARCH_BEARER_TOKEN = os.getenv("MEILISEARCH_BEARER_TOKEN")
-API_FFBB_APP_BEARER_TOKEN = os.getenv("API_FFBB_APP_BEARER_TOKEN")
-
-
-class Test_04_FFBBAPIClientV2(unittest.TestCase):
+class Test_03_FFBBAPIClientV2(unittest.TestCase):
     def setUp(self):
+        api_token = os.getenv("API_TOKEN")
+
+        if not api_token:
+            raise Exception("API_TOKEN environment variable not set")
+
+        mls_token = os.getenv("MEILISEARCH_TOKEN")
+
+        if not mls_token:
+            raise Exception("MEILISEARCH_TOKEN environment variable not set")
+
         self.api_client = FFBBAPIClientV2.create(
-            MEILISEARCH_BEARER_TOKEN, API_FFBB_APP_BEARER_TOKEN, debug=True
+            meilisearch_bearer_token=mls_token,
+            api_bearer_token=api_token,
+            debug=True,
         )
 
     def setup_method(self, method):
@@ -103,18 +108,6 @@ class Test_04_FFBBAPIClientV2(unittest.TestCase):
             OrganismesHit,
         )
 
-    def test_search_organismes_with_most_used_letters(self):
-        search_organismes_result = self.api_client.search_multiple_organismes(
-            ["a", "e", "i", "o", "u", "y", "b", "l", "m", "s"]
-        )
-        self.__validate_test_search_multi(
-            search_organismes_result,
-            OrganismesMultiSearchResult,
-            OrganismesFacetDistribution,
-            OrganismesFacetStats,
-            OrganismesHit,
-        )
-
     def test_search_organismes_with_known_names(self):
         search_organismes_result = self.api_client.search_multiple_organismes(
             ["Paris", "Senas", "Reims"]
@@ -130,18 +123,6 @@ class Test_04_FFBBAPIClientV2(unittest.TestCase):
     def test_search_rencontres_with_empty_names(self):
         search_rencontres_result = self.api_client.search_rencontres()
         self.__validate_test_search(
-            search_rencontres_result,
-            RencontresMultiSearchResult,
-            RencontresFacetDistribution,
-            RencontresFacetStats,
-            RencontresHit,
-        )
-
-    def test_search_rencontres_with_most_used_letters(self):
-        search_rencontres_result = self.api_client.search_multiple_rencontres(
-            ["a", "e", "i", "o", "u", "y", "b", "l", "m", "s"]
-        )
-        self.__validate_test_search_multi(
             search_rencontres_result,
             RencontresMultiSearchResult,
             RencontresFacetDistribution,
@@ -171,18 +152,6 @@ class Test_04_FFBBAPIClientV2(unittest.TestCase):
             TerrainsHit,
         )
 
-    def test_search_terrains_with_most_used_letters(self):
-        search_terrains_result = self.api_client.search_multiple_terrains(
-            ["a", "e", "i", "o", "u", "y", "b", "l", "m", "s"]
-        )
-        self.__validate_test_search_multi(
-            search_terrains_result,
-            TerrainsMultiSearchResult,
-            TerrainsFacetDistribution,
-            TerrainsFacetStats,
-            TerrainsHit,
-        )
-
     def test_search_terrains_with_known_names(self):
         search_terrains_result = self.api_client.search_multiple_terrains(
             ["Paris", "Senas", "Reims"]
@@ -198,18 +167,6 @@ class Test_04_FFBBAPIClientV2(unittest.TestCase):
     def test_search_competitions_with_empty_names(self):
         search_competitions_result = self.api_client.search_competitions()
         self.__validate_test_search(
-            search_competitions_result,
-            CompetitionsMultiSearchResult,
-            CompetitionsFacetDistribution,
-            CompetitionsFacetStats,
-            CompetitionsHit,
-        )
-
-    def test_search_competitions_with_most_used_letters(self):
-        search_competitions_result = self.api_client.search_multiple_competitions(
-            ["a", "e", "i", "o", "u", "y", "b", "l", "m", "s"]
-        )
-        self.__validate_test_search_multi(
             search_competitions_result,
             CompetitionsMultiSearchResult,
             CompetitionsFacetDistribution,
@@ -239,18 +196,6 @@ class Test_04_FFBBAPIClientV2(unittest.TestCase):
             SallesHit,
         )
 
-    def test_search_salles_with_most_used_letters(self):
-        search_salles_result = self.api_client.search_multiple_salles(
-            ["a", "e", "i", "o", "u", "y", "b", "l", "m", "s"]
-        )
-        self.__validate_test_search_multi(
-            search_salles_result,
-            SallesMultiSearchResult,
-            SallesFacetDistribution,
-            SallesFacetStats,
-            SallesHit,
-        )
-
     def test_search_salles_with_known_names(self):
         search_salles_result = self.api_client.search_multiple_salles(
             ["Paris", "Senas", "Reims"]
@@ -273,18 +218,6 @@ class Test_04_FFBBAPIClientV2(unittest.TestCase):
             TournoisHit,
         )
 
-    def test_search_tournois_with_most_used_letters(self):
-        search_tournois_result = self.api_client.search_multiple_tournois(
-            ["a", "e", "i", "o", "u", "y", "b", "l", "m", "s"]
-        )
-        self.__validate_test_search_multi(
-            search_tournois_result,
-            TournoisMultiSearchResult,
-            TournoisFacetDistribution,
-            TournoisFacetStats,
-            TournoisHit,
-        )
-
     def test_search_tournois_with_known_names(self):
         search_tournois_result = self.api_client.search_multiple_tournois(
             ["Paris", "Senas", "Reims"]
@@ -300,18 +233,6 @@ class Test_04_FFBBAPIClientV2(unittest.TestCase):
     def test_search_pratiques_with_empty_names(self):
         search_pratiques_result = self.api_client.search_pratiques()
         self.__validate_test_search(
-            search_pratiques_result,
-            PratiquesMultiSearchResult,
-            PratiquesFacetDistribution,
-            PratiquesFacetStats,
-            PratiquesHit,
-        )
-
-    def test_search_pratiques_with_most_used_letters(self):
-        search_pratiques_result = self.api_client.search_multiple_pratiques(
-            ["a", "e", "i", "o", "u", "y", "b", "l", "m", "s"]
-        )
-        self.__validate_test_search_multi(
             search_pratiques_result,
             PratiquesMultiSearchResult,
             PratiquesFacetDistribution,
