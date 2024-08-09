@@ -40,7 +40,7 @@ class FFBBAPIClientV2:
         api_bearer_token: str,
         debug: bool = False,
         cached_session: CachedSession = default_cached_session,
-    ):
+    ) -> "FFBBAPIClientV2":
         if not api_bearer_token:
             raise ValueError("Api Bearer token cannot be None or empty.")
 
