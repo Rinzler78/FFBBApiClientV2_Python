@@ -14,9 +14,9 @@ class CompetitionOrigine:
     nom: Optional[str] = None
     type_competition: Optional[CompetitionOrigineTypeCompetition] = None
     categorie: Optional[CompetitionOrigineCategorie] = None
-    type_competition_generique: Optional[
-        CompetitionOrigineTypeCompetitionGenerique
-    ] = None
+    type_competition_generique: Optional[CompetitionOrigineTypeCompetitionGenerique] = (
+        None
+    )
 
     def __init__(
         self,

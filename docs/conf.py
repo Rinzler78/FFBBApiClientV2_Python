@@ -87,8 +87,8 @@ source_suffix = ".rst"
 master_doc = "index"
 
 # General information about the project.
-project = "FFBBApiClientV2_Python"
-copyright = "2024, Boris LECLERE"
+project = "ffbb_api_client_v2"
+copyright = "2025, Rinzler78"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -99,7 +99,7 @@ copyright = "2024, Boris LECLERE"
 # If you don’t need the separation provided between version and release,
 # just set them both to the same value.
 try:
-    from src import __version__ as version
+    from ffbb_api_client_v2 import __version__ as version
 except ImportError:
     version = ""
 
@@ -229,7 +229,7 @@ html_static_path = ["_static"]
 # html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = "FFBBApiClientV2_Python-doc"
+htmlhelp_basename = "ffbb_api_client_v2-doc"
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -246,7 +246,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-    ("index", "user_guide.tex", "FFBBApiClientV2_Python Documentation", "Boris LECLERE", "manual")
+    ("index", "user_guide.tex", "ffbb_api_client_v2 Documentation", "Rinzler78", "manual")
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
