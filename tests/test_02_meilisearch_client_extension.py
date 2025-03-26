@@ -11,7 +11,7 @@ from ffbb_api_client_v2 import (
 
 class Test_02_MeilisearchClientExtension(unittest.TestCase):
     def setUp(self):
-        mls_token = os.getenv("MEILISEARCH_TOKEN")
+        mls_token = os.getenv("MEILISEARCH_BEARER_TOKEN")
 
         if not mls_token:
             raise Exception("MEILISEARCH_TOKEN environment variable not set")

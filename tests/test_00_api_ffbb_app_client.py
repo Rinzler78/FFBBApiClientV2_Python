@@ -11,7 +11,7 @@ class Test_00_ApiFFBBAppClient(unittest.TestCase):
         load_dotenv()
 
         self.api_client = ApiFFBBAppClient(
-            bearer_token=os.getenv("API_TOKEN"),
+            bearer_token=os.getenv("API_FFBB_APP_BEARER_TOKEN"),
             debug=True,
         )
 

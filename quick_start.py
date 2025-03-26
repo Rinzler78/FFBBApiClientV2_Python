@@ -6,8 +6,8 @@ from ffbb_api_client_v2 import FFBBAPIClientV2
 
 load_dotenv()
 
-MEILISEARCH_TOKEN = os.getenv("MEILISEARCH_TOKEN")
-API_TOKEN = os.getenv("API_TOKEN")
+MEILISEARCH_TOKEN = os.getenv("MEILISEARCH_BEARER_TOKEN")
+API_TOKEN = os.getenv("API_FFBB_APP_BEARER_TOKEN")
 
 # Create an instance of the api client
 ffbb_api_client = FFBBAPIClientV2.create(MEILISEARCH_TOKEN, API_TOKEN, debug=True)

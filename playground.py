@@ -3,8 +3,8 @@ import os
 from src.ffbb_api_client_v2 import FFBBAPIClientV2
 
 # ffbb api client
-MEILISEARCH_TOKEN = os.getenv("MEILISEARCH_TOKEN")
-API_TOKEN = os.getenv("API_TOKEN")
+MEILISEARCH_TOKEN = os.getenv("MEILISEARCH_BEARER_TOKEN")
+API_TOKEN = os.getenv("API_FFBB_APP_BEARER_TOKEN")
 
 # Meilisearch api client
 # meilisearch_client = MeilisearchFFBBClient(MEILISEARCH_TOKEN, debug=True)
