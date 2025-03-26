@@ -3,7 +3,7 @@ from typing import Any, Generic, List, Optional, Type, TypeVar, cast
 from .converters import from_int, from_list, from_none, from_str, from_union, to_class
 from .FacetDistribution import FacetDistribution
 from .FacetStats import FacetStats
-from .Hit import Hit
+from .hit import Hit
 
 HitType = TypeVar("HitType", bound=Hit)
 FacetDistributionType = TypeVar("FacetDistributionType", bound=FacetDistribution)

@@ -2,8 +2,8 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Optional
 
-from .Cartographie import Cartographie
-from .Commune import Commune
+from .cartographie import Cartographie
+from .commune import Commune
 from .converters import (
     from_bool,
     from_datetime,
@@ -17,8 +17,8 @@ from .converters import (
 )
 from .FacetDistribution import FacetDistribution
 from .FacetStats import FacetStats
-from .Geo import Geo
-from .Hit import Hit
+from .geo import Geo
+from .hit import Hit
 from .multi_search_result_terrains import TournoiTypes3X3Libelle
 from .NatureSol import NatureSol
 from .TournoiTypeClass import TournoiTypeClass
@@ -39,19 +39,19 @@ class SexeClass:
     @staticmethod
     def from_dict(obj: Any) -> "SexeClass":
         assert isinstance(obj, dict)
-        féminin = from_union([from_int, from_none], obj.get("Féminin"))
-        masculin = from_union([from_int, from_none], obj.get("Masculin"))
-        mixte = from_union([from_int, from_none], obj.get("Mixte"))
+        féminin = from_union([from_none, from_int], obj.get("Féminin"))
+        masculin = from_union([from_none, from_int], obj.get("Masculin"))
+        mixte = from_union([from_none, from_int], obj.get("Mixte"))
         return SexeClass(féminin, masculin, mixte)
 
     def to_dict(self) -> dict:
         result: dict = {}
         if self.féminin is not None:
-            result["Féminin"] = from_union([from_int, from_none], self.féminin)
+            result["Féminin"] = from_union([from_none, from_int], self.féminin)
         if self.masculin is not None:
-            result["Masculin"] = from_union([from_int, from_none], self.masculin)
+            result["Masculin"] = from_union([from_none, from_int], self.masculin)
         if self.mixte is not None:
-            result["Mixte"] = from_union([from_int, from_none], self.mixte)
+            result["Mixte"] = from_union([from_none, from_int], self.mixte)
         return result
 
 
@@ -73,12 +73,12 @@ class TournoisFacetDistribution(FacetDistribution):
     @staticmethod
     def from_dict(obj: Any) -> "TournoisFacetDistribution":
         assert isinstance(obj, dict)
-        sexe = from_union([SexeClass.from_dict, from_none], obj.get("sexe"))
+        sexe = from_union([from_none, SexeClass.from_dict], obj.get("sexe"))
         tournoi_type = from_union(
-            [TournoiTypeClass.from_dict, from_none], obj.get("tournoiType")
+            [from_none, TournoiTypeClass.from_dict], obj.get("tournoiType")
         )
         tournoi_types3_x3_libelle = from_union(
-            [TournoiTypes3X3Libelle.from_dict, from_none],
+            [from_none, TournoiTypes3X3Libelle.from_dict],
             obj.get("tournoiTypes3x3.libelle"),
         )
         return TournoisFacetDistribution(sexe, tournoi_type, tournoi_types3_x3_libelle)
@@ -87,15 +87,15 @@ class TournoisFacetDistribution(FacetDistribution):
         result: dict = {}
         if self.sexe is not None:
             result["sexe"] = from_union(
-                [lambda x: to_class(SexeClass, x), from_none], self.sexe
+                [from_none, lambda x: to_class(SexeClass, x)], self.sexe
             )
         if self.tournoi_type is not None:
             result["tournoiType"] = from_union(
-                [lambda x: to_class(TournoiTypeClass, x), from_none], self.tournoi_type
+                [from_none, lambda x: to_class(TournoiTypeClass, x)], self.tournoi_type
             )
         if self.tournoi_types3_x3_libelle is not None:
             result["tournoiTypes3x3.libelle"] = from_union(
-                [lambda x: to_class(TournoiTypes3X3Libelle, x), from_none],
+                [from_none, lambda x: to_class(TournoiTypes3X3Libelle, x)],
                 self.tournoi_types3_x3_libelle,
             )
         return result
@@ -167,23 +167,23 @@ class TournoisHit(Hit):
     @staticmethod
     def from_dict(obj: Any) -> "TournoisHit":
         assert isinstance(obj, dict)
-        nom = from_union([from_str, from_none], obj.get("nom"))
-        rue = from_union([from_str, from_none], obj.get("rue"))
-        id = from_union([lambda x: int(from_str(x)), from_none], obj.get("id"))
-        acces_libre = from_union([from_bool, from_none], obj.get("accesLibre"))
-        date_created = from_union([from_datetime, from_none], obj.get("date_created"))
-        date_updated = from_union([from_datetime, from_none], obj.get("date_updated"))
-        largeur = from_union([from_int, from_none], obj.get("largeur"))
-        longueur = from_union([from_int, from_none], obj.get("longueur"))
-        numero = from_union([from_int, from_none], obj.get("numero"))
+        nom = from_union([from_none, from_str], obj.get("nom"))
+        rue = from_union([from_none, from_str], obj.get("rue"))
+        id = from_union([from_none, lambda x: int(from_str(x))], obj.get("id"))
+        acces_libre = from_union([from_none, from_bool], obj.get("accesLibre"))
+        date_created = from_union([from_none, from_datetime], obj.get("date_created"))
+        date_updated = from_union([from_none, from_datetime], obj.get("date_updated"))
+        largeur = from_union([from_none, from_int], obj.get("largeur"))
+        longueur = from_union([from_none, from_int], obj.get("longueur"))
+        numero = from_union([from_none, from_int], obj.get("numero"))
         cartographie = from_union(
-            [Cartographie.from_dict, from_none], obj.get("cartographie")
+            [from_none, Cartographie.from_dict], obj.get("cartographie")
         )
-        commune = from_union([Commune.from_dict, from_none], obj.get("commune"))
-        nature_sol = from_union([NatureSol.from_dict, from_none], obj.get("natureSol"))
-        geo = from_union([Geo.from_dict, from_none], obj.get("_geo"))
+        commune = from_union([from_none, Commune.from_dict], obj.get("commune"))
+        nature_sol = from_union([from_none, NatureSol.from_dict], obj.get("natureSol"))
+        geo = from_union([from_none, Geo.from_dict], obj.get("_geo"))
         thumbnail = from_none(obj.get("thumbnail"))
-        type = from_union([HitType, from_none], obj.get("type"))
+        type = from_union([from_none, HitType], obj.get("type"))
         return TournoisHit(
             nom,
             rue,
@@ -205,13 +205,13 @@ class TournoisHit(Hit):
     def to_dict(self) -> dict:
         result: dict = {}
         if self.nom is not None:
-            result["nom"] = from_union([from_str, from_none], self.nom)
+            result["nom"] = from_union([from_none, from_str], self.nom)
         if self.rue is not None:
-            result["rue"] = from_union([from_str, from_none], self.rue)
+            result["rue"] = from_union([from_none, from_str], self.rue)
         if self.id is not None:
             result["id"] = from_union(
                 [
-                    lambda x: from_none((lambda x: is_type(type(None), x))(x)),
+                    from_none,
                     lambda x: from_str(
                         (lambda x: str((lambda x: is_type(int, x))(x)))(x)
                     ),
@@ -219,42 +219,42 @@ class TournoisHit(Hit):
                 self.id,
             )
         if self.acces_libre is not None:
-            result["accesLibre"] = from_union([from_bool, from_none], self.acces_libre)
+            result["accesLibre"] = from_union([from_none, from_bool], self.acces_libre)
         if self.date_created is not None:
             result["date_created"] = from_union(
-                [lambda x: x.isoformat(), from_none], self.date_created
+                [from_none, lambda x: x.isoformat()], self.date_created
             )
         if self.date_updated is not None:
             result["date_updated"] = from_union(
-                [lambda x: x.isoformat(), from_none], self.date_updated
+                [from_none, lambda x: x.isoformat()], self.date_updated
             )
         if self.largeur is not None:
-            result["largeur"] = from_union([from_int, from_none], self.largeur)
+            result["largeur"] = from_union([from_none, from_int], self.largeur)
         if self.longueur is not None:
-            result["longueur"] = from_union([from_int, from_none], self.longueur)
+            result["longueur"] = from_union([from_none, from_int], self.longueur)
         if self.numero is not None:
-            result["numero"] = from_union([from_int, from_none], self.numero)
+            result["numero"] = from_union([from_none, from_int], self.numero)
         if self.cartographie is not None:
             result["cartographie"] = from_union(
-                [lambda x: to_class(Cartographie, x), from_none], self.cartographie
+                [from_none, lambda x: to_class(Cartographie, x)], self.cartographie
             )
         if self.commune is not None:
             result["commune"] = from_union(
-                [lambda x: to_class(Commune, x), from_none], self.commune
+                [from_none, lambda x: to_class(Commune, x)], self.commune
             )
         if self.nature_sol is not None:
             result["natureSol"] = from_union(
-                [lambda x: to_class(NatureSol, x), from_none], self.nature_sol
+                [from_none, lambda x: to_class(NatureSol, x)], self.nature_sol
             )
         if self.geo is not None:
             result["_geo"] = from_union(
-                [lambda x: to_class(Geo, x), from_none], self.geo
+                [from_none, lambda x: to_class(Geo, x)], self.geo
             )
         if self.thumbnail is not None:
             result["thumbnail"] = from_none(self.thumbnail)
         if self.type is not None:
             result["type"] = from_union(
-                [lambda x: to_enum(HitType, x), from_none], self.type
+                [from_none, lambda x: to_enum(HitType, x)], self.type
             )
         return result
 

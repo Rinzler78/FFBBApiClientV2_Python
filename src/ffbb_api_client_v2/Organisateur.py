@@ -10,6 +10,7 @@ from .converters import (
     from_str,
     from_union,
 )
+from .OrganismeIDPere import OrganismeIDPere
 
 
 class Organisateur:
@@ -131,7 +132,7 @@ class Organisateur:
         nom = from_union([from_str, from_none], obj.get("nom"))
         nom_club_pro = from_union([from_str, from_none], obj.get("nomClubPro"))
         organisme_id_pere = from_union(
-            [from_none, from_str], obj.get("organisme_id_pere")
+            [from_none, OrganismeIDPere.from_dict], obj.get("organisme_id_pere")
         )
         salle = from_none(obj.get("salle"))
         telephone = from_union([from_str, from_none], obj.get("telephone"))

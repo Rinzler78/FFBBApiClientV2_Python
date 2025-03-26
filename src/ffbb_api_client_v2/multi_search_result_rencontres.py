@@ -5,6 +5,7 @@ from .CompetitionID import CompetitionID
 from .CompetitionIDSexe import CompetitionIDSexe
 from .CompetitionIDTypeCompetition import CompetitionIDTypeCompetition
 from .converters import (
+    from_comma_separated_list,
     from_datetime,
     from_dict,
     from_int,
@@ -18,16 +19,16 @@ from .converters import (
 )
 from .FacetDistribution import FacetDistribution
 from .FacetStats import FacetStats
-from .Geo import Geo
-from .Hit import Hit
+from .geo import Geo
+from .hit import Hit
 from .IDEngagementEquipe import IDEngagementEquipe
 from .IDOrganismeEquipe import IDOrganismeEquipe
 from .IDPoule import IDPoule
+from .niveau import Niveau
 from .NiveauClass import NiveauClass
-from .NiveauEnum import NiveauEnum
 from .Organisateur import Organisateur
-from .Pratique import Pratique
-from .Saison import Saison
+from .pratique import Pratique
+from .saison import Saison
 from .salle import Salle
 
 
@@ -36,7 +37,7 @@ class RencontresFacetDistribution(FacetDistribution):
     competition_id_nom_extended: Optional[Dict[str, int]] = None
     competition_id_sexe: Optional[CompetitionIDSexe] = None
     competition_id_type_competition: Optional[CompetitionIDTypeCompetition] = None
-    niveau: Optional[NiveauClass] = None
+    niveau: Optional[Niveau] = None
     organisateur_id: Optional[Dict[str, int]] = None
     organisateur_nom: Optional[Dict[str, int]] = None
 
@@ -46,7 +47,7 @@ class RencontresFacetDistribution(FacetDistribution):
         competition_id_nom_extended: Optional[Dict[str, int]],
         competition_id_sexe: Optional[CompetitionIDSexe],
         competition_id_type_competition: Optional[CompetitionIDTypeCompetition],
-        niveau: Optional[NiveauClass],
+        niveau: Optional[Niveau],
         organisateur_id: Optional[Dict[str, int]],
         organisateur_nom: Optional[Dict[str, int]],
     ):
@@ -117,7 +118,7 @@ class RencontresFacetDistribution(FacetDistribution):
             )
         if self.niveau is not None:
             result["niveau"] = from_union(
-                [lambda x: to_class(NiveauClass, x), from_none], self.niveau
+                [lambda x: to_enum(Niveau, x), from_none], self.niveau
             )
         if self.organisateur_id is not None:
             result["organisateur.id"] = from_union(
@@ -165,7 +166,7 @@ class Engagement:
 
 
 class RencontresHit(Hit):
-    niveau: Optional[NiveauEnum] = None
+    niveau: Optional[Niveau] = None
     id: Optional[str] = None
     date: Optional[datetime] = None
     date_rencontre: Optional[datetime] = None
@@ -196,7 +197,7 @@ class RencontresHit(Hit):
 
     def __init__(
         self,
-        niveau: Optional[NiveauEnum],
+        niveau: Optional[Niveau],
         id: Optional[str],
         date: Optional[datetime],
         date_rencontre: Optional[datetime],
@@ -267,7 +268,7 @@ class RencontresHit(Hit):
     def from_dict(obj: Any) -> "Hit":
         try:
             assert isinstance(obj, dict)
-            niveau = from_union([NiveauEnum, from_none], obj.get("niveau"))
+            niveau = from_union([Niveau, from_none], obj.get("niveau"))
             id = from_union([from_str, from_none], obj.get("id"))
             date = from_union([from_datetime, from_none], obj.get("date"))
             date_rencontre = from_union(
@@ -290,12 +291,7 @@ class RencontresHit(Hit):
             pratique = from_union([from_none, Pratique], obj.get("pratique"))
             gs_id = from_union([from_str, from_none], obj.get("gsId"))
             officiels = from_union(
-                [
-                    lambda x: from_list(from_str, x),
-                    lambda x: from_list(from_str, [s.strip() for s in x.split(",")]),
-                    from_none,
-                ],
-                obj.get("officiels"),
+                [from_comma_separated_list, from_none], obj.get("officiels")
             )
             competition_id = from_union(
                 [CompetitionID.from_dict, from_none], obj.get("competitionId")
@@ -377,7 +373,7 @@ class RencontresHit(Hit):
         result: dict = {}
         if self.niveau is not None:
             result["niveau"] = from_union(
-                [lambda x: to_enum(NiveauEnum, x), from_none], self.niveau
+                [lambda x: to_enum(Niveau, x), from_none], self.niveau
             )
         if self.id is not None:
             result["id"] = from_union([from_str, from_none], self.id)
@@ -504,8 +500,6 @@ class RencontresHit(Hit):
             not query
             or (self.lower_gs_id and query in self.lower_gs_id)
             or (self.lower_id and query in self.lower_id)
-            or (self.lower_nom_equipe1 and query in self.lower_nom_equipe1)
-            or (self.lower_nom_equipe2 and query in self.lower_nom_equipe2)
             or (self.lower_officiels and query in self.lower_officiels)
             or (
                 self.salle

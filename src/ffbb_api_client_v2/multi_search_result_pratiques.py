@@ -19,7 +19,7 @@ from .converters import (
 )
 from .FacetDistribution import FacetDistribution
 from .FacetStats import FacetStats
-from .Hit import Hit
+from .hit import Hit
 
 
 class TypeClass:

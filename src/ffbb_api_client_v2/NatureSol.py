@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any, Optional
 
-from .Code import Code
+from .code import Code
 from .converters import (
     from_datetime,
     from_none,

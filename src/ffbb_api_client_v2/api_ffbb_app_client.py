@@ -25,13 +25,8 @@ class ApiFFBBAppClient:
             cached_session (CachedSession, optional): The cached session to use.
         """
         if not bearer_token:
-            raise ValueError("Bearer token cannot be None or empty.")
-
+            raise ValueError("bearer_token cannot be None or empty")
         self.bearer_token = bearer_token
-
-        if not url:
-            raise ValueError("URL cannot be None or empty.")
-
         self.url = url
         self.debug = debug
         self.cached_session = cached_session

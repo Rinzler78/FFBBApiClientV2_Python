@@ -3,7 +3,7 @@ from typing import Any, List, Optional
 from .converters import from_int, from_list, from_none, from_str, from_union
 from .FacetDistribution import FacetDistribution
 from .FacetStats import FacetStats
-from .Hit import Hit
+from .hit import Hit
 from .multi_search_result_competitions import (
     CompetitionsFacetDistribution,
     CompetitionsFacetStats,
@@ -23,11 +23,11 @@ from .multi_search_result_rencontres import (
 from .multi_search_result_salles import SallesFacetDistribution, SallesFacetStats
 from .multi_search_result_terrains import TerrainsFacetDistribution, TerrainsFacetStats
 from .multi_search_result_tournois import TournoisFacetDistribution, TournoisFacetStats
-from .multi_search_results import MultiSearchResult
 from .MultiSearchResultCompetitions import CompetitionsMultiSearchResult
 from .MultiSearchResultOrganismes import OrganismesMultiSearchResult
 from .MultiSearchResultPratiques import PratiquesMultiSearchResult
 from .MultiSearchResultRencontres import RencontresMultiSearchResult
+from .MultiSearchResults import MultiSearchResult
 from .MultiSearchResultSalles import SallesMultiSearchResult
 from .MultiSearchResultTerrains import TerrainsMultiSearchResult
 from .MultiSearchResultTournois import TournoisMultiSearchResult
