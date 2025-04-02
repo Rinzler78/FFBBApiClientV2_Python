@@ -7,34 +7,48 @@ from .meilisearch_client_extension import MeilisearchClientExtension  # noqa
 from .meilisearch_ffbb_client import MeilisearchFFBBClient  # noqa
 from .multi_search_query import MultiSearchQuery  # noqa
 from .multi_search_query_helper import generate_queries  # noqa
-from .multi_search_result_competitions import CompetitionsFacetDistribution  # noqa
-from .multi_search_result_competitions import CompetitionsFacetStats  # noqa
-from .multi_search_result_competitions import CompetitionsHit  # noqa
-from .multi_search_result_organismes import OrganismesFacetDistribution  # noqa
-from .multi_search_result_organismes import OrganismesFacetStats  # noqa
-from .multi_search_result_organismes import OrganismesHit  # noqa
-from .multi_search_result_pratiques import PratiquesFacetDistribution  # noqa
-from .multi_search_result_pratiques import PratiquesFacetStats  # noqa
-from .multi_search_result_pratiques import PratiquesHit  # noqa
-from .multi_search_result_rencontres import RencontresFacetDistribution  # noqa
-from .multi_search_result_rencontres import RencontresFacetStats  # noqa
-from .multi_search_result_rencontres import RencontresHit  # noqa
-from .multi_search_result_salles import SallesFacetDistribution  # noqa
-from .multi_search_result_salles import SallesFacetStats  # noqa
-from .multi_search_result_salles import SallesHit  # noqa
-from .multi_search_result_terrains import TerrainsFacetDistribution  # noqa
-from .multi_search_result_terrains import TerrainsFacetStats  # noqa
-from .multi_search_result_terrains import TerrainsHit  # noqa
-from .multi_search_result_tournois import TournoisFacetDistribution  # noqa
-from .multi_search_result_tournois import TournoisFacetStats  # noqa
-from .multi_search_result_tournois import TournoisHit  # noqa
-from .MultiSearchResultCompetitions import CompetitionsMultiSearchResult  # noqa
-from .MultiSearchResultOrganismes import OrganismesMultiSearchResult  # noqa
-from .MultiSearchResultPratiques import PratiquesMultiSearchResult  # noqa
-from .MultiSearchResultRencontres import RencontresMultiSearchResult  # noqa
-from .MultiSearchResultSalles import SallesMultiSearchResult  # noqa
-from .MultiSearchResultTerrains import TerrainsMultiSearchResult  # noqa
-from .MultiSearchResultTournois import TournoisMultiSearchResult  # noqa
+from .MultiSearchResultCompetitions import (  # noqa
+    CompetitionsFacetDistribution,
+    CompetitionsFacetStats,
+    CompetitionsHit,
+    CompetitionsMultiSearchResult,
+)
+from .MultiSearchResultOrganismes import (  # noqa
+    OrganismesFacetDistribution,
+    OrganismesFacetStats,
+    OrganismesHit,
+    OrganismesMultiSearchResult,
+)
+from .MultiSearchResultPratiques import (  # noqa
+    PratiquesFacetDistribution,
+    PratiquesFacetStats,
+    PratiquesHit,
+    PratiquesMultiSearchResult,
+)
+from .MultiSearchResultRencontres import (  # noqa
+    RencontresFacetDistribution,
+    RencontresFacetStats,
+    RencontresHit,
+    RencontresMultiSearchResult,
+)
+from .MultiSearchResultSalles import (  # noqa
+    SallesFacetDistribution,
+    SallesFacetStats,
+    SallesHit,
+    SallesMultiSearchResult,
+)
+from .MultiSearchResultTerrains import (  # noqa
+    TerrainsFacetDistribution,
+    TerrainsFacetStats,
+    TerrainsHit,
+    TerrainsMultiSearchResult,
+)
+from .MultiSearchResultTournois import (  # noqa
+    TournoisFacetDistribution,
+    TournoisFacetStats,
+    TournoisHit,
+    TournoisMultiSearchResult,
+)
 
 if sys.version_info[:2] >= (3, 8):
     # TODO: Import directly (no need for conditional) when `python_requires = >= 3.8`

@@ -2,8 +2,8 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Optional
 
-from .cartographie import Cartographie
-from .commune import Commune
+from .Cartographie import Cartographie
+from .Commune import Commune
 from .converters import (
     from_bool,
     from_datetime,
@@ -17,8 +17,8 @@ from .converters import (
 )
 from .FacetDistribution import FacetDistribution
 from .FacetStats import FacetStats
-from .geo import Geo
-from .hit import Hit
+from .Geo import Geo
+from .Hit import Hit
 from .multi_search_result_terrains import TournoiTypes3X3Libelle
 from .NatureSol import NatureSol
 from .TournoiTypeClass import TournoiTypeClass
@@ -259,7 +259,7 @@ class TournoisHit(Hit):
         return result
 
     def is_valid_for_query(self, query: str) -> bool:
-        return (
+        return bool(
             not query
             or (self.lower_nom and query in self.lower_nom)
             or (self.lower_rue and query in self.lower_rue)
@@ -282,4 +282,4 @@ class TournoisFacetStats(FacetStats):
         return TournoisFacetStats()
 
     def to_dict(self) -> dict:
-        super().to_dict()
+        return super().to_dict()

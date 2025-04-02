@@ -3,8 +3,8 @@ from enum import Enum
 from typing import Any, List, Optional
 from uuid import UUID
 
-from .cartographie import Cartographie
-from .commune import Commune
+from .Cartographie import Cartographie
+from .Commune import Commune
 from .converters import (
     from_datetime,
     from_int,
@@ -19,8 +19,8 @@ from .converters import (
 from .DocumentFlyer import DocumentFlyer
 from .FacetDistribution import FacetDistribution
 from .FacetStats import FacetStats
-from .geo import Geo
-from .hit import Hit
+from .Geo import Geo
+from .Hit import Hit
 from .TournoiTypeClass import TournoiTypeClass
 from .TournoiTypeEnum import TournoiTypeEnum
 from .TypeLeague import TypeLeague

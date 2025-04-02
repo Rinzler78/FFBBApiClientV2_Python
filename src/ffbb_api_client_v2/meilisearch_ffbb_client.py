@@ -2,18 +2,8 @@ from typing import List
 
 from requests_cache import CachedSession
 
-from ffbb_api_client_v2.http_requests_helper import default_cached_session
-from ffbb_api_client_v2.meilisearch_client_extension import MeilisearchClientExtension
-from ffbb_api_client_v2.MultiSearchResultCompetitions import (
-    CompetitionsMultiSearchResult,
-)
-from ffbb_api_client_v2.MultiSearchResultOrganismes import OrganismesMultiSearchResult
-from ffbb_api_client_v2.MultiSearchResultPratiques import PratiquesMultiSearchResult
-from ffbb_api_client_v2.MultiSearchResultRencontres import RencontresMultiSearchResult
-from ffbb_api_client_v2.MultiSearchResultSalles import SallesMultiSearchResult
-from ffbb_api_client_v2.MultiSearchResultTerrains import TerrainsMultiSearchResult
-from ffbb_api_client_v2.MultiSearchResultTournois import TournoisMultiSearchResult
-
+from .http_requests_helper import default_cached_session
+from .meilisearch_client_extension import MeilisearchClientExtension
 from .multi_search_query import (
     CompetitionsMultiSearchQuery,
     OrganismesMultiSearchQuery,
@@ -23,6 +13,13 @@ from .multi_search_query import (
     TerrainsMultiSearchQuery,
     TournoisMultiSearchQuery,
 )
+from .MultiSearchResultCompetitions import CompetitionsMultiSearchResult
+from .MultiSearchResultOrganismes import OrganismesMultiSearchResult
+from .MultiSearchResultPratiques import PratiquesMultiSearchResult
+from .MultiSearchResultRencontres import RencontresMultiSearchResult
+from .MultiSearchResultSalles import SallesMultiSearchResult
+from .MultiSearchResultTerrains import TerrainsMultiSearchResult
+from .MultiSearchResultTournois import TournoisMultiSearchResult
 
 
 class MeilisearchFFBBClient(MeilisearchClientExtension):

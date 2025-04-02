@@ -19,16 +19,16 @@ from .converters import (
 )
 from .FacetDistribution import FacetDistribution
 from .FacetStats import FacetStats
-from .geo import Geo
-from .hit import Hit
+from .Geo import Geo
+from .Hit import Hit
 from .IDEngagementEquipe import IDEngagementEquipe
 from .IDOrganismeEquipe import IDOrganismeEquipe
 from .IDPoule import IDPoule
-from .niveau import Niveau
+from .Niveau import Niveau
 from .NiveauClass import NiveauClass
 from .Organisateur import Organisateur
-from .pratique import Pratique
-from .saison import Saison
+from .Pratique import Pratique
+from .Saison import Saison
 from .salle import Salle
 
 

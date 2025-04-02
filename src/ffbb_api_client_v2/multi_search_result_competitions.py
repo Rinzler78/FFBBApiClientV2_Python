@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from .categorie import Categorie
+from .Categorie import Categorie
 from .CompetitionIDSexe import CompetitionIDSexe
 from .CompetitionIDTypeCompetition import CompetitionIDTypeCompetition
 from .converters import (
@@ -17,19 +17,19 @@ from .converters import (
     to_class,
     to_enum,
 )
-from .etat import Etat
+from .Etat import Etat
 from .FacetDistribution import FacetDistribution
 from .FacetStats import FacetStats
-from .hit import Hit
+from .Hit import Hit
 from .logo import Logo
-from .niveau import Niveau
+from .Niveau import Niveau
 from .NiveauClass import NiveauClass
 from .Organisateur import Organisateur
 from .PhaseCode import PhaseCode
-from .poule import Poule
+from .Poule import Poule
 from .PublicationInternet import PublicationInternet
-from .saison import Saison
-from .sexe import Sexe
+from .Saison import Saison
+from .Sexe import Sexe
 from .TypeCompetition import TypeCompetition
 from .TypeCompetitionGenerique import TypeCompetitionGenerique
 

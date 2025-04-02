@@ -1,6 +1,6 @@
 from typing import Any, Optional
 
-from .cartographie import Cartographie
+from .Cartographie import Cartographie
 from .converters import from_none, from_str, from_union, to_class
 
 

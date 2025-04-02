@@ -1,8 +1,8 @@
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from .cartographie import Cartographie
-from .commune import Commune
+from .Cartographie import Cartographie
+from .Commune import Commune
 from .converters import (
     from_bool,
     from_datetime,
@@ -16,9 +16,9 @@ from .converters import (
 )
 from .FacetDistribution import FacetDistribution
 from .FacetStats import FacetStats
-from .geo import Geo
-from .hit import Hit
-from .labellisation import Labellisation
+from .Geo import Geo
+from .Hit import Hit
+from .Labellisation import Labellisation
 from .logo import Logo
 from .OrganismeIDPere import OrganismeIDPere
 from .TypeAssociation import TypeAssociation

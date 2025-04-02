@@ -3,34 +3,43 @@ from typing import Any, List, Optional
 from .converters import from_int, from_list, from_none, from_str, from_union
 from .FacetDistribution import FacetDistribution
 from .FacetStats import FacetStats
-from .hit import Hit
-from .multi_search_result_competitions import (
+from .Hit import Hit
+from .MultiSearchResultCompetitions import (
     CompetitionsFacetDistribution,
     CompetitionsFacetStats,
+    CompetitionsMultiSearchResult,
 )
-from .multi_search_result_organismes import (
+from .MultiSearchResultOrganismes import (
     OrganismesFacetDistribution,
     OrganismesFacetStats,
+    OrganismesMultiSearchResult,
 )
-from .multi_search_result_pratiques import (
+from .MultiSearchResultPratiques import (
     PratiquesFacetDistribution,
     PratiquesFacetStats,
+    PratiquesMultiSearchResult,
 )
-from .multi_search_result_rencontres import (
+from .MultiSearchResultRencontres import (
     RencontresFacetDistribution,
     RencontresFacetStats,
+    RencontresMultiSearchResult,
 )
-from .multi_search_result_salles import SallesFacetDistribution, SallesFacetStats
-from .multi_search_result_terrains import TerrainsFacetDistribution, TerrainsFacetStats
-from .multi_search_result_tournois import TournoisFacetDistribution, TournoisFacetStats
-from .MultiSearchResultCompetitions import CompetitionsMultiSearchResult
-from .MultiSearchResultOrganismes import OrganismesMultiSearchResult
-from .MultiSearchResultPratiques import PratiquesMultiSearchResult
-from .MultiSearchResultRencontres import RencontresMultiSearchResult
 from .MultiSearchResults import MultiSearchResult
-from .MultiSearchResultSalles import SallesMultiSearchResult
-from .MultiSearchResultTerrains import TerrainsMultiSearchResult
-from .MultiSearchResultTournois import TournoisMultiSearchResult
+from .MultiSearchResultSalles import (
+    SallesFacetDistribution,
+    SallesFacetStats,
+    SallesMultiSearchResult,
+)
+from .MultiSearchResultTerrains import (
+    TerrainsFacetDistribution,
+    TerrainsFacetStats,
+    TerrainsMultiSearchResult,
+)
+from .MultiSearchResultTournois import (
+    TournoisFacetDistribution,
+    TournoisFacetStats,
+    TournoisMultiSearchResult,
+)
 
 
 class MultiSearchQuery:
