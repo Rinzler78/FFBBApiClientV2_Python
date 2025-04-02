@@ -75,8 +75,8 @@ jobs:
         with: {name: python-distribution-files, path: dist/}
       - name: Run tests
         env:
-          API_TOKEN: ${{ secrets.API_TOKEN }}
-          MEILISEARCH_TOKEN: ${{ secrets.MEILISEARCH_TOKEN }}
+          API_FFBB_APP_BEARER_TOKEN: ${{ secrets.API_FFBB_APP_BEARER_TOKEN }}
+          MEILISEARCH_BEARER_TOKEN: ${{ secrets.MEILISEARCH_BEARER_TOKEN }}
         run: >-
           pipx run --python '${{ steps.setup-python.outputs.python-path }}'
           tox --installpkg '${{ needs.prepare.outputs.wheel-distribution }}'
