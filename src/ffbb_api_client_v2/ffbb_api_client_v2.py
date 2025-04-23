@@ -2,14 +2,11 @@ from typing import List
 
 from requests_cache import CachedSession
 
-from ffbb_api_client_v2.meilisearch_ffbb_client import MeilisearchFFBBClient
-from ffbb_api_client_v2.multi_search_query_helper import generate_queries
-from ffbb_api_client_v2.multi_search_results import MultiSearchResult
-
 from .api_ffbb_app_client import ApiFFBBAppClient
-from .http_requests_helper import default_cached_session
-from .lives import Live
-from .multi_search_query import (
+from .meilisearch_ffbb_client import MeilisearchFFBBClient
+from .models.http_requests_helper import default_cached_session
+from .models.lives import Live
+from .models.multi_search_query import (
     CompetitionsMultiSearchQuery,
     OrganismesMultiSearchQuery,
     PratiquesMultiSearchQuery,
@@ -18,13 +15,15 @@ from .multi_search_query import (
     TerrainsMultiSearchQuery,
     TournoisMultiSearchQuery,
 )
-from .MultiSearchResultCompetitions import CompetitionsMultiSearchResult
-from .MultiSearchResultOrganismes import OrganismesMultiSearchResult
-from .MultiSearchResultPratiques import PratiquesMultiSearchResult
-from .MultiSearchResultRencontres import RencontresMultiSearchResult
-from .MultiSearchResultSalles import SallesMultiSearchResult
-from .MultiSearchResultTerrains import TerrainsMultiSearchResult
-from .MultiSearchResultTournois import TournoisMultiSearchResult
+from .models.multi_search_query_helper import generate_queries
+from .models.multi_search_results import MultiSearchResult
+from .models.MultiSearchResultCompetitions import CompetitionsMultiSearchResult
+from .models.MultiSearchResultOrganismes import OrganismesMultiSearchResult
+from .models.MultiSearchResultPratiques import PratiquesMultiSearchResult
+from .models.MultiSearchResultRencontres import RencontresMultiSearchResult
+from .models.MultiSearchResultSalles import SallesMultiSearchResult
+from .models.MultiSearchResultTerrains import TerrainsMultiSearchResult
+from .models.MultiSearchResultTournois import TournoisMultiSearchResult
 
 
 class FFBBAPIClientV2:
