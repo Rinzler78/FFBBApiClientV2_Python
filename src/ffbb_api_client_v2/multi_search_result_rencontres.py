@@ -501,6 +501,8 @@ class RencontresHit(Hit):
             or (self.lower_gs_id and query in self.lower_gs_id)
             or (self.lower_id and query in self.lower_id)
             or (self.lower_officiels and query in self.lower_officiels)
+            or (self.lower_nom_equipe1 and query in self.lower_nom_equipe1)
+            or (self.lower_nom_equipe2 and query in self.lower_nom_equipe2)
             or (
                 self.salle
                 and (
