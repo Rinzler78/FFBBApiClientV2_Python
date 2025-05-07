@@ -1,49 +1,49 @@
 import sys
 
-from .api_ffbb_app_client import ApiFFBBAppClient  # noqa
-from .ffbb_api_client_v2 import FFBBAPIClientV2  # noqa
-from .meilisearch_client import MeilisearchClient  # noqa
-from .meilisearch_client_extension import MeilisearchClientExtension  # noqa
-from .meilisearch_ffbb_client import MeilisearchFFBBClient  # noqa
-from .models.multi_search_query import MultiSearchQuery  # noqa
-from .models.multi_search_query_helper import generate_queries  # noqa
-from .models.MultiSearchResultCompetitions import (  # noqa
+from .api_ffbb_app_client import ApiFFBBAppClient
+from .ffbb_api_client_v2 import FFBBAPIClientV2
+from .meilisearch_client import MeilisearchClient
+from .meilisearch_client_extension import MeilisearchClientExtension
+from .meilisearch_ffbb_client import MeilisearchFFBBClient
+from .models.multi_search_query import MultiSearchQuery
+from .models.multi_search_query_helper import generate_queries
+from .models.MultiSearchResultCompetitions import (
     CompetitionsFacetDistribution,
     CompetitionsFacetStats,
     CompetitionsHit,
     CompetitionsMultiSearchResult,
 )
-from .models.MultiSearchResultOrganismes import (  # noqa
+from .models.MultiSearchResultOrganismes import (
     OrganismesFacetDistribution,
     OrganismesFacetStats,
     OrganismesHit,
     OrganismesMultiSearchResult,
 )
-from .models.MultiSearchResultPratiques import (  # noqa
+from .models.MultiSearchResultPratiques import (
     PratiquesFacetDistribution,
     PratiquesFacetStats,
     PratiquesHit,
     PratiquesMultiSearchResult,
 )
-from .models.MultiSearchResultRencontres import (  # noqa
+from .models.MultiSearchResultRencontres import (
     RencontresFacetDistribution,
     RencontresFacetStats,
     RencontresHit,
     RencontresMultiSearchResult,
 )
-from .models.MultiSearchResultSalles import (  # noqa
+from .models.MultiSearchResultSalles import (
     SallesFacetDistribution,
     SallesFacetStats,
     SallesHit,
     SallesMultiSearchResult,
 )
-from .models.MultiSearchResultTerrains import (  # noqa
+from .models.MultiSearchResultTerrains import (
     TerrainsFacetDistribution,
     TerrainsFacetStats,
     TerrainsHit,
     TerrainsMultiSearchResult,
 )
-from .models.MultiSearchResultTournois import (  # noqa
+from .models.MultiSearchResultTournois import (
     TournoisFacetDistribution,
     TournoisFacetStats,
     TournoisHit,
@@ -71,40 +71,43 @@ except PackageNotFoundError:  # pragma: no cover
 finally:
     del version, PackageNotFoundError
 
-__all__ = [
-    "ApiFFBBAppClient",
-    "FFBBAPIClientV2",
-    "MeilisearchClient",
-    "MeilisearchClientExtension",
-    "MeilisearchFFBBClient",
-    "MultiSearchQuery",
-    "generate_queries",
-    "CompetitionsFacetDistribution",
-    "CompetitionsFacetStats",
-    "CompetitionsHit",
-    "CompetitionsMultiSearchResult",
-    "OrganismesFacetDistribution",
-    "OrganismesFacetStats",
-    "OrganismesHit",
-    "OrganismesMultiSearchResult",
-    "PratiquesFacetDistribution",
-    "PratiquesFacetStats",
-    "PratiquesHit",
-    "PratiquesMultiSearchResult",
-    "RencontresFacetDistribution",
-    "RencontresFacetStats",
-    "RencontresHit",
-    "RencontresMultiSearchResult",
-    "SallesFacetDistribution",
-    "SallesFacetStats",
-    "SallesHit",
-    "SallesMultiSearchResult",
-    "TerrainsFacetDistribution",
-    "TerrainsFacetStats",
-    "TerrainsHit",
-    "TerrainsMultiSearchResult",
-    "TournoisFacetDistribution",
-    "TournoisFacetStats",
-    "TournoisHit",
-    "TournoisMultiSearchResult",
+# Liste des objets exportés (types/classes/fonctions)
+EXPORTED_TYPES = [
+    ApiFFBBAppClient,
+    FFBBAPIClientV2,
+    MeilisearchClient,
+    MeilisearchClientExtension,
+    MeilisearchFFBBClient,
+    MultiSearchQuery,
+    generate_queries,
+    CompetitionsFacetDistribution,
+    CompetitionsFacetStats,
+    CompetitionsHit,
+    CompetitionsMultiSearchResult,
+    OrganismesFacetDistribution,
+    OrganismesFacetStats,
+    OrganismesHit,
+    OrganismesMultiSearchResult,
+    PratiquesFacetDistribution,
+    PratiquesFacetStats,
+    PratiquesHit,
+    PratiquesMultiSearchResult,
+    RencontresFacetDistribution,
+    RencontresFacetStats,
+    RencontresHit,
+    RencontresMultiSearchResult,
+    SallesFacetDistribution,
+    SallesFacetStats,
+    SallesHit,
+    SallesMultiSearchResult,
+    TerrainsFacetDistribution,
+    TerrainsFacetStats,
+    TerrainsHit,
+    TerrainsMultiSearchResult,
+    TournoisFacetDistribution,
+    TournoisFacetStats,
+    TournoisHit,
+    TournoisMultiSearchResult,
 ]
+
+__all__ = [typ.__name__ for typ in EXPORTED_TYPES]
