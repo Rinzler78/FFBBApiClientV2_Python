@@ -17,7 +17,7 @@ from .models.multi_search_query import (
     TournoisMultiSearchQuery,
 )
 from .models.multi_search_query_helper import generate_queries
-from .models.multi_search_results import MultiSearchResult
+from .models.multi_search_result import MultiSearchResult
 from .models.OrganismesMultiSearchResult import OrganismesMultiSearchResult
 from .models.PratiquesMultiSearchResult import PratiquesMultiSearchResult
 from .models.RencontresMultiSearchResult import RencontresMultiSearchResult

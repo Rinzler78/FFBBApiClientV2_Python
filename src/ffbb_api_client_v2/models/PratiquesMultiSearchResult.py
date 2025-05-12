@@ -1,11 +1,11 @@
 from typing import Any
 
+from .multi_search_result import MultiSearchResult
 from .multi_search_result_pratiques import (
     PratiquesFacetDistribution,
     PratiquesFacetStats,
     PratiquesHit,
 )
-from .multi_search_results import MultiSearchResult
 
 
 class PratiquesMultiSearchResult(

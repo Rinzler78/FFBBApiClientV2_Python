@@ -2,7 +2,7 @@ from typing import Any, List, Optional
 
 from .CompetitionsMultiSearchResult import CompetitionsMultiSearchResult
 from .converters import from_list, from_none, from_union, to_class
-from .multi_search_results import MultiSearchResult
+from .multi_search_result import MultiSearchResult
 from .OrganismesMultiSearchResult import OrganismesMultiSearchResult
 from .PratiquesMultiSearchResult import PratiquesMultiSearchResult
 from .RencontresMultiSearchResult import RencontresMultiSearchResult

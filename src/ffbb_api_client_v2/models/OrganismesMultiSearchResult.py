@@ -1,11 +1,11 @@
 from typing import Any
 
+from .multi_search_result import MultiSearchResult
 from .multi_search_result_organismes import (
     OrganismesFacetDistribution,
     OrganismesFacetStats,
     OrganismesHit,
 )
-from .multi_search_results import MultiSearchResult
 
 
 class OrganismesMultiSearchResult(
