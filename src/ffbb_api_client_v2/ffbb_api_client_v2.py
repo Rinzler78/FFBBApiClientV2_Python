@@ -4,6 +4,7 @@ from requests_cache import CachedSession
 
 from .api_ffbb_app_client import ApiFFBBAppClient
 from .meilisearch_ffbb_client import MeilisearchFFBBClient
+from .models.CompetitionsMultiSearchResult import CompetitionsMultiSearchResult
 from .models.http_requests_helper import default_cached_session
 from .models.lives import Live
 from .models.multi_search_query import (
@@ -17,13 +18,12 @@ from .models.multi_search_query import (
 )
 from .models.multi_search_query_helper import generate_queries
 from .models.multi_search_results import MultiSearchResult
-from .models.MultiSearchResultCompetitions import CompetitionsMultiSearchResult
-from .models.MultiSearchResultOrganismes import OrganismesMultiSearchResult
-from .models.MultiSearchResultPratiques import PratiquesMultiSearchResult
-from .models.MultiSearchResultRencontres import RencontresMultiSearchResult
-from .models.MultiSearchResultSalles import SallesMultiSearchResult
-from .models.MultiSearchResultTerrains import TerrainsMultiSearchResult
-from .models.MultiSearchResultTournois import TournoisMultiSearchResult
+from .models.OrganismesMultiSearchResult import OrganismesMultiSearchResult
+from .models.PratiquesMultiSearchResult import PratiquesMultiSearchResult
+from .models.RencontresMultiSearchResult import RencontresMultiSearchResult
+from .models.SallesMultiSearchResult import SallesMultiSearchResult
+from .models.TerrainsMultiSearchResult import TerrainsMultiSearchResult
+from .models.TournoisMultiSearchResult import TournoisMultiSearchResult
 
 
 class FFBBAPIClientV2:

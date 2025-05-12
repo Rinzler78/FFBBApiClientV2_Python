@@ -2,45 +2,45 @@
 Models package for ffbb_api_client_v2
 """
 
-from .multi_search_query import MultiSearchQuery
-from .multi_search_query_helper import generate_queries
-from .MultiSearchResultCompetitions import (
+from .CompetitionsMultiSearchResult import (
     CompetitionsFacetDistribution,
     CompetitionsFacetStats,
     CompetitionsHit,
     CompetitionsMultiSearchResult,
 )
-from .MultiSearchResultOrganismes import (
+from .multi_search_query import MultiSearchQuery
+from .multi_search_query_helper import generate_queries
+from .OrganismesMultiSearchResult import (
     OrganismesFacetDistribution,
     OrganismesFacetStats,
     OrganismesHit,
     OrganismesMultiSearchResult,
 )
-from .MultiSearchResultPratiques import (
+from .PratiquesMultiSearchResult import (
     PratiquesFacetDistribution,
     PratiquesFacetStats,
     PratiquesHit,
     PratiquesMultiSearchResult,
 )
-from .MultiSearchResultRencontres import (
+from .RencontresMultiSearchResult import (
     RencontresFacetDistribution,
     RencontresFacetStats,
     RencontresHit,
     RencontresMultiSearchResult,
 )
-from .MultiSearchResultSalles import (
+from .SallesMultiSearchResult import (
     SallesFacetDistribution,
     SallesFacetStats,
     SallesHit,
     SallesMultiSearchResult,
 )
-from .MultiSearchResultTerrains import (
+from .TerrainsMultiSearchResult import (
     TerrainsFacetDistribution,
     TerrainsFacetStats,
     TerrainsHit,
     TerrainsMultiSearchResult,
 )
-from .MultiSearchResultTournois import (
+from .TournoisMultiSearchResult import (
     TournoisFacetDistribution,
     TournoisFacetStats,
     TournoisHit,

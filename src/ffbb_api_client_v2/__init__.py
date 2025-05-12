@@ -5,45 +5,45 @@ from .ffbb_api_client_v2 import FFBBAPIClientV2
 from .meilisearch_client import MeilisearchClient
 from .meilisearch_client_extension import MeilisearchClientExtension
 from .meilisearch_ffbb_client import MeilisearchFFBBClient
-from .models.multi_search_query import MultiSearchQuery
-from .models.multi_search_query_helper import generate_queries
-from .models.MultiSearchResultCompetitions import (
+from .models.CompetitionsMultiSearchResult import (
     CompetitionsFacetDistribution,
     CompetitionsFacetStats,
     CompetitionsHit,
     CompetitionsMultiSearchResult,
 )
-from .models.MultiSearchResultOrganismes import (
+from .models.multi_search_query import MultiSearchQuery
+from .models.multi_search_query_helper import generate_queries
+from .models.OrganismesMultiSearchResult import (
     OrganismesFacetDistribution,
     OrganismesFacetStats,
     OrganismesHit,
     OrganismesMultiSearchResult,
 )
-from .models.MultiSearchResultPratiques import (
+from .models.PratiquesMultiSearchResult import (
     PratiquesFacetDistribution,
     PratiquesFacetStats,
     PratiquesHit,
     PratiquesMultiSearchResult,
 )
-from .models.MultiSearchResultRencontres import (
+from .models.RencontresMultiSearchResult import (
     RencontresFacetDistribution,
     RencontresFacetStats,
     RencontresHit,
     RencontresMultiSearchResult,
 )
-from .models.MultiSearchResultSalles import (
+from .models.SallesMultiSearchResult import (
     SallesFacetDistribution,
     SallesFacetStats,
     SallesHit,
     SallesMultiSearchResult,
 )
-from .models.MultiSearchResultTerrains import (
+from .models.TerrainsMultiSearchResult import (
     TerrainsFacetDistribution,
     TerrainsFacetStats,
     TerrainsHit,
     TerrainsMultiSearchResult,
 )
-from .models.MultiSearchResultTournois import (
+from .models.TournoisMultiSearchResult import (
     TournoisFacetDistribution,
     TournoisFacetStats,
     TournoisHit,

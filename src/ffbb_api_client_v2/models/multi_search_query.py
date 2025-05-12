@@ -1,41 +1,41 @@
 from typing import Any, List, Optional
 
-from .converters import from_int, from_list, from_none, from_str, from_union
-from .FacetDistribution import FacetDistribution
-from .FacetStats import FacetStats
-from .Hit import Hit
-from .MultiSearchResultCompetitions import (
+from .CompetitionsMultiSearchResult import (
     CompetitionsFacetDistribution,
     CompetitionsFacetStats,
     CompetitionsMultiSearchResult,
 )
-from .MultiSearchResultOrganismes import (
+from .converters import from_int, from_list, from_none, from_str, from_union
+from .FacetDistribution import FacetDistribution
+from .FacetStats import FacetStats
+from .Hit import Hit
+from .MultiSearchResults import MultiSearchResult
+from .OrganismesMultiSearchResult import (
     OrganismesFacetDistribution,
     OrganismesFacetStats,
     OrganismesMultiSearchResult,
 )
-from .MultiSearchResultPratiques import (
+from .PratiquesMultiSearchResult import (
     PratiquesFacetDistribution,
     PratiquesFacetStats,
     PratiquesMultiSearchResult,
 )
-from .MultiSearchResultRencontres import (
+from .RencontresMultiSearchResult import (
     RencontresFacetDistribution,
     RencontresFacetStats,
     RencontresMultiSearchResult,
 )
-from .MultiSearchResults import MultiSearchResult
-from .MultiSearchResultSalles import (
+from .SallesMultiSearchResult import (
     SallesFacetDistribution,
     SallesFacetStats,
     SallesMultiSearchResult,
 )
-from .MultiSearchResultTerrains import (
+from .TerrainsMultiSearchResult import (
     TerrainsFacetDistribution,
     TerrainsFacetStats,
     TerrainsMultiSearchResult,
 )
-from .MultiSearchResultTournois import (
+from .TournoisMultiSearchResult import (
     TournoisFacetDistribution,
     TournoisFacetStats,
     TournoisMultiSearchResult,
