@@ -6,9 +6,9 @@ from .competitions_multi_search_result import (
     CompetitionsMultiSearchResult,
 )
 from .converters import from_int, from_list, from_none, from_str, from_union
-from .FacetDistribution import FacetDistribution
-from .FacetStats import FacetStats
-from .Hit import Hit
+from .facet_distribution import FacetDistribution
+from .facet_stats import FacetStats
+from .hit import Hit
 from .multi_search_results import MultiSearchResult
 from .organismes_multi_search_result import (
     OrganismesFacetDistribution,

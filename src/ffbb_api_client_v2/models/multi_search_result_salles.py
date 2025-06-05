@@ -1,14 +1,14 @@
 from datetime import datetime
 from typing import Any, Optional
 
-from .Cartographie import Cartographie
-from .Commune import Commune
+from .cartographie import Cartographie
+from .commune import Commune
 from .converters import from_datetime, from_none, from_str, from_union, to_class
-from .FacetDistribution import FacetDistribution
-from .FacetStats import FacetStats
-from .Geo import Geo
-from .Hit import Hit
-from .TypeAssociation import TypeAssociation
+from .facet_distribution import FacetDistribution
+from .facet_stats import FacetStats
+from .geo import Geo
+from .hit import Hit
+from .type_association import TypeAssociation
 
 # class LibelleEnum(Enum):
 #     SALLE = "Salle"

@@ -1,9 +1,9 @@
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from .CompetitionID import CompetitionID
-from .CompetitionIDSexe import CompetitionIDSexe
-from .CompetitionIDTypeCompetition import CompetitionIDTypeCompetition
+from .competition_id import CompetitionID
+from .competition_id_sexe import CompetitionIDSexe
+from .competition_id_type_competition import CompetitionIDTypeCompetition
 from .converters import (
     from_comma_separated_list,
     from_datetime,
@@ -17,18 +17,18 @@ from .converters import (
     to_class,
     to_enum,
 )
-from .FacetDistribution import FacetDistribution
-from .FacetStats import FacetStats
-from .Geo import Geo
-from .Hit import Hit
-from .IDEngagementEquipe import IDEngagementEquipe
-from .IDOrganismeEquipe import IDOrganismeEquipe
-from .IDPoule import IDPoule
-from .Niveau import Niveau
-from .NiveauClass import NiveauClass
-from .Organisateur import Organisateur
-from .Pratique import Pratique
-from .Saison import Saison
+from .facet_distribution import FacetDistribution
+from .facet_stats import FacetStats
+from .geo import Geo
+from .hit import Hit
+from .id_engagement_equipe import IDEngagementEquipe
+from .id_organisme_equipe import IDOrganismeEquipe
+from .id_poule import IDPoule
+from .niveau import Niveau
+from .niveau_class import NiveauClass
+from .organisateur import Organisateur
+from .pratique import Pratique
+from .saison import Saison
 from .salle import Salle
 
 

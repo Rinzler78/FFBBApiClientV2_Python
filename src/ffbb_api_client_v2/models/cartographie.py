@@ -9,7 +9,7 @@ from .converters import (
     to_class,
     to_float,
 )
-from .Coordonnees import Coordonnees
+from .coordonnees import Coordonnees
 
 
 class Cartographie:

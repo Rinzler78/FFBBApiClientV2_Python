@@ -13,10 +13,10 @@ from .converters import (
     to_class,
     to_enum,
 )
-from .DocumentFlyerType import DocumentFlyerType
-from .FacetStats import FacetStats
-from .Folder import Folder
-from .Source import Source
+from .document_flyer_type import DocumentFlyerType
+from .facet_stats import FacetStats
+from .folder import Folder
+from .source import Source
 
 
 class DocumentFlyer:
