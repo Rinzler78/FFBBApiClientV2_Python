@@ -87,7 +87,7 @@ class MultiSearchQuery:
         sort = from_union(
             [lambda x: from_list(lambda x: x, x), from_none], obj.get("sort")
         )
-        return MultiSearchQuery(index_uid, q, facets, limit, filter, offset, sort)
+        return MultiSearchQuery(index_uid, q, facets, limit, offset, filter, sort)
 
     def to_dict(self) -> dict:
         result: dict = {}
