@@ -3,7 +3,7 @@ from typing import List
 from requests_cache import CachedSession
 
 from .meilisearch_client_extension import MeilisearchClientExtension
-from .models.CompetitionsMultiSearchResult import CompetitionsMultiSearchResult
+from .models.competitions_multi_search_result import CompetitionsMultiSearchResult
 from .models.http_requests_helper import default_cached_session
 from .models.multi_search_query import (
     CompetitionsMultiSearchQuery,
@@ -14,12 +14,12 @@ from .models.multi_search_query import (
     TerrainsMultiSearchQuery,
     TournoisMultiSearchQuery,
 )
-from .models.OrganismesMultiSearchResult import OrganismesMultiSearchResult
-from .models.PratiquesMultiSearchResult import PratiquesMultiSearchResult
-from .models.RencontresMultiSearchResult import RencontresMultiSearchResult
-from .models.SallesMultiSearchResult import SallesMultiSearchResult
-from .models.TerrainsMultiSearchResult import TerrainsMultiSearchResult
-from .models.TournoisMultiSearchResult import TournoisMultiSearchResult
+from .models.organismes_multi_search_result import OrganismesMultiSearchResult
+from .models.pratiques_multi_search_result import PratiquesMultiSearchResult
+from .models.rencontres_multi_search_result import RencontresMultiSearchResult
+from .models.salles_multi_search_result import SallesMultiSearchResult
+from .models.terrains_multi_search_result import TerrainsMultiSearchResult
+from .models.tournois_multi_search_result import TournoisMultiSearchResult
 
 
 class MeilisearchFFBBClient(MeilisearchClientExtension):

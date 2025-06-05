@@ -1,6 +1,6 @@
 from typing import Any, List, Optional
 
-from .CompetitionsMultiSearchResult import (
+from .competitions_multi_search_result import (
     CompetitionsFacetDistribution,
     CompetitionsFacetStats,
     CompetitionsMultiSearchResult,
@@ -9,33 +9,33 @@ from .converters import from_int, from_list, from_none, from_str, from_union
 from .FacetDistribution import FacetDistribution
 from .FacetStats import FacetStats
 from .Hit import Hit
-from .MultiSearchResults import MultiSearchResult
-from .OrganismesMultiSearchResult import (
+from .multi_search_results import MultiSearchResult
+from .organismes_multi_search_result import (
     OrganismesFacetDistribution,
     OrganismesFacetStats,
     OrganismesMultiSearchResult,
 )
-from .PratiquesMultiSearchResult import (
+from .pratiques_multi_search_result import (
     PratiquesFacetDistribution,
     PratiquesFacetStats,
     PratiquesMultiSearchResult,
 )
-from .RencontresMultiSearchResult import (
+from .rencontres_multi_search_result import (
     RencontresFacetDistribution,
     RencontresFacetStats,
     RencontresMultiSearchResult,
 )
-from .SallesMultiSearchResult import (
+from .salles_multi_search_result import (
     SallesFacetDistribution,
     SallesFacetStats,
     SallesMultiSearchResult,
 )
-from .TerrainsMultiSearchResult import (
+from .terrains_multi_search_result import (
     TerrainsFacetDistribution,
     TerrainsFacetStats,
     TerrainsMultiSearchResult,
 )
-from .TournoisMultiSearchResult import (
+from .tournois_multi_search_result import (
     TournoisFacetDistribution,
     TournoisFacetStats,
     TournoisMultiSearchResult,
