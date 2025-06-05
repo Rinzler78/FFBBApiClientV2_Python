@@ -54,3 +54,4 @@ MANIFEST
 .python-version
 .env
 http_cache.sqlite
+.tmp
