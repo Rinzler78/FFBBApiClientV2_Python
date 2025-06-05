@@ -10,7 +10,7 @@ from .converters import (
     from_str,
     from_union,
 )
-from .OrganismeIDPere import OrganismeIDPere
+from .organisme_id_pere import OrganismeIDPere
 
 
 class Organisateur:

@@ -2,8 +2,8 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Optional
 
-from .Cartographie import Cartographie
-from .Commune import Commune
+from .cartographie import Cartographie
+from .commune import Commune
 from .converters import (
     from_bool,
     from_datetime,
@@ -15,13 +15,13 @@ from .converters import (
     to_class,
     to_enum,
 )
-from .FacetDistribution import FacetDistribution
-from .FacetStats import FacetStats
-from .Geo import Geo
-from .Hit import Hit
+from .facet_distribution import FacetDistribution
+from .facet_stats import FacetStats
+from .geo import Geo
+from .hit import Hit
 from .multi_search_result_terrains import TournoiTypes3X3Libelle
-from .NatureSol import NatureSol
-from .TournoiTypeClass import TournoiTypeClass
+from .nature_sol import NatureSol
+from .tournoi_type_class import TournoiTypeClass
 
 
 class SexeClass:
