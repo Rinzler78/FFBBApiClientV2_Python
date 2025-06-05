@@ -1,8 +1,8 @@
 from typing import Any, Optional
 
 from .converters import from_none, from_str, from_union, is_type, to_class
-from .IDOrganismeEquipe import IDOrganismeEquipe
-from .IDPoule import IDPoule
+from .id_organisme_equipe import IDOrganismeEquipe
+from .id_poule import IDPoule
 from .salle import Salle
 
 

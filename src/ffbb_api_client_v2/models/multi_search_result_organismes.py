@@ -1,8 +1,8 @@
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from .Cartographie import Cartographie
-from .Commune import Commune
+from .cartographie import Cartographie
+from .commune import Commune
 from .converters import (
     from_bool,
     from_datetime,
@@ -14,16 +14,16 @@ from .converters import (
     from_union,
     to_class,
 )
-from .FacetDistribution import FacetDistribution
-from .FacetStats import FacetStats
-from .Geo import Geo
-from .Hit import Hit
-from .Labellisation import Labellisation
+from .facet_distribution import FacetDistribution
+from .facet_stats import FacetStats
+from .geo import Geo
+from .hit import Hit
+from .labellisation import Labellisation
 from .logo import Logo
-from .OrganismeIDPere import OrganismeIDPere
-from .TypeAssociation import TypeAssociation
-from .TypeAssociationLibelle import TypeAssociationLibelle
-from .TypeClass import TypeClass
+from .organisme_id_pere import OrganismeIDPere
+from .type_association import TypeAssociation
+from .type_association_libelle import TypeAssociationLibelle
+from .type_class import TypeClass
 
 
 class OrganismesFacetDistribution(FacetDistribution):

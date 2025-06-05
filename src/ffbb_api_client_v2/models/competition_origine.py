@@ -1,8 +1,8 @@
 from typing import Any, Optional
 
-from .CompetitionOrigineCategorie import CompetitionOrigineCategorie
-from .CompetitionOrigineTypeCompetition import CompetitionOrigineTypeCompetition
-from .CompetitionOrigineTypeCompetitionGenerique import (
+from .competition_origine_categorie import CompetitionOrigineCategorie
+from .competition_origine_type_competition import CompetitionOrigineTypeCompetition
+from .competition_origine_type_competition_generique import (
     CompetitionOrigineTypeCompetitionGenerique,
 )
 from .converters import from_none, from_str, from_union, to_class, to_enum

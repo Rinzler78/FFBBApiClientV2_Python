@@ -1,14 +1,14 @@
 from typing import Any, List, Optional
 
-from .CompetitionsMultiSearchResult import CompetitionsMultiSearchResult
+from .competitions_multi_search_result import CompetitionsMultiSearchResult
 from .converters import from_list, from_none, from_union, to_class
 from .multi_search_result import MultiSearchResult
-from .OrganismesMultiSearchResult import OrganismesMultiSearchResult
-from .PratiquesMultiSearchResult import PratiquesMultiSearchResult
-from .RencontresMultiSearchResult import RencontresMultiSearchResult
-from .SallesMultiSearchResult import SallesMultiSearchResult
-from .TerrainsMultiSearchResult import TerrainsMultiSearchResult
-from .TournoisMultiSearchResult import TournoisMultiSearchResult
+from .organismes_multi_search_result import OrganismesMultiSearchResult
+from .pratiques_multi_search_result import PratiquesMultiSearchResult
+from .rencontres_multi_search_result import RencontresMultiSearchResult
+from .salles_multi_search_result import SallesMultiSearchResult
+from .terrains_multi_search_result import TerrainsMultiSearchResult
+from .tournois_multi_search_result import TournoisMultiSearchResult
 
 index_uids = [
     "ffbbserver_organismes",

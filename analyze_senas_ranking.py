@@ -1378,7 +1378,7 @@ def display_remaining_matches(data: Dict, team_name: str) -> None:
 
 
 def main():
-    json_file = "data/ffbb senas.json"
+    json_file = "data/ffbb_senas.json"
     data = load_json_data(json_file)
 
     # Calculate possible ranking evolutions
