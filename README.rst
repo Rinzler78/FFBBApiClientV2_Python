@@ -1,48 +1,43 @@
-.. These are examples of badges you might want to add to your README:
-   please update the URLs accordingly
-
-    .. image:: https://api.cirrus-ci.com/github/<USER>/FFBBApiClientV2_Python.svg?branch=main
-        :alt: Built Status
-        :target: https://cirrus-ci.com/github/<USER>/FFBBApiClientV2_Python
-    .. image:: https://readthedocs.org/projects/FFBBApiClientV2_Python/badge/?version=latest
-        :alt: ReadTheDocs
-        :target: https://FFBBApiClientV2_Python.readthedocs.io/en/stable/
-    .. image:: https://img.shields.io/coveralls/github/<USER>/FFBBApiClientV2_Python/main.svg
-        :alt: Coveralls
-        :target: https://coveralls.io/r/<USER>/FFBBApiClientV2_Python
-    .. image:: https://img.shields.io/pypi/v/FFBBApiClientV2_Python.svg
-        :alt: PyPI-Server
-        :target: https://pypi.org/project/FFBBApiClientV2_Python/
-    .. image:: https://img.shields.io/conda/vn/conda-forge/FFBBApiClientV2_Python.svg
-        :alt: Conda-Forge
-        :target: https://anaconda.org/conda-forge/FFBBApiClientV2_Python
-    .. image:: https://pepy.tech/badge/FFBBApiClientV2_Python/month
-        :alt: Monthly Downloads
-        :target: https://pepy.tech/project/FFBBApiClientV2_Python
-    .. image:: https://img.shields.io/twitter/url/http/shields.io.svg?style=social&label=Twitter
-        :alt: Twitter
-        :target: https://twitter.com/FFBBApiClientV2_Python
-.. image:: https://img.shields.io/pypi/v/ffbb_api_client_v2.svg
-    :alt: PyPI-Server
-    :target: https://pypi.org/project/ffbb_api_client_v2/
-
-.. image:: https://img.shields.io/badge/-PyScaffold-005CA0?logo=pyscaffold
-    :alt: Project generated with PyScaffold
-    :target: https://pyscaffold.org/
-
-|
-
-======================
 FFBBApiClientV2_Python
 ======================
 
+.. image:: https://github.com/Rinzler78/FFBBApiClientV2_Python/actions/workflows/ci.yml/badge.svg?branch=main
+   :alt: Build Status
+   :target: https://github.com/Rinzler78/FFBBApiClientV2_Python/actions/workflows/ci.yml
 
-    Allow to interact with the new FFBB apis
+.. image:: https://readthedocs.org/projects/ffbbapiclientv2-python/badge/?version=latest
+   :alt: Documentation Status
+   :target: https://ffbbapiclientv2-python.readthedocs.io/en/latest/
 
+.. image:: https://coveralls.io/repos/github/Rinzler78/FFBBApiClientV2_Python/badge.svg?branch=main
+   :alt: Coverage
+   :target: https://coveralls.io/github/Rinzler78/FFBBApiClientV2_Python
 
-ffbb_api_client_v2 allow to interact with the new FFBB api.
-You can retrieve information about clubs, teams, matches, etc...
+.. image:: https://img.shields.io/pypi/v/ffbb_api_client_v2.svg
+   :alt: PyPI Version
+   :target: https://pypi.org/project/ffbb_api_client_v2/
 
+.. image:: https://pepy.tech/badge/ffbb_api_client_v2/month
+   :alt: Monthly Downloads
+   :target: https://pepy.tech/project/ffbb_api_client_v2
+
+.. image:: https://img.shields.io/badge/-PyScaffold-005CA0?logo=pyscaffold
+   :alt: Project generated with PyScaffold
+   :target: https://pyscaffold.org/
+
+ffbb_api_client_v2 allows you to interact with the new FFBB APIs. You can retrieve information about clubs, teams, matches and much more.
+
+Features
+--------
+
+* Retrieve live events
+* Search organismes
+* Search rencontres
+* Search terrains
+* Search competitions
+* Search salles
+* Search pratiques
+* Search tournois
 
 Installation
 ============
@@ -50,6 +45,14 @@ Installation
 .. code-block:: bash
 
     pip install ffbb_api_client_v2
+
+Prerequisites
+-------------
+
+Set the following environment variables with your API credentials:
+
+* ``MEILISEARCH_BEARER_TOKEN`` – token to access the search API
+* ``API_FFBB_APP_BEARER_TOKEN`` – token to access the main FFBB API
 
 Quick start
 ===========
@@ -63,7 +66,6 @@ Quick start
     # from dotenv import load_dotenv
     # load_dotenv()
 
-    # Retrieve apis bearer tokens
     MEILISEARCH_TOKEN = os.getenv("MEILISEARCH_BEARER_TOKEN")
     API_TOKEN = os.getenv("API_FFBB_APP_BEARER_TOKEN")
 
@@ -88,7 +90,7 @@ Quick start
     # Get the salles
     salles = ffbb_api_client.search_salles("Basket")
 
-    # Get pratiques
+    # Get practices
     pratiques = ffbb_api_client.search_pratiques("Basket")
 
     # Get tournois
@@ -97,7 +99,7 @@ Quick start
 Examples
 ========
 
-Take a look at quick_start.py to see how to use the library.
+Take a look at ``quick_start.py`` to see how to use the library.
 
 Note
 ====
@@ -118,3 +120,14 @@ Command used to create this project:
 .. code-block:: bash
 
     putup FFBBApiClientV2_Python -p ffbb_api_client_v2 -l Apache-2.0 -d "Allow to interact with the new FFBB apis" -u "https://github.com/Rinzler78/FFBBApiClientV2_Python" -v --github-actions --venv .venv
+
+Running tests
+=============
+
+Install the project in editable mode with the ``testing`` extras and execute
+``pytest``:
+
+.. code-block:: bash
+
+    pip install -e .[testing]
+    pytest -q
