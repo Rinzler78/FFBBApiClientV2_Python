@@ -40,8 +40,9 @@ jobs:
       - name: Run static analysis and format checkers
         run: pipx run pre-commit run --all-files --show-diff-on-failure
       - name: Build package distribution files
-        run: >-
-          pipx run --python '${{ steps.setup-python.outputs.python-path }}'
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "tox>=4.0.0,<5.0.0"
           tox -e clean,build
       - name: Record the path of wheel distribution
         id: wheel-distribution
@@ -77,10 +78,11 @@ jobs:
         env:
           API_FFBB_APP_BEARER_TOKEN: ${{ secrets.API_FFBB_APP_BEARER_TOKEN }}
           MEILISEARCH_BEARER_TOKEN: ${{ secrets.MEILISEARCH_BEARER_TOKEN }}
-        run: >-
-          pipx run --python '${{ steps.setup-python.outputs.python-path }}'
-          tox --installpkg '${{ needs.prepare.outputs.wheel-distribution }}'
-          -- -rFEx --durations 10 --color yes  # pytest args
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "tox>=4.0.0,<5.0.0"
+          tox --installpkg '${{ needs.prepare.outputs.wheel-distribution }}' \
+            -- -rFEx --durations 10 --color yes  # pytest args
       - name: Generate coverage report
         run: pipx run coverage lcov -o coverage.lcov
       - name: Upload partial coverage report
@@ -122,4 +124,7 @@ jobs:
           TWINE_REPOSITORY: pypi
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-        run: pipx run tox -e publish
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "tox>=4.0.0,<5.0.0"
+          tox -e publish
