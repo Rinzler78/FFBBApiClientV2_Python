@@ -1,9 +1,7 @@
 from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Type, Union, cast
+from typing import Any, Dict, List, Optional, Union
 from uuid import UUID
-
-import dateutil.parser
 
 from .converters import (
     from_bool,
@@ -21,7 +19,6 @@ from .converters import (
     to_enum,
     to_float,
 )
-
 
 
 class CompetitionIDSexeClass:

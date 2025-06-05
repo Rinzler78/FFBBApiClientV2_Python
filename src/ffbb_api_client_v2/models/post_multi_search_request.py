@@ -1,4 +1,4 @@
-from typing import Any, Callable, List, Optional, Type, cast
+from typing import Any, List, Optional
 
 from .converters import (
     from_int,
@@ -8,7 +8,6 @@ from .converters import (
     from_union,
     to_class,
 )
-
 
 
 class Query:

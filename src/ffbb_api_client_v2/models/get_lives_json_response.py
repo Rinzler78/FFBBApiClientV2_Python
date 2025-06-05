@@ -1,8 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, List, Optional, Type, cast
-
-import dateutil.parser
+from typing import Any, List, Optional
 
 from .converters import (
     from_datetime,
@@ -15,7 +13,6 @@ from .converters import (
     to_class,
     to_enum,
 )
-
 
 
 class CompetitionAbgName(Enum):

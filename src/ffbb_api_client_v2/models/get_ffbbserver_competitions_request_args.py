@@ -1,4 +1,4 @@
-from typing import Any, Type, cast
+from typing import Any
 
 from .converters import from_int, to_class
 

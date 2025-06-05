@@ -1,9 +1,7 @@
 from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, List, Optional, Type, cast
+from typing import Any, List, Optional
 from uuid import UUID
-
-import dateutil.parser
 
 from .converters import (
     from_datetime,
@@ -17,7 +15,6 @@ from .converters import (
     to_enum,
     to_float,
 )
-
 
 
 class Cartographie:

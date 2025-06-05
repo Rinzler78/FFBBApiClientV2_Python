@@ -1,7 +1,6 @@
-from typing import Any, Callable, List, Type, cast
+from typing import Any, List
 
 from .converters import from_list, from_str, to_class
-
 
 
 class Datum:
