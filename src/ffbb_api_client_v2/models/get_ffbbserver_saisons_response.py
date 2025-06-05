@@ -1,21 +1,7 @@
-from typing import Any, Callable, List, Type, TypeVar, cast
+from typing import Any, Callable, List, Type, cast
 
-T = TypeVar("T")
+from .converters import from_list, from_str, to_class
 
-
-def from_str(x: Any) -> str:
-    assert isinstance(x, str)
-    return x
-
-
-def from_list(f: Callable[[Any], T], x: Any) -> List[T]:
-    assert isinstance(x, list)
-    return [f(y) for y in x]
-
-
-def to_class(c: Type[T], x: Any) -> dict:
-    assert isinstance(x, c)
-    return cast(Any, x).to_dict()
 
 
 class Datum:

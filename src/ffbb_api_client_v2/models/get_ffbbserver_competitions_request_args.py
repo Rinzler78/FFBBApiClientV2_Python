@@ -1,16 +1,6 @@
-from typing import Any, Type, TypeVar, cast
+from typing import Any, Type, cast
 
-T = TypeVar("T")
-
-
-def from_int(x: Any) -> int:
-    assert isinstance(x, int) and not isinstance(x, bool)
-    return x
-
-
-def to_class(c: Type[T], x: Any) -> dict:
-    assert isinstance(x, c)
-    return cast(Any, x).to_dict()
+from .converters import from_int, to_class
 
 
 class GetFfbbserverCompetitionsRequestArgs:
