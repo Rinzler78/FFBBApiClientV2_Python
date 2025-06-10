@@ -3,6 +3,13 @@ from enum import Enum
 from typing import Any, List, Optional
 from uuid import UUID
 
+from .cartographie import Cartographie
+from .commune import Commune
+from .categorie import Categorie
+from .id_poule import IDPoule
+from .logo import Logo
+from .salle import Salle
+
 from ..utils.converters import (
     from_datetime,
     from_float,
@@ -17,48 +24,6 @@ from ..utils.converters import (
 )
 
 
-class Cartographie:
-    latitude: float
-    longitude: float
-
-    def __init__(self, latitude: float, longitude: float) -> None:
-        self.latitude = latitude
-        self.longitude = longitude
-
-    @staticmethod
-    def from_dict(obj: Any) -> "Cartographie":
-        assert isinstance(obj, dict)
-        latitude = from_float(obj.get("latitude"))
-        longitude = from_float(obj.get("longitude"))
-        return Cartographie(latitude, longitude)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["latitude"] = to_float(self.latitude)
-        result["longitude"] = to_float(self.longitude)
-        return result
-
-
-class Commune:
-    code_postal: int
-    libelle: str
-
-    def __init__(self, code_postal: int, libelle: str) -> None:
-        self.code_postal = code_postal
-        self.libelle = libelle
-
-    @staticmethod
-    def from_dict(obj: Any) -> "Commune":
-        assert isinstance(obj, dict)
-        code_postal = int(from_str(obj.get("codePostal")))
-        libelle = from_str(obj.get("libelle"))
-        return Commune(code_postal, libelle)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["codePostal"] = from_str(str(self.code_postal))
-        result["libelle"] = from_str(self.libelle)
-        return result
 
 
 class Code(Enum):
@@ -69,26 +34,6 @@ class Code(Enum):
     U17 = "U17"
 
 
-class Categorie:
-    code: Code
-    ordre: int
-
-    def __init__(self, code: Code, ordre: int) -> None:
-        self.code = code
-        self.ordre = ordre
-
-    @staticmethod
-    def from_dict(obj: Any) -> "Categorie":
-        assert isinstance(obj, dict)
-        code = Code(obj.get("code"))
-        ordre = from_int(obj.get("ordre"))
-        return Categorie(code, ordre)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["code"] = to_enum(Code, self.code)
-        result["ordre"] = from_int(self.ordre)
-        return result
 
 
 class IDCompetitionPere:
@@ -136,22 +81,6 @@ class Organisateur:
         return result
 
 
-class IDPoule:
-    id: str
-
-    def __init__(self, id: str) -> None:
-        self.id = id
-
-    @staticmethod
-    def from_dict(obj: Any) -> "IDPoule":
-        assert isinstance(obj, dict)
-        id = from_str(obj.get("id"))
-        return IDPoule(id)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["id"] = from_str(self.id)
-        return result
 
 
 class Sexe(Enum):
@@ -173,26 +102,6 @@ class GradientColor(Enum):
     THE_04378_B = "#04378B"
 
 
-class Logo:
-    gradient_color: GradientColor
-    id: UUID
-
-    def __init__(self, gradient_color: GradientColor, id: UUID) -> None:
-        self.gradient_color = gradient_color
-        self.id = id
-
-    @staticmethod
-    def from_dict(obj: Any) -> "Logo":
-        assert isinstance(obj, dict)
-        gradient_color = GradientColor(obj.get("gradient_color"))
-        id = UUID(obj.get("id"))
-        return Logo(gradient_color, id)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["gradient_color"] = to_enum(GradientColor, self.gradient_color)
-        result["id"] = str(self.id)
-        return result
 
 
 class TypeCompetitionGenerique:
@@ -572,69 +481,6 @@ class OffresPratique:
         return result
 
 
-class Salle:
-    adresse: str
-    adresse_complement: str
-    cartographie: Cartographie
-    commune: Commune
-    id: str
-    libelle: str
-    libelle2: str
-    numero: int
-
-    def __init__(
-        self,
-        adresse: str,
-        adresse_complement: str,
-        cartographie: Cartographie,
-        commune: Commune,
-        id: str,
-        libelle: str,
-        libelle2: str,
-        numero: int,
-    ) -> None:
-        self.adresse = adresse
-        self.adresse_complement = adresse_complement
-        self.cartographie = cartographie
-        self.commune = commune
-        self.id = id
-        self.libelle = libelle
-        self.libelle2 = libelle2
-        self.numero = numero
-
-    @staticmethod
-    def from_dict(obj: Any) -> "Salle":
-        assert isinstance(obj, dict)
-        adresse = from_str(obj.get("adresse"))
-        adresse_complement = from_str(obj.get("adresseComplement"))
-        cartographie = Cartographie.from_dict(obj.get("cartographie"))
-        commune = Commune.from_dict(obj.get("commune"))
-        id = from_str(obj.get("id"))
-        libelle = from_str(obj.get("libelle"))
-        libelle2 = from_str(obj.get("libelle2"))
-        numero = int(from_str(obj.get("numero")))
-        return Salle(
-            adresse,
-            adresse_complement,
-            cartographie,
-            commune,
-            id,
-            libelle,
-            libelle2,
-            numero,
-        )
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["adresse"] = from_str(self.adresse)
-        result["adresseComplement"] = from_str(self.adresse_complement)
-        result["cartographie"] = to_class(Cartographie, self.cartographie)
-        result["commune"] = to_class(Commune, self.commune)
-        result["id"] = from_str(self.id)
-        result["libelle"] = from_str(self.libelle)
-        result["libelle2"] = from_str(self.libelle2)
-        result["numero"] = from_str(str(self.numero))
-        return result
 
 
 class Data:

@@ -1,6 +1,8 @@
 from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional
+
+from .cartographie import Cartographie
 from uuid import UUID
 
 from ..utils.converters import (
@@ -214,104 +216,6 @@ class Status(Enum):
     DRAFT = "draft"
 
 
-class Cartographie:
-    adresse: Optional[str] = None
-    code_postal: Optional[str] = None
-    coordonnees: Optional[Coordonnees] = None
-    date_created: None
-    date_updated: None
-    id: Optional[str] = None
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
-    title: Optional[str] = None
-    ville: Optional[str] = None
-    status: Optional[Status] = None
-
-    def __init__(
-        self,
-        adresse: Optional[str],
-        code_postal: Optional[str],
-        coordonnees: Optional[Coordonnees],
-        date_created: None,
-        date_updated: None,
-        id: Optional[str],
-        latitude: Optional[float],
-        longitude: Optional[float],
-        title: Optional[str],
-        ville: Optional[str],
-        status: Optional[Status] = None,
-    ) -> None:
-        self.adresse = adresse
-        self.code_postal = code_postal
-        self.coordonnees = coordonnees
-        self.date_created = date_created
-        self.date_updated = date_updated
-        self.id = id
-        self.latitude = latitude
-        self.longitude = longitude
-        self.title = title
-        self.ville = ville
-        self.status = status
-
-    @staticmethod
-    def from_dict(obj: Any) -> "Cartographie":
-        assert isinstance(obj, dict)
-        adresse = from_union([from_str, from_none], obj.get("adresse"))
-        code_postal = from_union([from_str, from_none], obj.get("codePostal"))
-        coordonnees = from_union(
-            [Coordonnees.from_dict, from_none], obj.get("coordonnees")
-        )
-        date_created = from_none(obj.get("date_created"))
-        date_updated = from_none(obj.get("date_updated"))
-        id = from_union([from_str, from_none], obj.get("id"))
-        latitude = from_union([from_float, from_none], obj.get("latitude"))
-        longitude = from_union([from_float, from_none], obj.get("longitude"))
-        title = from_union([from_str, from_none], obj.get("title"))
-        ville = from_union([from_str, from_none], obj.get("ville"))
-        status = from_union([Status, from_none], obj.get("status"))
-        return Cartographie(
-            adresse,
-            code_postal,
-            coordonnees,
-            date_created,
-            date_updated,
-            id,
-            latitude,
-            longitude,
-            title,
-            ville,
-            status,
-        )
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        if self.adresse is not None:
-            result["adresse"] = from_union([from_str, from_none], self.adresse)
-        if self.code_postal is not None:
-            result["codePostal"] = from_union([from_str, from_none], self.code_postal)
-        if self.coordonnees is not None:
-            result["coordonnees"] = from_union(
-                [lambda x: to_class(Coordonnees, x), from_none], self.coordonnees
-            )
-        if self.date_created is not None:
-            result["date_created"] = from_none(self.date_created)
-        if self.date_updated is not None:
-            result["date_updated"] = from_none(self.date_updated)
-        if self.id is not None:
-            result["id"] = from_union([from_str, from_none], self.id)
-        if self.latitude is not None:
-            result["latitude"] = from_union([to_float, from_none], self.latitude)
-        if self.longitude is not None:
-            result["longitude"] = from_union([to_float, from_none], self.longitude)
-        if self.title is not None:
-            result["title"] = from_union([from_str, from_none], self.title)
-        if self.ville is not None:
-            result["ville"] = from_union([from_str, from_none], self.ville)
-        if self.status is not None:
-            result["status"] = from_union(
-                [lambda x: to_enum(Status, x), from_none], self.status
-            )
-        return result
 
 
 class Geo:

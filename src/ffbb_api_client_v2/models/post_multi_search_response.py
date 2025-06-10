@@ -3,6 +3,13 @@ from enum import Enum
 from typing import Any, Dict, List, Optional, Union
 from uuid import UUID
 
+from .cartographie import Cartographie
+from .commune import Commune
+from .id_organisme_equipe import IDOrganismeEquipe
+from .id_poule import IDPoule
+from .logo import Logo
+from .salle import Salle
+
 from ..utils.converters import (
     from_bool,
     from_datetime,
@@ -554,87 +561,6 @@ class CartographieStatus(Enum):
     DRAFT = "draft"
 
 
-class Cartographie:
-    adresse: Optional[str]
-    code_postal: str
-    coordonnees: Coordonnees
-    date_created: None
-    date_updated: None
-    id: str
-    latitude: float
-    longitude: float
-    status: CartographieStatus
-    title: Optional[str]
-    ville: str
-
-    def __init__(
-        self,
-        adresse: Optional[str],
-        code_postal: str,
-        coordonnees: Coordonnees,
-        date_created: None,
-        date_updated: None,
-        id: str,
-        latitude: float,
-        longitude: float,
-        status: CartographieStatus,
-        title: Optional[str],
-        ville: str,
-    ) -> None:
-        self.adresse = adresse
-        self.code_postal = code_postal
-        self.coordonnees = coordonnees
-        self.date_created = date_created
-        self.date_updated = date_updated
-        self.id = id
-        self.latitude = latitude
-        self.longitude = longitude
-        self.status = status
-        self.title = title
-        self.ville = ville
-
-    @staticmethod
-    def from_dict(obj: Any) -> "Cartographie":
-        assert isinstance(obj, dict)
-        adresse = from_union([from_none, from_str], obj.get("adresse"))
-        code_postal = from_str(obj.get("codePostal"))
-        coordonnees = Coordonnees.from_dict(obj.get("coordonnees"))
-        date_created = from_none(obj.get("date_created"))
-        date_updated = from_none(obj.get("date_updated"))
-        id = from_str(obj.get("id"))
-        latitude = from_float(obj.get("latitude"))
-        longitude = from_float(obj.get("longitude"))
-        status = CartographieStatus(obj.get("status"))
-        title = from_union([from_none, from_str], obj.get("title"))
-        ville = from_str(obj.get("ville"))
-        return Cartographie(
-            adresse,
-            code_postal,
-            coordonnees,
-            date_created,
-            date_updated,
-            id,
-            latitude,
-            longitude,
-            status,
-            title,
-            ville,
-        )
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["adresse"] = from_union([from_none, from_str], self.adresse)
-        result["codePostal"] = from_str(self.code_postal)
-        result["coordonnees"] = to_class(Coordonnees, self.coordonnees)
-        result["date_created"] = from_none(self.date_created)
-        result["date_updated"] = from_none(self.date_updated)
-        result["id"] = from_str(self.id)
-        result["latitude"] = to_float(self.latitude)
-        result["longitude"] = to_float(self.longitude)
-        result["status"] = to_enum(CartographieStatus, self.status)
-        result["title"] = from_union([from_none, from_str], self.title)
-        result["ville"] = from_str(self.ville)
-        return result
 
 
 class CategorieCode(Enum):
@@ -879,71 +805,6 @@ class Departement(Enum):
     YVELINES = "Yvelines"
 
 
-class Commune:
-    code_insee: None
-    code_postal: str
-    date_created: Optional[datetime]
-    date_updated: Optional[datetime]
-    departement: Departement
-    id: Optional[str]
-    libelle: str
-
-    def __init__(
-        self,
-        code_insee: None,
-        code_postal: str,
-        date_created: Optional[datetime],
-        date_updated: Optional[datetime],
-        departement: Departement,
-        id: Optional[str],
-        libelle: str,
-    ) -> None:
-        self.code_insee = code_insee
-        self.code_postal = code_postal
-        self.date_created = date_created
-        self.date_updated = date_updated
-        self.departement = departement
-        self.id = id
-        self.libelle = libelle
-
-    @staticmethod
-    def from_dict(obj: Any) -> "Commune":
-        assert isinstance(obj, dict)
-        code_insee = from_none(obj.get("codeInsee"))
-        code_postal = from_str(obj.get("codePostal"))
-        date_created = from_union([from_datetime, from_none], obj.get("date_created"))
-        date_updated = from_union([from_datetime, from_none], obj.get("date_updated"))
-        departement = Departement(obj.get("departement"))
-        id = from_union([from_str, from_none], obj.get("id"))
-        libelle = from_str(obj.get("libelle"))
-        return Commune(
-            code_insee,
-            code_postal,
-            date_created,
-            date_updated,
-            departement,
-            id,
-            libelle,
-        )
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        if self.code_insee is not None:
-            result["codeInsee"] = from_none(self.code_insee)
-        result["codePostal"] = from_str(self.code_postal)
-        if self.date_created is not None:
-            result["date_created"] = from_union(
-                [lambda x: x.isoformat(), from_none], self.date_created
-            )
-        if self.date_updated is not None:
-            result["date_updated"] = from_union(
-                [lambda x: x.isoformat(), from_none], self.date_updated
-            )
-        result["departement"] = to_enum(Departement, self.departement)
-        if self.id is not None:
-            result["id"] = from_union([from_str, from_none], self.id)
-        result["libelle"] = from_str(self.libelle)
-        return result
 
 
 class CommuneClubPro:
@@ -1147,26 +1008,6 @@ class CompetitionIDTypeCompetitionEnum(Enum):
     PLATEAU = "Plateau"
 
 
-class Logo:
-    gradient_color: str
-    id: UUID
-
-    def __init__(self, gradient_color: str, id: UUID) -> None:
-        self.gradient_color = gradient_color
-        self.id = id
-
-    @staticmethod
-    def from_dict(obj: Any) -> "Logo":
-        assert isinstance(obj, dict)
-        gradient_color = from_str(obj.get("gradient_color"))
-        id = UUID(obj.get("id"))
-        return Logo(gradient_color, id)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["gradient_color"] = from_str(self.gradient_color)
-        result["id"] = str(self.id)
-        return result
 
 
 class CompetitionIDTypeCompetitionGenerique:
@@ -1773,74 +1614,6 @@ class NomClubPro(Enum):
     VANVES_GPSO_BASKET = "VANVES GPSO BASKET"
 
 
-class IDOrganismeEquipe:
-    code: str
-    id: str
-    logo: Optional[Logo]
-    nom: str
-    nom_simple: None
-    nom_club_pro: Optional[NomClubPro]
-
-    def __init__(
-        self,
-        code: str,
-        id: str,
-        logo: Optional[Logo],
-        nom: str,
-        nom_simple: None,
-        nom_club_pro: Optional[NomClubPro],
-    ) -> None:
-        self.code = code
-        self.id = id
-        self.logo = logo
-        self.nom = nom
-        self.nom_simple = nom_simple
-        self.nom_club_pro = nom_club_pro
-
-    @staticmethod
-    def from_dict(obj: Any) -> "IDOrganismeEquipe":
-        assert isinstance(obj, dict)
-        code = from_str(obj.get("code"))
-        id = from_str(obj.get("id"))
-        logo = from_union([Logo.from_dict, from_none], obj.get("logo"))
-        nom = from_str(obj.get("nom"))
-        nom_simple = from_none(obj.get("nom_simple"))
-        nom_club_pro = from_union([from_none, NomClubPro], obj.get("nomClubPro"))
-        return IDOrganismeEquipe(code, id, logo, nom, nom_simple, nom_club_pro)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["code"] = from_str(self.code)
-        result["id"] = from_str(self.id)
-        result["logo"] = from_union([lambda x: to_class(Logo, x), from_none], self.logo)
-        result["nom"] = from_str(self.nom)
-        result["nom_simple"] = from_none(self.nom_simple)
-        result["nomClubPro"] = from_union(
-            [from_none, lambda x: to_enum(NomClubPro, x)], self.nom_club_pro
-        )
-        return result
-
-
-class IDPoule:
-    id: str
-    nom: str
-
-    def __init__(self, id: str, nom: str) -> None:
-        self.id = id
-        self.nom = nom
-
-    @staticmethod
-    def from_dict(obj: Any) -> "IDPoule":
-        assert isinstance(obj, dict)
-        id = from_str(obj.get("id"))
-        nom = from_str(obj.get("nom"))
-        return IDPoule(id, nom)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["id"] = from_str(self.id)
-        result["nom"] = from_str(self.nom)
-        return result
 
 
 class Jour(Enum):
@@ -2490,53 +2263,6 @@ class Saison:
         return result
 
 
-class Salle:
-    adresse: Optional[str]
-    adresse_complement: Optional[str]
-    cartographie: Optional[Cartographie]
-    id: str
-    libelle: str
-
-    def __init__(
-        self,
-        adresse: Optional[str],
-        adresse_complement: Optional[str],
-        cartographie: Optional[Cartographie],
-        id: str,
-        libelle: str,
-    ) -> None:
-        self.adresse = adresse
-        self.adresse_complement = adresse_complement
-        self.cartographie = cartographie
-        self.id = id
-        self.libelle = libelle
-
-    @staticmethod
-    def from_dict(obj: Any) -> "Salle":
-        assert isinstance(obj, dict)
-        adresse = from_union([from_none, from_str], obj.get("adresse"))
-        adresse_complement = from_union(
-            [from_none, from_str], obj.get("adresseComplement")
-        )
-        cartographie = from_union(
-            [Cartographie.from_dict, from_none], obj.get("cartographie")
-        )
-        id = from_str(obj.get("id"))
-        libelle = from_str(obj.get("libelle"))
-        return Salle(adresse, adresse_complement, cartographie, id, libelle)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["adresse"] = from_union([from_none, from_str], self.adresse)
-        result["adresseComplement"] = from_union(
-            [from_none, from_str], self.adresse_complement
-        )
-        result["cartographie"] = from_union(
-            [lambda x: to_class(Cartographie, x), from_none], self.cartographie
-        )
-        result["id"] = from_str(self.id)
-        result["libelle"] = from_str(self.libelle)
-        return result
 
 
 class HitStatus(Enum):
