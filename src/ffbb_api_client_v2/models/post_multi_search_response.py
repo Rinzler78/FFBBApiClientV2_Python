@@ -24,6 +24,15 @@ from .commune import Commune
 from .id_organisme_equipe import IDOrganismeEquipe
 from .id_poule import IDPoule
 from .logo import Logo
+from .logo import Logo
+from .salle import Salle
+
+from .cartographie import Cartographie
+from .commune import Commune
+from .id_organisme_equipe import IDOrganismeEquipe
+from .id_poule import IDPoule
+from .logo import Logo
+
 from .salle import Salle
 
 
@@ -556,6 +565,7 @@ class Coordonnees:
         return result
 
 
+class CategorieCode(Enum):
     BIT = "BIT"
     BT = "BT"
     EBT = "EBT"
@@ -797,6 +807,7 @@ class Departement(Enum):
     YVELINES = "Yvelines"
 
 
+class CommuneClubPro:
     code_postal: str
     departement: Departement
     libelle: str
@@ -997,6 +1008,7 @@ class CompetitionIDTypeCompetitionEnum(Enum):
     PLATEAU = "Plateau"
 
 
+class CompetitionIDTypeCompetitionGenerique:
     logo: Logo
 
     def __init__(self, logo: Logo) -> None:
@@ -1598,28 +1610,6 @@ class NomClubPro(Enum):
     TOURS_METROPOLE_BASKET = "TOURS METROPOLE BASKET"
     UJAP_QUIMPER_29 = "UJAP QUIMPER 29"
     VANVES_GPSO_BASKET = "VANVES GPSO BASKET"
-
-
-    id: str
-    nom: str
-
-    def __init__(self, id: str, nom: str) -> None:
-        self.id = id
-        self.nom = nom
-
-    @staticmethod
-    def from_dict(obj: Any) -> "IDPoule":
-        assert isinstance(obj, dict)
-        id = from_str(obj.get("id"))
-        nom = from_str(obj.get("nom"))
-        return IDPoule(id, nom)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["id"] = from_str(self.id)
-        result["nom"] = from_str(self.nom)
-        return result
-
 
 class Jour(Enum):
     DIMANCHE = "dimanche"
@@ -2268,6 +2258,7 @@ class Saison:
         return result
 
 
+class HitStatus(Enum):
     PUBLISHED = "published"
 
 

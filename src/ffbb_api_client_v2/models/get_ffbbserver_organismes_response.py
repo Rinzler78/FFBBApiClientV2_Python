@@ -1,11 +1,9 @@
 from datetime import datetime
 from enum import Enum
 from typing import Any, List, Optional
-from uuid import UUID
 
 from ..utils.converters import (
     from_datetime,
-    from_float,
     from_int,
     from_list,
     from_none,
@@ -13,10 +11,11 @@ from ..utils.converters import (
     from_union,
     to_class,
     to_enum,
-    to_float,
 )
+
 from .categorie import Categorie
 from .cartographie import Cartographie
+from .categorie import Categorie
 from .commune import Commune
 from .id_poule import IDPoule
 from .logo import Logo

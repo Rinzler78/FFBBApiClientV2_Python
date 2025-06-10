@@ -17,6 +17,7 @@ from ..utils.converters import (
     to_enum,
     to_float,
 )
+from .cartographie import Cartographie
 from .facet_distribution import FacetDistribution
 from .cartographie import Cartographie
 from .facet_stats import FacetStats
@@ -215,6 +216,7 @@ class Status(Enum):
     DRAFT = "draft"
 
 
+class Geo:
     lat: Optional[float] = None
     lng: Optional[float] = None
 

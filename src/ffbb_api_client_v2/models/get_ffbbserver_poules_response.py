@@ -1,7 +1,6 @@
 from datetime import datetime
 from enum import Enum
 from typing import Any, List, Optional
-from uuid import UUID
 
 from ..utils.converters import (
     from_bool,
@@ -17,6 +16,7 @@ from ..utils.converters import (
     to_enum,
     to_float,
 )
+
 from .cartographie import Cartographie
 from .commune import Commune
 from .id_organisme_equipe import IDOrganismeEquipe
@@ -80,6 +80,7 @@ class IDEngagement:
         return result
 
 
+class Organisme:
     logo: Optional[Logo]
     nom: Nom
 
@@ -244,6 +245,7 @@ class Classement:
         return result
 
 
+class Libelle(Enum):
     AIDE_MARQUEUR = "Aide marqueur"
     ARBITRE = "Arbitre"
     CHRONOMETREUR = "Chronometreur"
@@ -328,33 +330,13 @@ class AdresseComplement(Enum):
     MONTFAVET = "MONTFAVET"
 
 
-    code_postal: str
-    libelle: str
-
-    def __init__(self, code_postal: str, libelle: str) -> None:
-        self.code_postal = code_postal
-        self.libelle = libelle
-
-    @staticmethod
-    def from_dict(obj: Any) -> "Commune":
-        assert isinstance(obj, dict)
-        code_postal = from_str(obj.get("codePostal"))
-        libelle = from_str(obj.get("libelle"))
-        return Commune(code_postal, libelle)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["codePostal"] = from_str(self.code_postal)
-        result["libelle"] = from_str(self.libelle)
-        return result
-
-
 class Libelle2(Enum):
     EMPTY = ""
     PARC_DES_SPORTS_POUDRERIE = "PARC DES SPORTS POUDRERIE"
     SALLE_NASARRE = "SALLE NASARRE"
 
 
+class Rencontre:
     competition_id: str
     date_rencontre: datetime
     gs_id: None
