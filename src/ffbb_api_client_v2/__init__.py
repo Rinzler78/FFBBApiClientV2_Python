@@ -2,7 +2,6 @@
 
 from importlib.metadata import PackageNotFoundError, version
 
-
 from .api_ffbb_app_client import ApiFFBBAppClient
 from .ffbb_api_client_v2 import FFBBAPIClientV2
 from .meilisearch_client import MeilisearchClient
@@ -52,8 +51,6 @@ from .models.tournois_multi_search_result import (
     TournoisHit,
     TournoisMultiSearchResult,
 )
-
-from importlib.metadata import PackageNotFoundError, version
 
 try:
     # Change here if project is renamed and does not equal the package name
