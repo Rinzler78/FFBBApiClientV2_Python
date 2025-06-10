@@ -1,3 +1,5 @@
+"""Tests for :class:`MeilisearchClientExtension`."""
+
 import os
 import unittest
 from typing import List

@@ -1,4 +1,5 @@
 import json
+import logging
 import time
 from typing import Any, Dict
 from urllib.parse import urlencode
@@ -6,6 +7,8 @@ from urllib.parse import urlencode
 import requests
 from requests import Response
 from requests_cache import CachedSession
+
+logger = logging.getLogger(__name__)
 
 
 def to_json_from_response(response: Response) -> Dict[str, Any]:
@@ -23,7 +26,7 @@ def to_json_from_response(response: Response) -> Dict[str, Any]:
     try:
         return json.loads(data_str)
     except json.JSONDecodeError as e:
-        print(f"Error in to_json_from_response: {e}")
+        logger.error("Error in to_json_from_response: %s", e)
 
     if data_str.endswith(","):
         data_str = data_str[:-1]
@@ -58,7 +61,7 @@ def http_get(
         Response: The HTTP response.
     """
     if debug:
-        print(f"Making GET request to {url}")
+        logger.debug("Making GET request to %s", url)
         start_time = time.time()
 
     if cached_session:
@@ -68,8 +71,8 @@ def http_get(
 
     if debug:
         end_time = time.time()
-        print(f"GET request to {url} took {end_time - start_time} seconds.")
-        print(f"GET response: {response.text}")
+        logger.debug("GET request to %s took %s seconds.", url, end_time - start_time)
+        logger.debug("GET response: %s", response.text)
 
     return response
 
@@ -98,7 +101,7 @@ def http_post(
     """
     if debug:
         data_str = ", ".join([f"{k}:{v}" for k, v in data.items()]) if data else ""
-        print(f"Making POST request to {url} {data_str}")
+        logger.debug("Making POST request to %s %s", url, data_str)
         start_time = time.time()
 
     if cached_session:
@@ -108,8 +111,10 @@ def http_post(
 
     if debug:
         end_time = time.time()
-        print(f"POST request to {url} {data_str} took {end_time - start_time} seconds.")
-        print(f"POST response: {response.text}")
+        logger.debug(
+            "POST request to %s %s took %s seconds.", url, data_str, end_time - start_time
+        )
+        logger.debug("POST response: %s", response.text)
 
     return response
 

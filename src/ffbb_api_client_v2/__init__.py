@@ -1,4 +1,6 @@
-from importlib.metadata import PackageNotFoundError, version  # pragma: no cover
+"""Public API exports for :mod:`ffbb_api_client_v2`."""
+
+from importlib.metadata import PackageNotFoundError, version
 
 from .api_ffbb_app_client import ApiFFBBAppClient
 from .ffbb_api_client_v2 import FFBBAPIClientV2

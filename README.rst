@@ -46,13 +46,24 @@ Installation
 
     pip install ffbb_api_client_v2
 
+Create a ``.env`` file based on the provided example and add your tokens:
+
+.. code-block:: bash
+
+    cp .env.example .env
+    # edit .env and fill in the values
+
 Prerequisites
 -------------
 
-Set the following environment variables with your API credentials:
+Set the following environment variables with your API credentials. Copy
+``.env.example`` to ``.env`` and edit the values:
 
 * ``MEILISEARCH_BEARER_TOKEN`` – token to access the search API
 * ``API_FFBB_APP_BEARER_TOKEN`` – token to access the main FFBB API
+
+For local development you can copy ``.env.example`` to ``.env`` and fill
+these tokens there.
 
 Quick start
 ===========
@@ -124,10 +135,10 @@ Command used to create this project:
 Running tests
 =============
 
-Install the project in editable mode with the ``testing`` extras and execute
+Install the project in editable mode with the ``testing`` extras and run
 ``pytest``:
 
 .. code-block:: bash
 
     pip install -e .[testing]
-    pytest -q
+    pytest

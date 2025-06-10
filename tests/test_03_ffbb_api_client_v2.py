@@ -1,3 +1,5 @@
+"""Integration tests for :class:`FFBBAPIClientV2`."""
+
 import os
 import unittest
 from typing import Any, Type
