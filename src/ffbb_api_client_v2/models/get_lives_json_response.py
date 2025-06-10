@@ -15,6 +15,7 @@ from ..utils.converters import (
 )
 from .competition_id import CompetitionID
 from .id_organisme_equipe import IDOrganismeEquipe
+from .id_poule import IDPoule
 from .salle import Salle
 
 
@@ -50,35 +51,6 @@ class IDEngagementEquipe1:
         result: dict = {}
         result["id"] = from_str(self.id)
         return result
-
-
-class Nom(Enum):
-    GROUPE_A = "Groupe A"
-    GROUPE_B = "Groupe B"
-    POULE_A = "Poule A"
-
-
-class IDPoule:
-    id: str
-    nom: Nom
-
-    def __init__(self, id: str, nom: Nom) -> None:
-        self.id = id
-        self.nom = nom
-
-    @staticmethod
-    def from_dict(obj: Any) -> "IDPoule":
-        assert isinstance(obj, dict)
-        id = from_str(obj.get("id"))
-        nom = Nom(obj.get("nom"))
-        return IDPoule(id, nom)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["id"] = from_str(self.id)
-        result["nom"] = to_enum(Nom, self.nom)
-        return result
-
 
 class ExternalID:
     competition_id: CompetitionID

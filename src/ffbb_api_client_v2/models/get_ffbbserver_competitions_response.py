@@ -18,27 +18,10 @@ from .id_organisme_equipe import IDOrganismeEquipe
 from .logo import Logo
 from .salle import Salle
 
-
-class Categorie:
-    code: str
-    ordre: int
-
-    def __init__(self, code: str, ordre: int) -> None:
-        self.code = code
-        self.ordre = ordre
-
-    @staticmethod
-    def from_dict(obj: Any) -> "Categorie":
-        assert isinstance(obj, dict)
-        code = from_str(obj.get("code"))
-        ordre = from_int(obj.get("ordre"))
-        return Categorie(code, ordre)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["code"] = from_str(self.code)
-        result["ordre"] = from_int(self.ordre)
-        return result
+from .categorie import Categorie
+from .id_organisme_equipe import IDOrganismeEquipe
+from .logo import Logo
+from .salle import Salle
 
 
 class IDOrganisme:

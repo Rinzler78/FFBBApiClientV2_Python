@@ -12,8 +12,11 @@ from ..utils.converters import (
     to_class,
     to_enum,
 )
+
 from .cartographie import Cartographie
+from .categorie import Categorie
 from .commune import Commune
+from .id_poule import IDPoule
 from .logo import Logo
 from .salle import Salle
 
@@ -24,28 +27,6 @@ class Code(Enum):
     U13 = "U13"
     U15 = "U15"
     U17 = "U17"
-
-
-class Categorie:
-    code: Code
-    ordre: int
-
-    def __init__(self, code: Code, ordre: int) -> None:
-        self.code = code
-        self.ordre = ordre
-
-    @staticmethod
-    def from_dict(obj: Any) -> "Categorie":
-        assert isinstance(obj, dict)
-        code = Code(obj.get("code"))
-        ordre = from_int(obj.get("ordre"))
-        return Categorie(code, ordre)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["code"] = to_enum(Code, self.code)
-        result["ordre"] = from_int(self.ordre)
-        return result
 
 
 class IDCompetitionPere:
@@ -90,24 +71,6 @@ class Organisateur:
     def to_dict(self) -> dict:
         result: dict = {}
         result["type"] = to_enum(TypeEnum, self.type)
-        return result
-
-
-class IDPoule:
-    id: str
-
-    def __init__(self, id: str) -> None:
-        self.id = id
-
-    @staticmethod
-    def from_dict(obj: Any) -> "IDPoule":
-        assert isinstance(obj, dict)
-        id = from_str(obj.get("id"))
-        return IDPoule(id)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["id"] = from_str(self.id)
         return result
 
 

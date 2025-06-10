@@ -25,6 +25,14 @@ from .id_organisme_equipe import IDOrganismeEquipe
 from .logo import Logo
 from .salle import Salle
 
+from .cartographie import Cartographie
+from .commune import Commune
+from .id_organisme_equipe import IDOrganismeEquipe
+from .id_poule import IDPoule
+from .logo import Logo
+
+from .salle import Salle
+
 
 class CompetitionIDSexe:
     féminin: int
@@ -553,7 +561,6 @@ class Coordonnees:
         result["coordinates"] = from_list(to_float, self.coordinates)
         result["type"] = to_enum(CoordonneesType, self.type)
         return result
-
 
 class CategorieCode(Enum):
     BIT = "BIT"
@@ -1600,28 +1607,6 @@ class NomClubPro(Enum):
     TOURS_METROPOLE_BASKET = "TOURS METROPOLE BASKET"
     UJAP_QUIMPER_29 = "UJAP QUIMPER 29"
     VANVES_GPSO_BASKET = "VANVES GPSO BASKET"
-
-
-class IDPoule:
-    id: str
-    nom: str
-
-    def __init__(self, id: str, nom: str) -> None:
-        self.id = id
-        self.nom = nom
-
-    @staticmethod
-    def from_dict(obj: Any) -> "IDPoule":
-        assert isinstance(obj, dict)
-        id = from_str(obj.get("id"))
-        nom = from_str(obj.get("nom"))
-        return IDPoule(id, nom)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["id"] = from_str(self.id)
-        result["nom"] = from_str(self.nom)
-        return result
 
 
 class Jour(Enum):
