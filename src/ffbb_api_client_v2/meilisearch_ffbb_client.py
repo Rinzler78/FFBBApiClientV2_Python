@@ -1,3 +1,5 @@
+"""Wrapper around the FFBB Meilisearch service."""
+
 from typing import List
 
 from requests_cache import CachedSession
@@ -23,6 +25,7 @@ from .models.tournois_multi_search_result import TournoisMultiSearchResult
 
 
 class MeilisearchFFBBClient(MeilisearchClientExtension):
+    """Client implementing high-level search helpers."""
     def __init__(
         self,
         bearer_token: str,

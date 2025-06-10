@@ -1,3 +1,5 @@
+"""High level client aggregating access to the FFBB APIs."""
+
 from typing import List
 
 from requests_cache import CachedSession
@@ -27,6 +29,7 @@ from .models.tournois_multi_search_result import TournoisMultiSearchResult
 
 
 class FFBBAPIClientV2:
+    """Facade providing convenient helper methods to the various API clients."""
     def __init__(
         self,
         api_ffbb_client: ApiFFBBAppClient,
