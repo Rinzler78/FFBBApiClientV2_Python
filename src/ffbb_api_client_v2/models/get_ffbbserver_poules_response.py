@@ -260,8 +260,6 @@ class Classement:
         return result
 
 
-
-
 class Libelle(Enum):
     AIDE_MARQUEUR = "Aide marqueur"
     ARBITRE = "Arbitre"
@@ -395,8 +393,6 @@ class Libelle2(Enum):
     EMPTY = ""
     PARC_DES_SPORTS_POUDRERIE = "PARC DES SPORTS POUDRERIE"
     SALLE_NASARRE = "SALLE NASARRE"
-
-
 
 
 class Rencontre:

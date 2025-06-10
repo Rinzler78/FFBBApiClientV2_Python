@@ -53,9 +53,6 @@ class IDEngagementEquipe1:
         return result
 
 
-
-
-
 class ExternalID:
     competition_id: CompetitionID
     id_engagement_equipe1: IDEngagementEquipe1

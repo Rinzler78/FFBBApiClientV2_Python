@@ -1776,8 +1776,6 @@ class NomClubPro(Enum):
     VANVES_GPSO_BASKET = "VANVES GPSO BASKET"
 
 
-
-
 class Jour(Enum):
     DIMANCHE = "dimanche"
     JEUDI = "jeudi"
@@ -2423,8 +2421,6 @@ class Saison:
         result: dict = {}
         result["code"] = to_enum(SaisonCode, self.code)
         return result
-
-
 
 
 class HitStatus(Enum):

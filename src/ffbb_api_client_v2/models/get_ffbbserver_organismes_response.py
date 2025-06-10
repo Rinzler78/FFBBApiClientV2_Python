@@ -138,8 +138,6 @@ class Organisateur:
         return result
 
 
-
-
 class Sexe(Enum):
     F = "F"
     M = "M"
@@ -556,8 +554,6 @@ class OffresPratique:
             FfbbserverOffresPratiquesID, self.ffbbserver_offres_pratiques_id
         )
         return result
-
-
 
 
 class Data:

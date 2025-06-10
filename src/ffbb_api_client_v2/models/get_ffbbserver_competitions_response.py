@@ -129,8 +129,6 @@ class IDEngagementEquipe:
         return result
 
 
-
-
 class Libelle(Enum):
     AIDE_MARQUEUR = "Aide marqueur"
     ARBITRE = "Arbitre"
@@ -270,8 +268,6 @@ class Libelle2(Enum):
     PARC_DES_SPORTS_POUDRERIE = "PARC DES SPORTS POUDRERIE"
     SALLE_NASARRE = "SALLE NASARRE"
     STADE_FOCH = "Stade foch"
-
-
 
 
 class Rencontre:
