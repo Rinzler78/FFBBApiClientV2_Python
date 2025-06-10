@@ -52,7 +52,6 @@ class IDEngagementEquipe1:
         result["id"] = from_str(self.id)
         return result
 
-
 class ExternalID:
     competition_id: CompetitionID
     id_engagement_equipe1: IDEngagementEquipe1
