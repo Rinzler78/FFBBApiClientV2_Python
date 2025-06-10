@@ -23,7 +23,7 @@ from .facet_stats import FacetStats
 from .hit import Hit
 from .logo import Logo
 from .niveau import Niveau
-from .niveau_class import NiveauClass
+from .niveau_data import NiveauData
 from .organisateur import Organisateur
 from .phase_code import PhaseCode
 from .poule import Poule
@@ -39,7 +39,7 @@ class CompetitionsFacetDistribution(FacetDistribution):
     competition_id_nom_extended: Optional[Dict[str, int]] = None
     competition_id_sexe: Optional[CompetitionIDSexe] = None
     competition_id_type_competition: Optional[CompetitionIDTypeCompetition] = None
-    niveau: Optional[NiveauClass] = None
+    niveau: Optional[NiveauData] = None
     organisateur_id: Optional[Dict[str, int]] = None
     organisateur_nom: Optional[Dict[str, int]] = None
 
@@ -49,7 +49,7 @@ class CompetitionsFacetDistribution(FacetDistribution):
         competition_id_nom_extended: Optional[Dict[str, int]],
         competition_id_sexe: Optional[CompetitionIDSexe],
         competition_id_type_competition: Optional[CompetitionIDTypeCompetition],
-        niveau: Optional[NiveauClass],
+        niveau: Optional[NiveauData],
         organisateur_id: Optional[Dict[str, int]],
         organisateur_nom: Optional[Dict[str, int]],
     ) -> None:
@@ -79,7 +79,7 @@ class CompetitionsFacetDistribution(FacetDistribution):
             [CompetitionIDTypeCompetition.from_dict, from_none],
             obj.get("competitionId.typeCompetition"),
         )
-        niveau = from_union([NiveauClass.from_dict, from_none], obj.get("niveau"))
+        niveau = from_union([NiveauData.from_dict, from_none], obj.get("niveau"))
         organisateur_id = from_union(
             [lambda x: from_dict(from_int, x), from_none], obj.get("organisateur.id")
         )
@@ -120,7 +120,7 @@ class CompetitionsFacetDistribution(FacetDistribution):
             )
         if self.niveau is not None:
             result["niveau"] = from_union(
-                [lambda x: to_class(NiveauClass, x), from_none], self.niveau
+                [lambda x: to_class(NiveauData, x), from_none], self.niveau
             )
         if self.organisateur_id is not None:
             result["organisateur.id"] = from_union(

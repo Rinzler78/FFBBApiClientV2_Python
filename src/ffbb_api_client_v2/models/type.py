@@ -3,17 +3,17 @@ from typing import Any, Optional
 from ..utils.converters import from_int, from_none, from_union
 
 
-class TypeClass:
+class Type:
     groupement: Optional[int] = None
 
     def __init__(self, groupement: Optional[int] = None):
         self.groupement = groupement
 
     @staticmethod
-    def from_dict(obj: Any) -> "TypeClass":
+    def from_dict(obj: Any) -> "Type":
         assert isinstance(obj, dict)
         groupement = from_union([from_int, from_none], obj.get("Groupement"))
-        return TypeClass(groupement)
+        return Type(groupement)
 
     def to_dict(self) -> dict:
         result: dict = {}

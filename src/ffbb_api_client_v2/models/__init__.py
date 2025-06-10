@@ -57,25 +57,19 @@ from .multi_search_query import (
     TerrainsMultiSearchQuery,
     TournoisMultiSearchQuery,
 )
-from .multi_search_result_pratiques import TypeClass as PratiquesTypeClass
-from .multi_search_result_terrains import SexeClass as TerrainsSexeClass
-from .multi_search_result_tournois import SexeClass as TournoisSexeClass
-from .multi_search_results import MultiSearchResult
-from .nature_sol import NatureSol
-from .niveau_class import NiveauClass
-from .organisateur import Organisateur
-from .organisme_id_pere import OrganismeIDPere
+from .multi_search_result_terrains import Sexe
+from .multi_search_result_tournois import Sexe as TournoisSexe
+from .niveau_data import NiveauData
 from .organismes_multi_search_result import (
     OrganismesFacetDistribution,
     OrganismesFacetStats,
     OrganismesHit,
     OrganismesMultiSearchResult,
 )
-from .post_multi_search_request import PostMultiSearchRequest
 from .post_multi_search_response import (
-    CompetitionIDSexeClass,
+    CompetitionIDSexe,
 )
-from .post_multi_search_response import NiveauClass as PostNiveauClass
+from .post_multi_search_response import Niveau as PostNiveau
 from .poule import Poule
 from .pratiques_multi_search_result import (
     PratiquesFacetDistribution,
@@ -103,7 +97,7 @@ from .terrains_multi_search_result import (
     TerrainsHit,
     TerrainsMultiSearchResult,
 )
-from .tournoi_type_class import TournoiTypeClass
+from .tournoi_type import TournoiType
 from .tournois_multi_search_result import (
     TournoisFacetDistribution,
     TournoisFacetStats,
@@ -112,7 +106,6 @@ from .tournois_multi_search_result import (
 )
 from .type_association import TypeAssociation
 from .type_association_libelle import TypeAssociationLibelle
-from .type_class import TypeClass
 from .type_competition_generique import TypeCompetitionGenerique
 
 __all__ = [
@@ -179,28 +172,19 @@ __all__ = [
     "IDOrganismeEquipe",
     "IDOrganismeEquipe1Logo",
     "IDPoule",
-    "NiveauClass",
+    "NiveauData",
     "Clock",
     "Live",
     "Logo",
-    "PratiquesTypeClass",
-    "SallesFacetStats",
-    "SallesHit",
-    "TerrainsSexeClass",
-    "TournoisSexeClass",
-    "MultiSearchResult",
-    "NatureSol",
-    "Organisateur",
-    "OrganismeIDPere",
-    "PostMultiSearchRequest",
-    "CompetitionIDSexeClass",
-    "PostNiveauClass",
+    "Sexe",
+    "TournoisSexe",
+    "PostNiveau",
+    "CompetitionIDSexe",
+    "TournoiType",
     "Poule",
     "PurpleLogo",
     "TeamEngagement",
-    "TournoiTypeClass",
     "TypeAssociation",
     "TypeAssociationLibelle",
-    "TypeClass",
     "TypeCompetitionGenerique",
 ]

@@ -21,22 +21,22 @@ from .hit import Hit
 from .labellisation import Labellisation
 from .logo import Logo
 from .organisme_id_pere import OrganismeIDPere
+from .type import Type
 from .type_association import TypeAssociation
 from .type_association_libelle import TypeAssociationLibelle
-from .type_class import TypeClass
 
 
 class OrganismesFacetDistribution(FacetDistribution):
     labellisation: Optional[Labellisation] = None
     offres_pratiques: Optional[Dict[str, int]] = None
-    type: Optional[TypeClass] = None
+    type: Optional[Type] = None
     type_association_libelle: Optional[TypeAssociationLibelle] = None
 
     def __init__(
         self,
         labellisation: Optional[Labellisation],
         offres_pratiques: Optional[Dict[str, int]],
-        type: Optional[TypeClass],
+        type: Optional[Type],
         type_association_libelle: Optional[TypeAssociationLibelle],
     ) -> None:
         self.labellisation = labellisation
@@ -53,7 +53,7 @@ class OrganismesFacetDistribution(FacetDistribution):
         offres_pratiques = from_union(
             [lambda x: from_dict(from_int, x), from_none], obj.get("offresPratiques")
         )
-        type = from_union([TypeClass.from_dict, from_none], obj.get("type"))
+        type = from_union([Type.from_dict, from_none], obj.get("type"))
         type_association_libelle = from_union(
             [TypeAssociationLibelle.from_dict, from_none],
             obj.get("type_association.libelle"),
@@ -74,7 +74,7 @@ class OrganismesFacetDistribution(FacetDistribution):
             )
         if self.type is not None:
             result["type"] = from_union(
-                [lambda x: to_class(TypeClass, x), from_none], self.type
+                [lambda x: to_class(Type, x), from_none], self.type
             )
         if self.type_association_libelle is not None:
             result["type_association.libelle"] = from_union(
@@ -356,3 +356,4 @@ class OrganismesFacetStats(FacetStats):
 
     def to_dict(self) -> dict:
         super().to_dict()
+        return {}

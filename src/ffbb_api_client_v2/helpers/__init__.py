@@ -1,5 +1,5 @@
 from .cached_session_helper import create_cache_key, default_cached_session
-from .catch_result_helper import catch_result as deprecated_catch_result
+from .catch_result_helper import catch_result
 from .http_requests_utils import (
     encode_params,
     http_get,
@@ -15,7 +15,6 @@ __all__ = [
     "catch_result",
     "create_cache_key",
     "default_cached_session",
-    "deprecated_catch_result",
     "to_json_from_response",
     "http_get",
     "http_post",

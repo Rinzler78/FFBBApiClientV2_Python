@@ -21,7 +21,7 @@ from ..utils.converters import (
 )
 
 
-class CompetitionIDSexeClass:
+class CompetitionIDSexe:
     féminin: int
     masculin: int
     mixte: int
@@ -32,12 +32,12 @@ class CompetitionIDSexeClass:
         self.mixte = mixte
 
     @staticmethod
-    def from_dict(obj: Any) -> "CompetitionIDSexeClass":
+    def from_dict(obj: Any) -> "CompetitionIDSexe":
         assert isinstance(obj, dict)
         féminin = from_int(obj.get("Féminin"))
         masculin = from_int(obj.get("Masculin"))
         mixte = from_int(obj.get("Mixte"))
-        return CompetitionIDSexeClass(féminin, masculin, mixte)
+        return CompetitionIDSexe(féminin, masculin, mixte)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -81,7 +81,7 @@ class CompetitionIDTypeCompetition:
         return result
 
 
-class NiveauClass:
+class Niveau:
     départemental: int
     handibasket: int
     international: int
@@ -106,7 +106,7 @@ class NiveauClass:
         self.régional = régional
 
     @staticmethod
-    def from_dict(obj: Any) -> "NiveauClass":
+    def from_dict(obj: Any) -> "Niveau":
         assert isinstance(obj, dict)
         départemental = from_int(obj.get("Départemental"))
         handibasket = from_int(obj.get("Handibasket"))
@@ -114,7 +114,7 @@ class NiveauClass:
         national = from_int(obj.get("National"))
         pro = from_int(obj.get("Pro"))
         régional = from_int(obj.get("Régional"))
-        return NiveauClass(
+        return Niveau(
             départemental, handibasket, international, national, pro, régional
         )
 
@@ -129,7 +129,7 @@ class NiveauClass:
         return result
 
 
-class TournoiTypeClass:
+class TournoiType:
     open_plus: int
     open_plus_access: int
     open_start: int
@@ -140,12 +140,12 @@ class TournoiTypeClass:
         self.open_start = open_start
 
     @staticmethod
-    def from_dict(obj: Any) -> "TournoiTypeClass":
+    def from_dict(obj: Any) -> "TournoiType":
         assert isinstance(obj, dict)
         open_plus = from_int(obj.get("Open Plus"))
         open_plus_access = from_int(obj.get("Open Plus Access"))
         open_start = from_int(obj.get("Open Start"))
-        return TournoiTypeClass(open_plus, open_plus_access, open_start)
+        return TournoiType(open_plus, open_plus_access, open_start)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -271,16 +271,16 @@ class TypeAssociationLibelle:
 class FacetDistribution:
     competition_id_categorie_code: Optional[Dict[str, int]]
     competition_id_nom_extended: Optional[Dict[str, int]]
-    competition_id_sexe: Optional[CompetitionIDSexeClass]
+    competition_id_sexe: Optional[CompetitionIDSexe]
     competition_id_type_competition: Optional[CompetitionIDTypeCompetition]
     label: Optional[Dict[str, int]]
     labellisation: Optional[Dict[str, int]]
-    niveau: Optional[NiveauClass]
+    niveau: Optional[Niveau]
     offres_pratiques: Optional[Dict[str, int]]
     organisateur_id: Optional[Dict[str, int]]
     organisateur_nom: Optional[Dict[str, int]]
-    sexe: Optional[CompetitionIDSexeClass]
-    tournoi_type: Optional[TournoiTypeClass]
+    sexe: Optional[CompetitionIDSexe]
+    tournoi_type: Optional[TournoiType]
     tournoi_types3_x3_libelle: Optional[TournoiTypes3X3Libelle]
     type: Optional[Dict[str, int]]
     type_association_libelle: Optional[TypeAssociationLibelle]
@@ -289,16 +289,16 @@ class FacetDistribution:
         self,
         competition_id_categorie_code: Optional[Dict[str, int]],
         competition_id_nom_extended: Optional[Dict[str, int]],
-        competition_id_sexe: Optional[CompetitionIDSexeClass],
+        competition_id_sexe: Optional[CompetitionIDSexe],
         competition_id_type_competition: Optional[CompetitionIDTypeCompetition],
         label: Optional[Dict[str, int]],
         labellisation: Optional[Dict[str, int]],
-        niveau: Optional[NiveauClass],
+        niveau: Optional[Niveau],
         offres_pratiques: Optional[Dict[str, int]],
         organisateur_id: Optional[Dict[str, int]],
         organisateur_nom: Optional[Dict[str, int]],
-        sexe: Optional[CompetitionIDSexeClass],
-        tournoi_type: Optional[TournoiTypeClass],
+        sexe: Optional[CompetitionIDSexe],
+        tournoi_type: Optional[TournoiType],
         tournoi_types3_x3_libelle: Optional[TournoiTypes3X3Libelle],
         type: Optional[Dict[str, int]],
         type_association_libelle: Optional[TypeAssociationLibelle],
@@ -331,7 +331,7 @@ class FacetDistribution:
             obj.get("competitionId.nomExtended"),
         )
         competition_id_sexe = from_union(
-            [CompetitionIDSexeClass.from_dict, from_none], obj.get("competitionId.sexe")
+            [CompetitionIDSexe.from_dict, from_none], obj.get("competitionId.sexe")
         )
         competition_id_type_competition = from_union(
             [CompetitionIDTypeCompetition.from_dict, from_none],
@@ -343,7 +343,7 @@ class FacetDistribution:
         labellisation = from_union(
             [lambda x: from_dict(from_int, x), from_none], obj.get("labellisation")
         )
-        niveau = from_union([NiveauClass.from_dict, from_none], obj.get("niveau"))
+        niveau = from_union([Niveau.from_dict, from_none], obj.get("niveau"))
         offres_pratiques = from_union(
             [lambda x: from_dict(from_int, x), from_none], obj.get("offresPratiques")
         )
@@ -353,11 +353,9 @@ class FacetDistribution:
         organisateur_nom = from_union(
             [lambda x: from_dict(from_int, x), from_none], obj.get("organisateur.nom")
         )
-        sexe = from_union(
-            [CompetitionIDSexeClass.from_dict, from_none], obj.get("sexe")
-        )
+        sexe = from_union([CompetitionIDSexe.from_dict, from_none], obj.get("sexe"))
         tournoi_type = from_union(
-            [TournoiTypeClass.from_dict, from_none], obj.get("tournoiType")
+            [TournoiType.from_dict, from_none], obj.get("tournoiType")
         )
         tournoi_types3_x3_libelle = from_union(
             [TournoiTypes3X3Libelle.from_dict, from_none],
@@ -402,7 +400,7 @@ class FacetDistribution:
             )
         if self.competition_id_sexe is not None:
             result["competitionId.sexe"] = from_union(
-                [lambda x: to_class(CompetitionIDSexeClass, x), from_none],
+                [lambda x: to_class(CompetitionIDSexe, x), from_none],
                 self.competition_id_sexe,
             )
         if self.competition_id_type_competition is not None:
@@ -420,7 +418,7 @@ class FacetDistribution:
             )
         if self.niveau is not None:
             result["niveau"] = from_union(
-                [lambda x: to_class(NiveauClass, x), from_none], self.niveau
+                [lambda x: to_class(Niveau, x), from_none], self.niveau
             )
         if self.offres_pratiques is not None:
             result["offresPratiques"] = from_union(
@@ -436,11 +434,11 @@ class FacetDistribution:
             )
         if self.sexe is not None:
             result["sexe"] = from_union(
-                [lambda x: to_class(CompetitionIDSexeClass, x), from_none], self.sexe
+                [lambda x: to_class(CompetitionIDSexe, x), from_none], self.sexe
             )
         if self.tournoi_type is not None:
             result["tournoiType"] = from_union(
-                [lambda x: to_class(TournoiTypeClass, x), from_none], self.tournoi_type
+                [lambda x: to_class(TournoiType, x), from_none], self.tournoi_type
             )
         if self.tournoi_types3_x3_libelle is not None:
             result["tournoiTypes3x3.libelle"] = from_union(

@@ -22,7 +22,7 @@ from .facet_stats import FacetStats
 from .hit import Hit
 
 
-class TypeClass:
+class Type:
     basket_inclusif: Optional[int] = None
     basket_santé: Optional[int] = None
     basket_tonik: Optional[int] = None
@@ -44,7 +44,7 @@ class TypeClass:
         self.micro_basket = micro_basket
 
     @staticmethod
-    def from_dict(obj: Any) -> "TypeClass":
+    def from_dict(obj: Any) -> "Type":
         assert isinstance(obj, dict)
         basket_inclusif = from_union([from_int, from_none], obj.get("Basket Inclusif"))
         basket_santé = from_union([from_int, from_none], obj.get("Basket Santé"))
@@ -53,7 +53,7 @@ class TypeClass:
             [from_int, from_none], obj.get("Centre Génération Basket")
         )
         micro_basket = from_union([from_int, from_none], obj.get("Micro Basket"))
-        return TypeClass(
+        return Type(
             basket_inclusif,
             basket_santé,
             basket_tonik,
@@ -88,10 +88,10 @@ class TypeClass:
 
 class PratiquesFacetDistribution(FacetDistribution):
     label: Optional[Dict[str, int]] = None
-    type: Optional[TypeClass] = None
+    type: Optional[Type] = None
 
     def __init__(
-        self, label: Optional[Dict[str, int]], type: Optional[TypeClass] = None
+        self, label: Optional[Dict[str, int]], type: Optional[Type] = None
     ) -> None:
         self.label = label
         self.type = type
@@ -102,7 +102,7 @@ class PratiquesFacetDistribution(FacetDistribution):
         label = from_union(
             [lambda x: from_dict(from_int, x), from_none], obj.get("label")
         )
-        type = from_union([TypeClass.from_dict, from_none], obj.get("type"))
+        type = from_union([Type.from_dict, from_none], obj.get("type"))
         return PratiquesFacetDistribution(label, type)
 
     def to_dict(self) -> dict:
@@ -113,7 +113,7 @@ class PratiquesFacetDistribution(FacetDistribution):
             )
         if self.type is not None:
             result["type"] = from_union(
-                [lambda x: to_class(TypeClass, x), from_none], self.type
+                [lambda x: to_class(Type, x), from_none], self.type
             )
         return result
 

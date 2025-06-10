@@ -3,20 +3,24 @@ from typing import Any, Optional
 from ..utils.converters import from_int, from_none, from_union
 
 
-class NiveauClass:
+class NiveauData:
     départemental: Optional[int] = None
     régional: Optional[int] = None
 
-    def __init__(self, départemental: Optional[int], régional: Optional[int]) -> None:
+    def __init__(
+        self,
+        départemental: Optional[int] = None,
+        régional: Optional[int] = None,
+    ) -> None:
         self.départemental = départemental
         self.régional = régional
 
     @staticmethod
-    def from_dict(obj: Any) -> "NiveauClass":
+    def from_dict(obj: Any) -> "NiveauData":
         assert isinstance(obj, dict)
         départemental = from_union([from_int, from_none], obj.get("Départemental"))
         régional = from_union([from_int, from_none], obj.get("Régional"))
-        return NiveauClass(départemental, régional)
+        return NiveauData(départemental, régional)
 
     def to_dict(self) -> dict:
         result: dict = {}

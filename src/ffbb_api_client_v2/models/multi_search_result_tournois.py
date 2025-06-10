@@ -21,10 +21,10 @@ from .geo import Geo
 from .hit import Hit
 from .multi_search_result_terrains import TournoiTypes3X3Libelle
 from .nature_sol import NatureSol
-from .tournoi_type_class import TournoiTypeClass
+from .tournoi_type import TournoiType
 
 
-class SexeClass:
+class Sexe:
     féminin: Optional[int] = None
     masculin: Optional[int] = None
     mixte: Optional[int] = None
@@ -37,12 +37,12 @@ class SexeClass:
         self.mixte = mixte
 
     @staticmethod
-    def from_dict(obj: Any) -> "SexeClass":
+    def from_dict(obj: Any) -> "Sexe":
         assert isinstance(obj, dict)
         féminin = from_union([from_none, from_int], obj.get("Féminin"))
         masculin = from_union([from_none, from_int], obj.get("Masculin"))
         mixte = from_union([from_none, from_int], obj.get("Mixte"))
-        return SexeClass(féminin, masculin, mixte)
+        return Sexe(féminin, masculin, mixte)
 
     def to_dict(self) -> dict:
         result: dict = {}
@@ -56,14 +56,14 @@ class SexeClass:
 
 
 class TournoisFacetDistribution(FacetDistribution):
-    sexe: Optional[SexeClass] = None
-    tournoi_type: Optional[TournoiTypeClass] = None
+    sexe: Optional[Sexe] = None
+    tournoi_type: Optional[TournoiType] = None
     tournoi_types3_x3_libelle: Optional[TournoiTypes3X3Libelle] = None
 
     def __init__(
         self,
-        sexe: Optional[SexeClass],
-        tournoi_type: Optional[TournoiTypeClass],
+        sexe: Optional[Sexe],
+        tournoi_type: Optional[TournoiType],
         tournoi_types3_x3_libelle: Optional[TournoiTypes3X3Libelle],
     ) -> None:
         self.sexe = sexe
@@ -73,9 +73,9 @@ class TournoisFacetDistribution(FacetDistribution):
     @staticmethod
     def from_dict(obj: Any) -> "TournoisFacetDistribution":
         assert isinstance(obj, dict)
-        sexe = from_union([from_none, SexeClass.from_dict], obj.get("sexe"))
+        sexe = from_union([from_none, Sexe.from_dict], obj.get("sexe"))
         tournoi_type = from_union(
-            [from_none, TournoiTypeClass.from_dict], obj.get("tournoiType")
+            [from_none, TournoiType.from_dict], obj.get("tournoiType")
         )
         tournoi_types3_x3_libelle = from_union(
             [from_none, TournoiTypes3X3Libelle.from_dict],
@@ -87,11 +87,11 @@ class TournoisFacetDistribution(FacetDistribution):
         result: dict = {}
         if self.sexe is not None:
             result["sexe"] = from_union(
-                [from_none, lambda x: to_class(SexeClass, x)], self.sexe
+                [from_none, lambda x: to_class(Sexe, x)], self.sexe
             )
         if self.tournoi_type is not None:
             result["tournoiType"] = from_union(
-                [from_none, lambda x: to_class(TournoiTypeClass, x)], self.tournoi_type
+                [from_none, lambda x: to_class(TournoiType, x)], self.tournoi_type
             )
         if self.tournoi_types3_x3_libelle is not None:
             result["tournoiTypes3x3.libelle"] = from_union(

@@ -3,7 +3,7 @@ from typing import Any, Optional
 from ..utils.converters import from_int, from_none, from_union
 
 
-class TournoiTypeClass:
+class TournoiType:
     open_plus: Optional[int] = None
     open_plus_access: Optional[int] = None
     open_start: Optional[int] = None
@@ -19,14 +19,14 @@ class TournoiTypeClass:
         self.open_start = open_start
 
     @staticmethod
-    def from_dict(obj: Any) -> "TournoiTypeClass":
+    def from_dict(obj: Any) -> "TournoiType":
         assert isinstance(obj, dict)
         open_plus = from_union([from_int, from_none], obj.get("Open Plus"))
         open_plus_access = from_union(
             [from_int, from_none], obj.get("Open Plus Access")
         )
         open_start = from_union([from_int, from_none], obj.get("Open Start"))
-        return TournoiTypeClass(open_plus, open_plus_access, open_start)
+        return TournoiType(open_plus, open_plus_access, open_start)
 
     def to_dict(self) -> dict:
         result: dict = {}
