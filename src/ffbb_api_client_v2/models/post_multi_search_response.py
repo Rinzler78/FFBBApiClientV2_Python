@@ -19,6 +19,11 @@ from ..utils.converters import (
     to_enum,
     to_float,
 )
+from .cartographie import Cartographie
+from .commune import Commune
+from .id_organisme_equipe import IDOrganismeEquipe
+from .logo import Logo
+from .salle import Salle
 
 from .cartographie import Cartographie
 from .commune import Commune
@@ -556,11 +561,6 @@ class Coordonnees:
         result["coordinates"] = from_list(to_float, self.coordinates)
         result["type"] = to_enum(CoordonneesType, self.type)
         return result
-
-
-class CartographieStatus(Enum):
-    DRAFT = "draft"
-
 
 class CategorieCode(Enum):
     BIT = "BIT"
