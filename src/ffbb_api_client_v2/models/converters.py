@@ -4,6 +4,9 @@ from typing import Any, Callable, Dict, List, Optional, Type, TypeVar, cast
 from uuid import UUID
 
 import dateutil.parser
+import logging
+
+logger = logging.getLogger(__name__)
 
 T = TypeVar("T")
 EnumT = TypeVar("EnumT", bound=Enum)
@@ -35,7 +38,7 @@ def from_union(fs, x) -> Any:
         except AssertionError:
             pass
         except Exception as e:
-            print(f"from_union Exception : {f.__name__} : Exception: {e}")
+            logger.debug("from_union Exception : %s : Exception: %s", f.__name__, e)
     assert False
 
 
