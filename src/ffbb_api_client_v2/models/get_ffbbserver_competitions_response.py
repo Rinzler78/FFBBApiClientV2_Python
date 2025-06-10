@@ -1,12 +1,10 @@
 from datetime import datetime
 from enum import Enum
 from typing import Any, List, Optional
-from uuid import UUID
 
 from ..utils.converters import (
     from_bool,
     from_datetime,
-    from_float,
     from_int,
     from_list,
     from_none,
@@ -15,15 +13,11 @@ from ..utils.converters import (
     is_type,
     to_class,
     to_enum,
-    to_float,
 )
 from .categorie import Categorie
-from .cartographie import Cartographie
-from .commune import Commune
 from .id_organisme_equipe import IDOrganismeEquipe
 from .logo import Logo
 from .salle import Salle
-
 
 
 class IDOrganisme:
@@ -110,7 +104,6 @@ class IDEngagementEquipe:
         result["nomOfficiel"] = from_union([from_none, from_str], self.nom_officiel)
         result["nomUsuel"] = from_union([from_none, from_str], self.nom_usuel)
         return result
-
 
 
 class Libelle(Enum):
@@ -201,8 +194,6 @@ class AdresseComplement(Enum):
     MONTFAVET = "MONTFAVET"
 
 
-
-
 class Libelle2(Enum):
     ANCIEN_GYMNASE_DE_LA_BARBIERE = "ancien GYMNASE DE LA BARBIERE"
     EMPTY = ""
@@ -210,7 +201,6 @@ class Libelle2(Enum):
     PARC_DES_SPORTS_POUDRERIE = "PARC DES SPORTS POUDRERIE"
     SALLE_NASARRE = "SALLE NASARRE"
     STADE_FOCH = "Stade foch"
-
 
 
 class Rencontre:
@@ -475,7 +465,6 @@ class DataPoule:
         result["id"] = from_str(self.id)
         result["nom"] = from_str(self.nom)
         return result
-
 
 
 class TypeCompetitionGenerique:
