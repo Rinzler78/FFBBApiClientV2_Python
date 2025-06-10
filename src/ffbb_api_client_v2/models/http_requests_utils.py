@@ -71,9 +71,7 @@ def http_get(
 
     if debug:
         end_time = time.time()
-        logger.debug(
-            "GET request to %s took %s seconds.", url, end_time - start_time
-        )
+        logger.debug("GET request to %s took %s seconds.", url, end_time - start_time)
         logger.debug("GET response: %s", response.text)
 
     return response
@@ -114,7 +112,10 @@ def http_post(
     if debug:
         end_time = time.time()
         logger.debug(
-            "POST request to %s %s took %s seconds.", url, data_str, end_time - start_time
+            "POST request to %s %s took %s seconds.",
+            url,
+            data_str,
+            end_time - start_time,
         )
         logger.debug("POST response: %s", response.text)
 

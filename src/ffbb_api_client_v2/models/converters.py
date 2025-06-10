@@ -1,10 +1,10 @@
+import logging
 from datetime import datetime
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Type, TypeVar, cast
 from uuid import UUID
 
 import dateutil.parser
-import logging
 
 logger = logging.getLogger(__name__)
 
