@@ -12,7 +12,7 @@ class Test_01_MeilisearchClient(unittest.TestCase):
         mls_token = os.getenv("MEILISEARCH_BEARER_TOKEN")
 
         if not mls_token:
-            raise Exception("MEILISEARCH_TOKEN environment variable not set")
+            self.skipTest("MEILISEARCH_TOKEN environment variable not set")
 
         self.api_client: MeilisearchClient = MeilisearchClient(
             bearer_token=mls_token,
