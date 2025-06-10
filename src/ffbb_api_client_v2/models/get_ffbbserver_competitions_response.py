@@ -14,6 +14,7 @@ from ..utils.converters import (
     to_class,
     to_enum,
 )
+
 from .categorie import Categorie
 from .id_organisme_equipe import IDOrganismeEquipe
 from .logo import Logo
