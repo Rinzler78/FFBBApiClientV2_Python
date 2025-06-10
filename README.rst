@@ -46,10 +46,18 @@ Installation
 
     pip install ffbb_api_client_v2
 
+Create a ``.env`` file based on the provided example and add your tokens:
+
+.. code-block:: bash
+
+    cp .env.example .env
+    # edit .env and fill in the values
+
 Prerequisites
 -------------
 
-Set the following environment variables with your API credentials:
+Set the following environment variables with your API credentials. Copy
+``.env.example`` to ``.env`` and edit the values:
 
 * ``MEILISEARCH_BEARER_TOKEN`` – token to access the search API
 * ``API_FFBB_APP_BEARER_TOKEN`` – token to access the main FFBB API
