@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Type, TypeVar, cast
@@ -5,6 +6,8 @@ import logging
 from uuid import UUID
 
 import dateutil.parser
+
+logger = logging.getLogger(__name__)
 
 T = TypeVar("T")
 EnumT = TypeVar("EnumT", bound=Enum)
