@@ -13,6 +13,7 @@ from ..utils.converters import (
     to_class,
     to_enum,
 )
+from .competition_id import CompetitionID
 
 
 class CompetitionAbgName(Enum):
@@ -29,65 +30,6 @@ class Sexe(Enum):
 class TypeCompetition(Enum):
     COUPE = "COUPE"
     DIV = "DIV"
-
-
-class CompetitionID:
-    code: str
-    competition_origine: str
-    id: str
-    id_competition_pere: str
-    nom: str
-    sexe: Sexe
-    type_competition: TypeCompetition
-
-    def __init__(
-        self,
-        code: str,
-        competition_origine: str,
-        id: str,
-        id_competition_pere: str,
-        nom: str,
-        sexe: Sexe,
-        type_competition: TypeCompetition,
-    ) -> None:
-        self.code = code
-        self.competition_origine = competition_origine
-        self.id = id
-        self.id_competition_pere = id_competition_pere
-        self.nom = nom
-        self.sexe = sexe
-        self.type_competition = type_competition
-
-    @staticmethod
-    def from_dict(obj: Any) -> "CompetitionID":
-        assert isinstance(obj, dict)
-        code = from_str(obj.get("code"))
-        competition_origine = from_str(obj.get("competition_origine"))
-        id = from_str(obj.get("id"))
-        id_competition_pere = from_str(obj.get("idCompetitionPere"))
-        nom = from_str(obj.get("nom"))
-        sexe = Sexe(obj.get("sexe"))
-        type_competition = TypeCompetition(obj.get("typeCompetition"))
-        return CompetitionID(
-            code,
-            competition_origine,
-            id,
-            id_competition_pere,
-            nom,
-            sexe,
-            type_competition,
-        )
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["code"] = from_str(self.code)
-        result["competition_origine"] = from_str(self.competition_origine)
-        result["id"] = from_str(self.id)
-        result["idCompetitionPere"] = from_str(self.id_competition_pere)
-        result["nom"] = from_str(self.nom)
-        result["sexe"] = to_enum(Sexe, self.sexe)
-        result["typeCompetition"] = to_enum(TypeCompetition, self.type_competition)
-        return result
 
 
 class IDEngagementEquipe1:
