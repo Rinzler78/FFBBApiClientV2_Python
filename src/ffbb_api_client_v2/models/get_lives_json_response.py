@@ -53,16 +53,10 @@ class IDEngagementEquipe1:
         return result
 
 
-
-
 class Nom(Enum):
     GROUPE_A = "Groupe A"
     GROUPE_B = "Groupe B"
     POULE_A = "Poule A"
-
-
-
-
 
 
 class ExternalID:

@@ -1,18 +1,9 @@
 from datetime import datetime
 from enum import Enum
 from typing import Any, List, Optional
-from uuid import UUID
-
-from .cartographie import Cartographie
-from .commune import Commune
-from .categorie import Categorie
-from .id_poule import IDPoule
-from .logo import Logo
-from .salle import Salle
 
 from ..utils.converters import (
     from_datetime,
-    from_float,
     from_int,
     from_list,
     from_none,
@@ -20,10 +11,13 @@ from ..utils.converters import (
     from_union,
     to_class,
     to_enum,
-    to_float,
 )
-
-
+from .cartographie import Cartographie
+from .categorie import Categorie
+from .commune import Commune
+from .id_poule import IDPoule
+from .logo import Logo
+from .salle import Salle
 
 
 class Code(Enum):
@@ -32,8 +26,6 @@ class Code(Enum):
     U13 = "U13"
     U15 = "U15"
     U17 = "U17"
-
-
 
 
 class IDCompetitionPere:
@@ -81,8 +73,6 @@ class Organisateur:
         return result
 
 
-
-
 class Sexe(Enum):
     F = "F"
     M = "M"
@@ -100,8 +90,6 @@ class GradientColor(Enum):
     ED3833 = "#ed3833"
     THE_00_B5_EA = "#00B5EA"
     THE_04378_B = "#04378B"
-
-
 
 
 class TypeCompetitionGenerique:
@@ -479,8 +467,6 @@ class OffresPratique:
             FfbbserverOffresPratiquesID, self.ffbbserver_offres_pratiques_id
         )
         return result
-
-
 
 
 class Data:

@@ -3,13 +3,6 @@ from enum import Enum
 from typing import Any, Dict, List, Optional, Union
 from uuid import UUID
 
-from .cartographie import Cartographie
-from .commune import Commune
-from .id_organisme_equipe import IDOrganismeEquipe
-from .id_poule import IDPoule
-from .logo import Logo
-from .salle import Salle
-
 from ..utils.converters import (
     from_bool,
     from_datetime,
@@ -26,6 +19,12 @@ from ..utils.converters import (
     to_enum,
     to_float,
 )
+from .cartographie import Cartographie
+from .commune import Commune
+from .id_organisme_equipe import IDOrganismeEquipe
+from .id_poule import IDPoule
+from .logo import Logo
+from .salle import Salle
 
 
 class CompetitionIDSexe:
@@ -561,8 +560,6 @@ class CartographieStatus(Enum):
     DRAFT = "draft"
 
 
-
-
 class CategorieCode(Enum):
     BIT = "BIT"
     BT = "BT"
@@ -805,8 +802,6 @@ class Departement(Enum):
     YVELINES = "Yvelines"
 
 
-
-
 class CommuneClubPro:
     code_postal: str
     departement: Departement
@@ -1006,8 +1001,6 @@ class CompetitionIDTypeCompetitionEnum(Enum):
     CHAMPIONNAT_3_X3 = "Championnat 3x3"
     COUPE = "Coupe"
     PLATEAU = "Plateau"
-
-
 
 
 class CompetitionIDTypeCompetitionGenerique:
@@ -1612,8 +1605,6 @@ class NomClubPro(Enum):
     TOURS_METROPOLE_BASKET = "TOURS METROPOLE BASKET"
     UJAP_QUIMPER_29 = "UJAP QUIMPER 29"
     VANVES_GPSO_BASKET = "VANVES GPSO BASKET"
-
-
 
 
 class Jour(Enum):
@@ -2261,8 +2252,6 @@ class Saison:
         result: dict = {}
         result["code"] = to_enum(SaisonCode, self.code)
         return result
-
-
 
 
 class HitStatus(Enum):

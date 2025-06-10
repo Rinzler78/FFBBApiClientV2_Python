@@ -1,8 +1,6 @@
 from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional
-
-from .cartographie import Cartographie
 from uuid import UUID
 
 from ..utils.converters import (
@@ -19,6 +17,7 @@ from ..utils.converters import (
     to_enum,
     to_float,
 )
+from .cartographie import Cartographie
 from .facet_distribution import FacetDistribution
 from .facet_stats import FacetStats
 from .hit import Hit
@@ -214,8 +213,6 @@ class Coordonnees:
 
 class Status(Enum):
     DRAFT = "draft"
-
-
 
 
 class Geo:

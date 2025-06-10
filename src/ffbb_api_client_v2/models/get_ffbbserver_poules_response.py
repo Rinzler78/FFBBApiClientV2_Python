@@ -1,13 +1,6 @@
 from datetime import datetime
 from enum import Enum
 from typing import Any, List, Optional
-from uuid import UUID
-
-from .cartographie import Cartographie
-from .commune import Commune
-from .id_organisme_equipe import IDOrganismeEquipe
-from .logo import Logo
-from .salle import Salle
 
 from ..utils.converters import (
     from_bool,
@@ -23,6 +16,9 @@ from ..utils.converters import (
     to_enum,
     to_float,
 )
+from .id_organisme_equipe import IDOrganismeEquipe
+from .logo import Logo
+from .salle import Salle
 
 
 class Nom(Enum):
@@ -79,8 +75,6 @@ class IDEngagement:
             result["nomOfficiel"] = from_union([from_none, from_str], self.nom_officiel)
         result["nomUsuel"] = from_union([from_none, from_str], self.nom_usuel)
         return result
-
-
 
 
 class Organisme:
@@ -248,8 +242,6 @@ class Classement:
         return result
 
 
-
-
 class Libelle(Enum):
     AIDE_MARQUEUR = "Aide marqueur"
     ARBITRE = "Arbitre"
@@ -335,14 +327,10 @@ class AdresseComplement(Enum):
     MONTFAVET = "MONTFAVET"
 
 
-
-
 class Libelle2(Enum):
     EMPTY = ""
     PARC_DES_SPORTS_POUDRERIE = "PARC DES SPORTS POUDRERIE"
     SALLE_NASARRE = "SALLE NASARRE"
-
-
 
 
 class Rencontre:
