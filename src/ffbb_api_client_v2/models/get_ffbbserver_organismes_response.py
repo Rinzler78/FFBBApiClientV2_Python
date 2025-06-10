@@ -15,6 +15,8 @@ from ..utils.converters import (
     to_enum,
     to_float,
 )
+from .id_poule import IDPoule
+from .salle import Salle
 
 
 class Cartographie:
@@ -136,22 +138,6 @@ class Organisateur:
         return result
 
 
-class IDPoule:
-    id: str
-
-    def __init__(self, id: str) -> None:
-        self.id = id
-
-    @staticmethod
-    def from_dict(obj: Any) -> "IDPoule":
-        assert isinstance(obj, dict)
-        id = from_str(obj.get("id"))
-        return IDPoule(id)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["id"] = from_str(self.id)
-        return result
 
 
 class Sexe(Enum):
@@ -572,69 +558,6 @@ class OffresPratique:
         return result
 
 
-class Salle:
-    adresse: str
-    adresse_complement: str
-    cartographie: Cartographie
-    commune: Commune
-    id: str
-    libelle: str
-    libelle2: str
-    numero: int
-
-    def __init__(
-        self,
-        adresse: str,
-        adresse_complement: str,
-        cartographie: Cartographie,
-        commune: Commune,
-        id: str,
-        libelle: str,
-        libelle2: str,
-        numero: int,
-    ) -> None:
-        self.adresse = adresse
-        self.adresse_complement = adresse_complement
-        self.cartographie = cartographie
-        self.commune = commune
-        self.id = id
-        self.libelle = libelle
-        self.libelle2 = libelle2
-        self.numero = numero
-
-    @staticmethod
-    def from_dict(obj: Any) -> "Salle":
-        assert isinstance(obj, dict)
-        adresse = from_str(obj.get("adresse"))
-        adresse_complement = from_str(obj.get("adresseComplement"))
-        cartographie = Cartographie.from_dict(obj.get("cartographie"))
-        commune = Commune.from_dict(obj.get("commune"))
-        id = from_str(obj.get("id"))
-        libelle = from_str(obj.get("libelle"))
-        libelle2 = from_str(obj.get("libelle2"))
-        numero = int(from_str(obj.get("numero")))
-        return Salle(
-            adresse,
-            adresse_complement,
-            cartographie,
-            commune,
-            id,
-            libelle,
-            libelle2,
-            numero,
-        )
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["adresse"] = from_str(self.adresse)
-        result["adresseComplement"] = from_str(self.adresse_complement)
-        result["cartographie"] = to_class(Cartographie, self.cartographie)
-        result["commune"] = to_class(Commune, self.commune)
-        result["id"] = from_str(self.id)
-        result["libelle"] = from_str(self.libelle)
-        result["libelle2"] = from_str(self.libelle2)
-        result["numero"] = from_str(str(self.numero))
-        return result
 
 
 class Data:

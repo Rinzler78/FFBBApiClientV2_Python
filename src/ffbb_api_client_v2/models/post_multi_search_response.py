@@ -19,6 +19,9 @@ from ..utils.converters import (
     to_enum,
     to_float,
 )
+from .id_organisme_equipe import IDOrganismeEquipe
+from .id_poule import IDPoule
+from .salle import Salle
 
 
 class CompetitionIDSexe:
@@ -1773,74 +1776,6 @@ class NomClubPro(Enum):
     VANVES_GPSO_BASKET = "VANVES GPSO BASKET"
 
 
-class IDOrganismeEquipe:
-    code: str
-    id: str
-    logo: Optional[Logo]
-    nom: str
-    nom_simple: None
-    nom_club_pro: Optional[NomClubPro]
-
-    def __init__(
-        self,
-        code: str,
-        id: str,
-        logo: Optional[Logo],
-        nom: str,
-        nom_simple: None,
-        nom_club_pro: Optional[NomClubPro],
-    ) -> None:
-        self.code = code
-        self.id = id
-        self.logo = logo
-        self.nom = nom
-        self.nom_simple = nom_simple
-        self.nom_club_pro = nom_club_pro
-
-    @staticmethod
-    def from_dict(obj: Any) -> "IDOrganismeEquipe":
-        assert isinstance(obj, dict)
-        code = from_str(obj.get("code"))
-        id = from_str(obj.get("id"))
-        logo = from_union([Logo.from_dict, from_none], obj.get("logo"))
-        nom = from_str(obj.get("nom"))
-        nom_simple = from_none(obj.get("nom_simple"))
-        nom_club_pro = from_union([from_none, NomClubPro], obj.get("nomClubPro"))
-        return IDOrganismeEquipe(code, id, logo, nom, nom_simple, nom_club_pro)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["code"] = from_str(self.code)
-        result["id"] = from_str(self.id)
-        result["logo"] = from_union([lambda x: to_class(Logo, x), from_none], self.logo)
-        result["nom"] = from_str(self.nom)
-        result["nom_simple"] = from_none(self.nom_simple)
-        result["nomClubPro"] = from_union(
-            [from_none, lambda x: to_enum(NomClubPro, x)], self.nom_club_pro
-        )
-        return result
-
-
-class IDPoule:
-    id: str
-    nom: str
-
-    def __init__(self, id: str, nom: str) -> None:
-        self.id = id
-        self.nom = nom
-
-    @staticmethod
-    def from_dict(obj: Any) -> "IDPoule":
-        assert isinstance(obj, dict)
-        id = from_str(obj.get("id"))
-        nom = from_str(obj.get("nom"))
-        return IDPoule(id, nom)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["id"] = from_str(self.id)
-        result["nom"] = from_str(self.nom)
-        return result
 
 
 class Jour(Enum):
@@ -2490,53 +2425,6 @@ class Saison:
         return result
 
 
-class Salle:
-    adresse: Optional[str]
-    adresse_complement: Optional[str]
-    cartographie: Optional[Cartographie]
-    id: str
-    libelle: str
-
-    def __init__(
-        self,
-        adresse: Optional[str],
-        adresse_complement: Optional[str],
-        cartographie: Optional[Cartographie],
-        id: str,
-        libelle: str,
-    ) -> None:
-        self.adresse = adresse
-        self.adresse_complement = adresse_complement
-        self.cartographie = cartographie
-        self.id = id
-        self.libelle = libelle
-
-    @staticmethod
-    def from_dict(obj: Any) -> "Salle":
-        assert isinstance(obj, dict)
-        adresse = from_union([from_none, from_str], obj.get("adresse"))
-        adresse_complement = from_union(
-            [from_none, from_str], obj.get("adresseComplement")
-        )
-        cartographie = from_union(
-            [Cartographie.from_dict, from_none], obj.get("cartographie")
-        )
-        id = from_str(obj.get("id"))
-        libelle = from_str(obj.get("libelle"))
-        return Salle(adresse, adresse_complement, cartographie, id, libelle)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["adresse"] = from_union([from_none, from_str], self.adresse)
-        result["adresseComplement"] = from_union(
-            [from_none, from_str], self.adresse_complement
-        )
-        result["cartographie"] = from_union(
-            [lambda x: to_class(Cartographie, x), from_none], self.cartographie
-        )
-        result["id"] = from_str(self.id)
-        result["libelle"] = from_str(self.libelle)
-        return result
 
 
 class HitStatus(Enum):
