@@ -12,6 +12,7 @@ from ..utils.converters import (
     to_class,
     to_enum,
 )
+
 from .cartographie import Cartographie
 from .categorie import Categorie
 from .commune import Commune

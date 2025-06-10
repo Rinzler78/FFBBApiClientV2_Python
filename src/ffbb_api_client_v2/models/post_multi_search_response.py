@@ -19,11 +19,13 @@ from ..utils.converters import (
     to_enum,
     to_float,
 )
+
 from .cartographie import Cartographie
 from .commune import Commune
 from .id_organisme_equipe import IDOrganismeEquipe
 from .id_poule import IDPoule
 from .logo import Logo
+
 from .salle import Salle
 
 
