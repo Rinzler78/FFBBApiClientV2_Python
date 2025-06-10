@@ -1,4 +1,7 @@
-import sys
+"""Public API exports for :mod:`ffbb_api_client_v2`."""
+
+from importlib.metadata import PackageNotFoundError, version
+
 
 from .api_ffbb_app_client import ApiFFBBAppClient
 from .ffbb_api_client_v2 import FFBBAPIClientV2
@@ -50,17 +53,7 @@ from .models.tournois_multi_search_result import (
     TournoisMultiSearchResult,
 )
 
-if sys.version_info[:2] >= (3, 8):
-    # TODO: Import directly (no need for conditional) when `python_requires = >= 3.8`
-    from importlib.metadata import PackageNotFoundError, version  # pragma: no cover
-else:
-    try:
-        from importlib_metadata import PackageNotFoundError, version  # pragma: no cover
-    except ImportError:
-        raise ImportError(
-            "importlib_metadata is required for Python < 3.8. "
-            "Please install it with: pip install importlib-metadata"
-        )
+from importlib.metadata import PackageNotFoundError, version
 
 try:
     # Change here if project is renamed and does not equal the package name

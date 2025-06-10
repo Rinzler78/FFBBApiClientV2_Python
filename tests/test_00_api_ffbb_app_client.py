@@ -1,3 +1,5 @@
+"""Integration tests for :class:`ApiFFBBAppClient`."""
+
 import os
 import unittest
 
