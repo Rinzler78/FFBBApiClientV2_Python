@@ -1,11 +1,11 @@
 from typing import Any, Optional
 
+from ..utils.converters import from_bool, from_none, from_str, from_union, to_class
 from .competition_id_categorie import CompetitionIDCategorie
 from .competition_id_type_competition_generique import (
     CompetitionIDTypeCompetitionGenerique,
 )
 from .competition_origine import CompetitionOrigine
-from .converters import from_bool, from_none, from_str, from_union, to_class
 from .logo import Logo
 
 

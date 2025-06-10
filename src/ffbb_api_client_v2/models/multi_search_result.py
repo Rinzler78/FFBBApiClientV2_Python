@@ -1,6 +1,13 @@
 from typing import Any, Generic, List, Optional, Type, TypeVar, cast
 
-from .converters import from_int, from_list, from_none, from_str, from_union, to_class
+from ..utils.converters import (
+    from_int,
+    from_list,
+    from_none,
+    from_str,
+    from_union,
+    to_class,
+)
 from .facet_distribution import FacetDistribution
 from .facet_stats import FacetStats
 from .hit import Hit

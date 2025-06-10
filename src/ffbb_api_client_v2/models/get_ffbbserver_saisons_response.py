@@ -1,6 +1,6 @@
 from typing import Any, List
 
-from .converters import from_list, from_str, to_class
+from ..utils.converters import from_list, from_str, to_class
 
 
 class Datum:

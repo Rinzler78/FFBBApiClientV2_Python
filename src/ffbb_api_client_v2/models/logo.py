@@ -1,7 +1,7 @@
 from typing import Any, Optional
 from uuid import UUID
 
-from .converters import from_none, from_str, from_union
+from ..utils.converters import from_none, from_str, from_union
 
 
 class Logo:

@@ -1,9 +1,7 @@
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from .cartographie import Cartographie
-from .commune import Commune
-from .converters import (
+from ..utils.converters import (
     from_bool,
     from_datetime,
     from_dict,
@@ -14,6 +12,8 @@ from .converters import (
     from_union,
     to_class,
 )
+from .cartographie import Cartographie
+from .commune import Commune
 from .facet_distribution import FacetDistribution
 from .facet_stats import FacetStats
 from .geo import Geo

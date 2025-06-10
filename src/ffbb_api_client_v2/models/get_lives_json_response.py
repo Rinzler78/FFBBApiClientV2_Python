@@ -2,7 +2,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, List, Optional
 
-from .converters import (
+from ..utils.converters import (
     from_datetime,
     from_int,
     from_list,

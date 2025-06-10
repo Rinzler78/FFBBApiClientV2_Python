@@ -2,8 +2,8 @@ from typing import List
 
 from requests_cache import CachedSession
 
+from .helpers.cached_session_helper import default_cached_session
 from .meilisearch_client import MeilisearchClient
-from .models.http_requests_helper import default_cached_session
 from .models.multi_search_query import MultiSearchQuery
 from .models.multi_search_results import MultiSearchResults
 

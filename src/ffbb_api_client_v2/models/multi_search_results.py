@@ -1,7 +1,7 @@
 from typing import Any, List, Optional
 
+from ..utils.converters import from_list, from_none, from_union, to_class
 from .competitions_multi_search_result import CompetitionsMultiSearchResult
-from .converters import from_list, from_none, from_union, to_class
 from .multi_search_result import MultiSearchResult
 from .organismes_multi_search_result import OrganismesMultiSearchResult
 from .pratiques_multi_search_result import PratiquesMultiSearchResult

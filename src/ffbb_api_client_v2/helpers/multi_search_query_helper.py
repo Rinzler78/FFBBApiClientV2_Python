@@ -1,6 +1,6 @@
 from typing import Optional
 
-from .multi_search_query import (
+from ..models.multi_search_query import (
     CompetitionsMultiSearchQuery,
     OrganismesMultiSearchQuery,
     PratiquesMultiSearchQuery,

@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any, List, Optional
 from uuid import UUID
 
-from .converters import (
+from ..utils.converters import (
     from_datetime,
     from_int,
     from_list,

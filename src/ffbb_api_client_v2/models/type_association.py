@@ -1,6 +1,6 @@
 from typing import Any, Optional
 
-from .converters import from_none, from_str, from_union
+from ..utils.converters import from_none, from_str, from_union
 
 
 class TypeAssociation:

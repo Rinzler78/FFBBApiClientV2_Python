@@ -1,6 +1,6 @@
 from typing import Any
 
-from .converters import from_int, to_class
+from ..utils.converters import from_int, to_class
 
 
 class GetFfbbserverCompetitionsRequestArgs:

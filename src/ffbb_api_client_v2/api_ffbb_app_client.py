@@ -2,8 +2,9 @@ from typing import List
 
 from requests_cache import CachedSession
 
-from .models.http_requests_helper import catch_result, default_cached_session
-from .models.http_requests_utils import http_get_json
+from .helpers.cached_session_helper import default_cached_session
+from .helpers.catch_result_helper import catch_result
+from .helpers.http_requests_utils import http_get_json
 from .models.lives import Live, lives_from_dict
 
 

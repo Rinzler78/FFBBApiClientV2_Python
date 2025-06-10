@@ -3,7 +3,7 @@ from enum import Enum
 from typing import Any, Dict, List, Optional
 from uuid import UUID
 
-from .converters import (
+from ..utils.converters import (
     from_datetime,
     from_dict,
     from_float,

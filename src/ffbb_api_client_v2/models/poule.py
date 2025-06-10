@@ -1,6 +1,6 @@
 from typing import Any, List, Optional
 
-from .converters import from_list, from_none, from_str, from_union, to_class
+from ..utils.converters import from_list, from_none, from_str, from_union, to_class
 from .multi_search_result_rencontres import Engagement
 
 

@@ -1,6 +1,6 @@
 from typing import Any, Optional
 
-from .converters import from_int, from_none, from_union
+from ..utils.converters import from_int, from_none, from_union
 
 
 class TournoiTypeClass:

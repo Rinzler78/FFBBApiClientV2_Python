@@ -1,6 +1,6 @@
 from typing import Any, Optional
 
-from .converters import from_float, from_none, from_union, to_float
+from ..utils.converters import from_float, from_none, from_union, to_float
 
 
 class Geo:

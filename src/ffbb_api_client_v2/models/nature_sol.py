@@ -1,8 +1,7 @@
 from datetime import datetime
 from typing import Any, Optional
 
-from .code import Code
-from .converters import (
+from ..utils.converters import (
     from_datetime,
     from_none,
     from_str,
@@ -11,6 +10,7 @@ from .converters import (
     is_type,
     to_enum,
 )
+from .code import Code
 
 # from .multi_search_result_tournois import Libelle
 

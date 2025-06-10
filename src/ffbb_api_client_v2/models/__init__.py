@@ -2,26 +2,88 @@
 Models package for ffbb_api_client_v2
 """
 
+from .cartographie import Cartographie
+from .commune import Commune
+from .competition_id import CompetitionID
+from .competition_id_type_competition import CompetitionIDTypeCompetition
+from .competition_id_type_competition_generique import (
+    CompetitionIDTypeCompetitionGenerique,
+)
+from .competition_origine import CompetitionOrigine
+from .competition_origine_categorie import CompetitionOrigineCategorie
+from .competition_origine_type_competition_generique import (
+    CompetitionOrigineTypeCompetitionGenerique,
+)
 from .competitions_multi_search_result import (
     CompetitionsFacetDistribution,
     CompetitionsFacetStats,
     CompetitionsHit,
     CompetitionsMultiSearchResult,
 )
-from .multi_search_query import MultiSearchQuery
-from .multi_search_query_helper import generate_queries
+from .coordonnees import Coordonnees
+from .document_flyer import DocumentFlyer
+from .geo import Geo
+from .get_ffbbserver_competitions_request_args import (
+    GetFfbbserverCompetitionsRequestArgs,
+    get_ffbbserver_competitions_request_args_from_dict,
+    get_ffbbserver_competitions_request_args_to_dict,
+)
+from .get_ffbbserver_organismes_request_args import (
+    GetFfbbserverOrganismesRequestArgs,
+    get_ffbbserver_organismes_request_args_from_dict,
+    get_ffbbserver_organismes_request_args_to_dict,
+)
+from .get_ffbbserver_poules_request_args import (
+    GetFfbbserverPoulesRequestArgs,
+    get_ffbbserver_poules_request_args_from_dict,
+    get_ffbbserver_poules_request_args_to_dict,
+)
+from .get_ffbbserver_poules_response import Classement
+from .get_lives_json_response import Element
+from .id_engagement_equipe import IDEngagementEquipe
+from .id_organisme_equipe import IDOrganismeEquipe
+from .id_organisme_equipe1_logo import IDOrganismeEquipe1Logo
+from .id_poule import IDPoule
+from .labellisation import Labellisation
+from .lives import Clock, Live
+from .logo import Logo
+from .multi_search_query import (
+    CompetitionsMultiSearchQuery,
+    MultiSearchQuery,
+    OrganismesMultiSearchQuery,
+    PratiquesMultiSearchQuery,
+    RencontresMultiSearchQuery,
+    SallesMultiSearchQuery,
+    TerrainsMultiSearchQuery,
+    TournoisMultiSearchQuery,
+)
+from .multi_search_result_pratiques import TypeClass as PratiquesTypeClass
+from .multi_search_result_terrains import SexeClass as TerrainsSexeClass
+from .multi_search_result_tournois import SexeClass as TournoisSexeClass
+from .multi_search_results import MultiSearchResult
+from .nature_sol import NatureSol
+from .niveau_class import NiveauClass
+from .organisateur import Organisateur
+from .organisme_id_pere import OrganismeIDPere
 from .organismes_multi_search_result import (
     OrganismesFacetDistribution,
     OrganismesFacetStats,
     OrganismesHit,
     OrganismesMultiSearchResult,
 )
+from .post_multi_search_request import PostMultiSearchRequest
+from .post_multi_search_response import (
+    CompetitionIDSexeClass,
+)
+from .post_multi_search_response import NiveauClass as PostNiveauClass
+from .poule import Poule
 from .pratiques_multi_search_result import (
     PratiquesFacetDistribution,
     PratiquesFacetStats,
     PratiquesHit,
     PratiquesMultiSearchResult,
 )
+from .purple_logo import PurpleLogo
 from .rencontres_multi_search_result import (
     RencontresFacetDistribution,
     RencontresFacetStats,
@@ -34,51 +96,111 @@ from .salles_multi_search_result import (
     SallesHit,
     SallesMultiSearchResult,
 )
+from .team_engagement import TeamEngagement
 from .terrains_multi_search_result import (
     TerrainsFacetDistribution,
     TerrainsFacetStats,
     TerrainsHit,
     TerrainsMultiSearchResult,
 )
+from .tournoi_type_class import TournoiTypeClass
 from .tournois_multi_search_result import (
     TournoisFacetDistribution,
     TournoisFacetStats,
     TournoisHit,
     TournoisMultiSearchResult,
 )
+from .type_association import TypeAssociation
+from .type_association_libelle import TypeAssociationLibelle
+from .type_class import TypeClass
+from .type_competition_generique import TypeCompetitionGenerique
 
-# Liste des objets exportés (types/classes/fonctions)
-EXPORTED_TYPES = [
-    MultiSearchQuery,
-    generate_queries,
-    CompetitionsFacetDistribution,
-    CompetitionsFacetStats,
-    CompetitionsHit,
-    CompetitionsMultiSearchResult,
-    OrganismesFacetDistribution,
-    OrganismesFacetStats,
-    OrganismesHit,
-    OrganismesMultiSearchResult,
-    PratiquesFacetDistribution,
-    PratiquesFacetStats,
-    PratiquesHit,
-    PratiquesMultiSearchResult,
-    RencontresFacetDistribution,
-    RencontresFacetStats,
-    RencontresHit,
-    RencontresMultiSearchResult,
-    SallesFacetDistribution,
-    SallesFacetStats,
-    SallesHit,
-    SallesMultiSearchResult,
-    TerrainsFacetDistribution,
-    TerrainsFacetStats,
-    TerrainsHit,
-    TerrainsMultiSearchResult,
-    TournoisFacetDistribution,
-    TournoisFacetStats,
-    TournoisHit,
-    TournoisMultiSearchResult,
+__all__ = [
+    "CompetitionsFacetDistribution",
+    "CompetitionsFacetStats",
+    "CompetitionsHit",
+    "CompetitionsMultiSearchResult",
+    "MultiSearchQuery",
+    "CompetitionsMultiSearchQuery",
+    "OrganismesMultiSearchQuery",
+    "PratiquesMultiSearchQuery",
+    "RencontresMultiSearchQuery",
+    "SallesMultiSearchQuery",
+    "TerrainsMultiSearchQuery",
+    "TournoisMultiSearchQuery",
+    "OrganismesFacetDistribution",
+    "OrganismesFacetStats",
+    "OrganismesHit",
+    "OrganismesMultiSearchResult",
+    "PratiquesFacetDistribution",
+    "PratiquesFacetStats",
+    "PratiquesHit",
+    "PratiquesMultiSearchResult",
+    "RencontresFacetDistribution",
+    "RencontresFacetStats",
+    "RencontresHit",
+    "RencontresMultiSearchResult",
+    "SallesFacetDistribution",
+    "SallesFacetStats",
+    "SallesHit",
+    "SallesMultiSearchResult",
+    "TerrainsFacetDistribution",
+    "TerrainsFacetStats",
+    "TerrainsHit",
+    "TerrainsMultiSearchResult",
+    "TournoisFacetDistribution",
+    "TournoisFacetStats",
+    "TournoisHit",
+    "TournoisMultiSearchResult",
+    "Cartographie",
+    "Commune",
+    "CompetitionID",
+    "Labellisation",
+    "CompetitionIDTypeCompetition",
+    "CompetitionIDTypeCompetitionGenerique",
+    "CompetitionOrigine",
+    "CompetitionOrigineCategorie",
+    "CompetitionOrigineTypeCompetitionGenerique",
+    "Coordonnees",
+    "DocumentFlyer",
+    "Geo",
+    "GetFfbbserverCompetitionsRequestArgs",
+    "get_ffbbserver_competitions_request_args_from_dict",
+    "get_ffbbserver_competitions_request_args_to_dict",
+    "GetFfbbserverOrganismesRequestArgs",
+    "get_ffbbserver_organismes_request_args_from_dict",
+    "get_ffbbserver_organismes_request_args_to_dict",
+    "GetFfbbserverPoulesRequestArgs",
+    "get_ffbbserver_poules_request_args_from_dict",
+    "get_ffbbserver_poules_request_args_to_dict",
+    "Classement",
+    "Element",
+    "IDEngagementEquipe",
+    "IDOrganismeEquipe",
+    "IDOrganismeEquipe1Logo",
+    "IDPoule",
+    "NiveauClass",
+    "Clock",
+    "Live",
+    "Logo",
+    "PratiquesTypeClass",
+    "SallesFacetStats",
+    "SallesHit",
+    "TerrainsSexeClass",
+    "TournoisSexeClass",
+    "MultiSearchResult",
+    "NatureSol",
+    "Organisateur",
+    "OrganismeIDPere",
+    "PostMultiSearchRequest",
+    "CompetitionIDSexeClass",
+    "PostNiveauClass",
+    "Poule",
+    "PurpleLogo",
+    "TeamEngagement",
+    "TournoiTypeClass",
+    "TypeAssociation",
+    "TypeAssociationLibelle",
+    "TypeClass",
+    "TypeCompetitionGenerique",
 ]
-
-__all__ = [typ.__name__ for typ in EXPORTED_TYPES]

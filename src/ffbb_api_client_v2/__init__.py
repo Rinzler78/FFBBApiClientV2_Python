@@ -4,52 +4,67 @@ from importlib.metadata import PackageNotFoundError, version
 
 from .api_ffbb_app_client import ApiFFBBAppClient
 from .ffbb_api_client_v2 import FFBBAPIClientV2
+from .helpers import (
+    catch_result,
+    create_cache_key,
+    default_cached_session,
+    deprecated_catch_result,
+    encode_params,
+    generate_queries,
+    http_get,
+    http_get_json,
+    http_post,
+    http_post_json,
+    to_json_from_response,
+    url_with_params,
+)
 from .meilisearch_client import MeilisearchClient
 from .meilisearch_client_extension import MeilisearchClientExtension
 from .meilisearch_ffbb_client import MeilisearchFFBBClient
-from .models.competitions_multi_search_result import (
+from .models import (
     CompetitionsFacetDistribution,
     CompetitionsFacetStats,
     CompetitionsHit,
     CompetitionsMultiSearchResult,
-)
-from .models.multi_search_query import MultiSearchQuery
-from .models.multi_search_query_helper import generate_queries
-from .models.organismes_multi_search_result import (
+    MultiSearchQuery,
     OrganismesFacetDistribution,
     OrganismesFacetStats,
     OrganismesHit,
     OrganismesMultiSearchResult,
-)
-from .models.pratiques_multi_search_result import (
     PratiquesFacetDistribution,
     PratiquesFacetStats,
     PratiquesHit,
     PratiquesMultiSearchResult,
-)
-from .models.rencontres_multi_search_result import (
     RencontresFacetDistribution,
     RencontresFacetStats,
     RencontresHit,
     RencontresMultiSearchResult,
-)
-from .models.salles_multi_search_result import (
     SallesFacetDistribution,
     SallesFacetStats,
     SallesHit,
     SallesMultiSearchResult,
-)
-from .models.terrains_multi_search_result import (
     TerrainsFacetDistribution,
     TerrainsFacetStats,
     TerrainsHit,
     TerrainsMultiSearchResult,
-)
-from .models.tournois_multi_search_result import (
     TournoisFacetDistribution,
     TournoisFacetStats,
     TournoisHit,
     TournoisMultiSearchResult,
+)
+from .utils import (
+    from_bool,
+    from_datetime,
+    from_float,
+    from_int,
+    from_list,
+    from_none,
+    from_str,
+    from_union,
+    is_type,
+    to_class,
+    to_enum,
+    to_float,
 )
 
 try:
@@ -100,4 +115,63 @@ EXPORTED_TYPES = [
     TournoisMultiSearchResult,
 ]
 
-__all__ = [typ.__name__ for typ in EXPORTED_TYPES]
+__all__ = [
+    "ApiFFBBAppClient",
+    "FFBBAPIClientV2",
+    "MeilisearchClient",
+    "MeilisearchClientExtension",
+    "MeilisearchFFBBClient",
+    "catch_result",
+    "create_cache_key",
+    "default_cached_session",
+    "deprecated_catch_result",
+    "encode_params",
+    "generate_queries",
+    "http_get",
+    "http_get_json",
+    "http_post",
+    "http_post_json",
+    "to_json_from_response",
+    "url_with_params",
+    "OrganismesFacetDistribution",
+    "OrganismesFacetStats",
+    "OrganismesHit",
+    "OrganismesMultiSearchResult",
+    "PratiquesFacetDistribution",
+    "PratiquesFacetStats",
+    "PratiquesHit",
+    "PratiquesMultiSearchResult",
+    "RencontresFacetDistribution",
+    "RencontresFacetStats",
+    "RencontresHit",
+    "RencontresMultiSearchResult",
+    "SallesFacetDistribution",
+    "SallesFacetStats",
+    "SallesHit",
+    "SallesMultiSearchResult",
+    "TerrainsFacetDistribution",
+    "TerrainsFacetStats",
+    "TerrainsHit",
+    "TerrainsMultiSearchResult",
+    "TournoisFacetDistribution",
+    "TournoisFacetStats",
+    "TournoisHit",
+    "TournoisMultiSearchResult",
+    "CompetitionsFacetDistribution",
+    "CompetitionsFacetStats",
+    "CompetitionsHit",
+    "CompetitionsMultiSearchResult",
+    "MultiSearchQuery",
+    "from_bool",
+    "from_datetime",
+    "from_float",
+    "from_int",
+    "from_list",
+    "from_none",
+    "from_str",
+    "from_union",
+    "is_type",
+    "to_class",
+    "to_enum",
+    "to_float",
+]

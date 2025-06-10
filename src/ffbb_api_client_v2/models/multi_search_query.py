@@ -1,11 +1,11 @@
 from typing import Any, List, Optional
 
+from ..utils.converters import from_int, from_list, from_none, from_str, from_union
 from .competitions_multi_search_result import (
     CompetitionsFacetDistribution,
     CompetitionsFacetStats,
     CompetitionsMultiSearchResult,
 )
-from .converters import from_int, from_list, from_none, from_str, from_union
 from .facet_distribution import FacetDistribution
 from .facet_stats import FacetStats
 from .hit import Hit

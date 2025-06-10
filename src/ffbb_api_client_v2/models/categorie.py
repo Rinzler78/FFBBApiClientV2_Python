@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any, Optional
 
-from .converters import from_datetime, from_int, from_none, from_str, from_union
+from ..utils.converters import from_datetime, from_int, from_none, from_str, from_union
 
 
 class Categorie:

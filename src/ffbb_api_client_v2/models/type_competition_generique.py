@@ -1,6 +1,6 @@
 from typing import Any, Optional
 
-from .converters import from_none, from_str, from_union, to_class
+from ..utils.converters import from_none, from_str, from_union, to_class
 from .logo import Logo
 
 

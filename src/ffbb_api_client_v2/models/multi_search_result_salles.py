@@ -1,9 +1,9 @@
 from datetime import datetime
 from typing import Any, Optional
 
+from ..utils.converters import from_datetime, from_none, from_str, from_union, to_class
 from .cartographie import Cartographie
 from .commune import Commune
-from .converters import from_datetime, from_none, from_str, from_union, to_class
 from .facet_distribution import FacetDistribution
 from .facet_stats import FacetStats
 from .geo import Geo

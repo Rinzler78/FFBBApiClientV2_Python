@@ -1,10 +1,7 @@
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from .categorie import Categorie
-from .competition_id_sexe import CompetitionIDSexe
-from .competition_id_type_competition import CompetitionIDTypeCompetition
-from .converters import (
+from ..utils.converters import (
     from_bool,
     from_datetime,
     from_dict,
@@ -17,6 +14,9 @@ from .converters import (
     to_class,
     to_enum,
 )
+from .categorie import Categorie
+from .competition_id_sexe import CompetitionIDSexe
+from .competition_id_type_competition import CompetitionIDTypeCompetition
 from .etat import Etat
 from .facet_distribution import FacetDistribution
 from .facet_stats import FacetStats

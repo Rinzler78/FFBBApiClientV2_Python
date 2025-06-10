@@ -5,9 +5,10 @@ from typing import List
 from requests_cache import CachedSession
 
 from .api_ffbb_app_client import ApiFFBBAppClient
+from .helpers.cached_session_helper import default_cached_session
+from .helpers.multi_search_query_helper import generate_queries
 from .meilisearch_ffbb_client import MeilisearchFFBBClient
 from .models.competitions_multi_search_result import CompetitionsMultiSearchResult
-from .models.http_requests_helper import default_cached_session
 from .models.lives import Live
 from .models.multi_search_query import (
     CompetitionsMultiSearchQuery,
@@ -18,7 +19,6 @@ from .models.multi_search_query import (
     TerrainsMultiSearchQuery,
     TournoisMultiSearchQuery,
 )
-from .models.multi_search_query_helper import generate_queries
 from .models.multi_search_result import MultiSearchResult
 from .models.organismes_multi_search_result import OrganismesMultiSearchResult
 from .models.pratiques_multi_search_result import PratiquesMultiSearchResult
@@ -30,6 +30,7 @@ from .models.tournois_multi_search_result import TournoisMultiSearchResult
 
 class FFBBAPIClientV2:
     """Facade providing convenient helper methods to the various API clients."""
+
     def __init__(
         self,
         api_ffbb_client: ApiFFBBAppClient,

@@ -1,6 +1,13 @@
 from typing import Any, List, Optional
 
-from .converters import from_float, from_list, from_none, from_str, from_union, to_float
+from ..utils.converters import (
+    from_float,
+    from_list,
+    from_none,
+    from_str,
+    from_union,
+    to_float,
+)
 
 
 class Coordonnees:
