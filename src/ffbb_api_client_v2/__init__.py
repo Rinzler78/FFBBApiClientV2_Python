@@ -2,6 +2,8 @@
 
 from importlib.metadata import PackageNotFoundError, version
 
+from dotenv import load_dotenv
+
 from .api_ffbb_app_client import ApiFFBBAppClient
 from .ffbb_api_client_v2 import FFBBAPIClientV2
 from .helpers import (
@@ -173,3 +175,5 @@ __all__ = [
     "to_enum",
     "to_float",
 ]
+
+load_dotenv()
