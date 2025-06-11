@@ -42,7 +42,7 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
         if not names:
             return None
 
-        queries = [OrganismesMultiSearchQuery(name) for name in names]
+        queries = [OrganismesMultiSearchQuery(name or "") for name in names]
         results = self.recursive_multi_search(queries, cached_session)
 
         return results.results if results else None
@@ -58,7 +58,7 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
         if not names:
             return None
 
-        queries = [RencontresMultiSearchQuery(name) for name in names]
+        queries = [RencontresMultiSearchQuery(name or "") for name in names]
         results = self.recursive_multi_search(queries, cached_session)
 
         return results.results if results else None
@@ -75,7 +75,7 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
         if not names:
             return None
 
-        queries = [TerrainsMultiSearchQuery(name) for name in names]
+        queries = [TerrainsMultiSearchQuery(name or "") for name in names]
         results = self.recursive_multi_search(queries, cached_session)
 
         return results.results if results else None
@@ -91,7 +91,7 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
         if not names:
             return None
 
-        queries = [CompetitionsMultiSearchQuery(name) for name in names]
+        queries = [CompetitionsMultiSearchQuery(name or "") for name in names]
         results = self.recursive_multi_search(queries, cached_session)
 
         return results.results if results else None
@@ -107,7 +107,7 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
         if not names:
             return None
 
-        queries = [SallesMultiSearchQuery(name) for name in names]
+        queries = [SallesMultiSearchQuery(name or "") for name in names]
         results = self.recursive_multi_search(queries, cached_session)
 
         return results.results if results else None
@@ -123,7 +123,7 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
         if not names:
             return None
 
-        queries = [TournoisMultiSearchQuery(name) for name in names]
+        queries = [TournoisMultiSearchQuery(name or "") for name in names]
         results = self.recursive_multi_search(queries, cached_session)
 
         return results.results if results else None
@@ -139,7 +139,7 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
         if not names:
             return None
 
-        queries = [PratiquesMultiSearchQuery(name) for name in names]
+        queries = [PratiquesMultiSearchQuery(name or "") for name in names]
         results = self.recursive_multi_search(queries, cached_session)
 
         return results.results if results else None
