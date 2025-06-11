@@ -1,12 +1,10 @@
 from datetime import datetime
 from enum import Enum
 from typing import Any, List, Optional
-from uuid import UUID
 
 from ..utils.converters import (
     from_bool,
     from_datetime,
-    from_float,
     from_int,
     from_list,
     from_none,
@@ -15,16 +13,10 @@ from ..utils.converters import (
     is_type,
     to_class,
     to_enum,
-    to_float,
 )
-
 from .categorie import Categorie
-from .cartographie import Cartographie
-from .commune import Commune
-from .logo import Logo
+from .salle import Salle
 from .type_competition_generique import TypeCompetitionGenerique
-
-
 
 
 class IDOrganisme:
@@ -219,57 +211,6 @@ class AdresseComplement(Enum):
     AVENUE_DE_VERDUN = "AVENUE DE VERDUN"
     EMPTY = " "
     MONTFAVET = "MONTFAVET"
-
-
-
-
-        libelle2: Libelle2,
-        numero: int,
-    ) -> None:
-        self.adresse = adresse
-        self.adresse_complement = adresse_complement
-        self.cartographie = cartographie
-        self.commune = commune
-        self.id = id
-        self.libelle = libelle
-        self.libelle2 = libelle2
-        self.numero = numero
-
-    @staticmethod
-    def from_dict(obj: Any) -> "Salle":
-        assert isinstance(obj, dict)
-        adresse = from_str(obj.get("adresse"))
-        adresse_complement = AdresseComplement(obj.get("adresseComplement"))
-        cartographie = Cartographie.from_dict(obj.get("cartographie"))
-        commune = Commune.from_dict(obj.get("commune"))
-        id = from_str(obj.get("id"))
-        libelle = from_str(obj.get("libelle"))
-        libelle2 = Libelle2(obj.get("libelle2"))
-        numero = int(from_str(obj.get("numero")))
-        return Salle(
-            adresse,
-            adresse_complement,
-            cartographie,
-            commune,
-            id,
-            libelle,
-            libelle2,
-            numero,
-        )
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["adresse"] = from_str(self.adresse)
-        result["adresseComplement"] = to_enum(
-            AdresseComplement, self.adresse_complement
-        )
-        result["cartographie"] = to_class(Cartographie, self.cartographie)
-        result["commune"] = to_class(Commune, self.commune)
-        result["id"] = from_str(self.id)
-        result["libelle"] = from_str(self.libelle)
-        result["libelle2"] = to_enum(Libelle2, self.libelle2)
-        result["numero"] = from_str(str(self.numero))
-        return result
 
 
 class Rencontre:
@@ -534,8 +475,6 @@ class DataPoule:
         result["id"] = from_str(self.id)
         result["nom"] = from_str(self.nom)
         return result
-
-
 
 
 class Data:
