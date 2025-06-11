@@ -7,7 +7,6 @@ from ..utils.converters import (
     from_bool,
     from_datetime,
     from_dict,
-    from_float,
     from_int,
     from_list,
     from_none,
@@ -17,10 +16,13 @@ from ..utils.converters import (
     is_type,
     to_class,
     to_enum,
-    to_float,
 )
 from .cartographie import Cartographie
 from .commune import Commune
+from .etat import Etat
+from .facet_stats import FacetStats
+from .folder import Folder
+from .geo import Geo
 from .id_organisme_equipe import IDOrganismeEquipe
 from .id_poule import IDPoule
 from .logo import Logo
@@ -463,24 +465,6 @@ class FacetDistribution:
         return result
 
 
-class FacetStats:
-    pass
-
-    def __init__(
-        self,
-    ) -> None:
-        pass
-
-    @staticmethod
-    def from_dict(obj: Any) -> "FacetStats":
-        assert isinstance(obj, dict)
-        return FacetStats()
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        return result
-
-
 class AfficheType(Enum):
     APPLICATION_PDF = "application/pdf"
     IMAGE_JPEG = "image/jpeg"
@@ -527,32 +511,6 @@ class Affiche:
         result["id"] = str(self.id)
         result["type"] = to_enum(AfficheType, self.type)
         result["width"] = from_union([from_int, from_none], self.width)
-        return result
-
-
-class CoordonneesType(Enum):
-    POINT = "Point"
-
-
-class Coordonnees:
-    coordinates: List[float]
-    type: CoordonneesType
-
-    def __init__(self, coordinates: List[float], type: CoordonneesType) -> None:
-        self.coordinates = coordinates
-        self.type = type
-
-    @staticmethod
-    def from_dict(obj: Any) -> "Coordonnees":
-        assert isinstance(obj, dict)
-        coordinates = from_list(from_float, obj.get("coordinates"))
-        type = CoordonneesType(obj.get("type"))
-        return Coordonnees(coordinates, type)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["coordinates"] = from_list(to_float, self.coordinates)
-        result["type"] = to_enum(CoordonneesType, self.type)
         return result
 
 
@@ -1158,32 +1116,6 @@ class Name(Enum):
     TOURNOIS = "Tournois"
 
 
-class Folder:
-    id: UUID
-    name: Name
-    parent: None
-
-    def __init__(self, id: UUID, name: Name, parent: None) -> None:
-        self.id = id
-        self.name = name
-        self.parent = parent
-
-    @staticmethod
-    def from_dict(obj: Any) -> "Folder":
-        assert isinstance(obj, dict)
-        id = UUID(obj.get("id"))
-        name = Name(obj.get("name"))
-        parent = from_none(obj.get("parent"))
-        return Folder(id, name, parent)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["id"] = str(self.id)
-        result["name"] = to_enum(Name, self.name)
-        result["parent"] = from_none(self.parent)
-        return result
-
-
 class Source(Enum):
     FFBB_SERVEUR = "FFBB Serveur"
 
@@ -1478,32 +1410,6 @@ class DocumentFlyer:
         result["uploaded_by"] = from_none(self.uploaded_by)
         result["uploaded_on"] = self.uploaded_on.isoformat()
         result["width"] = from_int(self.width)
-        return result
-
-
-class Etat(Enum):
-    A = "A"
-
-
-class Geo:
-    lat: float
-    lng: float
-
-    def __init__(self, lat: float, lng: float) -> None:
-        self.lat = lat
-        self.lng = lng
-
-    @staticmethod
-    def from_dict(obj: Any) -> "Geo":
-        assert isinstance(obj, dict)
-        lat = from_float(obj.get("lat"))
-        lng = from_float(obj.get("lng"))
-        return Geo(lat, lng)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["lat"] = to_float(self.lat)
-        result["lng"] = to_float(self.lng)
         return result
 
 
