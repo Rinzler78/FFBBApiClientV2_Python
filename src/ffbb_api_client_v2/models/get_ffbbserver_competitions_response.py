@@ -15,6 +15,8 @@ from ..utils.converters import (
     to_enum,
 )
 from .categorie import Categorie
+from .id_engagement_equipe import IDEngagementEquipe
+from .id_organisme_equipe import IDOrganismeEquipe
 from .salle import Salle
 from .type_competition_generique import TypeCompetitionGenerique
 
@@ -56,72 +58,6 @@ class Engagement:
         result: dict = {}
         result["id"] = from_str(self.id)
         result["idOrganisme"] = to_class(IDOrganisme, self.id_organisme)
-        return result
-
-
-class IDEngagementEquipe:
-    code_abrege: Optional[str]
-    id: str
-    logo: None
-    nom: str
-    nom_officiel: Optional[str]
-    nom_usuel: Optional[str]
-
-    def __init__(
-        self,
-        code_abrege: Optional[str],
-        id: str,
-        logo: None,
-        nom: str,
-        nom_officiel: Optional[str],
-        nom_usuel: Optional[str],
-    ) -> None:
-        self.code_abrege = code_abrege
-        self.id = id
-        self.logo = logo
-        self.nom = nom
-        self.nom_officiel = nom_officiel
-        self.nom_usuel = nom_usuel
-
-    @staticmethod
-    def from_dict(obj: Any) -> "IDEngagementEquipe":
-        assert isinstance(obj, dict)
-        code_abrege = from_union([from_none, from_str], obj.get("codeAbrege"))
-        id = from_str(obj.get("id"))
-        logo = from_none(obj.get("logo"))
-        nom = from_str(obj.get("nom"))
-        nom_officiel = from_union([from_none, from_str], obj.get("nomOfficiel"))
-        nom_usuel = from_union([from_none, from_str], obj.get("nomUsuel"))
-        return IDEngagementEquipe(code_abrege, id, logo, nom, nom_officiel, nom_usuel)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["codeAbrege"] = from_union([from_none, from_str], self.code_abrege)
-        result["id"] = from_str(self.id)
-        result["logo"] = from_none(self.logo)
-        result["nom"] = from_str(self.nom)
-        result["nomOfficiel"] = from_union([from_none, from_str], self.nom_officiel)
-        result["nomUsuel"] = from_union([from_none, from_str], self.nom_usuel)
-        return result
-
-
-class IDOrganismeEquipe:
-    logo: Optional[IDOrganisme]
-
-    def __init__(self, logo: Optional[IDOrganisme]) -> None:
-        self.logo = logo
-
-    @staticmethod
-    def from_dict(obj: Any) -> "IDOrganismeEquipe":
-        assert isinstance(obj, dict)
-        logo = from_union([IDOrganisme.from_dict, from_none], obj.get("logo"))
-        return IDOrganismeEquipe(logo)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["logo"] = from_union(
-            [lambda x: to_class(IDOrganisme, x), from_none], self.logo
-        )
         return result
 
 
