@@ -18,27 +18,13 @@ from ..utils.converters import (
     to_float,
 )
 
+from .categorie import Categorie
+from .cartographie import Cartographie
+from .commune import Commune
+from .logo import Logo
+from .type_competition_generique import TypeCompetitionGenerique
 
-class Categorie:
-    code: str
-    ordre: int
 
-    def __init__(self, code: str, ordre: int) -> None:
-        self.code = code
-        self.ordre = ordre
-
-    @staticmethod
-    def from_dict(obj: Any) -> "Categorie":
-        assert isinstance(obj, dict)
-        code = from_str(obj.get("code"))
-        ordre = from_int(obj.get("ordre"))
-        return Categorie(code, ordre)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["code"] = from_str(self.code)
-        result["ordre"] = from_int(self.ordre)
-        return result
 
 
 class IDOrganisme:
@@ -235,77 +221,8 @@ class AdresseComplement(Enum):
     MONTFAVET = "MONTFAVET"
 
 
-class Cartographie:
-    latitude: float
-    longitude: float
-
-    def __init__(self, latitude: float, longitude: float) -> None:
-        self.latitude = latitude
-        self.longitude = longitude
-
-    @staticmethod
-    def from_dict(obj: Any) -> "Cartographie":
-        assert isinstance(obj, dict)
-        latitude = from_float(obj.get("latitude"))
-        longitude = from_float(obj.get("longitude"))
-        return Cartographie(latitude, longitude)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["latitude"] = to_float(self.latitude)
-        result["longitude"] = to_float(self.longitude)
-        return result
 
 
-class Commune:
-    code_postal: str
-    libelle: str
-
-    def __init__(self, code_postal: str, libelle: str) -> None:
-        self.code_postal = code_postal
-        self.libelle = libelle
-
-    @staticmethod
-    def from_dict(obj: Any) -> "Commune":
-        assert isinstance(obj, dict)
-        code_postal = from_str(obj.get("codePostal"))
-        libelle = from_str(obj.get("libelle"))
-        return Commune(code_postal, libelle)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["codePostal"] = from_str(self.code_postal)
-        result["libelle"] = from_str(self.libelle)
-        return result
-
-
-class Libelle2(Enum):
-    ANCIEN_GYMNASE_DE_LA_BARBIERE = "ancien GYMNASE DE LA BARBIERE"
-    EMPTY = ""
-    GYMNASE_LA_PIOLINE = "Gymnase La Pioline"
-    PARC_DES_SPORTS_POUDRERIE = "PARC DES SPORTS POUDRERIE"
-    SALLE_NASARRE = "SALLE NASARRE"
-    STADE_FOCH = "Stade foch"
-
-
-class Salle:
-    adresse: str
-    adresse_complement: AdresseComplement
-    cartographie: Cartographie
-    commune: Commune
-    id: str
-    libelle: str
-    libelle2: Libelle2
-    numero: int
-
-    def __init__(
-        self,
-        adresse: str,
-        adresse_complement: AdresseComplement,
-        cartographie: Cartographie,
-        commune: Commune,
-        id: str,
-        libelle: str,
         libelle2: Libelle2,
         numero: int,
     ) -> None:
@@ -619,44 +536,6 @@ class DataPoule:
         return result
 
 
-class Logo:
-    gradient_color: str
-    id: UUID
-
-    def __init__(self, gradient_color: str, id: UUID) -> None:
-        self.gradient_color = gradient_color
-        self.id = id
-
-    @staticmethod
-    def from_dict(obj: Any) -> "Logo":
-        assert isinstance(obj, dict)
-        gradient_color = from_str(obj.get("gradient_color"))
-        id = UUID(obj.get("id"))
-        return Logo(gradient_color, id)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["gradient_color"] = from_str(self.gradient_color)
-        result["id"] = str(self.id)
-        return result
-
-
-class TypeCompetitionGenerique:
-    logo: Logo
-
-    def __init__(self, logo: Logo) -> None:
-        self.logo = logo
-
-    @staticmethod
-    def from_dict(obj: Any) -> "TypeCompetitionGenerique":
-        assert isinstance(obj, dict)
-        logo = Logo.from_dict(obj.get("logo"))
-        return TypeCompetitionGenerique(logo)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["logo"] = to_class(Logo, self.logo)
-        return result
 
 
 class Data:
