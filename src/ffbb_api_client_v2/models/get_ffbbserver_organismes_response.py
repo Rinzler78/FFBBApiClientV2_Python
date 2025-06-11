@@ -1,11 +1,9 @@
 from datetime import datetime
 from enum import Enum
 from typing import Any, List, Optional
-from uuid import UUID
 
 from ..utils.converters import (
     from_datetime,
-    from_float,
     from_int,
     from_list,
     from_none,
@@ -13,52 +11,13 @@ from ..utils.converters import (
     from_union,
     to_class,
     to_enum,
-    to_float,
 )
-
-
-class Cartographie:
-    latitude: float
-    longitude: float
-
-    def __init__(self, latitude: float, longitude: float) -> None:
-        self.latitude = latitude
-        self.longitude = longitude
-
-    @staticmethod
-    def from_dict(obj: Any) -> "Cartographie":
-        assert isinstance(obj, dict)
-        latitude = from_float(obj.get("latitude"))
-        longitude = from_float(obj.get("longitude"))
-        return Cartographie(latitude, longitude)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["latitude"] = to_float(self.latitude)
-        result["longitude"] = to_float(self.longitude)
-        return result
-
-
-class Commune:
-    code_postal: int
-    libelle: str
-
-    def __init__(self, code_postal: int, libelle: str) -> None:
-        self.code_postal = code_postal
-        self.libelle = libelle
-
-    @staticmethod
-    def from_dict(obj: Any) -> "Commune":
-        assert isinstance(obj, dict)
-        code_postal = int(from_str(obj.get("codePostal")))
-        libelle = from_str(obj.get("libelle"))
-        return Commune(code_postal, libelle)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["codePostal"] = from_str(str(self.code_postal))
-        result["libelle"] = from_str(self.libelle)
-        return result
+from .cartographie import Cartographie
+from .categorie import Categorie
+from .commune import Commune
+from .id_poule import IDPoule
+from .logo import Logo
+from .type_competition_generique import TypeCompetitionGenerique
 
 
 class Code(Enum):
@@ -67,28 +26,6 @@ class Code(Enum):
     U13 = "U13"
     U15 = "U15"
     U17 = "U17"
-
-
-class Categorie:
-    code: Code
-    ordre: int
-
-    def __init__(self, code: Code, ordre: int) -> None:
-        self.code = code
-        self.ordre = ordre
-
-    @staticmethod
-    def from_dict(obj: Any) -> "Categorie":
-        assert isinstance(obj, dict)
-        code = Code(obj.get("code"))
-        ordre = from_int(obj.get("ordre"))
-        return Categorie(code, ordre)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["code"] = to_enum(Code, self.code)
-        result["ordre"] = from_int(self.ordre)
-        return result
 
 
 class IDCompetitionPere:
@@ -136,24 +73,6 @@ class Organisateur:
         return result
 
 
-class IDPoule:
-    id: str
-
-    def __init__(self, id: str) -> None:
-        self.id = id
-
-    @staticmethod
-    def from_dict(obj: Any) -> "IDPoule":
-        assert isinstance(obj, dict)
-        id = from_str(obj.get("id"))
-        return IDPoule(id)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["id"] = from_str(self.id)
-        return result
-
-
 class Sexe(Enum):
     F = "F"
     M = "M"
@@ -171,46 +90,6 @@ class GradientColor(Enum):
     ED3833 = "#ed3833"
     THE_00_B5_EA = "#00B5EA"
     THE_04378_B = "#04378B"
-
-
-class Logo:
-    gradient_color: GradientColor
-    id: UUID
-
-    def __init__(self, gradient_color: GradientColor, id: UUID) -> None:
-        self.gradient_color = gradient_color
-        self.id = id
-
-    @staticmethod
-    def from_dict(obj: Any) -> "Logo":
-        assert isinstance(obj, dict)
-        gradient_color = GradientColor(obj.get("gradient_color"))
-        id = UUID(obj.get("id"))
-        return Logo(gradient_color, id)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["gradient_color"] = to_enum(GradientColor, self.gradient_color)
-        result["id"] = str(self.id)
-        return result
-
-
-class TypeCompetitionGenerique:
-    logo: Logo
-
-    def __init__(self, logo: Logo) -> None:
-        self.logo = logo
-
-    @staticmethod
-    def from_dict(obj: Any) -> "TypeCompetitionGenerique":
-        assert isinstance(obj, dict)
-        logo = Logo.from_dict(obj.get("logo"))
-        return TypeCompetitionGenerique(logo)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["logo"] = to_class(Logo, self.logo)
-        return result
 
 
 class IDCompetition:
