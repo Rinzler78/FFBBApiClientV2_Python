@@ -1,6 +1,6 @@
 import os
 import unittest
-from typing import Any, Type
+from typing import Any
 
 from ffbb_api_client_v2 import (
     CompetitionsFacetDistribution,
@@ -63,10 +63,10 @@ class Test_03_FFBBAPIClientV2(unittest.TestCase):
     def __validate_test_search(
         self,
         search_result: Any,
-        result_type: Type,
-        facet_distribution_type: Type,
-        facet_stats_type: Type,
-        hit_type: Type,
+        result_type: type,
+        facet_distribution_type: type,
+        facet_stats_type: type,
+        hit_type: type,
     ):
         self.assertIsNotNone(search_result)
         self.assertEqual(type(search_result), result_type)
@@ -85,10 +85,10 @@ class Test_03_FFBBAPIClientV2(unittest.TestCase):
     def __validate_test_search_multi(
         self,
         search_result: Any,
-        result_type: Type,
-        facet_distribution_type: Type,
-        facet_stats_type: Type,
-        hit_type: Type,
+        result_type: type,
+        facet_distribution_type: type,
+        facet_stats_type: type,
+        hit_type: type,
     ):
         self.assertIsNotNone(search_result)
         self.assertEqual(type(search_result), list)

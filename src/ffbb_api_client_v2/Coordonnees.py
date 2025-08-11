@@ -1,13 +1,13 @@
-from typing import Any, List, Optional
+from typing import Any, Optional
 
 from .converters import from_float, from_list, from_none, from_str, from_union, to_float
 
 
 class Coordonnees:
     type: Optional[str] = None
-    coordinates: Optional[List[float]] = None
+    coordinates: Optional[list[float]] = None
 
-    def __init__(self, type: Optional[str], coordinates: Optional[List[float]]):
+    def __init__(self, type: Optional[str], coordinates: Optional[list[float]]):
         self.type = type
         self.coordinates = coordinates
 

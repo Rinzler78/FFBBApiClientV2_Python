@@ -1,5 +1,3 @@
-from typing import List
-
 from requests_cache import CachedSession
 
 from .http_requests_helper import catch_result, default_cached_session
@@ -38,7 +36,7 @@ class MeilisearchClient:
 
     def multi_search(
         self,
-        queries: List[MultiSearchQuery] = None,
+        queries: list[MultiSearchQuery] = None,
         cached_session: CachedSession = None,
     ) -> MultiSearchResults:
         url = f"{self.url}multi-search"

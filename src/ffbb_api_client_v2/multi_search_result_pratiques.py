@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 from uuid import UUID
 
 from .converters import (
@@ -87,11 +87,11 @@ class TypeClass:
 
 
 class PratiquesFacetDistribution(FacetDistribution):
-    label: Optional[Dict[str, int]] = None
+    label: Optional[dict[str, int]] = None
     type: Optional[TypeClass] = None
 
     def __init__(
-        self, label: Optional[Dict[str, int]], type: Optional[TypeClass] = None
+        self, label: Optional[dict[str, int]], type: Optional[TypeClass] = None
     ) -> None:
         self.label = label
         self.type = type
@@ -180,10 +180,10 @@ class CoordonneesType(Enum):
 
 class Coordonnees:
     type: Optional[CoordonneesType] = None
-    coordinates: Optional[List[float]] = None
+    coordinates: Optional[list[float]] = None
 
     def __init__(
-        self, type: Optional[CoordonneesType], coordinates: Optional[List[float]] = None
+        self, type: Optional[CoordonneesType], coordinates: Optional[list[float]] = None
     ) -> None:
         self.type = type
         self.coordinates = coordinates
@@ -401,7 +401,7 @@ class PratiquesHit(Hit):
     engagement: Optional[str] = None
     horaires_seances: Optional[str] = None
     inscriptions: Optional[str] = None
-    jours: Optional[List[Jour]] = None
+    jours: Optional[list[Jour]] = None
     label: Optional[Label] = None
     latitude: None
     longitude: None
@@ -450,7 +450,7 @@ class PratiquesHit(Hit):
         engagement: Optional[str],
         horaires_seances: Optional[str],
         inscriptions: Optional[str],
-        jours: Optional[List[Jour]],
+        jours: Optional[list[Jour]],
         label: Optional[Label],
         latitude: None,
         longitude: None,

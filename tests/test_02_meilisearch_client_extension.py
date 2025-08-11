@@ -1,6 +1,5 @@
 import os
 import unittest
-from typing import List
 
 from ffbb_api_client_v2 import (
     MeilisearchClientExtension,
@@ -29,7 +28,7 @@ class Test_02_MeilisearchClientExtension(unittest.TestCase):
         result = self.api_client.smart_multi_search()
         self.assertIsNotNone(result)
 
-    def __validate_test(self, queries: List[MultiSearchQuery], search_result):
+    def __validate_test(self, queries: list[MultiSearchQuery], search_result):
         self.assertIsNotNone(search_result)
         self.assertIsNotNone(search_result.results)
         self.assertGreater(len(search_result.results), 0)
@@ -50,7 +49,7 @@ class Test_02_MeilisearchClientExtension(unittest.TestCase):
         self.assertIsNotNone(result)
 
     def __validate_multi_search_with_all_possible_queries(
-        self, queries: List[MultiSearchQuery], search_result
+        self, queries: list[MultiSearchQuery], search_result
     ):
         self.assertIsNotNone(search_result)
         self.assertIsNotNone(search_result.results)

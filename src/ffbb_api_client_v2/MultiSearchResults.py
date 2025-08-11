@@ -1,4 +1,4 @@
-from typing import Any, List, Optional
+from typing import Any, Optional
 
 from .converters import from_list, from_none, from_union, to_class
 from .multi_search_results import MultiSearchResult
@@ -31,7 +31,7 @@ index_uids_converters = {
 }
 
 
-def result_from_list(s: List[Any]) -> List[MultiSearchResult]:
+def result_from_list(s: list[Any]) -> list[MultiSearchResult]:
     results = []
 
     if s:
@@ -49,9 +49,9 @@ def result_from_list(s: List[Any]) -> List[MultiSearchResult]:
 
 
 class MultiSearchResults:
-    results: Optional[List[MultiSearchResult]] = None
+    results: Optional[list[MultiSearchResult]] = None
 
-    def __init__(self, results: Optional[List[MultiSearchResult]]) -> None:
+    def __init__(self, results: Optional[list[MultiSearchResult]]) -> None:
         self.results = results
 
     @staticmethod

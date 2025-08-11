@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from .CompetitionID import CompetitionID
 from .CompetitionIDSexe import CompetitionIDSexe
@@ -33,23 +33,23 @@ from .salle import Salle
 
 
 class RencontresFacetDistribution(FacetDistribution):
-    competition_id_categorie_code: Optional[Dict[str, int]] = None
-    competition_id_nom_extended: Optional[Dict[str, int]] = None
+    competition_id_categorie_code: Optional[dict[str, int]] = None
+    competition_id_nom_extended: Optional[dict[str, int]] = None
     competition_id_sexe: Optional[CompetitionIDSexe] = None
     competition_id_type_competition: Optional[CompetitionIDTypeCompetition] = None
     niveau: Optional[Niveau] = None
-    organisateur_id: Optional[Dict[str, int]] = None
-    organisateur_nom: Optional[Dict[str, int]] = None
+    organisateur_id: Optional[dict[str, int]] = None
+    organisateur_nom: Optional[dict[str, int]] = None
 
     def __init__(
         self,
-        competition_id_categorie_code: Optional[Dict[str, int]],
-        competition_id_nom_extended: Optional[Dict[str, int]],
+        competition_id_categorie_code: Optional[dict[str, int]],
+        competition_id_nom_extended: Optional[dict[str, int]],
         competition_id_sexe: Optional[CompetitionIDSexe],
         competition_id_type_competition: Optional[CompetitionIDTypeCompetition],
         niveau: Optional[Niveau],
-        organisateur_id: Optional[Dict[str, int]],
-        organisateur_nom: Optional[Dict[str, int]],
+        organisateur_id: Optional[dict[str, int]],
+        organisateur_nom: Optional[dict[str, int]],
     ):
         self.competition_id_categorie_code = competition_id_categorie_code
         self.competition_id_nom_extended = competition_id_nom_extended
@@ -176,7 +176,7 @@ class RencontresHit(Hit):
     numero_journee: Optional[int] = None
     pratique: Optional[Pratique] = None
     gs_id: str
-    officiels: Optional[List[str]] = None
+    officiels: Optional[list[str]] = None
     competition_id: Optional[CompetitionID] = None
     id_organisme_equipe1: Optional[IDOrganismeEquipe] = None
     id_organisme_equipe2: Optional[IDOrganismeEquipe] = None
@@ -207,7 +207,7 @@ class RencontresHit(Hit):
         numero_journee: Optional[int],
         pratique: Optional[Pratique],
         gs_id: str,
-        officiels: Optional[List[str]],
+        officiels: Optional[list[str]],
         competition_id: Optional[CompetitionID],
         id_organisme_equipe1: Optional[IDOrganismeEquipe],
         id_organisme_equipe2: Optional[IDOrganismeEquipe],

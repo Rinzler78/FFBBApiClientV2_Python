@@ -1,11 +1,11 @@
-from typing import Any, List, Optional
+from typing import Any, Optional
 
 from .converters import from_list, from_none, from_union, to_class
 from .multi_search_query import MultiSearchQuery
 
 
 class MultiSearchQueries:
-    queries: Optional[List[MultiSearchQuery]] = None
+    queries: Optional[list[MultiSearchQuery]] = None
 
     @staticmethod
     def from_dict(obj: Any) -> "MultiSearchQueries":

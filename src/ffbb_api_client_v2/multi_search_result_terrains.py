@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import Any, List, Optional
+from typing import Any, Optional
 from uuid import UUID
 
 from .Cartographie import Cartographie
@@ -290,7 +290,7 @@ class TerrainsHit(Hit):
     telephone_organisateur: Optional[str] = None
     url_organisateur: Optional[str] = None
     adresse_complement: None
-    tournoi_types3_x3: Optional[List[TournoiTypes3X3]] = None
+    tournoi_types3_x3: Optional[list[TournoiTypes3X3]] = None
     cartographie: Optional[Cartographie] = None
     commune: Optional[Commune] = None
     document_flyer: Optional[DocumentFlyer] = None
@@ -324,7 +324,7 @@ class TerrainsHit(Hit):
         telephone_organisateur: Optional[str],
         url_organisateur: Optional[str],
         adresse_complement: None,
-        tournoi_types3_x3: Optional[List[TournoiTypes3X3]],
+        tournoi_types3_x3: Optional[list[TournoiTypes3X3]],
         cartographie: Optional[Cartographie],
         commune: Optional[Commune],
         document_flyer: Optional[DocumentFlyer],

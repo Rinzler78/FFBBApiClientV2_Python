@@ -1,5 +1,3 @@
-from typing import List
-
 from requests_cache import CachedSession
 
 from ffbb_api_client_v2.meilisearch_ffbb_client import MeilisearchFFBBClient
@@ -59,12 +57,12 @@ class FFBBAPIClientV2:
 
         return FFBBAPIClientV2(api_ffbb_client, meilisearch_ffbb_client)
 
-    def get_lives(self, cached_session: CachedSession = None) -> List[Live]:
+    def get_lives(self, cached_session: CachedSession = None) -> list[Live]:
         return self.api_ffbb_client.get_lives(cached_session)
 
     def multi_search(
         self, name: str = None, cached_session: CachedSession = None
-    ) -> List[MultiSearchResult]:
+    ) -> list[MultiSearchResult]:
         queries = generate_queries(name)
         results = self.meilisearch_ffbb_client.recursive_smart_multi_search(
             queries, cached_session=cached_session
@@ -73,8 +71,8 @@ class FFBBAPIClientV2:
         return results.results if results else None
 
     def search_multiple_organismes(
-        self, names: List[str] = None, cached_session: CachedSession = None
-    ) -> List[OrganismesMultiSearchResult]:
+        self, names: list[str] = None, cached_session: CachedSession = None
+    ) -> list[OrganismesMultiSearchResult]:
         if not names:
             return None
 
@@ -92,8 +90,8 @@ class FFBBAPIClientV2:
         return results[0] if results else OrganismesMultiSearchResult()
 
     def search_multiple_rencontres(
-        self, names: List[str] = None, cached_session: CachedSession = None
-    ) -> List[RencontresMultiSearchResult]:
+        self, names: list[str] = None, cached_session: CachedSession = None
+    ) -> list[RencontresMultiSearchResult]:
         if not names:
             return None
 
@@ -111,8 +109,8 @@ class FFBBAPIClientV2:
         return results[0] if results else None
 
     def search_multiple_terrains(
-        self, names: List[str] = None, cached_session: CachedSession = None
-    ) -> List[TerrainsMultiSearchResult]:
+        self, names: list[str] = None, cached_session: CachedSession = None
+    ) -> list[TerrainsMultiSearchResult]:
         if not names:
             return None
 
@@ -130,8 +128,8 @@ class FFBBAPIClientV2:
         return results[0] if results else None
 
     def search_multiple_competitions(
-        self, names: List[str] = None, cached_session: CachedSession = None
-    ) -> List[CompetitionsMultiSearchResult]:
+        self, names: list[str] = None, cached_session: CachedSession = None
+    ) -> list[CompetitionsMultiSearchResult]:
         if not names:
             return None
 
@@ -149,8 +147,8 @@ class FFBBAPIClientV2:
         return results[0] if results else None
 
     def search_multiple_salles(
-        self, names: List[str] = None, cached_session: CachedSession = None
-    ) -> List[SallesMultiSearchResult]:
+        self, names: list[str] = None, cached_session: CachedSession = None
+    ) -> list[SallesMultiSearchResult]:
         if not names:
             return None
 
@@ -168,8 +166,8 @@ class FFBBAPIClientV2:
         return results[0] if results else None
 
     def search_multiple_tournois(
-        self, names: List[str] = None, cached_session: CachedSession = None
-    ) -> List[TournoisMultiSearchResult]:
+        self, names: list[str] = None, cached_session: CachedSession = None
+    ) -> list[TournoisMultiSearchResult]:
         if not names:
             return None
 
@@ -187,8 +185,8 @@ class FFBBAPIClientV2:
         return results[0] if results else None
 
     def search_multiple_pratiques(
-        self, names: List[str] = None, cached_session: CachedSession = None
-    ) -> List[PratiquesMultiSearchResult]:
+        self, names: list[str] = None, cached_session: CachedSession = None
+    ) -> list[PratiquesMultiSearchResult]:
         if not names:
             return None
 

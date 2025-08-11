@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, List, Optional
+from typing import Any, Optional
 from uuid import UUID
 
 from .converters import (
@@ -48,8 +48,8 @@ class DocumentFlyer:
     newsbridge_recorded_at: None
     focal_point_x: None
     focal_point_y: None
-    newsbridge_labels: Optional[List[Any]] = None
-    newsbridge_persons: Optional[List[Any]] = None
+    newsbridge_labels: Optional[list[Any]] = None
+    newsbridge_persons: Optional[list[Any]] = None
     folder: Optional[Folder] = None
     uploaded_by: None
     modified_by: None

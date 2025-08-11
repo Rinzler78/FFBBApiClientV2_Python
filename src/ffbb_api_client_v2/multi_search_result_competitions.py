@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from .Categorie import Categorie
 from .CompetitionIDSexe import CompetitionIDSexe
@@ -35,23 +35,23 @@ from .TypeCompetitionGenerique import TypeCompetitionGenerique
 
 
 class CompetitionsFacetDistribution(FacetDistribution):
-    competition_id_categorie_code: Optional[Dict[str, int]] = None
-    competition_id_nom_extended: Optional[Dict[str, int]] = None
+    competition_id_categorie_code: Optional[dict[str, int]] = None
+    competition_id_nom_extended: Optional[dict[str, int]] = None
     competition_id_sexe: Optional[CompetitionIDSexe] = None
     competition_id_type_competition: Optional[CompetitionIDTypeCompetition] = None
     niveau: Optional[NiveauClass] = None
-    organisateur_id: Optional[Dict[str, int]] = None
-    organisateur_nom: Optional[Dict[str, int]] = None
+    organisateur_id: Optional[dict[str, int]] = None
+    organisateur_nom: Optional[dict[str, int]] = None
 
     def __init__(
         self,
-        competition_id_categorie_code: Optional[Dict[str, int]],
-        competition_id_nom_extended: Optional[Dict[str, int]],
+        competition_id_categorie_code: Optional[dict[str, int]],
+        competition_id_nom_extended: Optional[dict[str, int]],
         competition_id_sexe: Optional[CompetitionIDSexe],
         competition_id_type_competition: Optional[CompetitionIDTypeCompetition],
         niveau: Optional[NiveauClass],
-        organisateur_id: Optional[Dict[str, int]],
-        organisateur_nom: Optional[Dict[str, int]],
+        organisateur_id: Optional[dict[str, int]],
+        organisateur_nom: Optional[dict[str, int]],
     ) -> None:
         self.competition_id_categorie_code = competition_id_categorie_code
         self.competition_id_nom_extended = competition_id_nom_extended
@@ -161,8 +161,8 @@ class CompetitionsHit(Hit):
     phase_code: Optional[PhaseCode] = None
     competition_origine_nom: Optional[str] = None
     etat: Optional[Etat] = None
-    poules: Optional[List[Poule]] = None
-    phases: Optional[List[str]] = None
+    poules: Optional[list[Poule]] = None
+    phases: Optional[list[str]] = None
     categorie: Optional[Categorie] = None
     id_competition_pere: None
     organisateur: Optional[Organisateur] = None
@@ -192,8 +192,8 @@ class CompetitionsHit(Hit):
         phase_code: Optional[PhaseCode],
         competition_origine_nom: Optional[str],
         etat: Optional[Etat],
-        poules: Optional[List[Poule]],
-        phases: Optional[List[str]],
+        poules: Optional[list[Poule]],
+        phases: Optional[list[str]],
         categorie: Optional[Categorie],
         id_competition_pere: None,
         organisateur: Optional[Organisateur],

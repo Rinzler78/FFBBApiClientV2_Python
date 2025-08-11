@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, List, Optional
+from typing import Any, Optional
 
 from .converters import (
     from_datetime,
@@ -321,7 +321,7 @@ class Live:
         return result
 
 
-def lives_from_dict(s: Any) -> List[Live]:
+def lives_from_dict(s: Any) -> list[Live]:
     """
     Convert a list of dictionaries to a list of Live objects.
 
@@ -334,7 +334,7 @@ def lives_from_dict(s: Any) -> List[Live]:
     return from_list(Live.from_dict, s)
 
 
-def lives_to_dict(x: List[Live]) -> Any:
+def lives_to_dict(x: list[Live]) -> Any:
     """
     Convert a list of Live objects to a list of dictionaries.
 

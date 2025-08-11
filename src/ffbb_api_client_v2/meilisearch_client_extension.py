@@ -1,5 +1,3 @@
-from typing import List
-
 from requests_cache import CachedSession
 
 from .http_requests_helper import default_cached_session
@@ -20,7 +18,7 @@ class MeilisearchClientExtension(MeilisearchClient):
 
     def smart_multi_search(
         self,
-        queries: List[MultiSearchQuery] = None,
+        queries: list[MultiSearchQuery] = None,
         cached_session: CachedSession = None,
     ) -> MultiSearchResults:
         results = self.multi_search(queries, cached_session)
@@ -38,7 +36,7 @@ class MeilisearchClientExtension(MeilisearchClient):
 
     def recursive_smart_multi_search(
         self,
-        queries: List[MultiSearchQuery] = None,
+        queries: list[MultiSearchQuery] = None,
         cached_session: CachedSession = None,
     ) -> MultiSearchResults:
         result = self.smart_multi_search(queries, cached_session)

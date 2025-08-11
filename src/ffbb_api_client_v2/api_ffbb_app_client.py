@@ -1,5 +1,3 @@
-from typing import List
-
 from requests_cache import CachedSession
 
 from .http_requests_helper import catch_result, default_cached_session
@@ -32,7 +30,7 @@ class ApiFFBBAppClient:
         self.cached_session = cached_session
         self.headers = {"Authorization": f"Bearer {self.bearer_token}"}
 
-    def get_lives(self, cached_session: CachedSession = None) -> List[Live]:
+    def get_lives(self, cached_session: CachedSession = None) -> list[Live]:
         """
         Retrieves a list of live events.
 

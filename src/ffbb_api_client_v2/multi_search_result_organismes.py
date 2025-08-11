@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from .Cartographie import Cartographie
 from .Commune import Commune
@@ -28,14 +28,14 @@ from .TypeClass import TypeClass
 
 class OrganismesFacetDistribution(FacetDistribution):
     labellisation: Optional[Labellisation] = None
-    offres_pratiques: Optional[Dict[str, int]] = None
+    offres_pratiques: Optional[dict[str, int]] = None
     type: Optional[TypeClass] = None
     type_association_libelle: Optional[TypeAssociationLibelle] = None
 
     def __init__(
         self,
         labellisation: Optional[Labellisation],
-        offres_pratiques: Optional[Dict[str, int]],
+        offres_pratiques: Optional[dict[str, int]],
         type: Optional[TypeClass],
         type_association_libelle: Optional[TypeAssociationLibelle],
     ) -> None:
@@ -107,8 +107,8 @@ class OrganismesHit(Hit):
     nom_simple: None
     date_affiliation: None
     saison_en_cours: Optional[bool] = None
-    offres_pratiques: Optional[List[str]] = None
-    labellisation: Optional[List[str]] = None
+    offres_pratiques: Optional[list[str]] = None
+    labellisation: Optional[list[str]] = None
     cartographie: Optional[Cartographie] = None
     organisme_id_pere: Optional[OrganismeIDPere] = None
     commune: Optional[Commune] = None
@@ -134,8 +134,8 @@ class OrganismesHit(Hit):
         nom_simple: None,
         date_affiliation: None,
         saison_en_cours: Optional[bool],
-        offres_pratiques: Optional[List[str]],
-        labellisation: Optional[List[str]],
+        offres_pratiques: Optional[list[str]],
+        labellisation: Optional[list[str]],
         cartographie: Optional[Cartographie],
         organisme_id_pere: Optional[OrganismeIDPere],
         commune: Optional[Commune],

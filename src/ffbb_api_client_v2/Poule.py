@@ -1,4 +1,4 @@
-from typing import Any, List, Optional
+from typing import Any, Optional
 
 from .converters import from_list, from_none, from_str, from_union, to_class
 from .multi_search_result_rencontres import Engagement
@@ -7,13 +7,13 @@ from .multi_search_result_rencontres import Engagement
 class Poule:
     nom: Optional[str] = None
     id: Optional[str] = None
-    engagements: Optional[List[Engagement]] = None
+    engagements: Optional[list[Engagement]] = None
 
     def __init__(
         self,
         nom: Optional[str],
         id: Optional[str],
-        engagements: Optional[List[Engagement]],
+        engagements: Optional[list[Engagement]],
     ):
         self.nom = nom
         self.id = id

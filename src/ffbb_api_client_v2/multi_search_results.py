@@ -1,4 +1,4 @@
-from typing import Any, Generic, List, Optional, Type, TypeVar, cast
+from typing import Any, Generic, Optional, TypeVar, cast
 
 from .converters import from_int, from_list, from_none, from_str, from_union, to_class
 from .FacetDistribution import FacetDistribution
@@ -13,7 +13,7 @@ ReturnType = TypeVar("ResultType", bound="MultiSearchResult")
 
 class MultiSearchResult(Generic[HitType, FacetDistributionType, FacetStatsType]):
     index_uid: Optional[str] = None
-    hits: Optional[List[HitType]] = None
+    hits: Optional[list[HitType]] = None
     query: Optional[str] = None
     processing_time_ms: Optional[int] = None
     limit: Optional[int] = None
@@ -25,7 +25,7 @@ class MultiSearchResult(Generic[HitType, FacetDistributionType, FacetStatsType])
     def __init__(
         self,
         index_uid: Optional[str],
-        hits: Optional[List[HitType]],
+        hits: Optional[list[HitType]],
         query: Optional[str],
         processing_time_ms: Optional[int],
         limit: Optional[int],
@@ -47,10 +47,10 @@ class MultiSearchResult(Generic[HitType, FacetDistributionType, FacetStatsType])
     @staticmethod
     def from_dict(
         obj: Any,
-        hit_type: Type[HitType],
-        facet_distribution_type: Type[FacetDistributionType],
-        facet_stats_type: Type[FacetStatsType],
-        return_type: Type[ReturnType],
+        hit_type: type[HitType],
+        facet_distribution_type: type[FacetDistributionType],
+        facet_stats_type: type[FacetStatsType],
+        return_type: type[ReturnType],
     ) -> "MultiSearchResult":
         assert isinstance(obj, dict)
         index_uid = from_union([from_str, from_none], obj.get("indexUid"))

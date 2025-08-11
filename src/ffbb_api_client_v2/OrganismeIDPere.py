@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, List, Optional
+from typing import Any, Optional
 from uuid import UUID
 
 from .converters import (
@@ -41,9 +41,9 @@ class OrganismeIDPere:
     handibasket: Optional[bool] = None
     omnisport: Optional[bool] = None
     hors_association: Optional[bool] = None
-    offres_pratiques: Optional[List[Any]] = None
-    engagements: Optional[List[Any]] = None
-    labellisation: Optional[List[Any]] = None
+    offres_pratiques: Optional[list[Any]] = None
+    engagements: Optional[list[Any]] = None
+    labellisation: Optional[list[Any]] = None
 
     def __init__(
         self,
@@ -73,9 +73,9 @@ class OrganismeIDPere:
         handibasket: Optional[bool],
         omnisport: Optional[bool],
         hors_association: Optional[bool],
-        offres_pratiques: Optional[List[Any]],
-        engagements: Optional[List[Any]],
-        labellisation: Optional[List[Any]],
+        offres_pratiques: Optional[list[Any]],
+        engagements: Optional[list[Any]],
+        labellisation: Optional[list[Any]],
     ) -> None:
         self.adresse = adresse
         self.adresse_club_pro = adresse_club_pro

@@ -1,6 +1,6 @@
 import json
 import time
-from typing import Any, Dict
+from typing import Any
 from urllib.parse import urlencode
 
 import requests
@@ -8,7 +8,7 @@ from requests import Response
 from requests_cache import CachedSession
 
 
-def to_json_from_response(response: Response) -> Dict[str, Any]:
+def to_json_from_response(response: Response) -> dict[str, Any]:
     """
     Converts the HTTP response to a JSON dictionary.
 
@@ -39,7 +39,7 @@ def to_json_from_response(response: Response) -> Dict[str, Any]:
 
 def http_get(
     url: str,
-    headers: Dict[str, str],
+    headers: dict[str, str],
     debug: bool = False,
     cached_session: CachedSession = None,
     timeout: int = 20,
@@ -76,8 +76,8 @@ def http_get(
 
 def http_post(
     url: str,
-    headers: Dict[str, str],
-    data: Dict[str, Any] = None,
+    headers: dict[str, str],
+    data: dict[str, Any] = None,
     debug: bool = False,
     cached_session: CachedSession = None,
     timeout: int = 20,
@@ -116,11 +116,11 @@ def http_post(
 
 def http_get_json(
     url: str,
-    headers: Dict[str, str],
+    headers: dict[str, str],
     debug: bool = False,
     cached_session: CachedSession = None,
     timeout: int = 20,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Performs an HTTP GET request and returns the result in JSON format.
 
@@ -142,12 +142,12 @@ def http_get_json(
 
 def http_post_json(
     url: str,
-    headers: Dict[str, str],
-    data: Dict[str, Any] = None,
+    headers: dict[str, str],
+    data: dict[str, Any] = None,
     debug: bool = False,
     cached_session: CachedSession = None,
     timeout: int = 20,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Performs an HTTP POST request and returns the result in JSON format.
 
@@ -175,7 +175,7 @@ def http_post_json(
     return to_json_from_response(response)
 
 
-def encode_params(params: Dict[str, Any]) -> str:
+def encode_params(params: dict[str, Any]) -> str:
     """
     Encodes the request parameters into a query string.
 
@@ -188,7 +188,7 @@ def encode_params(params: Dict[str, Any]) -> str:
     return urlencode({k: v for k, v in params.items() if v is not None})
 
 
-def url_with_params(url: str, params: Dict[str, Any]) -> str:
+def url_with_params(url: str, params: dict[str, Any]) -> str:
     """
     Adds the request parameters to the URL.
 

@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Type, TypeVar, cast
+from typing import Any, Callable, Optional, TypeVar, cast
 from uuid import UUID
 
 import dateutil.parser
@@ -47,7 +47,7 @@ def from_float(x: Any) -> float:
     return float(x)
 
 
-def is_type(t: Type[T], x: Any) -> T:
+def is_type(t: type[T], x: Any) -> T:
     """
     Check if x is of type t.
     """
@@ -89,7 +89,7 @@ def from_datetime(x: Any) -> Optional[datetime]:
     return dateutil.parser.parse(x) if x else None
 
 
-def to_class(c: Type[T], x: Any) -> dict:
+def to_class(c: type[T], x: Any) -> dict:
     """
     Convert Any to dictionary representation of class c.
     """
@@ -105,7 +105,7 @@ def from_bool(x: Any) -> bool:
     return x
 
 
-def from_list(f: Callable[[Any], T], x: Any) -> List[T]:
+def from_list(f: Callable[[Any], T], x: Any) -> list[T]:
     """
     Convert list to list of type T.
     """
@@ -113,7 +113,7 @@ def from_list(f: Callable[[Any], T], x: Any) -> List[T]:
     return [f(y) for y in x]
 
 
-def from_dict(f: Callable[[Any], T], x: Any) -> Dict[str, T]:
+def from_dict(f: Callable[[Any], T], x: Any) -> dict[str, T]:
     """
     Convert dict to dict of type T.
     """
@@ -121,7 +121,7 @@ def from_dict(f: Callable[[Any], T], x: Any) -> Dict[str, T]:
     return {k: f(v) for (k, v) in x.items()}
 
 
-def to_enum(c: Type[EnumT], x: Any) -> EnumT:
+def to_enum(c: type[EnumT], x: Any) -> EnumT:
     """
     Convert Any to EnumT.
     """
@@ -136,7 +136,7 @@ def from_uuid(x: Any) -> Optional[UUID]:
     return UUID(x) if x else None
 
 
-def from_comma_separated_list(x: Any) -> Optional[List[str]]:
+def from_comma_separated_list(x: Any) -> Optional[list[str]]:
     """
     Convert comma separated list to list of strings.
     """

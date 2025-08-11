@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, List, Optional
+from typing import Any, Optional
 from uuid import UUID
 
 from .converters import (
@@ -38,15 +38,15 @@ class Organisateur:
     handibasket: Optional[bool] = None
     omnisport: Optional[bool] = None
     hors_association: Optional[bool] = None
-    offres_pratiques: Optional[List[Any]] = None
-    engagements: Optional[List[Any]] = None
-    labellisation: Optional[List[Any]] = None
-    membres: Optional[List[int]] = None
+    offres_pratiques: Optional[list[Any]] = None
+    engagements: Optional[list[Any]] = None
+    labellisation: Optional[list[Any]] = None
+    membres: Optional[list[int]] = None
     date_created: Optional[datetime] = None
     date_updated: Optional[datetime] = None
     logo_base64: None
-    competitions: Optional[List[str]] = None
-    organismes_fils: Optional[List[int]] = None
+    competitions: Optional[list[str]] = None
+    organismes_fils: Optional[list[int]] = None
 
     def __init__(
         self,
@@ -74,15 +74,15 @@ class Organisateur:
         handibasket: Optional[bool],
         omnisport: Optional[bool],
         hors_association: Optional[bool],
-        offres_pratiques: Optional[List[Any]],
-        engagements: Optional[List[Any]],
-        labellisation: Optional[List[Any]],
-        membres: Optional[List[int]],
+        offres_pratiques: Optional[list[Any]],
+        engagements: Optional[list[Any]],
+        labellisation: Optional[list[Any]],
+        membres: Optional[list[int]],
         date_created: Optional[datetime],
         date_updated: Optional[datetime],
         logo_base64: None,
-        competitions: Optional[List[str]],
-        organismes_fils: Optional[List[int]],
+        competitions: Optional[list[str]],
+        organismes_fils: Optional[list[int]],
     ) -> None:
         self.adresse = adresse
         self.adresse_club_pro = adresse_club_pro
