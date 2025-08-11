@@ -178,6 +178,7 @@ def http_post_json(
 def encode_params(params: dict[str, Any]) -> str:
     """
     Encodes the request parameters into a query string.
+    Handles array parameters correctly (fields[], etc.)
 
     Args:
         params (Dict[str, Any]): The request parameters.
@@ -185,7 +186,18 @@ def encode_params(params: dict[str, Any]) -> str:
     Returns:
         str: The encoded query string.
     """
-    return urlencode({k: v for k, v in params.items() if v is not None})
+    encoded_pairs = []
+    for k, v in params.items():
+        if v is None:
+            continue
+        if isinstance(v, list):
+            # Handle array parameters like fields[]
+            for item in v:
+                encoded_pairs.append(urlencode({k: item}))
+        else:
+            encoded_pairs.append(urlencode({k: v}))
+
+    return "&".join(encoded_pairs)
 
 
 def url_with_params(url: str, params: dict[str, Any]) -> str:

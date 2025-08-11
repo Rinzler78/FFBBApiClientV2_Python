@@ -1,0 +1,94 @@
+{
+	"base_url": "https://meilisearch-prod.ffbb.app",
+	"paths": {
+		"multi-search": {
+			"method": "POST",
+			"headers": {
+				"Authorization": "Bearer {MEILISEARCH_TOKEN}",
+				"Content-Type": "application/json"
+			},
+			"params": {},
+			"body": {
+				"queries": [
+					{
+						"queries": [
+							{
+								"indexUid": "ffbbserver_organismes",
+								"q": "",
+								"facets": [
+									"type_association.libelle",
+									"type",
+									"labellisation",
+									"offresPratiques"
+								],
+								"limit": 5000,
+								"filter": [],
+								"sort": []
+							},
+							{
+								"indexUid": "ffbbserver_rencontres",
+								"q": "",
+								"facets": [
+									"competitionId.categorie.code",
+									"competitionId.typeCompetition",
+									"niveau",
+									"competitionId.sexe",
+									"organisateur.nom",
+									"organisateur.id",
+									"competitionId.nomExtended"
+								],
+								"limit": 5000,
+								"filter": [],
+								"sort": []
+							},
+							{
+								"indexUid": "ffbbserver_terrains",
+								"q": "",
+								"limit": 5000,
+								"filter": [],
+								"sort": []
+							},
+							{
+								"indexUid": "ffbbserver_salles",
+								"q": "",
+								"limit": 5000,
+								"filter": [],
+								"sort": []
+							},
+							{
+								"indexUid": "ffbbserver_tournois",
+								"q": "",
+								"facets": [
+									"sexe",
+									"tournoiTypes3x3.libelle",
+									"tournoiType"
+								],
+								"filter": [],
+								"limit": 5000,
+								"sort": []
+							},
+							{
+								"indexUid": "ffbbserver_competitions",
+								"q": "",
+								"limit": 5000,
+								"filter": [],
+								"sort": []
+							},
+							{
+								"indexUid": "ffbbnational_pratiques",
+								"q": "",
+								"facets": [
+									"label",
+									"type"
+								],
+								"limit": 5000,
+								"filter": [],
+								"sort": []
+							}
+						]
+					}
+				]
+			}
+		}
+	}
+}
