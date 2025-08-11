@@ -1,49 +1,49 @@
 import sys
 
-from .api_ffbb_app_client import ApiFFBBAppClient  # noqa
-from .ffbb_api_client_v2 import FFBBAPIClientV2  # noqa
-from .meilisearch_client import MeilisearchClient  # noqa
-from .meilisearch_client_extension import MeilisearchClientExtension  # noqa
-from .meilisearch_ffbb_client import MeilisearchFFBBClient  # noqa
-from .multi_search_query import MultiSearchQuery  # noqa
-from .multi_search_query_helper import generate_queries  # noqa
-from .MultiSearchResultCompetitions import (  # noqa
+from .clients.api_ffbb_app_client import ApiFFBBAppClient  # noqa
+from .clients.ffbb_api_client_v2 import FFBBAPIClientV2  # noqa
+from .clients.meilisearch_client import MeilisearchClient  # noqa
+from .clients.meilisearch_ffbb_client import MeilisearchFFBBClient  # noqa
+from .helpers.meilisearch_client_extension import MeilisearchClientExtension  # noqa
+from .helpers.multi_search_query_helper import generate_queries  # noqa
+from .models.multi_search_query import MultiSearchQuery  # noqa
+from .models.MultiSearchResultCompetitions import (  # noqa
     CompetitionsFacetDistribution,
     CompetitionsFacetStats,
     CompetitionsHit,
     CompetitionsMultiSearchResult,
 )
-from .MultiSearchResultOrganismes import (  # noqa
+from .models.MultiSearchResultOrganismes import (  # noqa
     OrganismesFacetDistribution,
     OrganismesFacetStats,
     OrganismesHit,
     OrganismesMultiSearchResult,
 )
-from .MultiSearchResultPratiques import (  # noqa
+from .models.MultiSearchResultPratiques import (  # noqa
     PratiquesFacetDistribution,
     PratiquesFacetStats,
     PratiquesHit,
     PratiquesMultiSearchResult,
 )
-from .MultiSearchResultRencontres import (  # noqa
+from .models.MultiSearchResultRencontres import (  # noqa
     RencontresFacetDistribution,
     RencontresFacetStats,
     RencontresHit,
     RencontresMultiSearchResult,
 )
-from .MultiSearchResultSalles import (  # noqa
+from .models.MultiSearchResultSalles import (  # noqa
     SallesFacetDistribution,
     SallesFacetStats,
     SallesHit,
     SallesMultiSearchResult,
 )
-from .MultiSearchResultTerrains import (  # noqa
+from .models.MultiSearchResultTerrains import (  # noqa
     TerrainsFacetDistribution,
     TerrainsFacetStats,
     TerrainsHit,
     TerrainsMultiSearchResult,
 )
-from .MultiSearchResultTournois import (  # noqa
+from .models.MultiSearchResultTournois import (  # noqa
     TournoisFacetDistribution,
     TournoisFacetStats,
     TournoisHit,

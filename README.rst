@@ -94,6 +94,27 @@ Quick start
     # Get tournois
     tournois = ffbb_api_client.search_tournois("Basket")
 
+Package Structure
+=================
+
+The library is organized into the following packages:
+
+- **clients/**: API client classes for interacting with FFBB services
+- **models/**: Data models and structures returned by the API
+- **helpers/**: Class extensions and utility helpers
+- **utils/**: Data conversion utilities
+
+.. code-block:: python
+
+    # Import specific clients
+    from ffbb_api_client_v2 import ApiFFBBAppClient, MeilisearchFFBBClient
+
+    # Import specific models
+    from ffbb_api_client_v2 import Live, MultiSearchQuery
+
+    # Import helpers and utilities
+    from ffbb_api_client_v2 import MeilisearchClientExtension
+
 Examples
 ========
 

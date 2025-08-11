@@ -30,6 +30,9 @@ Contents
    :maxdepth: 2
 
    Overview <readme>
+   Architecture <architecture>
+   Examples <examples>
+   Migration <migration>
    License <license>
    Authors <authors>
    Changelog <changelog>
