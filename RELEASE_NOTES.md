@@ -112,7 +112,7 @@
 
 - **MAINTAINED**: All existing dependencies remain unchanged
 - **ADDED**: Enhanced support for `python-dotenv` for environment management
-- **IMPROVED**: Better compatibility with Python 3.9-3.12
+- **IMPROVED**: Better compatibility with Python 3.11-3.12
 
 ### 🧪 Testing
 
