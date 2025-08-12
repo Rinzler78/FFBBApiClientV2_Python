@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime
 from typing import Any
 
@@ -24,7 +26,7 @@ class NatureSol:
     terrain: bool | None = None
 
     @staticmethod
-    def from_dict(obj: Any) -> "NatureSol":
+    def from_dict(obj: Any) -> NatureSol:
         assert isinstance(obj, dict)
         code = from_union([Code, from_none], obj.get("code"))
         date_created = from_union([from_datetime, from_none], obj.get("date_created"))

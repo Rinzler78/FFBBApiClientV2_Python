@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 from uuid import UUID
 
@@ -10,7 +12,7 @@ class Folder:
     parent: None
 
     @staticmethod
-    def from_dict(obj: Any) -> "Folder":
+    def from_dict(obj: Any) -> Folder:
         assert isinstance(obj, dict)
         id = from_union([lambda x: UUID(x), from_none], obj.get("id"))
         name = from_union([from_str, from_none], obj.get("name"))

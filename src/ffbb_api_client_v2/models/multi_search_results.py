@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any, Generic, TypeVar, cast
 
 from ..utils.converter_utils import (
@@ -58,7 +60,7 @@ class MultiSearchResult(Generic[HitType, FacetDistributionType, FacetStatsType])
         facet_distribution_type: type[FacetDistributionType],
         facet_stats_type: type[FacetStatsType],
         return_type: type[ReturnType],
-    ) -> "MultiSearchResult":
+    ) -> MultiSearchResult:
         assert isinstance(obj, dict)
         index_uid = from_union([from_str, from_none], obj.get("indexUid"))
         hits = from_union(

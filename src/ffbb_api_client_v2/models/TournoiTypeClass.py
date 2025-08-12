@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 
 from ..utils.converter_utils import from_int, from_none, from_union
@@ -19,7 +21,7 @@ class TournoiTypeClass:
         self.open_start = open_start
 
     @staticmethod
-    def from_dict(obj: Any) -> "TournoiTypeClass":
+    def from_dict(obj: Any) -> TournoiTypeClass:
         assert isinstance(obj, dict)
         open_plus = from_union([from_int, from_none], obj.get("Open Plus"))
         open_plus_access = from_union(

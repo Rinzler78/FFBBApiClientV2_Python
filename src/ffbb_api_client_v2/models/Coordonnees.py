@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 
 from ..utils.converter_utils import (
@@ -19,7 +21,7 @@ class Coordonnees:
         self.coordinates = coordinates
 
     @staticmethod
-    def from_dict(obj: Any) -> "Coordonnees":
+    def from_dict(obj: Any) -> Coordonnees:
         assert isinstance(obj, dict)
         type = from_union([from_str, from_none], obj.get("type"))
         coordinates = from_union(

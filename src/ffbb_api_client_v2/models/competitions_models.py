@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
@@ -177,7 +179,7 @@ class GetCompetitionResponse:
     phases: list[PhasesitemModel]
 
     @classmethod
-    def from_dict(cls, data: dict) -> "GetCompetitionResponse":
+    def from_dict(cls, data: dict) -> GetCompetitionResponse:
         """Convert dictionary to CompetitionsModel instance."""
         if not data:
             return None

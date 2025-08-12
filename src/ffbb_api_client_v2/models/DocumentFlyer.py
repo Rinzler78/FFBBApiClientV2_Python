@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime
 from typing import Any
 from uuid import UUID
@@ -56,7 +58,7 @@ class DocumentFlyer:
     newsbridge_mission: None
 
     @staticmethod
-    def from_dict(obj: Any) -> "DocumentFlyer":
+    def from_dict(obj: Any) -> DocumentFlyer:
         assert isinstance(obj, dict)
         id = from_union([lambda x: UUID(x), from_none], obj.get("id"))
         storage = from_union([from_str, from_none], obj.get("storage"))

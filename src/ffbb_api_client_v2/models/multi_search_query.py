@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 
 from ..utils.converter_utils import from_int, from_list, from_none, from_str, from_union
@@ -72,7 +74,7 @@ class MultiSearchQuery:
         self.sort = sort
 
     @staticmethod
-    def from_dict(obj: Any) -> "MultiSearchQuery":
+    def from_dict(obj: Any) -> MultiSearchQuery:
         assert isinstance(obj, dict)
         index_uid = from_union([from_str, from_none], obj.get("indexUid"))
         q = from_union([from_str, from_none], obj.get("q"))

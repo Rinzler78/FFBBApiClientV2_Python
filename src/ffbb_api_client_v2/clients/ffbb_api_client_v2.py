@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from requests_cache import CachedSession
 
 from ..helpers.http_requests_helper import default_cached_session
@@ -43,7 +45,7 @@ class FFBBAPIClientV2:
         api_bearer_token: str,
         debug: bool = False,
         cached_session: CachedSession = default_cached_session,
-    ) -> "FFBBAPIClientV2":
+    ) -> FFBBAPIClientV2:
         if not api_bearer_token:
             raise ValueError("Api Bearer token cannot be None or empty.")
 

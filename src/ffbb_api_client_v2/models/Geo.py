@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 
 from ..utils.converter_utils import from_float, from_none, from_union, to_float
@@ -12,7 +14,7 @@ class Geo:
         self.lng = lng
 
     @staticmethod
-    def from_dict(obj: Any) -> "Geo":
+    def from_dict(obj: Any) -> Geo:
         assert isinstance(obj, dict)
         lat = from_union([from_float, from_none], obj.get("lat"))
         lng = from_union([from_float, from_none], obj.get("lng"))

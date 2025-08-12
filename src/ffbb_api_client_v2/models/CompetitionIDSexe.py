@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 
 from ..utils.converter_utils import from_int, from_none, from_union
@@ -16,7 +18,7 @@ class CompetitionIDSexe:
         self.mixed = mixed
 
     @staticmethod
-    def from_dict(obj: Any) -> "CompetitionIDSexe":
+    def from_dict(obj: Any) -> CompetitionIDSexe:
         assert isinstance(obj, dict)
         feminine = from_union([from_int, from_none], obj.get("Féminin"))
         masculine = from_union([from_int, from_none], obj.get("Masculin"))

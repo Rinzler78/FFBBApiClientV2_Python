@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 
 
@@ -16,7 +18,7 @@ class GetSaisonsResponse:
     actif: bool | None = None
 
     @classmethod
-    def from_dict(cls, data: dict) -> "GetSaisonsResponse":
+    def from_dict(cls, data: dict) -> GetSaisonsResponse:
         """Convert dictionary to GetSaisonsResponse instance."""
         if not data:
             return None
@@ -36,7 +38,7 @@ class GetSaisonsResponse:
         )
 
     @classmethod
-    def from_list(cls, data_list: list) -> list["GetSaisonsResponse"]:
+    def from_list(cls, data_list: list) -> list[GetSaisonsResponse]:
         """Convert list of dictionaries to list of SaisonsModel instances."""
         if not data_list:
             return []

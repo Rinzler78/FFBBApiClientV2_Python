@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime
 from typing import Any
 from uuid import UUID
@@ -108,7 +110,7 @@ class OrganismeIDPere:
         self.labellisation = labellisation
 
     @staticmethod
-    def from_dict(obj: Any) -> "OrganismeIDPere":
+    def from_dict(obj: Any) -> OrganismeIDPere:
         assert isinstance(obj, dict)
         adresse = from_union([from_str, from_none], obj.get("adresse"))
         adresse_club_pro = from_none(obj.get("adresseClubPro"))

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime
 from typing import Any
 
@@ -41,7 +43,7 @@ class Commune:
         self.lower_departement = departement.lower() if departement else None
 
     @staticmethod
-    def from_dict(obj: Any) -> "Commune":
+    def from_dict(obj: Any) -> Commune:
         assert isinstance(obj, dict)
         code_insee = from_none(obj.get("codeInsee"))
         code_postal = from_union(

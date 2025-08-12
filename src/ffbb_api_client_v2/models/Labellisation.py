@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 
 from ..utils.converter_utils import from_int, from_none, from_union
@@ -16,7 +18,7 @@ class Labellisation:
         self.micro_basket = micro_basket
 
     @staticmethod
-    def from_dict(obj: Any) -> "Labellisation":
+    def from_dict(obj: Any) -> Labellisation:
         assert isinstance(obj, dict)
         basket_santé_résolutions = from_union(
             [from_int, from_none], obj.get("Basket Santé / Résolutions")

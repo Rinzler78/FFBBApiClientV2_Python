@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 
 from ..utils.converter_utils import from_none, from_str, from_union, to_class, to_enum
@@ -33,7 +35,7 @@ class CompetitionOrigine:
         self.type_competition_generique = type_competition_generique
 
     @staticmethod
-    def from_dict(obj: Any) -> "CompetitionOrigine":
+    def from_dict(obj: Any) -> CompetitionOrigine:
         assert isinstance(obj, dict)
         id = from_union([from_str, from_none], obj.get("id"))
         code = from_union([from_str, from_none], obj.get("code"))

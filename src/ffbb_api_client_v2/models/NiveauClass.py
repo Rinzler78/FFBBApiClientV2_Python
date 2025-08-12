@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 
 from ..utils.converter_utils import from_int, from_none, from_union
@@ -12,7 +14,7 @@ class NiveauClass:
         self.régional = régional
 
     @staticmethod
-    def from_dict(obj: Any) -> "NiveauClass":
+    def from_dict(obj: Any) -> NiveauClass:
         assert isinstance(obj, dict)
         départemental = from_union([from_int, from_none], obj.get("Départemental"))
         régional = from_union([from_int, from_none], obj.get("Régional"))

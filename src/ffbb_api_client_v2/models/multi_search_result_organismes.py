@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from enum import Enum
 from typing import Any
 
@@ -45,7 +47,7 @@ class OrganismesFacetDistribution(FacetDistribution):
         self.type_association_libelle = type_association_libelle
 
     @staticmethod
-    def from_dict(obj: Any) -> "OrganismesFacetDistribution":
+    def from_dict(obj: Any) -> OrganismesFacetDistribution:
         assert isinstance(obj, dict)
         labellisation = from_union(
             [Labellisation.from_dict, from_none], obj.get("labellisation")
@@ -179,7 +181,7 @@ class OrganismesHit(Hit):
         self.thumbnail = thumbnail
 
     @staticmethod
-    def from_dict(obj: Any) -> "Hit":
+    def from_dict(obj: Any) -> Hit:
         try:
             assert isinstance(obj, dict)
             nom_club_pro = from_union([from_str, from_none], obj.get("nomClubPro"))
@@ -351,7 +353,7 @@ class OrganismesHit(Hit):
 
 class OrganismesFacetStats(FacetStats):
     @staticmethod
-    def from_dict(obj: Any) -> "OrganismesFacetStats":
+    def from_dict(obj: Any) -> OrganismesFacetStats:
         return OrganismesFacetStats()
 
     def to_dict(self) -> dict:

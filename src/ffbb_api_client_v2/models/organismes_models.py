@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
@@ -179,7 +181,7 @@ class GetOrganismeResponse:
     logo: LogoModel
 
     @classmethod
-    def from_dict(cls, data: dict) -> "GetOrganismeResponse":
+    def from_dict(cls, data: dict) -> GetOrganismeResponse:
         """Convert dictionary to OrganismesModel instance."""
         if not data:
             return None

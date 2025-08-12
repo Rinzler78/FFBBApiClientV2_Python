@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime
 from typing import Any
 
@@ -22,7 +24,7 @@ from .TypeAssociation import TypeAssociation
 
 class SallesFacetDistribution(FacetDistribution):
     @staticmethod
-    def from_dict(obj: Any) -> "SallesFacetDistribution":
+    def from_dict(obj: Any) -> SallesFacetDistribution:
         return SallesFacetDistribution()
 
     def to_dict(self) -> dict:
@@ -97,7 +99,7 @@ class SallesHit(Hit):
         self.type_association = type_association
 
     @staticmethod
-    def from_dict(obj: Any) -> "SallesHit":
+    def from_dict(obj: Any) -> SallesHit:
         assert isinstance(obj, dict)
         libelle = from_union([from_str, from_none], obj.get("libelle"))
         adresse = from_union([from_none, from_str], obj.get("adresse"))
@@ -223,7 +225,7 @@ class SallesHit(Hit):
 
 class SallesFacetStats(FacetStats):
     @staticmethod
-    def from_dict(obj: Any) -> "SallesFacetStats":
+    def from_dict(obj: Any) -> SallesFacetStats:
         return SallesFacetStats()
 
     def to_dict(self) -> dict:

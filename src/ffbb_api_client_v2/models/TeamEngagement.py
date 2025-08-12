@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 from typing import Any
 
@@ -25,7 +27,7 @@ class TeamEngagement:
         self.logo = logo
 
     @staticmethod
-    def from_dict(obj: Any) -> "TeamEngagement":
+    def from_dict(obj: Any) -> TeamEngagement:
         """
         Convert a dictionary object to a TeamEngagement instance.
 

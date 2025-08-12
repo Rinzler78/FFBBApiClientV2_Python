@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 from datetime import datetime
 
@@ -31,7 +33,7 @@ class GetPouleResponse:
     rencontres: list[RencontresitemModel]
 
     @classmethod
-    def from_dict(cls, data: dict) -> "GetPouleResponse":
+    def from_dict(cls, data: dict) -> GetPouleResponse:
         """Convert dictionary to PoulesModel instance."""
         if not data:
             return None

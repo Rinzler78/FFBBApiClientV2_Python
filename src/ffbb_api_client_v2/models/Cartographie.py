@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 
 from ..utils.converter_utils import (
@@ -52,7 +54,7 @@ class Cartographie:
         self.status = status
 
     @staticmethod
-    def from_dict(obj: Any) -> "Cartographie":
+    def from_dict(obj: Any) -> Cartographie:
         assert isinstance(obj, dict)
         adresse = from_union([from_str, from_none], obj.get("adresse"))
         code_postal = from_union(

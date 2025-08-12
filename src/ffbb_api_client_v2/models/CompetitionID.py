@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 
 from ..utils.converter_utils import from_bool, from_none, from_str, from_union, to_class
@@ -59,7 +61,7 @@ class CompetitionID:
         self.nom_extended = nom_extended
 
     @staticmethod
-    def from_dict(obj: Any) -> "CompetitionID":
+    def from_dict(obj: Any) -> CompetitionID:
         try:
             assert isinstance(obj, dict)
             id = from_union([from_str, from_none], obj.get("id"))

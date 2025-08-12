@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 
 from ..utils.converter_utils import from_none, from_str, from_union
@@ -12,7 +14,7 @@ class IDPoule:
         self.nom = nom
 
     @staticmethod
-    def from_dict(obj: Any) -> "IDPoule":
+    def from_dict(obj: Any) -> IDPoule:
         assert isinstance(obj, dict)
         id = from_union([from_str, from_none], obj.get("id"))
         nom = from_union([from_str, from_none], obj.get("nom"))

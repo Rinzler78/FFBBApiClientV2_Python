@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from requests_cache import CachedSession
 
 from ..helpers.http_requests_helper import catch_result, default_cached_session

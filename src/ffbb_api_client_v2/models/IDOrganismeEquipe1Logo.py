@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 from uuid import UUID
 
@@ -13,7 +15,7 @@ class IDOrganismeEquipe1Logo:
         self.gradient_color = gradient_color
 
     @staticmethod
-    def from_dict(obj: Any) -> "IDOrganismeEquipe1Logo":
+    def from_dict(obj: Any) -> IDOrganismeEquipe1Logo:
         assert isinstance(obj, dict)
         id = from_union([lambda x: UUID(x), from_none], obj.get("id"))
         gradient_color = from_union([from_str, from_none], obj.get("gradient_color"))

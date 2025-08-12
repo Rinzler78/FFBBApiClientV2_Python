@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from ..models.multi_search_query import (
     CompetitionsMultiSearchQuery,
     OrganismesMultiSearchQuery,

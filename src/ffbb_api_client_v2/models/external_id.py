@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 
 from ..utils.converter_utils import from_none, from_str, from_union, is_type, to_class
@@ -25,7 +27,7 @@ class CompetitionID:
         self.type_competition = type_competition
 
     @staticmethod
-    def from_dict(obj: Any) -> "CompetitionID":
+    def from_dict(obj: Any) -> CompetitionID:
         assert isinstance(obj, dict)
         code = from_union([from_str, from_none], obj.get("code"))
         nom = from_union([from_str, from_none], obj.get("nom"))
@@ -79,7 +81,7 @@ class ExternalID:
         self.id_poule = id_poule
 
     @staticmethod
-    def from_dict(obj: Any) -> "ExternalID":
+    def from_dict(obj: Any) -> ExternalID:
         """
         Construct a new ExternalID object from a dictionary.
 

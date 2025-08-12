@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 from uuid import UUID
 
@@ -11,7 +13,7 @@ class Affiche:
     height: int | None = None
 
     @staticmethod
-    def from_dict(obj: Any) -> "Affiche":
+    def from_dict(obj: Any) -> Affiche:
         assert isinstance(obj, dict)
         affiche_id = from_union([lambda x: UUID(x), from_none], obj.get("id"))
         gradient_color = from_union([from_none, from_str], obj.get("gradient_color"))

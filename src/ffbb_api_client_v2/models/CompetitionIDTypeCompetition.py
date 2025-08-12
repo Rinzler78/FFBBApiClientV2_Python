@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 
 from ..utils.converter_utils import from_int, from_none, from_union
@@ -12,7 +14,7 @@ class CompetitionIDTypeCompetition:
         self.coupe = coupe
 
     @staticmethod
-    def from_dict(obj: Any) -> "CompetitionIDTypeCompetition":
+    def from_dict(obj: Any) -> CompetitionIDTypeCompetition:
         assert isinstance(obj, dict)
         championnat = from_union([from_int, from_none], obj.get("Championnat"))
         coupe = from_union([from_int, from_none], obj.get("Coupe"))

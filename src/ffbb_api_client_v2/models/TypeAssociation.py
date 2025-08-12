@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 
 from ..utils.converter_utils import from_none, from_str, from_union
@@ -10,7 +12,7 @@ class TypeAssociation:
         self.libelle = libelle
 
     @staticmethod
-    def from_dict(obj: Any) -> "TypeAssociation":
+    def from_dict(obj: Any) -> TypeAssociation:
         assert isinstance(obj, dict)
         libelle = from_union([from_str, from_none], obj.get("libelle"))
         return TypeAssociation(libelle)

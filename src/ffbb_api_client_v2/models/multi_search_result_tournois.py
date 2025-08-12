@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime
 from enum import Enum
 from typing import Any
@@ -37,7 +39,7 @@ class SexeClass:
         self.mixed = mixed
 
     @staticmethod
-    def from_dict(obj: Any) -> "SexeClass":
+    def from_dict(obj: Any) -> SexeClass:
         assert isinstance(obj, dict)
         feminine = from_union([from_none, from_int], obj.get("Féminin"))
         masculine = from_union([from_none, from_int], obj.get("Masculin"))
@@ -71,7 +73,7 @@ class TournoisFacetDistribution(FacetDistribution):
         self.tournoi_types3_x3_libelle = tournoi_types3_x3_libelle
 
     @staticmethod
-    def from_dict(obj: Any) -> "TournoisFacetDistribution":
+    def from_dict(obj: Any) -> TournoisFacetDistribution:
         assert isinstance(obj, dict)
         sexe = from_union([from_none, SexeClass.from_dict], obj.get("sexe"))
         tournoi_type = from_union(
@@ -165,7 +167,7 @@ class TournoisHit(Hit):
         self.type = type
 
     @staticmethod
-    def from_dict(obj: Any) -> "TournoisHit":
+    def from_dict(obj: Any) -> TournoisHit:
         assert isinstance(obj, dict)
         nom = from_union([from_none, from_str], obj.get("nom"))
         rue = from_union([from_none, from_str], obj.get("rue"))
@@ -278,7 +280,7 @@ class TournoisHit(Hit):
 
 class TournoisFacetStats(FacetStats):
     @staticmethod
-    def from_dict(obj: Any) -> "TournoisFacetStats":
+    def from_dict(obj: Any) -> TournoisFacetStats:
         return TournoisFacetStats()
 
     def to_dict(self) -> dict:

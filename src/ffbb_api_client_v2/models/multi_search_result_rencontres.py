@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime
 from typing import Any
 
@@ -60,7 +62,7 @@ class RencontresFacetDistribution(FacetDistribution):
         self.organisateur_nom = organisateur_nom
 
     @staticmethod
-    def from_dict(obj: Any) -> "RencontresFacetDistribution":
+    def from_dict(obj: Any) -> RencontresFacetDistribution:
         assert isinstance(obj, dict)
         competition_id_categorie_code = from_union(
             [lambda x: from_dict(from_int, x), from_none],
@@ -153,7 +155,7 @@ class Engagement:
         self.id = id
 
     @staticmethod
-    def from_dict(obj: Any) -> "Engagement":
+    def from_dict(obj: Any) -> Engagement:
         assert isinstance(obj, dict)
         id = from_union([from_str, from_none], obj.get("id"))
         return Engagement(id)
@@ -265,7 +267,7 @@ class RencontresHit(Hit):
         self.niveau_nb = niveau_nb
 
     @staticmethod
-    def from_dict(obj: Any) -> "Hit":
+    def from_dict(obj: Any) -> Hit:
         try:
             assert isinstance(obj, dict)
             niveau = from_union([Niveau, from_none], obj.get("niveau"))
@@ -517,7 +519,7 @@ class RencontresHit(Hit):
 
 class RencontresFacetStats(FacetStats):
     @staticmethod
-    def from_dict(obj: Any) -> "RencontresFacetStats":
+    def from_dict(obj: Any) -> RencontresFacetStats:
         return RencontresFacetStats()
 
     def to_dict(self) -> dict:

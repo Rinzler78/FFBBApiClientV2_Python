@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime
 from typing import Any
 
@@ -26,7 +28,7 @@ class Clock:
         self.milliseconds = milliseconds
 
     @staticmethod
-    def from_str(obj: str) -> "Clock":
+    def from_str(obj: str) -> Clock:
         minutes, seconds, milliseconds = obj.split(":") if obj else ["0", "0", "0"]
         return Clock(int(minutes), int(seconds), int(milliseconds))
 
@@ -124,7 +126,7 @@ class Live:
         self.team_engagement_out = team_engagement_out
 
     @staticmethod
-    def from_dict(obj: Any) -> "Live":
+    def from_dict(obj: Any) -> Live:
         """
         Construct a Live object from a dictionary.
 

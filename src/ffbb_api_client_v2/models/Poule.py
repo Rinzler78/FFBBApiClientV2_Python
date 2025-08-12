@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 
 from ..utils.converter_utils import from_list, from_none, from_str, from_union, to_class
@@ -20,7 +22,7 @@ class Poule:
         self.engagements = engagements
 
     @staticmethod
-    def from_dict(obj: Any) -> "Poule":
+    def from_dict(obj: Any) -> Poule:
         assert isinstance(obj, dict)
         nom = from_union([from_str, from_none], obj.get("nom"))
         id = from_union([from_str, from_none], obj.get("id"))

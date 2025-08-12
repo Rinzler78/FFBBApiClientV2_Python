@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime
 from enum import Enum
 from typing import Any
@@ -39,7 +41,7 @@ class SexeClass:
         self.mixed = mixed
 
     @staticmethod
-    def from_dict(obj: Any) -> "SexeClass":
+    def from_dict(obj: Any) -> SexeClass:
         assert isinstance(obj, dict)
         feminine = from_union([from_none, from_int], obj.get("Féminin"))
         masculine = from_union([from_none, from_int], obj.get("Masculin"))
@@ -82,7 +84,7 @@ class TournoiTypes3X3Libelle:
         self.open_start_super_league_3_x3 = open_start_super_league_3_x3
 
     @staticmethod
-    def from_dict(obj: Any) -> "TournoiTypes3X3Libelle":
+    def from_dict(obj: Any) -> TournoiTypes3X3Libelle:
         assert isinstance(obj, dict)
         open_plus_junior_league_3_x3 = from_union(
             [from_none, from_int], obj.get("Open Plus - Junior league 3x3")
@@ -156,7 +158,7 @@ class TerrainsFacetDistribution(FacetDistribution):
         self.tournoi_types3_x3_libelle = tournoi_types3_x3_libelle
 
     @staticmethod
-    def from_dict(obj: Any) -> "TerrainsFacetDistribution":
+    def from_dict(obj: Any) -> TerrainsFacetDistribution:
         assert isinstance(obj, dict)
         sexe = from_union([from_none, SexeClass.from_dict], obj.get("sexe"))
         tournoi_type = from_union(
@@ -232,7 +234,7 @@ class TournoiTypes3X3:
         self.type_tournois = type_tournois
 
     @staticmethod
-    def from_dict(obj: Any) -> "TournoiTypes3X3":
+    def from_dict(obj: Any) -> TournoiTypes3X3:
         assert isinstance(obj, dict)
         libelle = from_union([from_none, Libelle], obj.get("libelle"))
         logo = from_union([from_none, lambda x: UUID(x)], obj.get("logo"))
@@ -381,7 +383,7 @@ class TerrainsHit(Hit):
         self.thumbnail = thumbnail
 
     @staticmethod
-    def from_dict(obj: Any) -> "TerrainsHit":
+    def from_dict(obj: Any) -> TerrainsHit:
         assert isinstance(obj, dict)
         nom = from_union([from_none, from_str], obj.get("nom"))
         sexe = from_union([from_none, SexeEnum], obj.get("sexe"))
@@ -611,7 +613,7 @@ class TerrainsHit(Hit):
 
 class TerrainsFacetStats(FacetStats):
     @staticmethod
-    def from_dict(obj: Any) -> "TerrainsFacetStats":
+    def from_dict(obj: Any) -> TerrainsFacetStats:
         return TerrainsFacetStats()
 
     def to_dict(self) -> dict:

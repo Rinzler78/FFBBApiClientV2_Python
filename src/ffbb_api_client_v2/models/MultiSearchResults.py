@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 
 from ..utils.converter_utils import from_list, from_none, from_union, to_class
@@ -55,7 +57,7 @@ class MultiSearchResults:
         self.results = results
 
     @staticmethod
-    def from_dict(obj: Any) -> "MultiSearchResults":
+    def from_dict(obj: Any) -> MultiSearchResults:
         assert isinstance(obj, dict)
         results = from_union([result_from_list, from_none], obj.get("results"))
         return MultiSearchResults(results)

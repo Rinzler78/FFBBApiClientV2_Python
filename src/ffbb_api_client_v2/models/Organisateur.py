@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime
 from typing import Any
 from uuid import UUID
@@ -119,7 +121,7 @@ class Organisateur:
         self.organismes_fils = organismes_fils
 
     @staticmethod
-    def from_dict(obj: Any) -> "Organisateur":
+    def from_dict(obj: Any) -> Organisateur:
         assert isinstance(obj, dict)
         adresse = from_union([from_str, from_none], obj.get("adresse"))
         adresse_club_pro = from_none(obj.get("adresseClubPro"))

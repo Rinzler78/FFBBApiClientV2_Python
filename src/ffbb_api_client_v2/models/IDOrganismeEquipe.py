@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 
 from ..utils.converter_utils import from_none, from_str, from_union, to_class
@@ -29,7 +31,7 @@ class IDOrganismeEquipe:
         self.logo = logo
 
     @staticmethod
-    def from_dict(obj: Any) -> "IDOrganismeEquipe":
+    def from_dict(obj: Any) -> IDOrganismeEquipe:
         assert isinstance(obj, dict)
         id = from_union([from_str, from_none], obj.get("id"))
         nom = from_union([from_str, from_none], obj.get("nom"))

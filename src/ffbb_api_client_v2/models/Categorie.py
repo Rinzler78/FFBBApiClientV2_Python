@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime
 from typing import Any
 
@@ -35,7 +37,7 @@ class Categorie:
         self.ordre = ordre
 
     @staticmethod
-    def from_dict(obj: Any) -> "Categorie":
+    def from_dict(obj: Any) -> Categorie:
         assert isinstance(obj, dict)
         code = from_union([from_str, from_none], obj.get("code"))
         date_created = from_union([from_datetime, from_none], obj.get("date_created"))

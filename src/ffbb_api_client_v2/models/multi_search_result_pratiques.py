@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime
 from enum import Enum
 from typing import Any
@@ -44,7 +46,7 @@ class TypeClass:
         self.micro_basket = micro_basket
 
     @staticmethod
-    def from_dict(obj: Any) -> "TypeClass":
+    def from_dict(obj: Any) -> TypeClass:
         assert isinstance(obj, dict)
         basket_inclusif = from_union([from_int, from_none], obj.get("Basket Inclusif"))
         basket_santé = from_union([from_int, from_none], obj.get("Basket Santé"))
@@ -97,7 +99,7 @@ class PratiquesFacetDistribution(FacetDistribution):
         self.type = type
 
     @staticmethod
-    def from_dict(obj: Any) -> "PratiquesFacetDistribution":
+    def from_dict(obj: Any) -> PratiquesFacetDistribution:
         assert isinstance(obj, dict)
         label = from_union(
             [lambda x: from_dict(from_int, x), from_none], obj.get("label")
@@ -123,7 +125,7 @@ class PratiquesFacetStats(FacetStats):
         pass
 
     @staticmethod
-    def from_dict(obj: Any) -> "PratiquesFacetStats":
+    def from_dict(obj: Any) -> PratiquesFacetStats:
         assert isinstance(obj, dict)
         return PratiquesFacetStats()
 
@@ -151,7 +153,7 @@ class Affiche:
         self.height = height
 
     @staticmethod
-    def from_dict(obj: Any) -> "Affiche":
+    def from_dict(obj: Any) -> Affiche:
         assert isinstance(obj, dict)
         id = from_union([lambda x: UUID(x), from_none], obj.get("id"))
         gradient_color = from_union([from_none, from_str], obj.get("gradient_color"))
@@ -189,7 +191,7 @@ class Coordonnees:
         self.coordinates = coordinates
 
     @staticmethod
-    def from_dict(obj: Any) -> "Coordonnees":
+    def from_dict(obj: Any) -> Coordonnees:
         assert isinstance(obj, dict)
         type = from_union([CoordonneesType, from_none], obj.get("type"))
         coordinates = from_union(
@@ -254,7 +256,7 @@ class Cartographie:
         self.status = status
 
     @staticmethod
-    def from_dict(obj: Any) -> "Cartographie":
+    def from_dict(obj: Any) -> Cartographie:
         assert isinstance(obj, dict)
         adresse = from_union([from_str, from_none], obj.get("adresse"))
         code_postal = from_union([from_str, from_none], obj.get("codePostal"))
@@ -323,7 +325,7 @@ class Geo:
         self.lng = lng
 
     @staticmethod
-    def from_dict(obj: Any) -> "Geo":
+    def from_dict(obj: Any) -> Geo:
         assert isinstance(obj, dict)
         lat = from_union([from_float, from_none], obj.get("lat"))
         lng = from_union([from_float, from_none], obj.get("lng"))
@@ -543,7 +545,7 @@ class PratiquesHit(Hit):
         self.thumbnail = thumbnail
 
     @staticmethod
-    def from_dict(obj: Any) -> "PratiquesHit":
+    def from_dict(obj: Any) -> PratiquesHit:
         assert isinstance(obj, dict)
         titre = from_union([from_str, from_none], obj.get("titre"))
         type = from_union([HitType, from_none], obj.get("type"))

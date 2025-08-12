@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 
 from ..utils.converter_utils import from_none, from_str, from_union, to_class
@@ -33,7 +35,7 @@ class Salle:
         self.cartographie = cartographie
 
     @staticmethod
-    def from_dict(obj: Any) -> "Salle":
+    def from_dict(obj: Any) -> Salle:
         assert isinstance(obj, dict)
         id = from_union([from_str, from_none], obj.get("id"))
         libelle = from_union([from_str, from_none], obj.get("libelle"))

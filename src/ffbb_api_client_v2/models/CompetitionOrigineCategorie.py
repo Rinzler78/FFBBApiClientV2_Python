@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 
 from ..utils.converter_utils import from_int, from_none, from_union
@@ -10,7 +12,7 @@ class CompetitionOrigineCategorie:
         self.ordre = ordre
 
     @staticmethod
-    def from_dict(obj: Any) -> "CompetitionOrigineCategorie":
+    def from_dict(obj: Any) -> CompetitionOrigineCategorie:
         assert isinstance(obj, dict)
         ordre = from_union([from_int, from_none], obj.get("ordre"))
         return CompetitionOrigineCategorie(ordre)

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 
 from ..utils.converter_utils import from_int, from_none, from_union
@@ -14,7 +16,7 @@ class TypeAssociationLibelle:
         self.coopération_territoriale_club = coopération_territoriale_club
 
     @staticmethod
-    def from_dict(obj: Any) -> "TypeAssociationLibelle":
+    def from_dict(obj: Any) -> TypeAssociationLibelle:
         assert isinstance(obj, dict)
         club = from_union([from_int, from_none], obj.get("Club"))
         coopération_territoriale_club = from_union(

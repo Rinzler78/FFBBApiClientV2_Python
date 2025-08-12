@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 
 from ..utils.converter_utils import from_none, from_str, from_union, to_class
@@ -13,7 +15,7 @@ class TypeCompetitionGenerique:
         self.logo = logo
 
     @staticmethod
-    def from_dict(obj: Any) -> "TypeCompetitionGenerique":
+    def from_dict(obj: Any) -> TypeCompetitionGenerique:
         assert isinstance(obj, dict)
         type_competition_generique_id = from_union([from_str, from_none], obj.get("id"))
         logo = from_union([Logo.from_dict, from_none], obj.get("logo"))

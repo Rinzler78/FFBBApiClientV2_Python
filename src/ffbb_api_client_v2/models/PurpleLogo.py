@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 from uuid import UUID
 
@@ -11,7 +13,7 @@ class PurpleLogo:
         self.id = id
 
     @staticmethod
-    def from_dict(obj: Any) -> "PurpleLogo":
+    def from_dict(obj: Any) -> PurpleLogo:
         assert isinstance(obj, dict)
         id = from_union([lambda x: UUID(x), from_none], obj.get("id"))
         return PurpleLogo(id)
