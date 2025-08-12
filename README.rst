@@ -37,11 +37,20 @@ FFBBApiClientV2_Python
 ======================
 
 
-    Allow to interact with the new FFBB apis
+    Modern Python client library for FFBB (French Basketball Federation) APIs
 
 
-ffbb_api_client_v2 allow to interact with the new FFBB api.
-You can retrieve information about clubs, teams, matches, etc...
+ffbb_api_client_v2 is a modern Python client library for interacting with the French Basketball Federation (FFBB) APIs.
+It provides a comprehensive interface to retrieve information about clubs, teams, competitions, matches, seasons, and more.
+
+**Key Features:**
+
+- 🏀 **Complete API Coverage**: Access all FFBB services including competitions, organismes, seasons, lives, and search
+- 🔧 **Type-Safe Models**: Strongly-typed data models with automatic validation and error handling
+- 🎯 **Flexible Field Selection**: Customizable field queries (BASIC, DEFAULT, DETAILED) for optimized API calls
+- 📦 **Modern Architecture**: Clean, modular design with organized package structure
+- ⚡ **Request Caching**: Built-in caching support for improved performance
+- 🧪 **Thoroughly Tested**: Comprehensive unit and integration tests ensuring reliability
 
 
 Installation
@@ -51,48 +60,102 @@ Installation
 
     pip install ffbb_api_client_v2
 
-Quick start
+Quick Start
 ===========
 
 .. code-block:: python
 
     import os
     from ffbb_api_client_v2 import FFBBAPIClientV2
+    from dotenv import load_dotenv
 
-    # Load env from file if needed
-    # from dotenv import load_dotenv
-    # load_dotenv()
+    # Load environment variables
+    load_dotenv()
 
-    # Retrieve apis bearer tokens
+    # Retrieve API bearer tokens
     MEILISEARCH_TOKEN = os.getenv("MEILISEARCH_BEARER_TOKEN")
     API_TOKEN = os.getenv("API_FFBB_APP_BEARER_TOKEN")
 
-    # Create an instance of the api client
-    ffbb_api_client = FFBBAPIClientV2.create(MEILISEARCH_TOKEN, API_TOKEN)
+    # Create an instance of the API client
+    ffbb_api_client = FFBBAPIClientV2.create(
+        meilisearch_bearer_token=MEILISEARCH_TOKEN,
+        api_bearer_token=API_TOKEN
+    )
 
-    # Get the lives
-    lives = ffbb_api_client.get_lives()
-
-    # Get the organismes
+    # Search for organizations in Paris
     organismes = ffbb_api_client.search_organismes("Paris")
+    print(f"Found {len(organismes.hits)} organizations in Paris")
 
-    # Get the rencontres
-    rencontres = ffbb_api_client.search_rencontres("Basket")
+    # Get detailed information about a specific organization
+    if organismes.hits:
+        organisme_id = int(organismes.hits[0].id)
+        organisme_details = ffbb_api_client.get_organisme(organisme_id)
+        print(f"Organization: {organisme_details.nom}")
+        print(f"  - Type: {organisme_details.type}")
+        print(f"  - Address: {organisme_details.adresse}")
+        print(f"  - Teams: {len(organisme_details.engagements)}")
 
-    # Get the terrains
-    terrains = ffbb_api_client.search_terrains("Basket")
+    # Get live matches
+    lives = ffbb_api_client.get_lives()
+    print(f"Current live matches: {len(lives)}")
 
-    # Get the competitions
-    competitions = ffbb_api_client.search_competitions("Basket")
+    # Get current seasons
+    saisons = ffbb_api_client.get_saisons()
+    print(f"Available seasons: {len(saisons)}")
 
-    # Get the salles
-    salles = ffbb_api_client.search_salles("Basket")
+    # Search competitions
+    competitions = ffbb_api_client.search_competitions("Championnat")
+    print(f"Found {len(competitions.hits)} competitions")
 
-    # Get pratiques
-    pratiques = ffbb_api_client.search_pratiques("Basket")
+Advanced Usage
+==============
 
-    # Get tournois
-    tournois = ffbb_api_client.search_tournois("Basket")
+**Working with Custom Fields**
+
+.. code-block:: python
+
+    from ffbb_api_client_v2.models.query_fields import QueryFieldsManager, FieldSet
+
+    # Get organization with basic fields only
+    basic_fields = QueryFieldsManager.get_organisme_fields(FieldSet.BASIC)
+    organisme = ffbb_api_client.get_organisme(
+        organisme_id=12345,
+        fields=basic_fields
+    )
+
+    # Get organization with detailed information
+    organisme_full = ffbb_api_client.get_organisme(
+        organisme_id=12345
+    )
+
+**Working with Competitions and Seasons**
+
+.. code-block:: python
+
+    # Get competition details with default fields
+    competition = ffbb_api_client.get_competition(competition_id=98765)
+    print(f"Competition: {competition.nom}")
+    print(f"Season: {competition.saison}")
+    print(f"Type: {competition.typeCompetition}")
+
+    # Get active seasons only
+    active_saisons = ffbb_api_client.get_saisons(
+        filter_criteria='{"actif":{"_eq":true}}'
+    )
+
+**Search Across Multiple Resources**
+
+.. code-block:: python
+
+    # Multi-search across all resource types
+    results = ffbb_api_client.multi_search("Lyon")
+    for result in results:
+        print(f"Found: {result.query} in {type(result).__name__}")
+
+    # Search specific resource types
+    clubs = ffbb_api_client.search_organismes("Lyon")
+    matches = ffbb_api_client.search_rencontres("Lyon")
+    venues = ffbb_api_client.search_salles("Lyon")
 
 Package Structure
 =================
@@ -100,25 +163,96 @@ Package Structure
 The library is organized into the following packages:
 
 - **clients/**: API client classes for interacting with FFBB services
-- **models/**: Data models and structures returned by the API
-- **helpers/**: Class extensions and utility helpers
-- **utils/**: Data conversion utilities
+
+  - ``ApiFFBBAppClient``: Direct API client for FFBB App API
+  - ``MeilisearchFFBBClient``: Client for search functionality
+  - ``FFBBAPIClientV2``: Main client combining both services
+
+- **models/**: Strongly-typed data models and response structures
+
+  - ``competitions_models.py``: Competition and match models
+  - ``organismes_models.py``: Organization and team models
+  - ``saisons_models.py``: Season models
+  - ``poules_models.py``: Pool/group models
+  - ``query_fields.py``: Field management for API queries
+
+- **helpers/**: Extensions and utility helpers
+- **utils/**: Data conversion and processing utilities
 
 .. code-block:: python
 
     # Import specific clients
-    from ffbb_api_client_v2 import ApiFFBBAppClient, MeilisearchFFBBClient
+    from ffbb_api_client_v2.clients import ApiFFBBAppClient, MeilisearchFFBBClient
 
-    # Import specific models
-    from ffbb_api_client_v2 import Live, MultiSearchQuery
+    # Import data models
+    from ffbb_api_client_v2.models.organismes_models import GetOrganismeResponse
+    from ffbb_api_client_v2.models.competitions_models import GetCompetitionResponse
+    from ffbb_api_client_v2.models.saisons_models import GetSaisonsResponse
 
-    # Import helpers and utilities
-    from ffbb_api_client_v2 import MeilisearchClientExtension
+    # Import field management
+    from ffbb_api_client_v2.models.query_fields import QueryFieldsManager, FieldSet
+
+Environment Configuration
+========================
+
+Create a ``.env`` file in your project root:
+
+.. code-block:: bash
+
+    # .env file
+    API_FFBB_APP_BEARER_TOKEN=your_ffbb_api_token_here
+    MEILISEARCH_BEARER_TOKEN=your_meilisearch_token_here
+
+API Reference
+=============
+
+**Main Client Methods:**
+
+- ``get_lives()`` - Get current live matches
+- ``get_saisons()`` - Get seasons with optional filtering
+- ``get_organisme(organisme_id, fields=None)`` - Get detailed organization info
+- ``get_competition(competition_id, fields=None)`` - Get competition details
+- ``get_poule(poule_id, fields=None)`` - Get pool/group information
+- ``search_organismes(name)`` - Search organizations by name
+- ``search_competitions(name)`` - Search competitions by name
+- ``search_rencontres(name)`` - Search matches by name
+- ``search_salles(name)`` - Search venues by name
+- ``multi_search(name)`` - Search across all resource types
+
+**Field Selection Options:**
+
+- ``FieldSet.BASIC`` - Essential fields only
+- ``FieldSet.DEFAULT`` - Standard field set (used when fields=None)
+- ``FieldSet.DETAILED`` - Comprehensive field set with nested data
+
+Testing
+=======
+
+The library includes comprehensive test coverage:
+
+.. code-block:: bash
+
+    # Run specific unit tests
+    python -m unittest tests.test_001_unit_tests_core -v
+
+    # Run integration tests (requires API tokens)
+    python -m unittest tests.test_011_enhanced_integration -v
+
+    # Run all tests with discovery
+    python -m unittest discover tests/ -v
+
+    # Alternative: use tox for comprehensive testing
+    tox
 
 Examples
 ========
 
-Take a look at quick_start.py to see how to use the library.
+For more examples, check out the test files in the ``tests/`` directory, particularly:
+
+- ``test_011_enhanced_integration.py`` - Real-world usage scenarios
+- ``test_001_unit_tests_core.py`` - Unit test examples showing all client methods
+- ``test_005_integration_user_journey.py`` - Complete user journey scenarios
+- ``test_010_integration_user_journey.py`` - Multi-city comparison examples
 
 Note
 ====

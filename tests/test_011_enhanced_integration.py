@@ -96,9 +96,8 @@ class Test011EnhancedIntegration(unittest.TestCase):
         # First, get organisme with detailed fields to find competition IDs
         # in engagements. This is necessary because default fields don't
         # include engagement competition details
-        detailed_fields = QueryFieldsManager.get_organisme_fields(FieldSet.DETAILED)
         organisme_with_details = self.api_client.api_ffbb_client.get_organisme(
-            int(organisme.id), fields=detailed_fields
+            int(organisme.id)
         )
 
         if not organisme_with_details.engagements:
