@@ -54,9 +54,5 @@ MANIFEST
 .python-version
 .env
 http_cache.sqlite
-
-# Gemini CLI generated files
-.tmp
 .claude*
 .hive-mind
-.reports
