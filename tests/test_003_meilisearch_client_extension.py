@@ -8,17 +8,18 @@ from ffbb_api_client_v2 import (
 )
 
 
-class Test_02_MeilisearchClientExtension(unittest.TestCase):
+class Test003MeilisearchClientExtension(unittest.TestCase):
     def setUp(self):
         mls_token = os.getenv("MEILISEARCH_BEARER_TOKEN")
 
         if not mls_token:
             raise Exception("MEILISEARCH_TOKEN environment variable not set")
 
+        # NOTE: Set debug=True for detailed logging if needed during debugging
         self.api_client: MeilisearchClientExtension = MeilisearchClientExtension(
             bearer_token=mls_token,
             url="https://meilisearch-prod.ffbb.app/",
-            debug=True,
+            debug=False,
         )
 
     def setup_method(self, method):

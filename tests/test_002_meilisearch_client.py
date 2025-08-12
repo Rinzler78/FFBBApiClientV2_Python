@@ -4,17 +4,18 @@ import unittest
 from ffbb_api_client_v2 import MeilisearchClient, MultiSearchQuery, generate_queries
 
 
-class Test_01_MeilisearchClient(unittest.TestCase):
+class Test002MeilisearchClient(unittest.TestCase):
     def setUp(self):
         mls_token = os.getenv("MEILISEARCH_BEARER_TOKEN")
 
         if not mls_token:
             raise Exception("MEILISEARCH_TOKEN environment variable not set")
 
+        # NOTE: Set debug=True for detailed logging if needed during debugging
         self.api_client: MeilisearchClient = MeilisearchClient(
             bearer_token=mls_token,
             url="https://meilisearch-prod.ffbb.app/",
-            debug=True,
+            debug=False,
         )
 
     def setup_method(self, method):

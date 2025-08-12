@@ -35,7 +35,7 @@ from ffbb_api_client_v2 import (
 )
 
 
-class Test_03_FFBBAPIClientV2(unittest.TestCase):
+class Test004FfbbApiClientV2(unittest.TestCase):
     def setUp(self):
         api_token = os.getenv("API_FFBB_APP_BEARER_TOKEN")
 
@@ -47,10 +47,11 @@ class Test_03_FFBBAPIClientV2(unittest.TestCase):
         if not mls_token:
             raise Exception("MEILISEARCH_BEARER_TOKEN environment variable not set")
 
+        # NOTE: Set debug=True for detailed logging if needed during debugging
         self.api_client = FFBBAPIClientV2.create(
             meilisearch_bearer_token=mls_token,
             api_bearer_token=api_token,
-            debug=True,
+            debug=False,
         )
 
     def setup_method(self, method):

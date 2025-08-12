@@ -14,7 +14,7 @@ class CompetitionsQuery:
 
 # Response Model
 @dataclass
-class CompetitionsModel:
+class GetCompetitionResponse:
     id: str
     nom: str
     sexe: str
@@ -175,3 +175,36 @@ class CompetitionsModel:
         poules: list[PoulesitemModel]
 
     phases: list[PhasesitemModel]
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "GetCompetitionResponse":
+        """Convert dictionary to CompetitionsModel instance."""
+        if not data:
+            return None
+
+        # Handle case where data is not a dictionary
+        if not isinstance(data, dict):
+            return None
+
+        # Handle API error responses
+        if "errors" in data:
+            return None
+
+        # Basic implementation - can be expanded later
+        return cls(
+            id=str(data.get("id", "")),
+            nom=str(data.get("nom", "")),
+            sexe=str(data.get("sexe", "")),
+            saison=str(data.get("saison", "")),
+            code=str(data.get("code", "")),
+            typeCompetition=str(data.get("typeCompetition", "")),
+            liveStat=int(data.get("liveStat", 0)),
+            competition_origine=str(data.get("competition_origine", "")),
+            competition_origine_nom=str(data.get("competition_origine_nom", "")),
+            publicationInternet=str(data.get("publicationInternet", "")),
+            categorie=None,  # Simplified for now
+            typeCompetitionGenerique=None,  # Simplified for now
+            logo=data.get("logo"),
+            poules=[],  # Simplified for now
+            phases=[],  # Simplified for now
+        )

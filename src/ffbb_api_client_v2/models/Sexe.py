@@ -2,9 +2,9 @@ from enum import Enum
 
 
 class Sexe(Enum):
-    FÉMININ = "Féminin"
-    MASCULIN = "Masculin"
-    MIXTE = "Mixte"
+    FEMININE = "Féminin"
+    MASCULINE = "Masculin"
+    MIXED = "Mixte"
 
 
 def extract_sex(input_str: str) -> Sexe:

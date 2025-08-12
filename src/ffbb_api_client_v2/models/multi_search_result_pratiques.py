@@ -339,13 +339,13 @@ class Geo:
 
 
 class Jour(Enum):
-    DIMANCHE = "dimanche"
-    JEUDI = "jeudi"
-    LUNDI = "lundi"
-    MARDI = "mardi"
-    MERCREDI = "mercredi"
-    SAMEDI = "samedi"
-    VENDREDI = "vendredi"
+    SUNDAY = "dimanche"
+    THURSDAY = "jeudi"
+    MONDAY = "lundi"
+    TUESDAY = "mardi"
+    WEDNESDAY = "mercredi"
+    SATURDAY = "samedi"
+    FRIDAY = "vendredi"
 
 
 class Label(Enum):
@@ -365,7 +365,7 @@ class Label(Enum):
 class Objectif(Enum):
     ACCOMPAGNEMENT = "Accompagnement"
     CURATIF = "Curatif"
-    PRÉVENTIF = "Préventif"
+    PREVENTIVE = "Préventif"
 
 
 class HitType(Enum):

@@ -27,33 +27,33 @@ from .TypeLeague import TypeLeague
 
 
 class SexeClass:
-    féminin: Optional[int] = None
-    masculin: Optional[int] = None
-    mixte: Optional[int] = None
+    feminine: Optional[int] = None
+    masculine: Optional[int] = None
+    mixed: Optional[int] = None
 
     def __init__(
-        self, féminin: Optional[int], masculin: Optional[int], mixte: Optional[int]
+        self, feminine: Optional[int], masculine: Optional[int], mixed: Optional[int]
     ) -> None:
-        self.féminin = féminin
-        self.masculin = masculin
-        self.mixte = mixte
+        self.feminine = feminine
+        self.masculine = masculine
+        self.mixed = mixed
 
     @staticmethod
     def from_dict(obj: Any) -> "SexeClass":
         assert isinstance(obj, dict)
-        féminin = from_union([from_none, from_int], obj.get("Féminin"))
-        masculin = from_union([from_none, from_int], obj.get("Masculin"))
-        mixte = from_union([from_none, from_int], obj.get("Mixte"))
-        return SexeClass(féminin, masculin, mixte)
+        feminine = from_union([from_none, from_int], obj.get("Féminin"))
+        masculine = from_union([from_none, from_int], obj.get("Masculin"))
+        mixed = from_union([from_none, from_int], obj.get("Mixte"))
+        return SexeClass(feminine, masculine, mixed)
 
     def to_dict(self) -> dict:
         result: dict = {}
-        if self.féminin is not None:
-            result["Féminin"] = from_union([from_none, from_int], self.féminin)
-        if self.masculin is not None:
-            result["Masculin"] = from_union([from_none, from_int], self.masculin)
-        if self.mixte is not None:
-            result["Mixte"] = from_union([from_none, from_int], self.mixte)
+        if self.feminine is not None:
+            result["Féminin"] = from_union([from_none, from_int], self.feminine)
+        if self.masculine is not None:
+            result["Masculin"] = from_union([from_none, from_int], self.masculine)
+        if self.mixed is not None:
+            result["Mixte"] = from_union([from_none, from_int], self.mixed)
         return result
 
 
@@ -199,8 +199,8 @@ class Storage(Enum):
 
 
 class SexeEnum(Enum):
-    FÉMININ = "Féminin"
-    MASCULIN = "Masculin"
+    FEMININE = "Féminin"
+    MASCULINE = "Masculin"
     MIXTE = "Mixte"
 
 

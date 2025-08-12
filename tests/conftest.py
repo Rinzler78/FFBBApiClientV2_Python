@@ -1,10 +1,11 @@
 """
-Dummy conftest.py for ffbb_api_client_v2.
+conftest.py for ffbb_api_client_v2 tests.
 
-If you don't know what this is for, just leave it empty.
-Read more about conftest.py under:
-- https://docs.pytest.org/en/stable/fixture.html
-- https://docs.pytest.org/en/stable/writing_plugins.html
+This file is automatically executed by pytest before running tests.
+It loads environment variables from .env file for all test modules.
 """
 
-# import pytest
+from dotenv import load_dotenv
+
+# Load environment variables for all tests
+load_dotenv()

@@ -59,3 +59,4 @@ http_cache.sqlite
 .tmp
 .claude*
 .hive-mind
+.reports
