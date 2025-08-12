@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any
 
 from ..utils.converter_utils import (
     from_float,
@@ -11,10 +11,10 @@ from ..utils.converter_utils import (
 
 
 class Coordonnees:
-    type: Optional[str] = None
-    coordinates: Optional[list[float]] = None
+    type: str | None = None
+    coordinates: list[float] | None = None
 
-    def __init__(self, type: Optional[str], coordinates: Optional[list[float]]):
+    def __init__(self, type: str | None, coordinates: list[float] | None):
         self.type = type
         self.coordinates = coordinates
 

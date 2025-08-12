@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any
 
 from ..utils.converter_utils import from_bool, from_none, from_str, from_union, to_class
 from .CompetitionIDCategorie import CompetitionIDCategorie
@@ -8,39 +8,39 @@ from .logo import Logo
 
 
 class CompetitionID:
-    id: Optional[str] = None
-    nom: Optional[str] = None
-    competition_origine_nom: Optional[str] = None
-    code: Optional[str] = None
-    creation_en_cours: Optional[bool] = None
-    live_stat: Optional[bool] = None
-    publication_internet: Optional[str] = None
-    sexe: Optional[str] = None
-    type_competition: Optional[str] = None
-    pro: Optional[bool] = None
+    id: str | None = None
+    nom: str | None = None
+    competition_origine_nom: str | None = None
+    code: str | None = None
+    creation_en_cours: bool | None = None
+    live_stat: bool | None = None
+    publication_internet: str | None = None
+    sexe: str | None = None
+    type_competition: str | None = None
+    pro: bool | None = None
     logo: Logo
-    categorie: Optional[str] = None
-    type_competition_generique: Optional[CompetitionIDTypeCompetitionGenerique] = None
-    competition_origine: Optional[CompetitionOrigine] = None
-    nom_extended: Optional[str] = None
+    categorie: str | None = None
+    type_competition_generique: CompetitionIDTypeCompetitionGenerique | None = None
+    competition_origine: CompetitionOrigine | None = None
+    nom_extended: str | None = None
 
     def __init__(
         self,
-        id: Optional[str],
-        nom: Optional[str],
-        competition_origine_nom: Optional[str],
-        code: Optional[str],
-        creation_en_cours: Optional[bool],
-        live_stat: Optional[bool],
-        publication_internet: Optional[str],
-        sexe: Optional[str],
-        type_competition: Optional[str],
-        pro: Optional[bool],
+        id: str | None,
+        nom: str | None,
+        competition_origine_nom: str | None,
+        code: str | None,
+        creation_en_cours: bool | None,
+        live_stat: bool | None,
+        publication_internet: str | None,
+        sexe: str | None,
+        type_competition: str | None,
+        pro: bool | None,
         logo: Logo,
-        categorie: Optional[str],
-        type_competition_generique: Optional[CompetitionIDTypeCompetitionGenerique],
-        competition_origine: Optional[CompetitionOrigine],
-        nom_extended: Optional[str],
+        categorie: str | None,
+        type_competition_generique: CompetitionIDTypeCompetitionGenerique | None,
+        competition_origine: CompetitionOrigine | None,
+        nom_extended: str | None,
     ) -> None:
         self.id = id
         self.nom = nom

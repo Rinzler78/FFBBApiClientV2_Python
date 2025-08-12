@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any
 
 from ..utils.converter_utils import from_none, from_str, from_union, to_class, to_enum
 from .CompetitionOrigineCategorie import CompetitionOrigineCategorie
@@ -9,25 +9,21 @@ from .CompetitionOrigineTypeCompetitionGenerique import (
 
 
 class CompetitionOrigine:
-    id: Optional[str] = None
-    code: Optional[str] = None
-    nom: Optional[str] = None
-    type_competition: Optional[CompetitionOrigineTypeCompetition] = None
-    categorie: Optional[CompetitionOrigineCategorie] = None
-    type_competition_generique: Optional[CompetitionOrigineTypeCompetitionGenerique] = (
-        None
-    )
+    id: str | None = None
+    code: str | None = None
+    nom: str | None = None
+    type_competition: CompetitionOrigineTypeCompetition | None = None
+    categorie: CompetitionOrigineCategorie | None = None
+    type_competition_generique: CompetitionOrigineTypeCompetitionGenerique | None = None
 
     def __init__(
         self,
-        id: Optional[str],
-        code: Optional[str],
-        nom: Optional[str],
-        type_competition: Optional[CompetitionOrigineTypeCompetition],
-        categorie: Optional[CompetitionOrigineCategorie],
-        type_competition_generique: Optional[
-            CompetitionOrigineTypeCompetitionGenerique
-        ],
+        id: str | None,
+        code: str | None,
+        nom: str | None,
+        type_competition: CompetitionOrigineTypeCompetition | None,
+        categorie: CompetitionOrigineCategorie | None,
+        type_competition_generique: None | (CompetitionOrigineTypeCompetitionGenerique),
     ) -> None:
         self.id = id
         self.code = code

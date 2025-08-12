@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any
 
 from ..utils.converter_utils import from_none, from_str, from_union, is_type, to_class
 from .IDOrganismeEquipe import IDOrganismeEquipe
@@ -7,17 +7,17 @@ from .salle import Salle
 
 
 class CompetitionID:
-    code: Optional[str] = None
-    nom: Optional[str] = None
-    sexe: Optional[str] = None
-    type_competition: Optional[str] = None
+    code: str | None = None
+    nom: str | None = None
+    sexe: str | None = None
+    type_competition: str | None = None
 
     def __init__(
         self,
-        code: Optional[str],
-        nom: Optional[str],
-        sexe: Optional[str],
-        type_competition: Optional[str],
+        code: str | None,
+        nom: str | None,
+        sexe: str | None,
+        type_competition: str | None,
     ) -> None:
         self.code = code
         self.nom = nom
@@ -49,25 +49,25 @@ class CompetitionID:
 
 
 class ExternalID:
-    nom_equipe1: Optional[str] = None
-    nom_equipe2: Optional[str] = None
-    numero_journee: Optional[int] = None
-    competition_id: Optional[CompetitionID] = None
-    id_organisme_equipe1: Optional[IDOrganismeEquipe] = None
-    id_organisme_equipe2: Optional[IDOrganismeEquipe] = None
-    salle: Optional[Salle] = None
-    id_poule: Optional[IDPoule] = None
+    nom_equipe1: str | None = None
+    nom_equipe2: str | None = None
+    numero_journee: int | None = None
+    competition_id: CompetitionID | None = None
+    id_organisme_equipe1: IDOrganismeEquipe | None = None
+    id_organisme_equipe2: IDOrganismeEquipe | None = None
+    salle: Salle | None = None
+    id_poule: IDPoule | None = None
 
     def __init__(
         self,
-        nom_equipe1: Optional[str],
-        nom_equipe2: Optional[str],
-        numero_journee: Optional[int],
-        competition_id: Optional[CompetitionID],
-        id_organisme_equipe1: Optional[IDOrganismeEquipe],
-        id_organisme_equipe2: Optional[IDOrganismeEquipe],
-        salle: Optional[Salle],
-        id_poule: Optional[IDPoule],
+        nom_equipe1: str | None,
+        nom_equipe2: str | None,
+        numero_journee: int | None,
+        competition_id: CompetitionID | None,
+        id_organisme_equipe1: IDOrganismeEquipe | None,
+        id_organisme_equipe2: IDOrganismeEquipe | None,
+        salle: Salle | None,
+        id_poule: IDPoule | None,
     ) -> None:
         self.nom_equipe1 = nom_equipe1
         self.nom_equipe2 = nom_equipe2

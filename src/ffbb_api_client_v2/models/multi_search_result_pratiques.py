@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 
 from ..utils.converter_utils import (
@@ -23,19 +23,19 @@ from .Hit import Hit
 
 
 class TypeClass:
-    basket_inclusif: Optional[int] = None
-    basket_santé: Optional[int] = None
-    basket_tonik: Optional[int] = None
-    centre_génération_basket: Optional[int] = None
-    micro_basket: Optional[int] = None
+    basket_inclusif: int | None = None
+    basket_santé: int | None = None
+    basket_tonik: int | None = None
+    centre_génération_basket: int | None = None
+    micro_basket: int | None = None
 
     def __init__(
         self,
-        basket_inclusif: Optional[int],
-        basket_santé: Optional[int],
-        basket_tonik: Optional[int],
-        centre_génération_basket: Optional[int],
-        micro_basket: Optional[int] = None,
+        basket_inclusif: int | None,
+        basket_santé: int | None,
+        basket_tonik: int | None,
+        centre_génération_basket: int | None,
+        micro_basket: int | None = None,
     ) -> None:
         self.basket_inclusif = basket_inclusif
         self.basket_santé = basket_santé
@@ -87,11 +87,11 @@ class TypeClass:
 
 
 class PratiquesFacetDistribution(FacetDistribution):
-    label: Optional[dict[str, int]] = None
-    type: Optional[TypeClass] = None
+    label: dict[str, int] | None = None
+    type: TypeClass | None = None
 
     def __init__(
-        self, label: Optional[dict[str, int]], type: Optional[TypeClass] = None
+        self, label: dict[str, int] | None, type: TypeClass | None = None
     ) -> None:
         self.label = label
         self.type = type
@@ -133,17 +133,17 @@ class PratiquesFacetStats(FacetStats):
 
 
 class Affiche:
-    id: Optional[UUID] = None
-    gradient_color: Optional[str] = None
-    width: Optional[int] = None
-    height: Optional[int] = None
+    id: UUID | None = None
+    gradient_color: str | None = None
+    width: int | None = None
+    height: int | None = None
 
     def __init__(
         self,
-        id: Optional[UUID],
-        gradient_color: Optional[str],
-        width: Optional[int],
-        height: Optional[int] = None,
+        id: UUID | None,
+        gradient_color: str | None,
+        width: int | None,
+        height: int | None = None,
     ) -> None:
         self.id = id
         self.gradient_color = gradient_color
@@ -179,11 +179,11 @@ class CoordonneesType(Enum):
 
 
 class Coordonnees:
-    type: Optional[CoordonneesType] = None
-    coordinates: Optional[list[float]] = None
+    type: CoordonneesType | None = None
+    coordinates: list[float] | None = None
 
     def __init__(
-        self, type: Optional[CoordonneesType], coordinates: Optional[list[float]] = None
+        self, type: CoordonneesType | None, coordinates: list[float] | None = None
     ) -> None:
         self.type = type
         self.coordinates = coordinates
@@ -215,31 +215,31 @@ class Status(Enum):
 
 
 class Cartographie:
-    adresse: Optional[str] = None
-    code_postal: Optional[str] = None
-    coordonnees: Optional[Coordonnees] = None
+    adresse: str | None = None
+    code_postal: str | None = None
+    coordonnees: Coordonnees | None = None
     date_created: None
     date_updated: None
-    id: Optional[str] = None
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
-    title: Optional[str] = None
-    ville: Optional[str] = None
-    status: Optional[Status] = None
+    id: str | None = None
+    latitude: float | None = None
+    longitude: float | None = None
+    title: str | None = None
+    ville: str | None = None
+    status: Status | None = None
 
     def __init__(
         self,
-        adresse: Optional[str],
-        code_postal: Optional[str],
-        coordonnees: Optional[Coordonnees],
+        adresse: str | None,
+        code_postal: str | None,
+        coordonnees: Coordonnees | None,
         date_created: None,
         date_updated: None,
-        id: Optional[str],
-        latitude: Optional[float],
-        longitude: Optional[float],
-        title: Optional[str],
-        ville: Optional[str],
-        status: Optional[Status] = None,
+        id: str | None,
+        latitude: float | None,
+        longitude: float | None,
+        title: str | None,
+        ville: str | None,
+        status: Status | None = None,
     ) -> None:
         self.adresse = adresse
         self.code_postal = code_postal
@@ -315,10 +315,10 @@ class Cartographie:
 
 
 class Geo:
-    lat: Optional[float] = None
-    lng: Optional[float] = None
+    lat: float | None = None
+    lng: float | None = None
 
-    def __init__(self, lat: Optional[float], lng: Optional[float] = None) -> None:
+    def __init__(self, lat: float | None, lng: float | None = None) -> None:
         self.lat = lat
         self.lng = lng
 
@@ -377,101 +377,101 @@ class HitType(Enum):
 
 
 class PratiquesHit(Hit):
-    titre: Optional[str] = None
-    type: Optional[HitType] = None
-    adresse: Optional[str] = None
-    description: Optional[str] = None
-    id: Optional[int] = None
-    date_created: Optional[datetime] = None
-    date_debut: Optional[datetime] = None
-    date_demande: Optional[int] = None
-    date_fin: Optional[datetime] = None
-    date_updated: Optional[datetime] = None
+    titre: str | None = None
+    type: HitType | None = None
+    adresse: str | None = None
+    description: str | None = None
+    id: int | None = None
+    date_created: datetime | None = None
+    date_debut: datetime | None = None
+    date_demande: int | None = None
+    date_fin: datetime | None = None
+    date_updated: datetime | None = None
     facebook: None
-    site_web: Optional[str] = None
+    site_web: str | None = None
     twitter: None
-    action: Optional[str] = None
-    adresse_salle: Optional[str] = None
-    adresse_structure: Optional[str] = None
-    assurance: Optional[str] = None
-    code: Optional[str] = None
-    cp_salle: Optional[str] = None
-    date_inscription: Optional[int] = None
-    email: Optional[str] = None
-    engagement: Optional[str] = None
-    horaires_seances: Optional[str] = None
-    inscriptions: Optional[str] = None
-    jours: Optional[list[Jour]] = None
-    label: Optional[Label] = None
+    action: str | None = None
+    adresse_salle: str | None = None
+    adresse_structure: str | None = None
+    assurance: str | None = None
+    code: str | None = None
+    cp_salle: str | None = None
+    date_inscription: int | None = None
+    email: str | None = None
+    engagement: str | None = None
+    horaires_seances: str | None = None
+    inscriptions: str | None = None
+    jours: list[Jour] | None = None
+    label: Label | None = None
     latitude: None
     longitude: None
-    mail_demandeur: Optional[str] = None
-    mail_structure: Optional[str] = None
-    nom_demandeur: Optional[str] = None
-    nom_salle: Optional[str] = None
-    nom_structure: Optional[str] = None
-    nombre_personnes: Optional[str] = None
-    nombre_seances: Optional[str] = None
-    objectif: Optional[Objectif] = None
-    prenom_demandeur: Optional[str] = None
-    public: Optional[str] = None
-    telephone: Optional[str] = None
-    ville_salle: Optional[str] = None
-    cartographie: Optional[Cartographie] = None
-    affiche: Optional[Affiche] = None
-    geo: Optional[Geo] = None
-    date_debut_timestamp: Optional[int] = None
-    date_fin_timestamp: Optional[int] = None
-    thumbnail: Optional[str] = None
+    mail_demandeur: str | None = None
+    mail_structure: str | None = None
+    nom_demandeur: str | None = None
+    nom_salle: str | None = None
+    nom_structure: str | None = None
+    nombre_personnes: str | None = None
+    nombre_seances: str | None = None
+    objectif: Objectif | None = None
+    prenom_demandeur: str | None = None
+    public: str | None = None
+    telephone: str | None = None
+    ville_salle: str | None = None
+    cartographie: Cartographie | None = None
+    affiche: Affiche | None = None
+    geo: Geo | None = None
+    date_debut_timestamp: int | None = None
+    date_fin_timestamp: int | None = None
+    thumbnail: str | None = None
 
     def __init__(
         self,
-        titre: Optional[str],
-        type: Optional[HitType],
-        adresse: Optional[str],
-        description: Optional[str],
-        id: Optional[int],
-        date_created: Optional[datetime],
-        date_debut: Optional[datetime],
-        date_demande: Optional[int],
-        date_fin: Optional[datetime],
-        date_updated: Optional[datetime],
+        titre: str | None,
+        type: HitType | None,
+        adresse: str | None,
+        description: str | None,
+        id: int | None,
+        date_created: datetime | None,
+        date_debut: datetime | None,
+        date_demande: int | None,
+        date_fin: datetime | None,
+        date_updated: datetime | None,
         facebook: None,
-        site_web: Optional[str],
+        site_web: str | None,
         twitter: None,
-        action: Optional[str],
-        adresse_salle: Optional[str],
-        adresse_structure: Optional[str],
-        assurance: Optional[str],
-        code: Optional[str],
-        cp_salle: Optional[str],
-        date_inscription: Optional[int],
-        email: Optional[str],
-        engagement: Optional[str],
-        horaires_seances: Optional[str],
-        inscriptions: Optional[str],
-        jours: Optional[list[Jour]],
-        label: Optional[Label],
+        action: str | None,
+        adresse_salle: str | None,
+        adresse_structure: str | None,
+        assurance: str | None,
+        code: str | None,
+        cp_salle: str | None,
+        date_inscription: int | None,
+        email: str | None,
+        engagement: str | None,
+        horaires_seances: str | None,
+        inscriptions: str | None,
+        jours: list[Jour] | None,
+        label: Label | None,
         latitude: None,
         longitude: None,
-        mail_demandeur: Optional[str],
-        mail_structure: Optional[str],
-        nom_demandeur: Optional[str],
-        nom_salle: Optional[str],
-        nom_structure: Optional[str],
-        nombre_personnes: Optional[str],
-        nombre_seances: Optional[str],
-        objectif: Optional[Objectif],
-        prenom_demandeur: Optional[str],
-        public: Optional[str],
-        telephone: Optional[str],
-        ville_salle: Optional[str],
-        cartographie: Optional[Cartographie],
-        affiche: Optional[Affiche],
-        geo: Optional[Geo],
-        date_debut_timestamp: Optional[int],
-        date_fin_timestamp: Optional[int],
-        thumbnail: Optional[str],
+        mail_demandeur: str | None,
+        mail_structure: str | None,
+        nom_demandeur: str | None,
+        nom_salle: str | None,
+        nom_structure: str | None,
+        nombre_personnes: str | None,
+        nombre_seances: str | None,
+        objectif: Objectif | None,
+        prenom_demandeur: str | None,
+        public: str | None,
+        telephone: str | None,
+        ville_salle: str | None,
+        cartographie: Cartographie | None,
+        affiche: Affiche | None,
+        geo: Geo | None,
+        date_debut_timestamp: int | None,
+        date_fin_timestamp: int | None,
+        thumbnail: str | None,
     ) -> None:
         self.titre = titre
         self.lower_titre = titre.lower() if titre else None

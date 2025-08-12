@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 from ..utils.converter_utils import (
     from_bool,
@@ -35,23 +35,23 @@ from .TypeCompetitionGenerique import TypeCompetitionGenerique
 
 
 class CompetitionsFacetDistribution(FacetDistribution):
-    competition_id_categorie_code: Optional[dict[str, int]] = None
-    competition_id_nom_extended: Optional[dict[str, int]] = None
-    competition_id_sexe: Optional[CompetitionIDSexe] = None
-    competition_id_type_competition: Optional[CompetitionIDTypeCompetition] = None
-    niveau: Optional[NiveauClass] = None
-    organisateur_id: Optional[dict[str, int]] = None
-    organisateur_nom: Optional[dict[str, int]] = None
+    competition_id_categorie_code: dict[str, int] | None = None
+    competition_id_nom_extended: dict[str, int] | None = None
+    competition_id_sexe: CompetitionIDSexe | None = None
+    competition_id_type_competition: CompetitionIDTypeCompetition | None = None
+    niveau: NiveauClass | None = None
+    organisateur_id: dict[str, int] | None = None
+    organisateur_nom: dict[str, int] | None = None
 
     def __init__(
         self,
-        competition_id_categorie_code: Optional[dict[str, int]],
-        competition_id_nom_extended: Optional[dict[str, int]],
-        competition_id_sexe: Optional[CompetitionIDSexe],
-        competition_id_type_competition: Optional[CompetitionIDTypeCompetition],
-        niveau: Optional[NiveauClass],
-        organisateur_id: Optional[dict[str, int]],
-        organisateur_nom: Optional[dict[str, int]],
+        competition_id_categorie_code: dict[str, int] | None,
+        competition_id_nom_extended: dict[str, int] | None,
+        competition_id_sexe: CompetitionIDSexe | None,
+        competition_id_type_competition: CompetitionIDTypeCompetition | None,
+        niveau: NiveauClass | None,
+        organisateur_id: dict[str, int] | None,
+        organisateur_nom: dict[str, int] | None,
     ) -> None:
         self.competition_id_categorie_code = competition_id_categorie_code
         self.competition_id_nom_extended = competition_id_nom_extended
@@ -143,65 +143,65 @@ class CompetitionsFacetDistribution(FacetDistribution):
 
 
 class CompetitionsHit(Hit):
-    nom: Optional[str] = None
-    code: Optional[str] = None
-    niveau: Optional[Niveau] = None
-    type_competition: Optional[TypeCompetition] = None
-    sexe: Optional[Sexe] = None
-    id: Optional[str] = None
-    creation_en_cours: Optional[bool] = None
-    date_created: Optional[datetime] = None
-    date_updated: Optional[datetime] = None
-    emarque_v2: Optional[bool] = None
-    live_stat: Optional[bool] = None
-    publication_internet: Optional[PublicationInternet] = None
-    pro: Optional[bool] = None
-    competition_origine: Optional[str] = None
-    competition_origine_niveau: Optional[int] = None
-    phase_code: Optional[PhaseCode] = None
-    competition_origine_nom: Optional[str] = None
-    etat: Optional[Etat] = None
-    poules: Optional[list[Poule]] = None
-    phases: Optional[list[str]] = None
-    categorie: Optional[Categorie] = None
+    nom: str | None = None
+    code: str | None = None
+    niveau: Niveau | None = None
+    type_competition: TypeCompetition | None = None
+    sexe: Sexe | None = None
+    id: str | None = None
+    creation_en_cours: bool | None = None
+    date_created: datetime | None = None
+    date_updated: datetime | None = None
+    emarque_v2: bool | None = None
+    live_stat: bool | None = None
+    publication_internet: PublicationInternet | None = None
+    pro: bool | None = None
+    competition_origine: str | None = None
+    competition_origine_niveau: int | None = None
+    phase_code: PhaseCode | None = None
+    competition_origine_nom: str | None = None
+    etat: Etat | None = None
+    poules: list[Poule] | None = None
+    phases: list[str] | None = None
+    categorie: Categorie | None = None
     id_competition_pere: None
-    organisateur: Optional[Organisateur] = None
-    saison: Optional[Saison] = None
-    logo: Optional[Logo] = None
-    type_competition_generique: Optional[TypeCompetitionGenerique] = None
-    thumbnail: Optional[str] = None
-    niveau_nb: Optional[int] = None
+    organisateur: Organisateur | None = None
+    saison: Saison | None = None
+    logo: Logo | None = None
+    type_competition_generique: TypeCompetitionGenerique | None = None
+    thumbnail: str | None = None
+    niveau_nb: int | None = None
 
     def __init__(
         self,
-        nom: Optional[str],
-        code: Optional[str],
-        niveau: Optional[Niveau],
-        type_competition: Optional[TypeCompetition],
-        sexe: Optional[Sexe],
-        id: Optional[str],
-        creation_en_cours: Optional[bool],
-        date_created: Optional[datetime],
-        date_updated: Optional[datetime],
-        emarque_v2: Optional[bool],
-        live_stat: Optional[bool],
-        publication_internet: Optional[PublicationInternet],
-        pro: Optional[bool],
-        competition_origine: Optional[str],
-        competition_origine_niveau: Optional[int],
-        phase_code: Optional[PhaseCode],
-        competition_origine_nom: Optional[str],
-        etat: Optional[Etat],
-        poules: Optional[list[Poule]],
-        phases: Optional[list[str]],
-        categorie: Optional[Categorie],
+        nom: str | None,
+        code: str | None,
+        niveau: Niveau | None,
+        type_competition: TypeCompetition | None,
+        sexe: Sexe | None,
+        id: str | None,
+        creation_en_cours: bool | None,
+        date_created: datetime | None,
+        date_updated: datetime | None,
+        emarque_v2: bool | None,
+        live_stat: bool | None,
+        publication_internet: PublicationInternet | None,
+        pro: bool | None,
+        competition_origine: str | None,
+        competition_origine_niveau: int | None,
+        phase_code: PhaseCode | None,
+        competition_origine_nom: str | None,
+        etat: Etat | None,
+        poules: list[Poule] | None,
+        phases: list[str] | None,
+        categorie: Categorie | None,
         id_competition_pere: None,
-        organisateur: Optional[Organisateur],
-        saison: Optional[Saison],
-        logo: Optional[Logo],
-        type_competition_generique: Optional[TypeCompetitionGenerique],
-        thumbnail: Optional[str],
-        niveau_nb: Optional[int],
+        organisateur: Organisateur | None,
+        saison: Saison | None,
+        logo: Logo | None,
+        type_competition_generique: TypeCompetitionGenerique | None,
+        thumbnail: str | None,
+        niveau_nb: int | None,
     ) -> None:
         self.nom = nom
         self.lower_nom = nom.lower() if nom else None

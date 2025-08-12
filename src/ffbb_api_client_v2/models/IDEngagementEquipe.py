@@ -1,15 +1,15 @@
-from typing import Any, Optional
+from typing import Any
 
 from ..utils.converter_utils import from_none, from_str, from_union
 from .logo import Logo
 
 
 class IDEngagementEquipe:
-    id: Optional[str] = None
-    nom_usuel: Optional[str] = None
+    id: str | None = None
+    nom_usuel: str | None = None
     logo: Logo
 
-    def __init__(self, id: Optional[str], nom_usuel: Optional[str], logo: Logo) -> None:
+    def __init__(self, id: str | None, nom_usuel: str | None, logo: Logo) -> None:
         self.id = id
         self.nom_usuel = nom_usuel
         self.logo = logo

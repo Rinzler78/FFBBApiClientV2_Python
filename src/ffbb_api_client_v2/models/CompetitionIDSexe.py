@@ -1,15 +1,15 @@
-from typing import Any, Optional
+from typing import Any
 
 from ..utils.converter_utils import from_int, from_none, from_union
 
 
 class CompetitionIDSexe:
-    feminine: Optional[int] = None
-    masculine: Optional[int] = None
-    mixed: Optional[int] = None
+    feminine: int | None = None
+    masculine: int | None = None
+    mixed: int | None = None
 
     def __init__(
-        self, feminine: Optional[int], masculine: Optional[int], mixed: Optional[int]
+        self, feminine: int | None, masculine: int | None, mixed: int | None
     ) -> None:
         self.feminine = feminine
         self.masculine = masculine

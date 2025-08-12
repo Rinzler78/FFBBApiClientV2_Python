@@ -1,15 +1,15 @@
-from typing import Any, Optional
+from typing import Any
 
 from ..utils.converter_utils import from_int, from_none, from_str, from_union
 
 
 class CompetitionIDCategorie:
-    code: Optional[str] = None
-    libelle: Optional[str] = None
-    ordre: Optional[int] = None
+    code: str | None = None
+    libelle: str | None = None
+    ordre: int | None = None
 
     def __init__(
-        self, code: Optional[str], libelle: Optional[str], ordre: Optional[int]
+        self, code: str | None, libelle: str | None, ordre: int | None
     ) -> None:
         self.code = code
         self.libelle = libelle

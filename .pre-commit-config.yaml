@@ -1,33 +1,23 @@
 exclude: '^docs/conf.py'
+
 default_language_version:
-  python: /usr/local/bin/python3.11
+    python: python3.11
 
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v6.0.0
   hooks:
   - id: trailing-whitespace
-    language_version: /usr/local/bin/python3.11
   - id: check-added-large-files
-    language_version: /usr/local/bin/python3.11
   - id: check-ast
-    language_version: /usr/local/bin/python3.11
   - id: check-json
-    language_version: /usr/local/bin/python3.11
   - id: check-merge-conflict
-    language_version: /usr/local/bin/python3.11
   - id: check-xml
-    language_version: /usr/local/bin/python3.11
   - id: check-yaml
-    language_version: /usr/local/bin/python3.11
   - id: debug-statements
-    language_version: /usr/local/bin/python3.11
   - id: end-of-file-fixer
-    language_version: /usr/local/bin/python3.11
   - id: requirements-txt-fixer
-    language_version: /usr/local/bin/python3.11
   - id: mixed-line-ending
-    language_version: /usr/local/bin/python3.11
     args: ['--fix=auto']  # replace 'auto' with 'lf' to enforce Linux/Mac line endings or 'crlf' for Windows
 
 # If you want to automatically "modernize" your Python code:
@@ -35,15 +25,13 @@ repos:
   rev: v3.20.0
   hooks:
   - id: pyupgrade
-    language_version: /usr/local/bin/python3.11
-    args: ['--py38-plus']
+    args: ['--py311-plus']
 
 # If you want to avoid flake8 errors due to unused vars or imports:
 - repo: https://github.com/PyCQA/autoflake
   rev: v2.3.1
   hooks:
   - id: autoflake
-    language_version: /usr/local/bin/python3.11
     args: [
       --in-place,
       --remove-all-unused-imports,
@@ -54,13 +42,11 @@ repos:
   rev: 6.0.1
   hooks:
   - id: isort
-    language_version: /usr/local/bin/python3.11
 
 - repo: https://github.com/psf/black
   rev: 25.1.0
   hooks:
   - id: black
-    language_version: /usr/local/bin/python3.11
 
 ## If like to embrace black styles even in the docs:
 # - repo: https://github.com/asottile/blacken-docs
@@ -73,9 +59,6 @@ repos:
   rev: 7.3.0
   hooks:
   - id: flake8
-    language_version: /usr/local/bin/python3.11
-  ## You can add flake8 plugins via `additional_dependencies`:
-  #  additional_dependencies: [flake8-bugbear]
 
 # Check for misspells in documentation files:
 # - repo: https://github.com/codespell-project/codespell

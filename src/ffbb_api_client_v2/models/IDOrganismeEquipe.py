@@ -1,25 +1,25 @@
-from typing import Any, Optional
+from typing import Any
 
 from ..utils.converter_utils import from_none, from_str, from_union, to_class
 from .IDOrganismeEquipe1Logo import IDOrganismeEquipe1Logo
 
 
 class IDOrganismeEquipe:
-    id: Optional[str] = None
-    nom: Optional[str] = None
+    id: str | None = None
+    nom: str | None = None
     nom_simple: None
-    code: Optional[str] = None
-    nom_club_pro: Optional[str] = None
-    logo: Optional[IDOrganismeEquipe1Logo] = None
+    code: str | None = None
+    nom_club_pro: str | None = None
+    logo: IDOrganismeEquipe1Logo | None = None
 
     def __init__(
         self,
-        id: Optional[str],
-        nom: Optional[str],
+        id: str | None,
+        nom: str | None,
         nom_simple: None,
-        code: Optional[str],
-        nom_club_pro: Optional[str],
-        logo: Optional[IDOrganismeEquipe1Logo],
+        code: str | None,
+        nom_club_pro: str | None,
+        logo: IDOrganismeEquipe1Logo | None,
     ) -> None:
         self.id = id
         self.nom = nom

@@ -1,14 +1,14 @@
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 
 from ..utils.converter_utils import from_int, from_none, from_str, from_union
 
 
 class Affiche:
-    affiche_id: Optional[UUID] = None
-    gradient_color: Optional[str] = None
-    width: Optional[int] = None
-    height: Optional[int] = None
+    affiche_id: UUID | None = None
+    gradient_color: str | None = None
+    width: int | None = None
+    height: int | None = None
 
     @staticmethod
     def from_dict(obj: Any) -> "Affiche":

@@ -1,13 +1,13 @@
-from typing import Any, Optional
+from typing import Any
 
 from ..utils.converter_utils import from_int, from_none, from_union
 
 
 class NiveauClass:
-    départemental: Optional[int] = None
-    régional: Optional[int] = None
+    départemental: int | None = None
+    régional: int | None = None
 
-    def __init__(self, départemental: Optional[int], régional: Optional[int]) -> None:
+    def __init__(self, départemental: int | None, régional: int | None) -> None:
         self.départemental = départemental
         self.régional = régional
 

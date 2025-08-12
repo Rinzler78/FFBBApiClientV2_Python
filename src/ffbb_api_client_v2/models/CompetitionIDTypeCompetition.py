@@ -1,13 +1,13 @@
-from typing import Any, Optional
+from typing import Any
 
 from ..utils.converter_utils import from_int, from_none, from_union
 
 
 class CompetitionIDTypeCompetition:
-    championnat: Optional[int] = None
-    coupe: Optional[int] = None
+    championnat: int | None = None
+    coupe: int | None = None
 
-    def __init__(self, championnat: Optional[int], coupe: Optional[int]) -> None:
+    def __init__(self, championnat: int | None, coupe: int | None) -> None:
         self.championnat = championnat
         self.coupe = coupe
 

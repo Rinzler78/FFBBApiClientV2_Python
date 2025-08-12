@@ -1,16 +1,16 @@
-from typing import Any, Optional
+from typing import Any
 
 from ..utils.converter_utils import from_int, from_none, from_union
 
 
 class Labellisation:
-    basket_santé_résolutions: Optional[int] = None
-    micro_basket: Optional[int] = None
+    basket_santé_résolutions: int | None = None
+    micro_basket: int | None = None
 
     def __init__(
         self,
-        basket_santé_résolutions: Optional[int],
-        micro_basket: Optional[int],
+        basket_santé_résolutions: int | None,
+        micro_basket: int | None,
     ) -> None:
         self.basket_santé_résolutions = basket_santé_résolutions
         self.micro_basket = micro_basket

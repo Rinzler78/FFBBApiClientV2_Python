@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 from ..utils.converter_utils import (
     from_datetime,
@@ -12,22 +12,22 @@ from ..utils.converter_utils import (
 
 class Commune:
     code_insee: None
-    code_postal: Optional[int] = None
-    date_created: Optional[datetime] = None
-    date_updated: Optional[datetime] = None
-    commune_id: Optional[int] = None
-    libelle: Optional[str] = None
-    departement: Optional[str] = None
+    code_postal: int | None = None
+    date_created: datetime | None = None
+    date_updated: datetime | None = None
+    commune_id: int | None = None
+    libelle: str | None = None
+    departement: str | None = None
 
     def __init__(
         self,
         code_insee: None,
-        code_postal: Optional[int],
-        date_created: Optional[datetime],
-        date_updated: Optional[datetime],
-        id: Optional[int],
-        libelle: Optional[str],
-        departement: Optional[str],
+        code_postal: int | None,
+        date_created: datetime | None,
+        date_updated: datetime | None,
+        id: int | None,
+        libelle: str | None,
+        departement: str | None,
     ):
         self.code_insee = code_insee
         self.code_postal = code_postal

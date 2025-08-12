@@ -1,4 +1,4 @@
-from typing import Any, Generic, Optional, TypeVar, cast
+from typing import Any, Generic, TypeVar, cast
 
 from ..utils.converter_utils import (
     from_int,
@@ -19,27 +19,27 @@ ReturnType = TypeVar("ResultType", bound="MultiSearchResult")
 
 
 class MultiSearchResult(Generic[HitType, FacetDistributionType, FacetStatsType]):
-    index_uid: Optional[str] = None
-    hits: Optional[list[HitType]] = None
-    query: Optional[str] = None
-    processing_time_ms: Optional[int] = None
-    limit: Optional[int] = None
-    offset: Optional[int] = None
-    estimated_total_hits: Optional[int] = None
-    facet_distribution: Optional[FacetDistributionType] = None
-    facet_stats: Optional[FacetStatsType] = None
+    index_uid: str | None = None
+    hits: list[HitType] | None = None
+    query: str | None = None
+    processing_time_ms: int | None = None
+    limit: int | None = None
+    offset: int | None = None
+    estimated_total_hits: int | None = None
+    facet_distribution: FacetDistributionType | None = None
+    facet_stats: FacetStatsType | None = None
 
     def __init__(
         self,
-        index_uid: Optional[str],
-        hits: Optional[list[HitType]],
-        query: Optional[str],
-        processing_time_ms: Optional[int],
-        limit: Optional[int],
-        offset: Optional[int],
-        estimated_total_hits: Optional[int],
-        facet_distribution: Optional[FacetDistributionType],
-        facet_stats: Optional[FacetStatsType],
+        index_uid: str | None,
+        hits: list[HitType] | None,
+        query: str | None,
+        processing_time_ms: int | None,
+        limit: int | None,
+        offset: int | None,
+        estimated_total_hits: int | None,
+        facet_distribution: FacetDistributionType | None,
+        facet_stats: FacetStatsType | None,
     ) -> None:
         self.index_uid = index_uid
         self.hits = hits

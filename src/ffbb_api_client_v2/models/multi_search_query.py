@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any
 
 from ..utils.converter_utils import from_int, from_list, from_none, from_str, from_union
 from .FacetDistribution import FacetDistribution
@@ -43,21 +43,21 @@ from .MultiSearchResultTournois import (
 
 
 class MultiSearchQuery:
-    index_uid: Optional[str] = None
-    q: Optional[str] = None
-    facets: Optional[list[str]] = None
-    limit: Optional[int] = None
-    offset: Optional[int] = None
-    filter: Optional[list[Any]] = None
-    sort: Optional[list[Any]] = None
+    index_uid: str | None = None
+    q: str | None = None
+    facets: list[str] | None = None
+    limit: int | None = None
+    offset: int | None = None
+    filter: list[Any] | None = None
+    sort: list[Any] | None = None
 
     def __init__(
         self,
-        index_uid: Optional[str],
-        q: Optional[str],
-        facets: Optional[list[str]] = None,
-        limit: Optional[int] = 10,
-        offset: Optional[int] = 0,
+        index_uid: str | None,
+        q: str | None,
+        facets: list[str] | None = None,
+        limit: int | None = 10,
+        offset: int | None = 0,
         filter: list[str] = None,
         sort: list[str] = None,
     ):
@@ -145,9 +145,9 @@ class MultiSearchQuery:
 class OrganismesMultiSearchQuery(MultiSearchQuery):
     def __init__(
         self,
-        q: Optional[str],
-        limit: Optional[int] = 10,
-        offset: Optional[int] = 0,
+        q: str | None,
+        limit: int | None = 10,
+        offset: int | None = 0,
         filter: list[str] = None,
         sort: list[str] = None,
     ):
@@ -183,9 +183,9 @@ class OrganismesMultiSearchQuery(MultiSearchQuery):
 class RencontresMultiSearchQuery(MultiSearchQuery):
     def __init__(
         self,
-        q: Optional[str],
-        limit: Optional[int] = 10,
-        offset: Optional[int] = 0,
+        q: str | None,
+        limit: int | None = 10,
+        offset: int | None = 0,
         filter: list[str] = None,
         sort: list[str] = None,
     ):
@@ -224,10 +224,10 @@ class RencontresMultiSearchQuery(MultiSearchQuery):
 class TerrainsMultiSearchQuery(MultiSearchQuery):
     def __init__(
         self,
-        q: Optional[str],
-        facets: Optional[list[str]] = None,
-        limit: Optional[int] = 10,
-        offset: Optional[int] = 0,
+        q: str | None,
+        facets: list[str] | None = None,
+        limit: int | None = 10,
+        offset: int | None = 0,
         filter: list[str] = None,
         sort: list[str] = None,
     ):
@@ -258,9 +258,9 @@ class TerrainsMultiSearchQuery(MultiSearchQuery):
 class SallesMultiSearchQuery(MultiSearchQuery):
     def __init__(
         self,
-        q: Optional[str],
-        limit: Optional[int] = 10,
-        offset: Optional[int] = 0,
+        q: str | None,
+        limit: int | None = 10,
+        offset: int | None = 0,
         filter: list[str] = None,
         sort: list[str] = None,
     ):
@@ -290,9 +290,9 @@ class SallesMultiSearchQuery(MultiSearchQuery):
 class TournoisMultiSearchQuery(MultiSearchQuery):
     def __init__(
         self,
-        q: Optional[str],
-        limit: Optional[int] = 10,
-        offset: Optional[int] = 0,
+        q: str | None,
+        limit: int | None = 10,
+        offset: int | None = 0,
         filter: list[str] = None,
         sort: list[str] = None,
     ):
@@ -322,9 +322,9 @@ class TournoisMultiSearchQuery(MultiSearchQuery):
 class CompetitionsMultiSearchQuery(MultiSearchQuery):
     def __init__(
         self,
-        q: Optional[str],
-        limit: Optional[int] = 10,
-        offset: Optional[int] = 0,
+        q: str | None,
+        limit: int | None = 10,
+        offset: int | None = 0,
         filter: list[str] = None,
         sort: list[str] = None,
     ):
@@ -354,9 +354,9 @@ class CompetitionsMultiSearchQuery(MultiSearchQuery):
 class PratiquesMultiSearchQuery(MultiSearchQuery):
     def __init__(
         self,
-        q: Optional[str],
-        limit: Optional[int] = 10,
-        offset: Optional[int] = 0,
+        q: str | None,
+        limit: int | None = 10,
+        offset: int | None = 0,
         filter: list[str] = None,
         sort: list[str] = None,
     ):

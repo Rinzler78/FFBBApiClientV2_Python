@@ -1,12 +1,11 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
 
 
 # Query Parameters Model
 @dataclass
 class PoulesQuery:
-    deep_rencontres__limit: Optional[str] = "1000"  # Original: deep[rencontres][_limit]
+    deep_rencontres__limit: str | None = "1000"  # Original: deep[rencontres][_limit]
     fields_: list[str] = None  # Original: fields[]
 
 

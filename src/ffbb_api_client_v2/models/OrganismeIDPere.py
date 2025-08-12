@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 
 from ..utils.converter_utils import (
@@ -15,67 +15,67 @@ from ..utils.converter_utils import (
 
 
 class OrganismeIDPere:
-    adresse: Optional[str] = None
-    adresse_club_pro: Optional[str] = None
-    cartographie: Optional[str] = None
-    code: Optional[str] = None
-    commune: Optional[int] = None
-    commune_club_pro: Optional[str] = None
-    date_created: Optional[datetime] = None
-    date_updated: Optional[datetime] = None
-    id: Optional[int] = None
-    mail: Optional[str] = None
-    nom: Optional[str] = None
-    nom_club_pro: Optional[str] = None
-    organisme_id_pere: Optional[str] = None
-    salle: Optional[str] = None
-    telephone: Optional[str] = None
-    type: Optional[str] = None
-    type_association: Optional[str] = None
-    url_site_web: Optional[str] = None
-    logo: Optional[UUID] = None
-    nom_simple: Optional[str] = None
-    date_affiliation: Optional[datetime] = None
-    saison_en_cours: Optional[bool] = None
-    entreprise: Optional[bool] = None
-    handibasket: Optional[bool] = None
-    omnisport: Optional[bool] = None
-    hors_association: Optional[bool] = None
-    offres_pratiques: Optional[list[Any]] = None
-    engagements: Optional[list[Any]] = None
-    labellisation: Optional[list[Any]] = None
+    adresse: str | None = None
+    adresse_club_pro: str | None = None
+    cartographie: str | None = None
+    code: str | None = None
+    commune: int | None = None
+    commune_club_pro: str | None = None
+    date_created: datetime | None = None
+    date_updated: datetime | None = None
+    id: int | None = None
+    mail: str | None = None
+    nom: str | None = None
+    nom_club_pro: str | None = None
+    organisme_id_pere: str | None = None
+    salle: str | None = None
+    telephone: str | None = None
+    type: str | None = None
+    type_association: str | None = None
+    url_site_web: str | None = None
+    logo: UUID | None = None
+    nom_simple: str | None = None
+    date_affiliation: datetime | None = None
+    saison_en_cours: bool | None = None
+    entreprise: bool | None = None
+    handibasket: bool | None = None
+    omnisport: bool | None = None
+    hors_association: bool | None = None
+    offres_pratiques: list[Any] | None = None
+    engagements: list[Any] | None = None
+    labellisation: list[Any] | None = None
 
     def __init__(
         self,
-        adresse: Optional[str],
-        adresse_club_pro: Optional[str],
-        cartographie: Optional[str],
-        code: Optional[str],
-        commune: Optional[int],
-        commune_club_pro: Optional[str],
-        date_created: Optional[datetime],
-        date_updated: Optional[datetime],
-        id: Optional[int],
-        mail: Optional[str],
-        nom: Optional[str],
-        nom_club_pro: Optional[str],
-        organisme_id_pere: Optional[str],
-        salle: Optional[str],
-        telephone: Optional[str],
-        type: Optional[str],
-        type_association: Optional[str],
-        url_site_web: Optional[str],
-        logo: Optional[UUID],
-        nom_simple: Optional[str],
-        date_affiliation: Optional[datetime],
-        saison_en_cours: Optional[bool],
-        entreprise: Optional[bool],
-        handibasket: Optional[bool],
-        omnisport: Optional[bool],
-        hors_association: Optional[bool],
-        offres_pratiques: Optional[list[Any]],
-        engagements: Optional[list[Any]],
-        labellisation: Optional[list[Any]],
+        adresse: str | None,
+        adresse_club_pro: str | None,
+        cartographie: str | None,
+        code: str | None,
+        commune: int | None,
+        commune_club_pro: str | None,
+        date_created: datetime | None,
+        date_updated: datetime | None,
+        id: int | None,
+        mail: str | None,
+        nom: str | None,
+        nom_club_pro: str | None,
+        organisme_id_pere: str | None,
+        salle: str | None,
+        telephone: str | None,
+        type: str | None,
+        type_association: str | None,
+        url_site_web: str | None,
+        logo: UUID | None,
+        nom_simple: str | None,
+        date_affiliation: datetime | None,
+        saison_en_cours: bool | None,
+        entreprise: bool | None,
+        handibasket: bool | None,
+        omnisport: bool | None,
+        hors_association: bool | None,
+        offres_pratiques: list[Any] | None,
+        engagements: list[Any] | None,
+        labellisation: list[Any] | None,
     ) -> None:
         self.adresse = adresse
         self.adresse_club_pro = adresse_club_pro

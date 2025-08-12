@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 
 # Query Parameters Model
@@ -19,10 +19,10 @@ class GetOrganismeResponse:
     adresse: str
     mail: str
     type: str
-    nom_simple: Optional[Any]
+    nom_simple: Any | None
     urlSiteWeb: str
     nomClubPro: str
-    adresseClubPro: Optional[Any]
+    adresseClubPro: Any | None
 
     @dataclass
     class CommuneModel:
@@ -37,7 +37,7 @@ class GetOrganismeResponse:
         longitude: float
 
     cartographie: CartographieModel
-    communeClubPro: Optional[Any]
+    communeClubPro: Any | None
 
     @dataclass
     class MembresitemModel:
@@ -45,11 +45,11 @@ class GetOrganismeResponse:
         nom: str
         prenom: str
         adresse1: str
-        adresse2: Optional[Any]
+        adresse2: Any | None
         codePostal: str
         ville: str
         mail: str
-        telephoneFixe: Optional[Any]
+        telephoneFixe: Any | None
         telephonePortable: str
         codeFonction: str
 
@@ -76,14 +76,14 @@ class GetOrganismeResponse:
             competition_origine_nom: str
             competition_origine_niveau: int
             typeCompetition: str
-            logo: Optional[Any]
+            logo: Any | None
 
             @dataclass
             class SaisonModel:
                 id: str
 
             saison: SaisonModel
-            idCompetitionPere: Optional[Any]
+            idCompetitionPere: Any | None
 
             @dataclass
             class OrganisateurModel:
@@ -140,7 +140,7 @@ class GetOrganismeResponse:
             id: str
             libelle: str
             labellisationLabel: str
-            logo_vertical: Optional[Any]
+            logo_vertical: Any | None
 
         idLabellisationProgramme: IdlabellisationprogrammeModel
 

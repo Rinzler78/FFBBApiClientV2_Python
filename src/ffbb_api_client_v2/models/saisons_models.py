@@ -1,20 +1,19 @@
 from dataclasses import dataclass
-from typing import Optional
 
 
 # Query Parameters Model
 @dataclass
 class SaisonsQuery:
     fields_: list[str] = None  # Original: fields[]
-    filter: Optional[str] = '{"actif":{"_eq":true}}'  # Original: filter
+    filter: str | None = '{"actif":{"_eq":true}}'  # Original: filter
 
 
 # Response Model
 @dataclass
 class GetSaisonsResponse:
     id: str
-    nom: Optional[str] = None
-    actif: Optional[bool] = None
+    nom: str | None = None
+    actif: bool | None = None
 
     @classmethod
     def from_dict(cls, data: dict) -> "GetSaisonsResponse":

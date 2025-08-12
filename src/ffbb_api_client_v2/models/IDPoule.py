@@ -1,13 +1,13 @@
-from typing import Any, Optional
+from typing import Any
 
 from ..utils.converter_utils import from_none, from_str, from_union
 
 
 class IDPoule:
-    id: Optional[str] = None
-    nom: Optional[str] = None
+    id: str | None = None
+    nom: str | None = None
 
-    def __init__(self, id: Optional[str], nom: Optional[str] = None) -> None:
+    def __init__(self, id: str | None, nom: str | None = None) -> None:
         self.id = id
         self.nom = nom
 

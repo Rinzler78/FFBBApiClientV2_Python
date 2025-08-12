@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 
 from ..utils.converter_utils import (
@@ -27,12 +27,12 @@ from .TypeLeague import TypeLeague
 
 
 class SexeClass:
-    feminine: Optional[int] = None
-    masculine: Optional[int] = None
-    mixed: Optional[int] = None
+    feminine: int | None = None
+    masculine: int | None = None
+    mixed: int | None = None
 
     def __init__(
-        self, feminine: Optional[int], masculine: Optional[int], mixed: Optional[int]
+        self, feminine: int | None, masculine: int | None, mixed: int | None
     ) -> None:
         self.feminine = feminine
         self.masculine = masculine
@@ -58,21 +58,21 @@ class SexeClass:
 
 
 class TournoiTypes3X3Libelle:
-    open_plus_junior_league_3_x3: Optional[int] = None
-    open_plus_super_league_3_x3: Optional[int] = None
-    open_plus_access_junior_league_3_x3: Optional[int] = None
-    open_plus_access_super_league_3_x3: Optional[int] = None
-    open_start_junior_league_3_x3: Optional[int] = None
-    open_start_super_league_3_x3: Optional[int] = None
+    open_plus_junior_league_3_x3: int | None = None
+    open_plus_super_league_3_x3: int | None = None
+    open_plus_access_junior_league_3_x3: int | None = None
+    open_plus_access_super_league_3_x3: int | None = None
+    open_start_junior_league_3_x3: int | None = None
+    open_start_super_league_3_x3: int | None = None
 
     def __init__(
         self,
-        open_plus_junior_league_3_x3: Optional[int],
-        open_plus_super_league_3_x3: Optional[int],
-        open_plus_access_junior_league_3_x3: Optional[int],
-        open_plus_access_super_league_3_x3: Optional[int],
-        open_start_junior_league_3_x3: Optional[int],
-        open_start_super_league_3_x3: Optional[int],
+        open_plus_junior_league_3_x3: int | None,
+        open_plus_super_league_3_x3: int | None,
+        open_plus_access_junior_league_3_x3: int | None,
+        open_plus_access_super_league_3_x3: int | None,
+        open_start_junior_league_3_x3: int | None,
+        open_start_super_league_3_x3: int | None,
     ) -> None:
         self.open_plus_junior_league_3_x3 = open_plus_junior_league_3_x3
         self.open_plus_super_league_3_x3 = open_plus_super_league_3_x3
@@ -141,15 +141,15 @@ class TournoiTypes3X3Libelle:
 
 
 class TerrainsFacetDistribution(FacetDistribution):
-    sexe: Optional[SexeClass] = None
-    tournoi_type: Optional[TournoiTypeClass] = None
-    tournoi_types3_x3_libelle: Optional[TournoiTypes3X3Libelle] = None
+    sexe: SexeClass | None = None
+    tournoi_type: TournoiTypeClass | None = None
+    tournoi_types3_x3_libelle: TournoiTypes3X3Libelle | None = None
 
     def __init__(
         self,
-        sexe: Optional[SexeClass],
-        tournoi_type: Optional[TournoiTypeClass],
-        tournoi_types3_x3_libelle: Optional[TournoiTypes3X3Libelle],
+        sexe: SexeClass | None,
+        tournoi_type: TournoiTypeClass | None,
+        tournoi_types3_x3_libelle: TournoiTypes3X3Libelle | None,
     ) -> None:
         self.sexe = sexe
         self.tournoi_type = tournoi_type
@@ -214,17 +214,17 @@ class Libelle(Enum):
 
 
 class TournoiTypes3X3:
-    libelle: Optional[Libelle] = None
-    logo: Optional[UUID] = None
-    type_league: Optional[TypeLeague] = None
-    type_tournois: Optional[int] = None
+    libelle: Libelle | None = None
+    logo: UUID | None = None
+    type_league: TypeLeague | None = None
+    type_tournois: int | None = None
 
     def __init__(
         self,
-        libelle: Optional[Libelle],
-        logo: Optional[UUID],
-        type_league: Optional[TypeLeague],
-        type_tournois: Optional[int],
+        libelle: Libelle | None,
+        logo: UUID | None,
+        type_league: TypeLeague | None,
+        type_tournois: int | None,
     ) -> None:
         self.libelle = libelle
         self.logo = logo
@@ -268,70 +268,70 @@ class TournoiTypes3X3:
 
 
 class TerrainsHit(Hit):
-    nom: Optional[str] = None
-    sexe: Optional[SexeEnum] = None
-    adresse: Optional[str] = None
-    nom_organisateur: Optional[str] = None
-    description: Optional[str] = None
-    site_choisi: Optional[str] = None
-    id: Optional[int] = None
-    code: Optional[str] = None
-    date_created: Optional[datetime] = None
-    date_updated: Optional[datetime] = None
-    age_max: Optional[int] = None
-    age_min: Optional[int] = None
-    categorie_championnat3_x3_id: Optional[int] = None
-    categorie_championnat3_x3_libelle: Optional[CategorieChampionnat3X3Libelle] = None
-    debut: Optional[datetime] = None
-    fin: Optional[datetime] = None
-    mail_organisateur: Optional[str] = None
+    nom: str | None = None
+    sexe: SexeEnum | None = None
+    adresse: str | None = None
+    nom_organisateur: str | None = None
+    description: str | None = None
+    site_choisi: str | None = None
+    id: int | None = None
+    code: str | None = None
+    date_created: datetime | None = None
+    date_updated: datetime | None = None
+    age_max: int | None = None
+    age_min: int | None = None
+    categorie_championnat3_x3_id: int | None = None
+    categorie_championnat3_x3_libelle: CategorieChampionnat3X3Libelle | None = None
+    debut: datetime | None = None
+    fin: datetime | None = None
+    mail_organisateur: str | None = None
     nb_participant_prevu: None
-    tarif_organisateur: Optional[int] = None
-    telephone_organisateur: Optional[str] = None
-    url_organisateur: Optional[str] = None
+    tarif_organisateur: int | None = None
+    telephone_organisateur: str | None = None
+    url_organisateur: str | None = None
     adresse_complement: None
-    tournoi_types3_x3: Optional[list[TournoiTypes3X3]] = None
-    cartographie: Optional[Cartographie] = None
-    commune: Optional[Commune] = None
-    document_flyer: Optional[DocumentFlyer] = None
-    tournoi_type: Optional[TournoiTypeEnum] = None
-    geo: Optional[Geo] = None
-    debut_timestamp: Optional[int] = None
-    fin_timestamp: Optional[int] = None
+    tournoi_types3_x3: list[TournoiTypes3X3] | None = None
+    cartographie: Cartographie | None = None
+    commune: Commune | None = None
+    document_flyer: DocumentFlyer | None = None
+    tournoi_type: TournoiTypeEnum | None = None
+    geo: Geo | None = None
+    debut_timestamp: int | None = None
+    fin_timestamp: int | None = None
     thumbnail: None
 
     def __init__(
         self,
-        nom: Optional[str],
-        sexe: Optional[SexeEnum],
-        adresse: Optional[str],
-        nom_organisateur: Optional[str],
-        description: Optional[str],
-        site_choisi: Optional[str],
-        id: Optional[int],
-        code: Optional[str],
-        date_created: Optional[datetime],
-        date_updated: Optional[datetime],
-        age_max: Optional[int],
-        age_min: Optional[int],
-        categorie_championnat3_x3_id: Optional[int],
-        categorie_championnat3_x3_libelle: Optional[CategorieChampionnat3X3Libelle],
-        debut: Optional[datetime],
-        fin: Optional[datetime],
-        mail_organisateur: Optional[str],
+        nom: str | None,
+        sexe: SexeEnum | None,
+        adresse: str | None,
+        nom_organisateur: str | None,
+        description: str | None,
+        site_choisi: str | None,
+        id: int | None,
+        code: str | None,
+        date_created: datetime | None,
+        date_updated: datetime | None,
+        age_max: int | None,
+        age_min: int | None,
+        categorie_championnat3_x3_id: int | None,
+        categorie_championnat3_x3_libelle: CategorieChampionnat3X3Libelle | None,
+        debut: datetime | None,
+        fin: datetime | None,
+        mail_organisateur: str | None,
         nb_participant_prevu: None,
-        tarif_organisateur: Optional[int],
-        telephone_organisateur: Optional[str],
-        url_organisateur: Optional[str],
+        tarif_organisateur: int | None,
+        telephone_organisateur: str | None,
+        url_organisateur: str | None,
         adresse_complement: None,
-        tournoi_types3_x3: Optional[list[TournoiTypes3X3]],
-        cartographie: Optional[Cartographie],
-        commune: Optional[Commune],
-        document_flyer: Optional[DocumentFlyer],
-        tournoi_type: Optional[TournoiTypeEnum],
-        geo: Optional[Geo],
-        debut_timestamp: Optional[int],
-        fin_timestamp: Optional[int],
+        tournoi_types3_x3: list[TournoiTypes3X3] | None,
+        cartographie: Cartographie | None,
+        commune: Commune | None,
+        document_flyer: DocumentFlyer | None,
+        tournoi_type: TournoiTypeEnum | None,
+        geo: Geo | None,
+        debut_timestamp: int | None,
+        fin_timestamp: int | None,
         thumbnail: None,
     ) -> None:
         self.nom = nom

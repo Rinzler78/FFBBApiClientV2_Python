@@ -1,12 +1,12 @@
-from typing import Any, Optional
+from typing import Any
 
 from ..utils.converter_utils import from_none, from_str, from_union
 
 
 class TypeAssociation:
-    libelle: Optional[str] = None
+    libelle: str | None = None
 
-    def __init__(self, libelle: Optional[str] = None):
+    def __init__(self, libelle: str | None = None):
         self.libelle = libelle
 
     @staticmethod

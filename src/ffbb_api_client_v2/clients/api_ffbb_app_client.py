@@ -1,5 +1,3 @@
-from typing import Optional
-
 from requests_cache import CachedSession
 
 from ..helpers.http_requests_helper import catch_result, default_cached_session
@@ -65,8 +63,8 @@ class ApiFFBBAppClient:
     def get_competition(
         self,
         competition_id: int,
-        deep_limit: Optional[str] = "1000",
-        fields: Optional[list[str]] = None,
+        deep_limit: str | None = "1000",
+        fields: list[str] | None = None,
         cached_session: CachedSession = None,
     ) -> GetCompetitionResponse:
         """
@@ -118,8 +116,8 @@ class ApiFFBBAppClient:
     def get_poule(
         self,
         poule_id: int,
-        deep_limit: Optional[str] = "1000",
-        fields: Optional[list[str]] = None,
+        deep_limit: str | None = "1000",
+        fields: list[str] | None = None,
         cached_session: CachedSession = None,
     ) -> GetPouleResponse:
         """
@@ -164,8 +162,8 @@ class ApiFFBBAppClient:
 
     def get_saisons(
         self,
-        fields: Optional[list[str]] = None,
-        filter_criteria: Optional[str] = '{"actif":{"_eq":true}}',
+        fields: list[str] | None = None,
+        filter_criteria: str | None = '{"actif":{"_eq":true}}',
         cached_session: CachedSession = None,
     ) -> list[GetSaisonsResponse]:
         """
@@ -210,7 +208,7 @@ class ApiFFBBAppClient:
     def get_organisme(
         self,
         organisme_id: int,
-        fields: Optional[list[str]] = None,
+        fields: list[str] | None = None,
         cached_session: CachedSession = None,
     ) -> GetOrganismeResponse:
         """

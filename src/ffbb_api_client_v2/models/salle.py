@@ -1,23 +1,23 @@
-from typing import Any, Optional
+from typing import Any
 
 from ..utils.converter_utils import from_none, from_str, from_union, to_class
 from .Cartographie import Cartographie
 
 
 class Salle:
-    id: Optional[str] = None
-    libelle: Optional[str] = None
-    adresse: Optional[str] = None
-    adresse_complement: Optional[str] = None
-    cartographie: Optional[Cartographie] = None
+    id: str | None = None
+    libelle: str | None = None
+    adresse: str | None = None
+    adresse_complement: str | None = None
+    cartographie: Cartographie | None = None
 
     def __init__(
         self,
-        id: Optional[str],
-        libelle: Optional[str],
-        adresse: Optional[str],
-        adresse_complement: Optional[str],
-        cartographie: Optional[Cartographie],
+        id: str | None,
+        libelle: str | None,
+        adresse: str | None,
+        adresse_complement: str | None,
+        cartographie: Cartographie | None,
     ) -> None:
         self.id = id
         self.libelle = libelle

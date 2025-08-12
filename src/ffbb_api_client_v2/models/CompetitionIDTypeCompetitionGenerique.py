@@ -1,13 +1,13 @@
-from typing import Any, Optional
+from typing import Any
 
 from ..utils.converter_utils import from_none, from_union, to_class
 from .IDOrganismeEquipe1Logo import IDOrganismeEquipe1Logo
 
 
 class CompetitionIDTypeCompetitionGenerique:
-    logo: Optional[IDOrganismeEquipe1Logo] = None
+    logo: IDOrganismeEquipe1Logo | None = None
 
-    def __init__(self, logo: Optional[IDOrganismeEquipe1Logo]) -> None:
+    def __init__(self, logo: IDOrganismeEquipe1Logo | None) -> None:
         self.logo = logo
 
     @staticmethod

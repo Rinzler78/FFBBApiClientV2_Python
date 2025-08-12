@@ -1,13 +1,13 @@
-from typing import Any, Optional
+from typing import Any
 
 from ..utils.converter_utils import from_none, from_union, to_class
 from .PurpleLogo import PurpleLogo
 
 
 class CompetitionOrigineTypeCompetitionGenerique:
-    logo: Optional[PurpleLogo] = None
+    logo: PurpleLogo | None = None
 
-    def __init__(self, logo: Optional[PurpleLogo]) -> None:
+    def __init__(self, logo: PurpleLogo | None) -> None:
         self.logo = logo
 
     @staticmethod

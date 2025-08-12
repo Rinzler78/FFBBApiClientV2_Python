@@ -1,13 +1,13 @@
-from typing import Any, Optional
+from typing import Any
 
 from ..utils.converter_utils import from_float, from_none, from_union, to_float
 
 
 class Geo:
-    lat: Optional[float] = None
-    lng: Optional[float] = None
+    lat: float | None = None
+    lng: float | None = None
 
-    def __init__(self, lat: Optional[float], lng: Optional[float]):
+    def __init__(self, lat: float | None, lng: float | None):
         self.lat = lat
         self.lng = lng
 

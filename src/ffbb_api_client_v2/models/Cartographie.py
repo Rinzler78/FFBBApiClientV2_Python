@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any
 
 from ..utils.converter_utils import (
     from_float,
@@ -13,31 +13,31 @@ from .Coordonnees import Coordonnees
 
 
 class Cartographie:
-    adresse: Optional[str] = None
-    code_postal: Optional[int] = None
-    coordonnees: Optional[Coordonnees] = None
+    adresse: str | None = None
+    code_postal: int | None = None
+    coordonnees: Coordonnees | None = None
     date_created: None
     date_updated: None
-    cartographie_id: Optional[str] = None
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
-    title: Optional[str] = None
-    ville: Optional[str] = None
-    status: Optional[str] = None
+    cartographie_id: str | None = None
+    latitude: float | None = None
+    longitude: float | None = None
+    title: str | None = None
+    ville: str | None = None
+    status: str | None = None
 
     def __init__(
         self,
-        adresse: Optional[str],
-        code_postal: Optional[int],
-        coordonnees: Optional[Coordonnees],
+        adresse: str | None,
+        code_postal: int | None,
+        coordonnees: Coordonnees | None,
         date_created: None,
         date_updated: None,
-        id: Optional[str],
-        latitude: Optional[float],
-        longitude: Optional[float],
-        title: Optional[str],
-        ville: Optional[str],
-        status: Optional[str],
+        id: str | None,
+        latitude: float | None,
+        longitude: float | None,
+        title: str | None,
+        ville: str | None,
+        status: str | None,
     ):
         self.adresse = adresse
         self.code_postal = code_postal

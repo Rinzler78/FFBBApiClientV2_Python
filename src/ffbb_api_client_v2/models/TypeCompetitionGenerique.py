@@ -1,14 +1,14 @@
-from typing import Any, Optional
+from typing import Any
 
 from ..utils.converter_utils import from_none, from_str, from_union, to_class
 from .logo import Logo
 
 
 class TypeCompetitionGenerique:
-    type_competition_generique_id: Optional[str] = None
-    logo: Optional[Logo] = None
+    type_competition_generique_id: str | None = None
+    logo: Logo | None = None
 
-    def __init__(self, id: Optional[str], logo: Optional[Logo]) -> None:
+    def __init__(self, id: str | None, logo: Logo | None) -> None:
         self.type_competition_generique_id = id
         self.logo = logo
 

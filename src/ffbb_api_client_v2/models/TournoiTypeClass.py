@@ -1,18 +1,18 @@
-from typing import Any, Optional
+from typing import Any
 
 from ..utils.converter_utils import from_int, from_none, from_union
 
 
 class TournoiTypeClass:
-    open_plus: Optional[int] = None
-    open_plus_access: Optional[int] = None
-    open_start: Optional[int] = None
+    open_plus: int | None = None
+    open_plus_access: int | None = None
+    open_start: int | None = None
 
     def __init__(
         self,
-        open_plus: Optional[int] = None,
-        open_plus_access: Optional[int] = None,
-        open_start: Optional[int] = None,
+        open_plus: int | None = None,
+        open_plus_access: int | None = None,
+        open_start: int | None = None,
     ):
         self.open_plus = open_plus
         self.open_plus_access = open_plus_access

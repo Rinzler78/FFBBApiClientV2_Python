@@ -1,12 +1,12 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 
 # Query Parameters Model
 @dataclass
 class CompetitionsQuery:
-    deep_phases_poules_rencontres__limit: Optional[str] = (
+    deep_phases_poules_rencontres__limit: str | None = (
         "1000"  # Original: deep[phases][poules][rencontres][_limit]
     )
     fields_: list[str] = None  # Original: fields[]
@@ -44,7 +44,7 @@ class GetCompetitionResponse:
         logo: LogoModel
 
     typeCompetitionGenerique: TypecompetitiongeneriqueModel
-    logo: Optional[Any]
+    logo: Any | None
 
     @dataclass
     class PoulesitemModel:
@@ -81,16 +81,16 @@ class GetCompetitionResponse:
 
                 @dataclass
                 class Idorganismeequipe1Model:
-                    logo: Optional[Any]
+                    logo: Any | None
 
                 idOrganismeEquipe1: Idorganismeequipe1Model
 
                 @dataclass
                 class Idorganismeequipe2Model:
-                    logo: Optional[Any]
+                    logo: Any | None
 
                 idOrganismeEquipe2: Idorganismeequipe2Model
-                gsId: Optional[Any]
+                gsId: Any | None
 
                 @dataclass
                 class Idengagementequipe1Model:
@@ -99,7 +99,7 @@ class GetCompetitionResponse:
                     nomOfficiel: str
                     nomUsuel: str
                     codeAbrege: str
-                    logo: Optional[Any]
+                    logo: Any | None
 
                 idEngagementEquipe1: Idengagementequipe1Model
 
@@ -110,7 +110,7 @@ class GetCompetitionResponse:
                     nomOfficiel: str
                     nomUsuel: str
                     codeAbrege: str
-                    logo: Optional[Any]
+                    logo: Any | None
 
                 idEngagementEquipe2: Idengagementequipe2Model
 

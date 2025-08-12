@@ -1,6 +1,7 @@
+from collections.abc import Callable
 from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, Optional, TypeVar, cast
+from typing import Any, TypeVar, cast
 from uuid import UUID
 
 import dateutil.parser
@@ -82,7 +83,7 @@ def from_stringified_bool(x: str) -> bool:
     assert False
 
 
-def from_datetime(x: Any) -> Optional[datetime]:
+def from_datetime(x: Any) -> datetime | None:
     """
     Convert string to datetime.
     """
@@ -129,14 +130,14 @@ def to_enum(c: type[EnumT], x: Any) -> EnumT:
     return x.value
 
 
-def from_uuid(x: Any) -> Optional[UUID]:
+def from_uuid(x: Any) -> UUID | None:
     """
     Convert Any to UUID.
     """
     return UUID(x) if x else None
 
 
-def from_comma_separated_list(x: Any) -> Optional[list[str]]:
+def from_comma_separated_list(x: Any) -> list[str] | None:
     """
     Convert comma separated list to list of strings.
     """

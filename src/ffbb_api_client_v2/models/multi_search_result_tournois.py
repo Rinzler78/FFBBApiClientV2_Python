@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from ..utils.converter_utils import (
     from_bool,
@@ -25,12 +25,12 @@ from .TournoiTypeClass import TournoiTypeClass
 
 
 class SexeClass:
-    feminine: Optional[int] = None
-    masculine: Optional[int] = None
-    mixed: Optional[int] = None
+    feminine: int | None = None
+    masculine: int | None = None
+    mixed: int | None = None
 
     def __init__(
-        self, feminine: Optional[int], masculine: Optional[int], mixed: Optional[int]
+        self, feminine: int | None, masculine: int | None, mixed: int | None
     ) -> None:
         self.feminine = feminine
         self.masculine = masculine
@@ -56,15 +56,15 @@ class SexeClass:
 
 
 class TournoisFacetDistribution(FacetDistribution):
-    sexe: Optional[SexeClass] = None
-    tournoi_type: Optional[TournoiTypeClass] = None
-    tournoi_types3_x3_libelle: Optional[TournoiTypes3X3Libelle] = None
+    sexe: SexeClass | None = None
+    tournoi_type: TournoiTypeClass | None = None
+    tournoi_types3_x3_libelle: TournoiTypes3X3Libelle | None = None
 
     def __init__(
         self,
-        sexe: Optional[SexeClass],
-        tournoi_type: Optional[TournoiTypeClass],
-        tournoi_types3_x3_libelle: Optional[TournoiTypes3X3Libelle],
+        sexe: SexeClass | None,
+        tournoi_type: TournoiTypeClass | None,
+        tournoi_types3_x3_libelle: TournoiTypes3X3Libelle | None,
     ) -> None:
         self.sexe = sexe
         self.tournoi_type = tournoi_type
@@ -112,39 +112,39 @@ class HitType(Enum):
 
 
 class TournoisHit(Hit):
-    nom: Optional[str] = None
-    rue: Optional[str] = None
-    id: Optional[int] = None
-    acces_libre: Optional[bool] = None
-    date_created: Optional[datetime] = None
-    date_updated: Optional[datetime] = None
-    largeur: Optional[int] = None
-    longueur: Optional[int] = None
-    numero: Optional[int] = None
-    cartographie: Optional[Cartographie] = None
-    commune: Optional[Commune] = None
-    nature_sol: Optional[NatureSol] = None
-    geo: Optional[Geo] = None
+    nom: str | None = None
+    rue: str | None = None
+    id: int | None = None
+    acces_libre: bool | None = None
+    date_created: datetime | None = None
+    date_updated: datetime | None = None
+    largeur: int | None = None
+    longueur: int | None = None
+    numero: int | None = None
+    cartographie: Cartographie | None = None
+    commune: Commune | None = None
+    nature_sol: NatureSol | None = None
+    geo: Geo | None = None
     thumbnail: None
-    type: Optional[HitType] = None
+    type: HitType | None = None
 
     def __init__(
         self,
-        nom: Optional[str],
-        rue: Optional[str],
-        id: Optional[int],
-        acces_libre: Optional[bool],
-        date_created: Optional[datetime],
-        date_updated: Optional[datetime],
-        largeur: Optional[int],
-        longueur: Optional[int],
-        numero: Optional[int],
-        cartographie: Optional[Cartographie],
-        commune: Optional[Commune],
-        nature_sol: Optional[NatureSol],
-        geo: Optional[Geo],
+        nom: str | None,
+        rue: str | None,
+        id: int | None,
+        acces_libre: bool | None,
+        date_created: datetime | None,
+        date_updated: datetime | None,
+        largeur: int | None,
+        longueur: int | None,
+        numero: int | None,
+        cartographie: Cartographie | None,
+        commune: Commune | None,
+        nature_sol: NatureSol | None,
+        geo: Geo | None,
         thumbnail: None,
-        type: Optional[HitType],
+        type: HitType | None,
     ) -> None:
         self.nom = nom
         self.rue = rue

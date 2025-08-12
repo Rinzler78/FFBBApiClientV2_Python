@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 
 from ..utils.converter_utils import (
@@ -20,37 +20,37 @@ from .Source import Source
 
 
 class DocumentFlyer:
-    id: Optional[UUID] = None
-    storage: Optional[str] = None
-    filename_disk: Optional[str] = None
-    filename_download: Optional[str] = None
-    title: Optional[str] = None
-    type: Optional[DocumentFlyerType] = None
-    uploaded_on: Optional[datetime] = None
-    modified_on: Optional[datetime] = None
+    id: UUID | None = None
+    storage: str | None = None
+    filename_disk: str | None = None
+    filename_download: str | None = None
+    title: str | None = None
+    type: DocumentFlyerType | None = None
+    uploaded_on: datetime | None = None
+    modified_on: datetime | None = None
     charset: None
-    filesize: Optional[int] = None
-    width: Optional[int] = None
-    height: Optional[int] = None
+    filesize: int | None = None
+    width: int | None = None
+    height: int | None = None
     duration: None
     embed: None
     description: None
     location: None
     tags: None
-    metadata: Optional[FacetStats] = None
-    source: Optional[Source] = None
+    metadata: FacetStats | None = None
+    source: Source | None = None
     credits: None
-    gradient_color: Optional[str] = None
-    md5: Optional[str] = None
+    gradient_color: str | None = None
+    md5: str | None = None
     newsbridge_media_id: None
     newsbridge_metadatas: None
     newsbridge_name: None
     newsbridge_recorded_at: None
     focal_point_x: None
     focal_point_y: None
-    newsbridge_labels: Optional[list[Any]] = None
-    newsbridge_persons: Optional[list[Any]] = None
-    folder: Optional[Folder] = None
+    newsbridge_labels: list[Any] | None = None
+    newsbridge_persons: list[Any] | None = None
+    folder: Folder | None = None
     uploaded_by: None
     modified_by: None
     newsbridge_mission: None

@@ -1,12 +1,12 @@
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 
 from ..utils.converter_utils import from_none, from_str, from_union
 
 
 class Folder:
-    id: Optional[UUID] = None
-    name: Optional[str] = None
+    id: UUID | None = None
+    name: str | None = None
     parent: None
 
     @staticmethod

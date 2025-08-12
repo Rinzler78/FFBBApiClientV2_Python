@@ -1,13 +1,13 @@
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 
 from ..utils.converter_utils import from_none, from_union
 
 
 class PurpleLogo:
-    id: Optional[UUID] = None
+    id: UUID | None = None
 
-    def __init__(self, id: Optional[UUID] = None) -> None:
+    def __init__(self, id: UUID | None = None) -> None:
         self.id = id
 
     @staticmethod

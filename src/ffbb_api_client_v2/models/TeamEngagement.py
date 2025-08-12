@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any
 
 from ..utils.converter_utils import from_none, from_str, from_union, to_class
 from .logo import Logo
@@ -7,17 +7,17 @@ from .logo import Logo
 
 @dataclass
 class TeamEngagement:
-    nom_officiel: Optional[str] = None
-    nom_usuel: Optional[str] = None
-    code_abrege: Optional[str] = None
-    logo: Optional[Logo] = None
+    nom_officiel: str | None = None
+    nom_usuel: str | None = None
+    code_abrege: str | None = None
+    logo: Logo | None = None
 
     def __init__(
         self,
-        nom_officiel: Optional[str],
-        nom_usuel: Optional[str],
-        code_abrege: Optional[str],
-        logo: Optional[Logo],
+        nom_officiel: str | None,
+        nom_usuel: str | None,
+        code_abrege: str | None,
+        logo: Logo | None,
     ) -> None:
         self.nom_officiel = nom_officiel
         self.nom_usuel = nom_usuel

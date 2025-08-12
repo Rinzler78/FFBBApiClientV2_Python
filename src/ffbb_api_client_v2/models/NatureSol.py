@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 from ..utils.converter_utils import (
     from_datetime,
@@ -16,12 +16,12 @@ from .Code import Code
 
 
 class NatureSol:
-    code: Optional[Code] = None
-    date_created: Optional[datetime] = None
-    date_updated: Optional[datetime] = None
-    id: Optional[str] = None
-    libelle: Optional[str] = None
-    terrain: Optional[bool] = None
+    code: Code | None = None
+    date_created: datetime | None = None
+    date_updated: datetime | None = None
+    id: str | None = None
+    libelle: str | None = None
+    terrain: bool | None = None
 
     @staticmethod
     def from_dict(obj: Any) -> "NatureSol":

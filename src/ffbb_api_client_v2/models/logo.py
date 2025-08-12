@@ -1,14 +1,14 @@
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 
 from ..utils.converter_utils import from_none, from_str, from_union
 
 
 class Logo:
-    id: Optional[UUID] = None
-    gradient_color: Optional[str] = None
+    id: UUID | None = None
+    gradient_color: str | None = None
 
-    def __init__(self, id: Optional[UUID], gradient_color: Optional[str]) -> None:
+    def __init__(self, id: UUID | None, gradient_color: str | None) -> None:
         self.id = id
         self.gradient_color = gradient_color
 

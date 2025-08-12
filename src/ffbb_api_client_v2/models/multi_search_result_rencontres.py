@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 from ..utils.converter_utils import (
     from_comma_separated_list,
@@ -33,23 +33,23 @@ from .salle import Salle
 
 
 class RencontresFacetDistribution(FacetDistribution):
-    competition_id_categorie_code: Optional[dict[str, int]] = None
-    competition_id_nom_extended: Optional[dict[str, int]] = None
-    competition_id_sexe: Optional[CompetitionIDSexe] = None
-    competition_id_type_competition: Optional[CompetitionIDTypeCompetition] = None
-    niveau: Optional[Niveau] = None
-    organisateur_id: Optional[dict[str, int]] = None
-    organisateur_nom: Optional[dict[str, int]] = None
+    competition_id_categorie_code: dict[str, int] | None = None
+    competition_id_nom_extended: dict[str, int] | None = None
+    competition_id_sexe: CompetitionIDSexe | None = None
+    competition_id_type_competition: CompetitionIDTypeCompetition | None = None
+    niveau: Niveau | None = None
+    organisateur_id: dict[str, int] | None = None
+    organisateur_nom: dict[str, int] | None = None
 
     def __init__(
         self,
-        competition_id_categorie_code: Optional[dict[str, int]],
-        competition_id_nom_extended: Optional[dict[str, int]],
-        competition_id_sexe: Optional[CompetitionIDSexe],
-        competition_id_type_competition: Optional[CompetitionIDTypeCompetition],
-        niveau: Optional[Niveau],
-        organisateur_id: Optional[dict[str, int]],
-        organisateur_nom: Optional[dict[str, int]],
+        competition_id_categorie_code: dict[str, int] | None,
+        competition_id_nom_extended: dict[str, int] | None,
+        competition_id_sexe: CompetitionIDSexe | None,
+        competition_id_type_competition: CompetitionIDTypeCompetition | None,
+        niveau: Niveau | None,
+        organisateur_id: dict[str, int] | None,
+        organisateur_nom: dict[str, int] | None,
     ):
         self.competition_id_categorie_code = competition_id_categorie_code
         self.competition_id_nom_extended = competition_id_nom_extended
@@ -147,9 +147,9 @@ class RencontresFacetDistribution(FacetDistribution):
 
 
 class Engagement:
-    id: Optional[str] = None
+    id: str | None = None
 
-    def __init__(self, id: Optional[str]):
+    def __init__(self, id: str | None):
         self.id = id
 
     @staticmethod
@@ -166,65 +166,65 @@ class Engagement:
 
 
 class RencontresHit(Hit):
-    niveau: Optional[Niveau] = None
-    id: Optional[str] = None
-    date: Optional[datetime] = None
-    date_rencontre: Optional[datetime] = None
-    horaire: Optional[int] = None
-    nom_equipe1: Optional[str] = None
-    nom_equipe2: Optional[str] = None
-    numero_journee: Optional[int] = None
-    pratique: Optional[Pratique] = None
+    niveau: Niveau | None = None
+    id: str | None = None
+    date: datetime | None = None
+    date_rencontre: datetime | None = None
+    horaire: int | None = None
+    nom_equipe1: str | None = None
+    nom_equipe2: str | None = None
+    numero_journee: int | None = None
+    pratique: Pratique | None = None
     gs_id: str
-    officiels: Optional[list[str]] = None
-    competition_id: Optional[CompetitionID] = None
-    id_organisme_equipe1: Optional[IDOrganismeEquipe] = None
-    id_organisme_equipe2: Optional[IDOrganismeEquipe] = None
-    id_poule: Optional[IDPoule] = None
-    saison: Optional[Saison] = None
-    salle: Optional[Salle] = None
-    id_engagement_equipe1: Optional[IDEngagementEquipe] = None
-    id_engagement_equipe2: Optional[IDEngagementEquipe] = None
-    geo: Optional[Geo] = None
-    date_timestamp: Optional[int] = None
-    date_rencontre_timestamp: Optional[int] = None
-    creation_timestamp: Optional[int] = None
+    officiels: list[str] | None = None
+    competition_id: CompetitionID | None = None
+    id_organisme_equipe1: IDOrganismeEquipe | None = None
+    id_organisme_equipe2: IDOrganismeEquipe | None = None
+    id_poule: IDPoule | None = None
+    saison: Saison | None = None
+    salle: Salle | None = None
+    id_engagement_equipe1: IDEngagementEquipe | None = None
+    id_engagement_equipe2: IDEngagementEquipe | None = None
+    geo: Geo | None = None
+    date_timestamp: int | None = None
+    date_rencontre_timestamp: int | None = None
+    creation_timestamp: int | None = None
     date_saisie_resultat_timestamp: None
-    modification_timestamp: Optional[int] = None
+    modification_timestamp: int | None = None
     thumbnail: None
-    organisateur: Optional[Organisateur] = None
-    niveau_nb: Optional[int] = None
+    organisateur: Organisateur | None = None
+    niveau_nb: int | None = None
 
     def __init__(
         self,
-        niveau: Optional[Niveau],
-        id: Optional[str],
-        date: Optional[datetime],
-        date_rencontre: Optional[datetime],
-        horaire: Optional[int],
-        nom_equipe1: Optional[str],
-        nom_equipe2: Optional[str],
-        numero_journee: Optional[int],
-        pratique: Optional[Pratique],
+        niveau: Niveau | None,
+        id: str | None,
+        date: datetime | None,
+        date_rencontre: datetime | None,
+        horaire: int | None,
+        nom_equipe1: str | None,
+        nom_equipe2: str | None,
+        numero_journee: int | None,
+        pratique: Pratique | None,
         gs_id: str,
-        officiels: Optional[list[str]],
-        competition_id: Optional[CompetitionID],
-        id_organisme_equipe1: Optional[IDOrganismeEquipe],
-        id_organisme_equipe2: Optional[IDOrganismeEquipe],
-        id_poule: Optional[IDPoule],
-        saison: Optional[Saison],
-        salle: Optional[Salle],
-        id_engagement_equipe1: Optional[IDEngagementEquipe],
-        id_engagement_equipe2: Optional[IDEngagementEquipe],
-        geo: Optional[Geo],
-        date_timestamp: Optional[int],
-        date_rencontre_timestamp: Optional[int],
-        creation_timestamp: Optional[int],
+        officiels: list[str] | None,
+        competition_id: CompetitionID | None,
+        id_organisme_equipe1: IDOrganismeEquipe | None,
+        id_organisme_equipe2: IDOrganismeEquipe | None,
+        id_poule: IDPoule | None,
+        saison: Saison | None,
+        salle: Salle | None,
+        id_engagement_equipe1: IDEngagementEquipe | None,
+        id_engagement_equipe2: IDEngagementEquipe | None,
+        geo: Geo | None,
+        date_timestamp: int | None,
+        date_rencontre_timestamp: int | None,
+        creation_timestamp: int | None,
         date_saisie_resultat_timestamp: None,
-        modification_timestamp: Optional[int],
+        modification_timestamp: int | None,
         thumbnail: None,
-        organisateur: Optional[Organisateur],
-        niveau_nb: Optional[int],
+        organisateur: Organisateur | None,
+        niveau_nb: int | None,
     ):
         self.niveau = niveau
         self.id = id

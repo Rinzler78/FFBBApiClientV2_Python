@@ -1,19 +1,19 @@
-from typing import Any, Optional
+from typing import Any
 
 from ..utils.converter_utils import from_list, from_none, from_str, from_union, to_class
 from .multi_search_result_rencontres import Engagement
 
 
 class Poule:
-    nom: Optional[str] = None
-    id: Optional[str] = None
-    engagements: Optional[list[Engagement]] = None
+    nom: str | None = None
+    id: str | None = None
+    engagements: list[Engagement] | None = None
 
     def __init__(
         self,
-        nom: Optional[str],
-        id: Optional[str],
-        engagements: Optional[list[Engagement]],
+        nom: str | None,
+        id: str | None,
+        engagements: list[Engagement] | None,
     ):
         self.nom = nom
         self.id = id

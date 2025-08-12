@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from ..utils.converter_utils import (
     from_bool,
@@ -27,17 +27,17 @@ from .TypeClass import TypeClass
 
 
 class OrganismesFacetDistribution(FacetDistribution):
-    labellisation: Optional[Labellisation] = None
-    offres_pratiques: Optional[dict[str, int]] = None
-    type: Optional[TypeClass] = None
-    type_association_libelle: Optional[TypeAssociationLibelle] = None
+    labellisation: Labellisation | None = None
+    offres_pratiques: dict[str, int] | None = None
+    type: TypeClass | None = None
+    type_association_libelle: TypeAssociationLibelle | None = None
 
     def __init__(
         self,
-        labellisation: Optional[Labellisation],
-        offres_pratiques: Optional[dict[str, int]],
-        type: Optional[TypeClass],
-        type_association_libelle: Optional[TypeAssociationLibelle],
+        labellisation: Labellisation | None,
+        offres_pratiques: dict[str, int] | None,
+        type: TypeClass | None,
+        type_association_libelle: TypeAssociationLibelle | None,
     ) -> None:
         self.labellisation = labellisation
         self.offres_pratiques = offres_pratiques
@@ -93,57 +93,57 @@ class HitType(Enum):
 
 
 class OrganismesHit(Hit):
-    nom_club_pro: Optional[str] = None
-    nom: Optional[str] = None
-    adresse: Optional[str] = None
+    nom_club_pro: str | None = None
+    nom: str | None = None
+    adresse: str | None = None
     adresse_club_pro: None
-    code: Optional[str] = None
-    id: Optional[str] = None
-    engagements_noms: Optional[str] = None
-    mail: Optional[str] = None
-    telephone: Optional[str] = None
-    type: Optional[str] = None
-    url_site_web: Optional[str] = None
+    code: str | None = None
+    id: str | None = None
+    engagements_noms: str | None = None
+    mail: str | None = None
+    telephone: str | None = None
+    type: str | None = None
+    url_site_web: str | None = None
     nom_simple: None
     date_affiliation: None
-    saison_en_cours: Optional[bool] = None
-    offres_pratiques: Optional[list[str]] = None
-    labellisation: Optional[list[str]] = None
-    cartographie: Optional[Cartographie] = None
-    organisme_id_pere: Optional[OrganismeIDPere] = None
-    commune: Optional[Commune] = None
+    saison_en_cours: bool | None = None
+    offres_pratiques: list[str] | None = None
+    labellisation: list[str] | None = None
+    cartographie: Cartographie | None = None
+    organisme_id_pere: OrganismeIDPere | None = None
+    commune: Commune | None = None
     commune_club_pro: None
-    type_association: Optional[TypeAssociation] = None
-    logo: Optional[Logo] = None
-    geo: Optional[Geo] = None
-    thumbnail: Optional[str] = None
+    type_association: TypeAssociation | None = None
+    logo: Logo | None = None
+    geo: Geo | None = None
+    thumbnail: str | None = None
 
     def __init__(
         self,
-        nom_club_pro: Optional[str],
-        nom: Optional[str],
-        adresse: Optional[str],
+        nom_club_pro: str | None,
+        nom: str | None,
+        adresse: str | None,
         adresse_club_pro: None,
-        code: Optional[str],
-        id: Optional[str],
-        engagements_noms: Optional[str],
-        mail: Optional[str],
-        telephone: Optional[str],
-        type: Optional[str],
-        url_site_web: Optional[str],
+        code: str | None,
+        id: str | None,
+        engagements_noms: str | None,
+        mail: str | None,
+        telephone: str | None,
+        type: str | None,
+        url_site_web: str | None,
         nom_simple: None,
         date_affiliation: None,
-        saison_en_cours: Optional[bool],
-        offres_pratiques: Optional[list[str]],
-        labellisation: Optional[list[str]],
-        cartographie: Optional[Cartographie],
-        organisme_id_pere: Optional[OrganismeIDPere],
-        commune: Optional[Commune],
+        saison_en_cours: bool | None,
+        offres_pratiques: list[str] | None,
+        labellisation: list[str] | None,
+        cartographie: Cartographie | None,
+        organisme_id_pere: OrganismeIDPere | None,
+        commune: Commune | None,
         commune_club_pro: None,
-        type_association: Optional[TypeAssociation],
-        logo: Optional[Logo],
-        geo: Optional[Geo],
-        thumbnail: Optional[str],
+        type_association: TypeAssociation | None,
+        logo: Logo | None,
+        geo: Geo | None,
+        thumbnail: str | None,
     ) -> None:
         self.nom_club_pro = nom_club_pro
         self.lower_nom_club_pro = nom_club_pro.lower() if nom_club_pro else None

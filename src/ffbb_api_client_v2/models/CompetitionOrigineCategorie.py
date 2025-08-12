@@ -1,12 +1,12 @@
-from typing import Any, Optional
+from typing import Any
 
 from ..utils.converter_utils import from_int, from_none, from_union
 
 
 class CompetitionOrigineCategorie:
-    ordre: Optional[int] = None
+    ordre: int | None = None
 
-    def __init__(self, ordre: Optional[int] = None) -> None:
+    def __init__(self, ordre: int | None = None) -> None:
         self.ordre = ordre
 
     @staticmethod

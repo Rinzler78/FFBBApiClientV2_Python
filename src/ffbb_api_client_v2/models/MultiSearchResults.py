@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any
 
 from ..utils.converter_utils import from_list, from_none, from_union, to_class
 from .multi_search_results import MultiSearchResult
@@ -49,9 +49,9 @@ def result_from_list(s: list[Any]) -> list[MultiSearchResult]:
 
 
 class MultiSearchResults:
-    results: Optional[list[MultiSearchResult]] = None
+    results: list[MultiSearchResult] | None = None
 
-    def __init__(self, results: Optional[list[MultiSearchResult]]) -> None:
+    def __init__(self, results: list[MultiSearchResult] | None) -> None:
         self.results = results
 
     @staticmethod

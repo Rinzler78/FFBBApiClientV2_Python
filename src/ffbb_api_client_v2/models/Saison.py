@@ -1,12 +1,12 @@
-from typing import Any, Optional
+from typing import Any
 
 from ..utils.converter_utils import from_none, from_str, from_union
 
 
 class Saison:
-    code: Optional[str] = None
+    code: str | None = None
 
-    def __init__(self, code: Optional[str]) -> None:
+    def __init__(self, code: str | None) -> None:
         self.code = code
 
     @staticmethod

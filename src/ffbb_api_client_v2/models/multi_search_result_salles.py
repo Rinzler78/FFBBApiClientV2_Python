@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 from ..utils.converter_utils import (
     from_datetime,
@@ -30,43 +30,43 @@ class SallesFacetDistribution(FacetDistribution):
 
 
 class SallesHit(Hit):
-    libelle: Optional[str] = None
-    adresse: Optional[str] = None
-    id: Optional[str] = None
-    adresse_complement: Optional[str] = None
-    capacite_spectateur: Optional[str] = None
-    date_created: Optional[datetime] = None
-    date_updated: Optional[datetime] = None
-    libelle2: Optional[str] = None
-    mail: Optional[str] = None
-    numero: Optional[str] = None
-    telephone: Optional[str] = None
-    cartographie: Optional[Cartographie] = None
-    commune: Optional[Commune] = None
-    geo: Optional[Geo] = None
+    libelle: str | None = None
+    adresse: str | None = None
+    id: str | None = None
+    adresse_complement: str | None = None
+    capacite_spectateur: str | None = None
+    date_created: datetime | None = None
+    date_updated: datetime | None = None
+    libelle2: str | None = None
+    mail: str | None = None
+    numero: str | None = None
+    telephone: str | None = None
+    cartographie: Cartographie | None = None
+    commune: Commune | None = None
+    geo: Geo | None = None
     thumbnail: None
-    type: Optional[str] = None
-    type_association: Optional[TypeAssociation] = None
+    type: str | None = None
+    type_association: TypeAssociation | None = None
 
     def __init__(
         self,
-        libelle: Optional[str],
-        adresse: Optional[str],
-        id: Optional[str],
-        adresse_complement: Optional[str],
-        capacite_spectateur: Optional[str],
-        date_created: Optional[datetime],
-        date_updated: Optional[datetime],
-        libelle2: Optional[str],
-        mail: Optional[str],
-        numero: Optional[str],
-        telephone: Optional[str],
-        cartographie: Optional[Cartographie],
-        commune: Optional[Commune],
-        geo: Optional[Geo],
+        libelle: str | None,
+        adresse: str | None,
+        id: str | None,
+        adresse_complement: str | None,
+        capacite_spectateur: str | None,
+        date_created: datetime | None,
+        date_updated: datetime | None,
+        libelle2: str | None,
+        mail: str | None,
+        numero: str | None,
+        telephone: str | None,
+        cartographie: Cartographie | None,
+        commune: Commune | None,
+        geo: Geo | None,
         thumbnail: None,
-        type: Optional[str],
-        type_association: Optional[TypeAssociation],
+        type: str | None,
+        type_association: TypeAssociation | None,
     ) -> None:
         self.libelle = libelle
         self.lower_libelle = libelle.lower() if libelle else None

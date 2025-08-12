@@ -1,14 +1,14 @@
-from typing import Any, Optional
+from typing import Any
 
 from ..utils.converter_utils import from_int, from_none, from_union
 
 
 class TypeAssociationLibelle:
-    club: Optional[int] = None
-    coopération_territoriale_club: Optional[int] = None
+    club: int | None = None
+    coopération_territoriale_club: int | None = None
 
     def __init__(
-        self, club: Optional[int], coopération_territoriale_club: Optional[int]
+        self, club: int | None, coopération_territoriale_club: int | None
     ) -> None:
         self.club = club
         self.coopération_territoriale_club = coopération_territoriale_club

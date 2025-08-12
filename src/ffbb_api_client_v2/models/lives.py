@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 from ..utils.converter_utils import (
     from_datetime,
@@ -38,62 +38,62 @@ class Live:
     clock: Clock
     current_status: None
     current_period: None
-    match_id: Optional[int] = None
-    match_time: Optional[datetime] = None
-    competition_abg_name: Optional[str] = None
-    score_q1_home: Optional[int] = None
-    score_q2_home: Optional[int] = None
-    score_q3_home: Optional[int] = None
-    score_q4_home: Optional[int] = None
-    score_q1_out: Optional[int] = None
-    score_q2_out: Optional[int] = None
-    score_q3_out: Optional[int] = None
-    score_q4_out: Optional[int] = None
-    score_ot1_home: Optional[int] = None
-    score_ot2_home: Optional[int] = None
-    score_ot1_out: Optional[int] = None
-    score_ot2_out: Optional[int] = None
-    score_home: Optional[int] = None
-    score_out: Optional[int] = None
+    match_id: int | None = None
+    match_time: datetime | None = None
+    competition_abg_name: str | None = None
+    score_q1_home: int | None = None
+    score_q2_home: int | None = None
+    score_q3_home: int | None = None
+    score_q4_home: int | None = None
+    score_q1_out: int | None = None
+    score_q2_out: int | None = None
+    score_q3_out: int | None = None
+    score_q4_out: int | None = None
+    score_ot1_home: int | None = None
+    score_ot2_home: int | None = None
+    score_ot1_out: int | None = None
+    score_ot2_out: int | None = None
+    score_home: int | None = None
+    score_out: int | None = None
 
-    competition_name: Optional[str] = None
+    competition_name: str | None = None
 
-    match_status: Optional[str] = None
-    team_name_home: Optional[str] = None
-    team_name_out: Optional[str] = None
-    external_id: Optional[ExternalID] = None
-    team_engagement_home: Optional[TeamEngagement] = None
-    team_engagement_out: Optional[TeamEngagement] = None
+    match_status: str | None = None
+    team_name_home: str | None = None
+    team_name_out: str | None = None
+    external_id: ExternalID | None = None
+    team_engagement_home: TeamEngagement | None = None
+    team_engagement_out: TeamEngagement | None = None
 
     def __init__(
         self,
-        match_id: Optional[int],
-        match_time: Optional[datetime],
-        competition_abg_name: Optional[str],
-        score_q1_home: Optional[int],
-        score_q2_home: Optional[int],
-        score_q3_home: Optional[int],
-        score_q4_home: Optional[int],
-        score_q1_out: Optional[int],
-        score_q2_out: Optional[int],
-        score_q3_out: Optional[int],
-        score_q4_out: Optional[int],
-        score_ot1_home: Optional[int],
-        score_ot2_home: Optional[int],
-        score_ot1_out: Optional[int],
-        score_ot2_out: Optional[int],
-        score_home: Optional[int],
-        score_out: Optional[int],
+        match_id: int | None,
+        match_time: datetime | None,
+        competition_abg_name: str | None,
+        score_q1_home: int | None,
+        score_q2_home: int | None,
+        score_q3_home: int | None,
+        score_q4_home: int | None,
+        score_q1_out: int | None,
+        score_q2_out: int | None,
+        score_q3_out: int | None,
+        score_q4_out: int | None,
+        score_ot1_home: int | None,
+        score_ot2_home: int | None,
+        score_ot1_out: int | None,
+        score_ot2_out: int | None,
+        score_home: int | None,
+        score_out: int | None,
         clock: Clock,
-        competition_name: Optional[str],
+        competition_name: str | None,
         current_status: None,
         current_period: None,
-        match_status: Optional[str],
-        team_name_home: Optional[str],
-        team_name_out: Optional[str],
-        external_id: Optional[ExternalID],
-        team_engagement_home: Optional[TeamEngagement],
-        team_engagement_out: Optional[TeamEngagement],
+        match_status: str | None,
+        team_name_home: str | None,
+        team_name_out: str | None,
+        external_id: ExternalID | None,
+        team_engagement_home: TeamEngagement | None,
+        team_engagement_out: TeamEngagement | None,
     ) -> None:
         self.match_id = match_id
         self.match_time = match_time

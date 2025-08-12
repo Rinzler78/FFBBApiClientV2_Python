@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 from ..utils.converter_utils import (
     from_datetime,
@@ -11,21 +11,21 @@ from ..utils.converter_utils import (
 
 
 class Categorie:
-    code: Optional[str] = None
-    date_created: Optional[datetime] = None
-    date_updated: Optional[datetime] = None
-    categorie_id: Optional[str] = None
-    libelle: Optional[str] = None
-    ordre: Optional[int] = None
+    code: str | None = None
+    date_created: datetime | None = None
+    date_updated: datetime | None = None
+    categorie_id: str | None = None
+    libelle: str | None = None
+    ordre: int | None = None
 
     def __init__(
         self,
-        code: Optional[str] = None,
-        date_created: Optional[datetime] = None,
-        date_updated: Optional[datetime] = None,
-        id: Optional[str] = None,
-        libelle: Optional[str] = None,
-        ordre: Optional[int] = None,
+        code: str | None = None,
+        date_created: datetime | None = None,
+        date_updated: datetime | None = None,
+        id: str | None = None,
+        libelle: str | None = None,
+        ordre: int | None = None,
     ) -> None:
         self.code = code
         self.date_created = date_created
