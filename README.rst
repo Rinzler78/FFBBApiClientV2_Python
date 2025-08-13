@@ -193,7 +193,7 @@ The library is organized into the following packages:
     from ffbb_api_client_v2.models.query_fields import QueryFieldsManager, FieldSet
 
 Environment Configuration
-========================
+=========================
 
 Create a ``.env`` file in your project root:
 
