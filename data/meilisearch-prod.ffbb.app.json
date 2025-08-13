@@ -21,7 +21,7 @@
 									"labellisation",
 									"offresPratiques"
 								],
-								"limit": 5000,
+								"limit": 100000,
 								"filter": [],
 								"sort": []
 							},
@@ -37,21 +37,21 @@
 									"organisateur.id",
 									"competitionId.nomExtended"
 								],
-								"limit": 5000,
+								"limit": 100000,
 								"filter": [],
 								"sort": []
 							},
 							{
 								"indexUid": "ffbbserver_terrains",
 								"q": "",
-								"limit": 5000,
+								"limit": 100000,
 								"filter": [],
 								"sort": []
 							},
 							{
 								"indexUid": "ffbbserver_salles",
 								"q": "",
-								"limit": 5000,
+								"limit": 100000,
 								"filter": [],
 								"sort": []
 							},
@@ -64,13 +64,13 @@
 									"tournoiType"
 								],
 								"filter": [],
-								"limit": 5000,
+								"limit": 100000,
 								"sort": []
 							},
 							{
 								"indexUid": "ffbbserver_competitions",
 								"q": "",
-								"limit": 5000,
+								"limit": 100000,
 								"filter": [],
 								"sort": []
 							},
@@ -81,7 +81,7 @@
 									"label",
 									"type"
 								],
-								"limit": 5000,
+								"limit": 100000,
 								"filter": [],
 								"sort": []
 							}

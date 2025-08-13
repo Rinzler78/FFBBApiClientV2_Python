@@ -10,7 +10,7 @@
                         "Content-Type": "application/json"
                     },
                     "params": {
-                        "deep[phases][poules][rencontres][_limit]": "1000",
+                        "deep[phases][poules][rencontres][_limit]": "100000",
                         "fields[]": [
                           "id",
                           "nom",
@@ -92,7 +92,7 @@
                         "Content-Type": "application/json"
                     },
                     "params": {
-                        "deep[rencontres][_limit]": "1000",
+                        "deep[rencontres][_limit]": "100000",
                         "fields[]": [
                           "id",
                           "rencontres.id",
