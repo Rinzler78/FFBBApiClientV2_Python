@@ -37,8 +37,9 @@ def from_union(fs, x) -> Any:
             return f(x)
         except AssertionError:
             pass
-        except Exception as e:
-            print(f"from_union Exception : {f.__name__} : Exception: {e}")
+        except Exception:
+            # Silent failure is expected when trying different type conversions
+            pass
     assert False
 
 

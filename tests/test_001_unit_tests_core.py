@@ -442,8 +442,11 @@ class Test001ApiFfbbAppCore(unittest.TestCase):
         mock_from_dict.return_value = mock_organisme_obj
 
         # Use detailed fields
+        from ffbb_api_client_v2.models.query_fields import OrganismeFields
 
-        result = self.client.get_organisme(organisme_id=789)
+        detailed_fields = OrganismeFields.get_detailed_fields()
+
+        result = self.client.get_organisme(organisme_id=789, fields=detailed_fields)
 
         mock_http_get.assert_called_once()
         # Verify detailed fields in URL
