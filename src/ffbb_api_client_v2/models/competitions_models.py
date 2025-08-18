@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
@@ -11,7 +11,7 @@ class CompetitionsQuery:
     deep_phases_poules_rencontres__limit: str | None = (
         "1000"  # Original: deep[phases][poules][rencontres][_limit]
     )
-    fields_: list[str] = None  # Original: fields[]
+    fields_: list[str] | None = field(default=None)  # Original: fields[]
 
 
 # Response Model

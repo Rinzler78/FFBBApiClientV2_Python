@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
@@ -8,7 +8,7 @@ from typing import Any
 # Query Parameters Model
 @dataclass
 class OrganismesQuery:
-    fields_: list[str] = None  # Original: fields[]
+    fields_: list[str] | None = field(default=None)  # Original: fields[]
 
 
 # Response Model
@@ -181,7 +181,7 @@ class GetOrganismeResponse:
     logo: LogoModel
 
     @classmethod
-    def from_dict(cls, data: dict) -> GetOrganismeResponse:
+    def from_dict(cls, data: dict[str, Any]) -> GetOrganismeResponse | None:
         """Convert dictionary to OrganismesModel instance."""
         if not data:
             return None

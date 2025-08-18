@@ -1,14 +1,15 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
+from typing import Any
 
 
 # Query Parameters Model
 @dataclass
 class PoulesQuery:
     deep_rencontres__limit: str | None = "1000"  # Original: deep[rencontres][_limit]
-    fields_: list[str] = None  # Original: fields[]
+    fields_: list[str] | None = field(default=None)  # Original: fields[]
 
 
 # Response Model
@@ -33,7 +34,7 @@ class GetPouleResponse:
     rencontres: list[RencontresitemModel]
 
     @classmethod
-    def from_dict(cls, data: dict) -> GetPouleResponse:
+    def from_dict(cls, data: dict[str, Any]) -> GetPouleResponse | None:
         """Convert dictionary to PoulesModel instance."""
         if not data:
             return None

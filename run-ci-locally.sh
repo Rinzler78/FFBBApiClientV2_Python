@@ -58,7 +58,7 @@ print_success "Environment variables are properly configured"
 
 print_step "2. Python Environment Verification"
 # Check Python version
-PYTHON_VERSION=$(python3.11 --version 2>/dev/null || python3 --version)
+PYTHON_VERSION=$(python3.9 --version 2>/dev/null || python3 --version)
 echo "Using Python: $PYTHON_VERSION"
 
 # Verify required tools

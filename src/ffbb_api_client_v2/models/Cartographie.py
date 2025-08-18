@@ -11,7 +11,7 @@ from ..utils.converter_utils import (
     to_class,
     to_float,
 )
-from .Coordonnees import Coordonnees
+from .coordonnees import Coordonnees
 
 
 class Cartographie:

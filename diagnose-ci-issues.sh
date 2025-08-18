@@ -35,7 +35,7 @@ echo ""
 
 print_title "PYTHON ENVIRONMENT"
 echo "Available Python versions:"
-for py in python python3 python3.11 python3.10 python3.9; do
+for py in python python3 python3.9 python3.10 python3.11 python3.12; do
     if command -v $py &> /dev/null; then
         version=$($py --version 2>&1)
         echo "  ✓ $py: $version"
@@ -237,7 +237,7 @@ echo "   - Check for missing dependencies in install_requires"
 echo ""
 echo "5. Python Version Issues:"
 echo "   - Ensure GitHub Actions uses Python 3.11 (as configured)"
-echo "   - Update local Python to match CI version"
+echo "   - Update local Python to 3.9+ to match CI version"
 echo ""
 echo "🔧 To run full local CI simulation: ./run-ci-locally.sh"
 echo ""

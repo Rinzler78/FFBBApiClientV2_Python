@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import Any
 
 
 # Query Parameters Model
 @dataclass
 class SaisonsQuery:
-    fields_: list[str] = None  # Original: fields[]
+    fields_: list[str] | None = field(default=None)  # Original: fields[]
     filter: str | None = '{"actif":{"_eq":true}}'  # Original: filter
 
 
@@ -18,7 +19,7 @@ class GetSaisonsResponse:
     actif: bool | None = None
 
     @classmethod
-    def from_dict(cls, data: dict) -> GetSaisonsResponse:
+    def from_dict(cls, data: dict[str, Any]) -> GetSaisonsResponse | None:
         """Convert dictionary to GetSaisonsResponse instance."""
         if not data:
             return None
@@ -38,7 +39,7 @@ class GetSaisonsResponse:
         )
 
     @classmethod
-    def from_list(cls, data_list: list) -> list[GetSaisonsResponse]:
+    def from_list(cls, data_list: list[dict[str, Any]]) -> list[GetSaisonsResponse]:
         """Convert list of dictionaries to list of SaisonsModel instances."""
         if not data_list:
             return []

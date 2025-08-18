@@ -5,7 +5,7 @@ from typing import Any
 from ..utils.converter_utils import from_int, from_list, from_none, from_str, from_union
 from .FacetDistribution import FacetDistribution
 from .FacetStats import FacetStats
-from .Hit import Hit
+from .hit import Hit
 from .MultiSearchResultCompetitions import (
     CompetitionsFacetDistribution,
     CompetitionsFacetStats,

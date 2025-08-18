@@ -17,8 +17,8 @@ from ..utils.converter_utils import (
 )
 from .DocumentFlyerType import DocumentFlyerType
 from .FacetStats import FacetStats
-from .Folder import Folder
-from .Source import Source
+from .folder import Folder
+from .source import Source
 
 
 class DocumentFlyer:

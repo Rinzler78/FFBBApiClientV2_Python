@@ -1,7 +1,7 @@
 exclude: '^docs/conf.py'
 
 default_language_version:
-    python: python3.11
+    python: python3.9
 
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -25,7 +25,7 @@ repos:
   rev: v3.20.0
   hooks:
   - id: pyupgrade
-    args: ['--py310-plus']
+    args: ['--py39-plus']
 
 # If you want to avoid flake8 errors due to unused vars or imports:
 - repo: https://github.com/PyCQA/autoflake
