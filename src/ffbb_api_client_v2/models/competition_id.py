@@ -3,9 +3,11 @@ from __future__ import annotations
 from typing import Any
 
 from ..utils.converter_utils import from_bool, from_none, from_str, from_union, to_class
-from .CompetitionIDCategorie import CompetitionIDCategorie
-from .CompetitionIDTypeCompetitionGenerique import CompetitionIDTypeCompetitionGenerique
-from .CompetitionOrigine import CompetitionOrigine
+from .competition_id_categorie import CompetitionIDCategorie
+from .competition_id_type_competition_generique import (
+    CompetitionIDTypeCompetitionGenerique,
+)
+from .competition_origine import CompetitionOrigine
 from .logo import Logo
 
 

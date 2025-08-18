@@ -16,16 +16,17 @@ from ..utils.converter_utils import (
     to_class,
     to_enum,
 )
-from .Cartographie import Cartographie
-from .Commune import Commune
-from .DocumentFlyer import DocumentFlyer
-from .FacetDistribution import FacetDistribution
-from .FacetStats import FacetStats
-from .Geo import Geo
-from .Hit import Hit
-from .TournoiTypeClass import TournoiTypeClass
-from .TournoiTypeEnum import TournoiTypeEnum
-from .TypeLeague import TypeLeague
+from .cartographie import Cartographie
+from .commune import Commune
+from .document_flyer import DocumentFlyer
+from .facet_distribution import FacetDistribution
+from .facet_stats import FacetStats
+from .geo import Geo
+from .hit import Hit
+from .multi_search_results import MultiSearchResult
+from .tournoi_type_class import TournoiTypeClass
+from .tournoi_type_enum import TournoiTypeEnum
+from .type_league import TypeLeague
 
 
 class SexeClass:
@@ -618,3 +619,17 @@ class TerrainsFacetStats(FacetStats):
 
     def to_dict(self) -> dict:
         super().to_dict()
+
+
+class TerrainsMultiSearchResult(
+    MultiSearchResult[TerrainsHit, TerrainsFacetDistribution, TerrainsFacetStats]
+):
+    @staticmethod
+    def from_dict(obj: Any) -> TerrainsMultiSearchResult:
+        return MultiSearchResult.from_dict(
+            obj,
+            TerrainsHit,
+            TerrainsFacetDistribution,
+            TerrainsFacetStats,
+            TerrainsMultiSearchResult,
+        )

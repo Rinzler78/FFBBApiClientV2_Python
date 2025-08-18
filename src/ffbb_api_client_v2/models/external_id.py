@@ -3,8 +3,8 @@ from __future__ import annotations
 from typing import Any
 
 from ..utils.converter_utils import from_none, from_str, from_union, is_type, to_class
-from .IDOrganismeEquipe import IDOrganismeEquipe
-from .IDPoule import IDPoule
+from .id_organisme_equipe import IDOrganismeEquipe
+from .id_poule import IDPoule
 from .salle import Salle
 
 

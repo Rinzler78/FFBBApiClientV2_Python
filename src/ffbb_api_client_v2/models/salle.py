@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from ..utils.converter_utils import from_none, from_str, from_union, to_class
-from .Cartographie import Cartographie
+from .cartographie import Cartographie
 
 
 class Salle:

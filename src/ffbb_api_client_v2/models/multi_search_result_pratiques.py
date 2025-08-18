@@ -19,9 +19,10 @@ from ..utils.converter_utils import (
     to_enum,
     to_float,
 )
-from .FacetDistribution import FacetDistribution
-from .FacetStats import FacetStats
-from .Hit import Hit
+from .facet_distribution import FacetDistribution
+from .facet_stats import FacetStats
+from .hit import Hit
+from .multi_search_results import MultiSearchResult
 
 
 class TypeClass:
@@ -117,20 +118,6 @@ class PratiquesFacetDistribution(FacetDistribution):
             result["type"] = from_union(
                 [lambda x: to_class(TypeClass, x), from_none], self.type
             )
-        return result
-
-
-class PratiquesFacetStats(FacetStats):
-    def __init__(self) -> None:
-        pass
-
-    @staticmethod
-    def from_dict(obj: Any) -> PratiquesFacetStats:
-        assert isinstance(obj, dict)
-        return PratiquesFacetStats()
-
-    def to_dict(self) -> dict:
-        result: dict = {}
         return result
 
 
@@ -841,4 +828,27 @@ class PratiquesHit(Hit):
             or (self.lower_nom_salle and query in self.lower_nom_salle)
             or (self.lower_nom_structure and query in self.lower_nom_structure)
             or (self.lower_ville_salle and query in self.lower_ville_salle)
+        )
+
+
+class PratiquesFacetStats(FacetStats):
+    @staticmethod
+    def from_dict(obj: Any) -> PratiquesFacetStats:
+        return PratiquesFacetStats()
+
+    def to_dict(self) -> dict:
+        super().to_dict()
+
+
+class PratiquesMultiSearchResult(
+    MultiSearchResult[PratiquesHit, PratiquesFacetDistribution, PratiquesFacetStats]
+):
+    @staticmethod
+    def from_dict(obj: Any) -> PratiquesMultiSearchResult:
+        return MultiSearchResult.from_dict(
+            obj,
+            PratiquesHit,
+            PratiquesFacetDistribution,
+            PratiquesFacetStats,
+            PratiquesMultiSearchResult,
         )

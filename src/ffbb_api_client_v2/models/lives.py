@@ -14,7 +14,7 @@ from ..utils.converter_utils import (
     to_class,
 )
 from .external_id import ExternalID
-from .TeamEngagement import TeamEngagement
+from .team_engagement import TeamEngagement
 
 
 class Clock:

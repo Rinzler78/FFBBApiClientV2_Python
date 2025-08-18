@@ -15,8 +15,8 @@ from ..utils.converter_utils import (
     to_class,
     to_enum,
 )
-from .DocumentFlyerType import DocumentFlyerType
-from .FacetStats import FacetStats
+from .document_flyer_type import DocumentFlyerType
+from .facet_stats import FacetStats
 from .folder import Folder
 from .source import Source
 

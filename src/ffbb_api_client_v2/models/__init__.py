@@ -1,41 +1,42 @@
 """Data models for FFBB API client."""
 
-# Import existing model files (only those that actually exist)
-# Snake case model files
+# Import existing model files (all now in snake_case)
 from .affiche import Affiche
-from .Cartographie import Cartographie
+from .cartographie import Cartographie
 from .categorie import Categorie
 from .code import Code
 from .commune import Commune
-from .competition_type import CompetitionType
-from .CompetitionID import CompetitionID
-from .CompetitionIDCategorie import CompetitionIDCategorie
-from .CompetitionIDSexe import CompetitionIDSexe
-from .CompetitionIDTypeCompetition import CompetitionIDTypeCompetition
-from .CompetitionIDTypeCompetitionGenerique import CompetitionIDTypeCompetitionGenerique
-from .CompetitionOrigine import CompetitionOrigine
-from .CompetitionOrigineCategorie import CompetitionOrigineCategorie
-from .CompetitionOrigineTypeCompetition import CompetitionOrigineTypeCompetition
-from .CompetitionOrigineTypeCompetitionGenerique import (
+from .competition_id import CompetitionID
+from .competition_id_categorie import CompetitionIDCategorie
+from .competition_id_sexe import CompetitionIDSexe
+from .competition_id_type_competition import CompetitionIDTypeCompetition
+from .competition_id_type_competition_generique import (
+    CompetitionIDTypeCompetitionGenerique,
+)
+from .competition_origine import CompetitionOrigine
+from .competition_origine_categorie import CompetitionOrigineCategorie
+from .competition_origine_type_competition import CompetitionOrigineTypeCompetition
+from .competition_origine_type_competition_generique import (
     CompetitionOrigineTypeCompetitionGenerique,
 )
-from .competitions_models import CompetitionsQuery
+from .competition_type import CompetitionType
+from .competitions_models import CompetitionsQuery, GetCompetitionResponse
 from .coordonnees import Coordonnees
-from .CoordonneesType import CoordonneesType
-from .DocumentFlyer import DocumentFlyer
-from .DocumentFlyerType import DocumentFlyerType
+from .coordonnees_type import CoordonneesType
+from .document_flyer import DocumentFlyer
+from .document_flyer_type import DocumentFlyerType
 from .etat import Etat
 from .external_id import ExternalID
-from .FacetDistribution import FacetDistribution
-from .FacetStats import FacetStats
+from .facet_distribution import FacetDistribution
+from .facet_stats import FacetStats
 from .folder import Folder
 from .geo import Geo
-from .GradientColor import GradientColor
+from .gradient_color import GradientColor
 from .hit import Hit
-from .IDEngagementEquipe import IDEngagementEquipe
-from .IDOrganismeEquipe import IDOrganismeEquipe
-from .IDOrganismeEquipe1Logo import IDOrganismeEquipe1Logo
-from .IDPoule import IDPoule
+from .id_engagement_equipe import IDEngagementEquipe
+from .id_organisme_equipe import IDOrganismeEquipe
+from .id_organisme_equipe1_logo import IDOrganismeEquipe1Logo
+from .id_poule import IDPoule
 from .jour import Jour
 from .label import Label
 from .labellisation import Labellisation
@@ -59,50 +60,55 @@ from .multi_search_result_rencontres import RencontresMultiSearchResult
 from .multi_search_result_salles import SallesMultiSearchResult
 from .multi_search_result_terrains import TerrainsMultiSearchResult
 from .multi_search_result_tournois import TournoisMultiSearchResult
-from .multi_search_results import MultiSearchResult, multi_search_results_from_dict
-from .MultiSearchResultCompetitions import MultiSearchResultCompetitions
-from .MultiSearchResultOrganismes import MultiSearchResultOrganismes
-from .MultiSearchResultPratiques import MultiSearchResultPratiques
-from .MultiSearchResultRencontres import MultiSearchResultRencontres
-from .MultiSearchResults import MultiSearchResults
-from .MultiSearchResultSalles import MultiSearchResultSalles
-from .MultiSearchResultTerrains import MultiSearchResultTerrains
-from .MultiSearchResultTournois import MultiSearchResultTournois
-from .NatureSol import NatureSol
+from .multi_search_results import MultiSearchResult
+from .multi_search_results_class import multi_search_results_from_dict
+from .nature_sol import NatureSol
 from .niveau import Niveau
-from .NiveauClass import NiveauClass
+from .niveau_class import NiveauClass
 from .objectif import Objectif
-from .Organisateur import Organisateur
-from .OrganisateurType import OrganisateurType
-from .OrganismeIDPere import OrganismeIDPere
+from .organisateur import Organisateur
+from .organisateur_type import OrganisateurType
+from .organisme_id_pere import OrganismeIDPere
 from .organismes_models import GetOrganismeResponse, OrganismesQuery
-from .PhaseCode import PhaseCode
+from .phase_code import PhaseCode
 from .poule import Poule
 from .poules_models import GetPouleResponse, PoulesQuery
 from .pratique import Pratique
-from .PublicationInternet import PublicationInternet
-from .PurpleLogo import PurpleLogo
-from .query_fields import QueryFields
+from .publication_internet import PublicationInternet
+from .purple_logo import PurpleLogo
+from .query_fields import (
+    CompetitionFields,
+    FieldSet,
+    OrganismeFields,
+    PouleFields,
+    QueryFieldsManager,
+    SaisonFields,
+)
 from .saison import Saison
 from .saisons_models import GetSaisonsResponse, SaisonsQuery
 from .salle import Salle
 from .sexe import Sexe
 from .source import Source
 from .status import Status
-from .TeamEngagement import TeamEngagement
-from .TournoiTypeClass import TournoiTypeClass
-from .TournoiTypeEnum import TournoiTypeEnum
-from .TypeAssociation import TypeAssociation
-from .TypeAssociationLibelle import TypeAssociationLibelle
-from .TypeClass import TypeClass
-from .TypeCompetition import TypeCompetition
-from .TypeCompetitionGenerique import TypeCompetitionGenerique
-from .TypeEnum import TypeEnum
-from .TypeLeague import TypeLeague
+from .team_engagement import TeamEngagement
+from .tournoi_type_class import TournoiTypeClass
+from .tournoi_type_enum import TournoiTypeEnum
+from .type_association import TypeAssociation
+from .type_association_libelle import TypeAssociationLibelle
+from .type_class import TypeClass
+from .type_competition import TypeCompetition
+from .type_competition_generique import TypeCompetitionGenerique
+from .type_enum import TypeEnum
+from .type_league import TypeLeague
 
 __all__ = [
-    # PascalCase classes
+    # Classes from snake_case files
+    "Affiche",
     "Cartographie",
+    "Categorie",
+    "Clock",
+    "Code",
+    "Commune",
     "CompetitionID",
     "CompetitionIDCategorie",
     "CompetitionIDSexe",
@@ -112,62 +118,30 @@ __all__ = [
     "CompetitionOrigineCategorie",
     "CompetitionOrigineTypeCompetition",
     "CompetitionOrigineTypeCompetitionGenerique",
-    "CoordonneesType",
-    "DocumentFlyer",
-    "DocumentFlyerType",
-    "FacetDistribution",
-    "FacetStats",
-    "GradientColor",
-    "IDEngagementEquipe",
-    "IDOrganismeEquipe",
-    "IDOrganismeEquipe1Logo",
-    "IDPoule",
-    "MultiSearchResultCompetitions",
-    "MultiSearchResultOrganismes",
-    "MultiSearchResultPratiques",
-    "MultiSearchResultRencontres",
-    "MultiSearchResultSalles",
-    "MultiSearchResultTerrains",
-    "MultiSearchResultTournois",
-    "MultiSearchResults",
-    "NatureSol",
-    "NiveauClass",
-    "Organisateur",
-    "OrganisateurType",
-    "OrganismeIDPere",
-    "PhaseCode",
-    "PublicationInternet",
-    "PurpleLogo",
-    "TeamEngagement",
-    "TournoiTypeClass",
-    "TournoiTypeEnum",
-    "TypeAssociation",
-    "TypeAssociationLibelle",
-    "TypeClass",
-    "TypeCompetition",
-    "TypeCompetitionGenerique",
-    "TypeEnum",
-    "TypeLeague",
-    # Snake case classes
-    "Affiche",
-    "Categorie",
-    "Clock",
-    "Code",
-    "Commune",
     "CompetitionType",
     "CompetitionsMultiSearchQuery",
     "CompetitionsMultiSearchResult",
     "CompetitionsQuery",
     "Coordonnees",
+    "CoordonneesType",
+    "DocumentFlyer",
+    "DocumentFlyerType",
     "Etat",
     "ExternalID",
+    "FacetDistribution",
+    "FacetStats",
     "Folder",
     "Geo",
-    "GetCompetitionsResponse",
+    "GetCompetitionResponse",
     "GetOrganismeResponse",
     "GetPouleResponse",
     "GetSaisonsResponse",
+    "GradientColor",
     "Hit",
+    "IDEngagementEquipe",
+    "IDOrganismeEquipe",
+    "IDOrganismeEquipe1Logo",
+    "IDPoule",
     "Jour",
     "Label",
     "Labellisation",
@@ -176,17 +150,30 @@ __all__ = [
     "MultiSearchQueries",
     "MultiSearchQuery",
     "MultiSearchResult",
+    "NatureSol",
     "Niveau",
+    "NiveauClass",
     "Objectif",
+    "Organisateur",
+    "OrganisateurType",
+    "OrganismeIDPere",
     "OrganismesMultiSearchQuery",
     "OrganismesMultiSearchResult",
     "OrganismesQuery",
+    "PhaseCode",
     "Poule",
     "PoulesQuery",
     "Pratique",
     "PratiquesMultiSearchQuery",
     "PratiquesMultiSearchResult",
-    "QueryFields",
+    "PublicationInternet",
+    "PurpleLogo",
+    "QueryFieldsManager",
+    "OrganismeFields",
+    "CompetitionFields",
+    "PouleFields",
+    "SaisonFields",
+    "FieldSet",
     "RencontresMultiSearchQuery",
     "RencontresMultiSearchResult",
     "Saison",
@@ -197,10 +184,20 @@ __all__ = [
     "Sexe",
     "Source",
     "Status",
+    "TeamEngagement",
     "TerrainsMultiSearchQuery",
     "TerrainsMultiSearchResult",
     "TournoisMultiSearchQuery",
     "TournoisMultiSearchResult",
+    "TournoiTypeClass",
+    "TournoiTypeEnum",
+    "TypeAssociation",
+    "TypeAssociationLibelle",
+    "TypeClass",
+    "TypeCompetition",
+    "TypeCompetitionGenerique",
+    "TypeEnum",
+    "TypeLeague",
     # Functions
     "lives_from_dict",
     "lives_to_dict",

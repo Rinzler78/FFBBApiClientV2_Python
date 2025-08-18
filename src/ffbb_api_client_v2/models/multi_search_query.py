@@ -3,45 +3,45 @@ from __future__ import annotations
 from typing import Any
 
 from ..utils.converter_utils import from_int, from_list, from_none, from_str, from_union
-from .FacetDistribution import FacetDistribution
-from .FacetStats import FacetStats
+from .facet_distribution import FacetDistribution
+from .facet_stats import FacetStats
 from .hit import Hit
-from .MultiSearchResultCompetitions import (
+from .multi_search_result_competitions import (
     CompetitionsFacetDistribution,
     CompetitionsFacetStats,
     CompetitionsMultiSearchResult,
 )
-from .MultiSearchResultOrganismes import (
+from .multi_search_result_organismes import (
     OrganismesFacetDistribution,
     OrganismesFacetStats,
     OrganismesMultiSearchResult,
 )
-from .MultiSearchResultPratiques import (
+from .multi_search_result_pratiques import (
     PratiquesFacetDistribution,
     PratiquesFacetStats,
     PratiquesMultiSearchResult,
 )
-from .MultiSearchResultRencontres import (
+from .multi_search_result_rencontres import (
     RencontresFacetDistribution,
     RencontresFacetStats,
     RencontresMultiSearchResult,
 )
-from .MultiSearchResults import MultiSearchResult
-from .MultiSearchResultSalles import (
+from .multi_search_result_salles import (
     SallesFacetDistribution,
     SallesFacetStats,
     SallesMultiSearchResult,
 )
-from .MultiSearchResultTerrains import (
+from .multi_search_result_terrains import (
     TerrainsFacetDistribution,
     TerrainsFacetStats,
     TerrainsMultiSearchResult,
 )
-from .MultiSearchResultTournois import (
+from .multi_search_result_tournois import (
     TournoisFacetDistribution,
     TournoisFacetStats,
     TournoisMultiSearchResult,
 )
+from .multi_search_results import MultiSearchResult
 
 
 class MultiSearchQuery:

@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from ..utils.converter_utils import from_none, from_union, to_class
-from .PurpleLogo import PurpleLogo
+from .purple_logo import PurpleLogo
 
 
 class CompetitionOrigineTypeCompetitionGenerique:

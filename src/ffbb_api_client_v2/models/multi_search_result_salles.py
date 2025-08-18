@@ -10,13 +10,14 @@ from ..utils.converter_utils import (
     from_union,
     to_class,
 )
-from .Cartographie import Cartographie
-from .Commune import Commune
-from .FacetDistribution import FacetDistribution
-from .FacetStats import FacetStats
-from .Geo import Geo
-from .Hit import Hit
-from .TypeAssociation import TypeAssociation
+from .cartographie import Cartographie
+from .commune import Commune
+from .facet_distribution import FacetDistribution
+from .facet_stats import FacetStats
+from .geo import Geo
+from .hit import Hit
+from .multi_search_results import MultiSearchResult
+from .type_association import TypeAssociation
 
 # class LibelleEnum(Enum):
 #     SALLE = "Salle"
@@ -230,3 +231,17 @@ class SallesFacetStats(FacetStats):
 
     def to_dict(self) -> dict:
         super().to_dict()
+
+
+class SallesMultiSearchResult(
+    MultiSearchResult[SallesHit, SallesFacetDistribution, SallesFacetStats]
+):
+    @staticmethod
+    def from_dict(obj: Any) -> SallesMultiSearchResult:
+        return MultiSearchResult.from_dict(
+            obj,
+            SallesHit,
+            SallesFacetDistribution,
+            SallesFacetStats,
+            SallesMultiSearchResult,
+        )

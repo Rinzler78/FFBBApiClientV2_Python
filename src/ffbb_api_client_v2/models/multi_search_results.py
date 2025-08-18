@@ -10,9 +10,9 @@ from ..utils.converter_utils import (
     from_union,
     to_class,
 )
-from .FacetDistribution import FacetDistribution
-from .FacetStats import FacetStats
-from .Hit import Hit
+from .facet_distribution import FacetDistribution
+from .facet_stats import FacetStats
+from .hit import Hit
 
 HitType = TypeVar("HitType", bound=Hit)
 FacetDistributionType = TypeVar("FacetDistributionType", bound=FacetDistribution)

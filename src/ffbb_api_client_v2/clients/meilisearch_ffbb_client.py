@@ -11,13 +11,13 @@ from ..models.multi_search_query import (
     TerrainsMultiSearchQuery,
     TournoisMultiSearchQuery,
 )
-from ..models.MultiSearchResultCompetitions import CompetitionsMultiSearchResult
-from ..models.MultiSearchResultOrganismes import OrganismesMultiSearchResult
-from ..models.MultiSearchResultPratiques import PratiquesMultiSearchResult
-from ..models.MultiSearchResultRencontres import RencontresMultiSearchResult
-from ..models.MultiSearchResultSalles import SallesMultiSearchResult
-from ..models.MultiSearchResultTerrains import TerrainsMultiSearchResult
-from ..models.MultiSearchResultTournois import TournoisMultiSearchResult
+from ..models.multi_search_result_competitions import CompetitionsMultiSearchResult
+from ..models.multi_search_result_organismes import OrganismesMultiSearchResult
+from ..models.multi_search_result_pratiques import PratiquesMultiSearchResult
+from ..models.multi_search_result_rencontres import RencontresMultiSearchResult
+from ..models.multi_search_result_salles import SallesMultiSearchResult
+from ..models.multi_search_result_terrains import TerrainsMultiSearchResult
+from ..models.multi_search_result_tournois import TournoisMultiSearchResult
 
 
 class MeilisearchFFBBClient(MeilisearchClientExtension):

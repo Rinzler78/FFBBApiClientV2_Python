@@ -3,14 +3,14 @@ from __future__ import annotations
 from typing import Any
 
 from ..utils.converter_utils import from_list, from_none, from_union, to_class
+from .multi_search_result_competitions import CompetitionsMultiSearchResult
+from .multi_search_result_organismes import OrganismesMultiSearchResult
+from .multi_search_result_pratiques import PratiquesMultiSearchResult
+from .multi_search_result_rencontres import RencontresMultiSearchResult
+from .multi_search_result_salles import SallesMultiSearchResult
+from .multi_search_result_terrains import TerrainsMultiSearchResult
+from .multi_search_result_tournois import TournoisMultiSearchResult
 from .multi_search_results import MultiSearchResult
-from .MultiSearchResultCompetitions import CompetitionsMultiSearchResult
-from .MultiSearchResultOrganismes import OrganismesMultiSearchResult
-from .MultiSearchResultPratiques import PratiquesMultiSearchResult
-from .MultiSearchResultRencontres import RencontresMultiSearchResult
-from .MultiSearchResultSalles import SallesMultiSearchResult
-from .MultiSearchResultTerrains import TerrainsMultiSearchResult
-from .MultiSearchResultTournois import TournoisMultiSearchResult
 
 index_uids = [
     "ffbbserver_organismes",

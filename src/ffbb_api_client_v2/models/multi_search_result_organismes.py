@@ -14,18 +14,19 @@ from ..utils.converter_utils import (
     from_union,
     to_class,
 )
-from .Cartographie import Cartographie
-from .Commune import Commune
-from .FacetDistribution import FacetDistribution
-from .FacetStats import FacetStats
-from .Geo import Geo
-from .Hit import Hit
-from .Labellisation import Labellisation
+from .cartographie import Cartographie
+from .commune import Commune
+from .facet_distribution import FacetDistribution
+from .facet_stats import FacetStats
+from .geo import Geo
+from .hit import Hit
+from .labellisation import Labellisation
 from .logo import Logo
-from .OrganismeIDPere import OrganismeIDPere
-from .TypeAssociation import TypeAssociation
-from .TypeAssociationLibelle import TypeAssociationLibelle
-from .TypeClass import TypeClass
+from .multi_search_results import MultiSearchResult
+from .organisme_id_pere import OrganismeIDPere
+from .type_association import TypeAssociation
+from .type_association_libelle import TypeAssociationLibelle
+from .type_class import TypeClass
 
 
 class OrganismesFacetDistribution(FacetDistribution):
@@ -358,3 +359,17 @@ class OrganismesFacetStats(FacetStats):
 
     def to_dict(self) -> dict:
         super().to_dict()
+
+
+class OrganismesMultiSearchResult(
+    MultiSearchResult[OrganismesHit, OrganismesFacetDistribution, OrganismesFacetStats]
+):
+    @staticmethod
+    def from_dict(obj: Any) -> OrganismesMultiSearchResult:
+        return MultiSearchResult.from_dict(
+            obj,
+            OrganismesHit,
+            OrganismesFacetDistribution,
+            OrganismesFacetStats,
+            OrganismesMultiSearchResult,
+        )

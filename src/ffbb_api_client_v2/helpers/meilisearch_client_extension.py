@@ -2,7 +2,7 @@ from requests_cache import CachedSession
 
 from ..clients.meilisearch_client import MeilisearchClient
 from ..models.multi_search_query import MultiSearchQuery
-from ..models.MultiSearchResults import MultiSearchResults
+from ..models.multi_search_results_class import MultiSearchResults
 from .http_requests_helper import default_cached_session
 
 

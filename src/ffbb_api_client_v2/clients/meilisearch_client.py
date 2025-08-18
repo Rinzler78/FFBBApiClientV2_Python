@@ -3,7 +3,7 @@ from requests_cache import CachedSession
 from ..helpers.http_requests_helper import catch_result, default_cached_session
 from ..helpers.http_requests_utils import http_post_json
 from ..models.multi_search_query import MultiSearchQuery
-from ..models.MultiSearchResults import (
+from ..models.multi_search_results_class import (
     MultiSearchResults,
     multi_search_results_from_dict,
 )

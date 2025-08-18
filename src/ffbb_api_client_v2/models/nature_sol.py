@@ -12,7 +12,7 @@ from ..utils.converter_utils import (
     is_type,
     to_enum,
 )
-from .Code import Code
+from .code import Code
 
 # from .multi_search_result_tournois import Libelle
 

@@ -16,21 +16,22 @@ from ..utils.converter_utils import (
     to_class,
     to_enum,
 )
-from .CompetitionID import CompetitionID
-from .CompetitionIDSexe import CompetitionIDSexe
-from .CompetitionIDTypeCompetition import CompetitionIDTypeCompetition
-from .FacetDistribution import FacetDistribution
-from .FacetStats import FacetStats
-from .Geo import Geo
-from .Hit import Hit
-from .IDEngagementEquipe import IDEngagementEquipe
-from .IDOrganismeEquipe import IDOrganismeEquipe
-from .IDPoule import IDPoule
-from .Niveau import Niveau
-from .NiveauClass import NiveauClass
-from .Organisateur import Organisateur
-from .Pratique import Pratique
-from .Saison import Saison
+from .competition_id import CompetitionID
+from .competition_id_sexe import CompetitionIDSexe
+from .competition_id_type_competition import CompetitionIDTypeCompetition
+from .facet_distribution import FacetDistribution
+from .facet_stats import FacetStats
+from .geo import Geo
+from .hit import Hit
+from .id_engagement_equipe import IDEngagementEquipe
+from .id_organisme_equipe import IDOrganismeEquipe
+from .id_poule import IDPoule
+from .multi_search_results import MultiSearchResult
+from .niveau import Niveau
+from .niveau_class import NiveauClass
+from .organisateur import Organisateur
+from .pratique import Pratique
+from .saison import Saison
 from .salle import Salle
 
 
@@ -524,3 +525,17 @@ class RencontresFacetStats(FacetStats):
 
     def to_dict(self) -> dict:
         super().to_dict()
+
+
+class RencontresMultiSearchResult(
+    MultiSearchResult[RencontresHit, RencontresFacetDistribution, RencontresFacetStats]
+):
+    @staticmethod
+    def from_dict(obj: Any) -> RencontresMultiSearchResult:
+        return MultiSearchResult.from_dict(
+            obj,
+            RencontresHit,
+            RencontresFacetDistribution,
+            RencontresFacetStats,
+            RencontresMultiSearchResult,
+        )

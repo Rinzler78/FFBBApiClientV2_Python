@@ -16,24 +16,25 @@ from ..utils.converter_utils import (
     to_class,
     to_enum,
 )
-from .Categorie import Categorie
-from .CompetitionIDSexe import CompetitionIDSexe
-from .CompetitionIDTypeCompetition import CompetitionIDTypeCompetition
-from .Etat import Etat
-from .FacetDistribution import FacetDistribution
-from .FacetStats import FacetStats
-from .Hit import Hit
+from .categorie import Categorie
+from .competition_id_sexe import CompetitionIDSexe
+from .competition_id_type_competition import CompetitionIDTypeCompetition
+from .etat import Etat
+from .facet_distribution import FacetDistribution
+from .facet_stats import FacetStats
+from .hit import Hit
 from .logo import Logo
-from .Niveau import Niveau
-from .NiveauClass import NiveauClass
-from .Organisateur import Organisateur
-from .PhaseCode import PhaseCode
-from .Poule import Poule
-from .PublicationInternet import PublicationInternet
-from .Saison import Saison
-from .Sexe import Sexe
-from .TypeCompetition import TypeCompetition
-from .TypeCompetitionGenerique import TypeCompetitionGenerique
+from .multi_search_results import MultiSearchResult
+from .niveau import Niveau
+from .niveau_class import NiveauClass
+from .organisateur import Organisateur
+from .phase_code import PhaseCode
+from .poule import Poule
+from .publication_internet import PublicationInternet
+from .saison import Saison
+from .sexe import Sexe
+from .type_competition import TypeCompetition
+from .type_competition_generique import TypeCompetitionGenerique
 
 
 class CompetitionsFacetDistribution(FacetDistribution):
@@ -476,3 +477,19 @@ class CompetitionsFacetStats(FacetStats):
 
     def to_dict(self) -> dict:
         super().to_dict()
+
+
+class CompetitionsMultiSearchResult(
+    MultiSearchResult[
+        CompetitionsHit, CompetitionsFacetDistribution, CompetitionsFacetStats
+    ]
+):
+    @staticmethod
+    def from_dict(obj: Any) -> CompetitionsMultiSearchResult:
+        return MultiSearchResult.from_dict(
+            obj,
+            CompetitionsHit,
+            CompetitionsFacetDistribution,
+            CompetitionsFacetStats,
+            CompetitionsMultiSearchResult,
+        )
