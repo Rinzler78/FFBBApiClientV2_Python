@@ -13,6 +13,7 @@ from ..models.query_fields import (
     QueryFieldsManager,
 )
 from ..models.saisons_models import GetSaisonsResponse
+from ..utils.secure_logging import get_secure_logger, mask_token
 
 
 class ApiFFBBAppClient:
@@ -32,13 +33,25 @@ class ApiFFBBAppClient:
             debug (bool, optional): Whether to enable debug mode. Defaults to False.
             cached_session (CachedSession, optional): The cached session to use.
         """
-        if not bearer_token:
-            raise ValueError("bearer_token cannot be None or empty")
-        self.bearer_token = bearer_token
+        if not bearer_token or not bearer_token.strip():
+            raise ValueError("bearer_token cannot be None, empty, or whitespace-only")
+
+        # Store token securely (private attribute)
+        self._bearer_token = bearer_token
         self.url = url
         self.debug = debug
         self.cached_session = cached_session
-        self.headers = {"Authorization": f"Bearer {self.bearer_token}"}
+        self.headers = {"Authorization": f"Bearer {self._bearer_token}"}
+
+        # Initialize secure logger
+        self.logger = get_secure_logger(f"{self.__class__.__name__}")
+
+        # Log initialization with masked token
+        masked_token = mask_token(self._bearer_token)
+        if self.debug:
+            self.logger.info(f"ApiFFBBAppClient initialized with token: {masked_token}")
+        else:
+            self.logger.info("ApiFFBBAppClient initialized successfully")
 
     def get_lives(self, cached_session: CachedSession = None) -> list[Live]:
         """

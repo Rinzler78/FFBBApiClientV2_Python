@@ -7,6 +7,7 @@ from ..models.multi_search_results_class import (
     MultiSearchResults,
     multi_search_results_from_dict,
 )
+from ..utils.secure_logging import get_secure_logger, mask_token
 
 
 class MeilisearchClient:
@@ -18,24 +19,39 @@ class MeilisearchClient:
         cached_session: CachedSession = default_cached_session,
     ):
         """
-        Initializes an instance of the ApiFFBBAppClient class.
+        Initializes an instance of the MeilisearchClient class.
 
         Args:
             bearer_token (str): The bearer token used for authentication.
-            url (str, optional): The base URL. Defaults to "https://api.ffbb.app/".
+            url (str, optional): The base URL.
+                Defaults to "https://meilisearch-prod.ffbb.app/".
             debug (bool, optional): Whether to enable debug mode. Defaults to False.
             cached_session (CachedSession, optional): The cached session to use.
         """
-        if not bearer_token:
-            raise ValueError("bearer_token cannot be None or empty")
-        self.bearer_token = bearer_token
+        if not bearer_token or not bearer_token.strip():
+            raise ValueError("bearer_token cannot be None, empty, or whitespace-only")
+
+        # Store token securely (private attribute)
+        self._bearer_token = bearer_token
         self.url = url
         self.debug = debug
         self.cached_session = cached_session
         self.headers = {
-            "Authorization": f"Bearer {self.bearer_token}",
+            "Authorization": f"Bearer {self._bearer_token}",
             "Content-Type": "application/json",
         }
+
+        # Initialize secure logger
+        self.logger = get_secure_logger(f"{self.__class__.__name__}")
+
+        # Log initialization with masked token
+        masked_token = mask_token(self._bearer_token)
+        if self.debug:
+            self.logger.info(
+                f"MeilisearchClient initialized with token: {masked_token}"
+            )
+        else:
+            self.logger.info("MeilisearchClient initialized successfully")
 
     def multi_search(
         self,
