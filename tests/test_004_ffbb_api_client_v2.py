@@ -36,6 +36,20 @@ from ffbb_api_client_v2 import (
 
 
 class Test004FfbbApiClientV2(unittest.TestCase):
+    # List of 10 largest French cities
+    LARGEST_FRENCH_CITIES = [
+        "Paris",
+        "Marseille",
+        "Lyon",
+        "Toulouse",
+        "Nice",
+        "Nantes",
+        "Strasbourg",
+        "Montpellier",
+        "Bordeaux",
+        "Lille",
+    ]
+
     def setUp(self):
         api_token = os.getenv("API_FFBB_APP_BEARER_TOKEN")
 
@@ -109,9 +123,10 @@ class Test004FfbbApiClientV2(unittest.TestCase):
             OrganismesHit,
         )
 
-    def test_search_organismes_with_known_names(self):
+    def test_search_organismes_with_largest_cities(self):
+        """Test search_multiple_organismes with 10 largest French cities."""
         search_organismes_result = self.api_client.search_multiple_organismes(
-            ["Paris", "Senas", "Reims"]
+            self.LARGEST_FRENCH_CITIES
         )
         self.__validate_test_search_multi(
             search_organismes_result,
@@ -120,6 +135,19 @@ class Test004FfbbApiClientV2(unittest.TestCase):
             OrganismesFacetStats,
             OrganismesHit,
         )
+
+    def test_search_organismes_single_city(self):
+        """Test search_organismes with each of the 10 largest French cities."""
+        for city in self.LARGEST_FRENCH_CITIES:
+            with self.subTest(city=city):
+                search_organismes_result = self.api_client.search_organismes(city)
+                self.__validate_test_search(
+                    search_organismes_result,
+                    OrganismesMultiSearchResult,
+                    OrganismesFacetDistribution,
+                    OrganismesFacetStats,
+                    OrganismesHit,
+                )
 
     def test_search_rencontres_with_empty_names(self):
         search_rencontres_result = self.api_client.search_rencontres()
@@ -131,9 +159,10 @@ class Test004FfbbApiClientV2(unittest.TestCase):
             RencontresHit,
         )
 
-    def test_search_rencontres_with_known_names(self):
+    def test_search_rencontres_with_largest_cities(self):
+        """Test search_multiple_rencontres with 10 largest French cities."""
         search_rencontres_result = self.api_client.search_multiple_rencontres(
-            ["Paris", "Senas", "Reims"]
+            self.LARGEST_FRENCH_CITIES
         )
         self.__validate_test_search_multi(
             search_rencontres_result,
@@ -153,9 +182,10 @@ class Test004FfbbApiClientV2(unittest.TestCase):
             TerrainsHit,
         )
 
-    def test_search_terrains_with_known_names(self):
+    def test_search_terrains_with_largest_cities(self):
+        """Test search_multiple_terrains with 10 largest French cities."""
         search_terrains_result = self.api_client.search_multiple_terrains(
-            ["Paris", "Senas", "Reims"]
+            self.LARGEST_FRENCH_CITIES
         )
         self.__validate_test_search_multi(
             search_terrains_result,
@@ -175,9 +205,10 @@ class Test004FfbbApiClientV2(unittest.TestCase):
             CompetitionsHit,
         )
 
-    def test_search_competitions_with_known_names(self):
+    def test_search_competitions_with_largest_cities(self):
+        """Test search_multiple_competitions with 10 largest French cities."""
         search_competitions_result = self.api_client.search_multiple_competitions(
-            ["Paris", "Senas", "Reims"]
+            self.LARGEST_FRENCH_CITIES
         )
         self.__validate_test_search_multi(
             search_competitions_result,
@@ -197,9 +228,10 @@ class Test004FfbbApiClientV2(unittest.TestCase):
             SallesHit,
         )
 
-    def test_search_salles_with_known_names(self):
+    def test_search_salles_with_largest_cities(self):
+        """Test search_multiple_salles with 10 largest French cities."""
         search_salles_result = self.api_client.search_multiple_salles(
-            ["Paris", "Senas", "Reims"]
+            self.LARGEST_FRENCH_CITIES
         )
         self.__validate_test_search_multi(
             search_salles_result,
@@ -219,9 +251,10 @@ class Test004FfbbApiClientV2(unittest.TestCase):
             TournoisHit,
         )
 
-    def test_search_tournois_with_known_names(self):
+    def test_search_tournois_with_largest_cities(self):
+        """Test search_multiple_tournois with 10 largest French cities."""
         search_tournois_result = self.api_client.search_multiple_tournois(
-            ["Paris", "Senas", "Reims"]
+            self.LARGEST_FRENCH_CITIES
         )
         self.__validate_test_search_multi(
             search_tournois_result,
@@ -241,9 +274,10 @@ class Test004FfbbApiClientV2(unittest.TestCase):
             PratiquesHit,
         )
 
-    def test_search_pratiques_with_known_names(self):
+    def test_search_pratiques_with_largest_cities(self):
+        """Test search_multiple_pratiques with 10 largest French cities."""
         search_pratiques_result = self.api_client.search_multiple_pratiques(
-            ["Paris", "Senas", "Reims"]
+            self.LARGEST_FRENCH_CITIES
         )
         self.__validate_test_search_multi(
             search_pratiques_result,
