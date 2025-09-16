@@ -9,6 +9,7 @@ from ffbb_api_client_v2.utils.cache_manager import (
     AdvancedCacheManager,
     CacheConfig,
     CacheMetrics,
+    create_cache_key,
 )
 
 
@@ -111,7 +112,7 @@ class Test018CacheManager(unittest.TestCase):
 
     def test_create_cache_key(self):
         """Test cache key creation."""
-        manager = AdvancedCacheManager(self.config)
+        AdvancedCacheManager(self.config)
 
         # Mock request
         mock_request = MagicMock()
@@ -120,13 +121,13 @@ class Test018CacheManager(unittest.TestCase):
         mock_request.headers = {"Authorization": "Bearer token123"}
         mock_request.body = None
 
-        key = manager._create_cache_key(mock_request)
+        key = create_cache_key(mock_request)
         self.assertIsInstance(key, str)
         self.assertTrue(key.startswith("ffbb_api:"))
 
     def test_create_cache_key_with_body(self):
         """Test cache key creation with request body."""
-        manager = AdvancedCacheManager(self.config)
+        AdvancedCacheManager(self.config)
 
         mock_request = MagicMock()
         mock_request.method = "POST"
@@ -134,7 +135,7 @@ class Test018CacheManager(unittest.TestCase):
         mock_request.headers = {}
         mock_request.body = "test data"
 
-        key = manager._create_cache_key(mock_request)
+        key = create_cache_key(mock_request)
         self.assertIsInstance(key, str)
         self.assertTrue(key.startswith("ffbb_api:"))
 
@@ -187,7 +188,7 @@ class Test018CacheManager(unittest.TestCase):
 
     def test_cache_key_masking(self):
         """Test that authorization headers are masked in cache keys."""
-        manager = AdvancedCacheManager(self.config)
+        AdvancedCacheManager(self.config)
 
         mock_request = MagicMock()
         mock_request.method = "GET"
@@ -195,8 +196,8 @@ class Test018CacheManager(unittest.TestCase):
         mock_request.headers = {"Authorization": "Bearer sensitive_token_123"}
         mock_request.body = None
 
-        key1 = manager._create_cache_key(mock_request)
-        key2 = manager._create_cache_key(mock_request)
+        key1 = create_cache_key(mock_request)
+        key2 = create_cache_key(mock_request)
 
         # Same request should generate same key
         self.assertEqual(key1, key2)
@@ -210,7 +211,7 @@ class Test018CacheManager(unittest.TestCase):
         }
         mock_request_different_auth.body = None
 
-        key3 = manager._create_cache_key(mock_request_different_auth)
+        key3 = create_cache_key(mock_request_different_auth)
 
         # Different auth tokens should produce the same key (because auth is masked)
         self.assertEqual(key1, key3)

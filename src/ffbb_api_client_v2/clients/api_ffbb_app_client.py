@@ -43,7 +43,8 @@ class ApiFFBBAppClient:
             debug (bool, optional): Whether to enable debug mode. Defaults to False.
             cached_session (CachedSession, optional): The cached session to use.
             retry_config (RetryConfig, optional): Retry configuration. Defaults to None.
-            timeout_config (TimeoutConfig, optional): Timeout configuration. Defaults to None.
+            timeout_config (TimeoutConfig, optional): Timeout configuration.
+                Defaults to None.
             cache_config (CacheConfig, optional): Cache configuration. Defaults to None.
         """
         if not bearer_token or not bearer_token.strip():
@@ -80,6 +81,11 @@ class ApiFFBBAppClient:
             )
         else:
             self.logger.info("ApiFFBBAppClient initialized successfully")
+
+    @property
+    def bearer_token(self) -> str:
+        """Get the bearer token."""
+        return self._bearer_token
 
     def get_lives(self, cached_session: CachedSession = None) -> list[Live]:
         """

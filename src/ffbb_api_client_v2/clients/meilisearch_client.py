@@ -36,7 +36,8 @@ class MeilisearchClient:
             debug (bool, optional): Whether to enable debug mode. Defaults to False.
             cached_session (CachedSession, optional): The cached session to use.
             retry_config (RetryConfig, optional): Retry configuration. Defaults to None.
-            timeout_config (TimeoutConfig, optional): Timeout configuration. Defaults to None.
+            timeout_config (TimeoutConfig, optional): Timeout configuration.
+                Defaults to None.
         """
         if not bearer_token or not bearer_token.strip():
             raise ValueError("bearer_token cannot be None, empty, or whitespace-only")
@@ -64,8 +65,17 @@ class MeilisearchClient:
             self.logger.info(
                 f"MeilisearchClient initialized with token: {masked_token}"
             )
+            self.logger.info(
+                f"Retry config: {self.retry_config.max_attempts} attempts, "
+                f"timeout: {self.timeout_config.total_timeout}s"
+            )
         else:
             self.logger.info("MeilisearchClient initialized successfully")
+
+    @property
+    def bearer_token(self) -> str:
+        """Get the bearer token."""
+        return self._bearer_token
 
     def multi_search(
         self,
