@@ -5,7 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.1.0] - Unreleased
+## [1.1.1] - 2025-09-16
+
+### Fixed
+- Fixed flake8 line length errors that prevented CI workflow from completing
+- Updated maximum line length configuration to be compatible with Black formatting
+- Improved code formatting consistency across the codebase
+
+## [1.1.0] - 2025-09-16
 
 ### Added
 - Comprehensive data models with automatic validation (`GetOrganismeResponse`, `GetCompetitionResponse`, `GetSaisonsResponse`, `GetPouleResponse`)
