@@ -2,6 +2,9 @@ import json
 
 from requests import ReadTimeout
 
+# Import for backward compatibility - needed by client modules
+from ..utils.cache_manager import default_cached_session  # noqa: F401
+
 
 def catch_result(callback, is_retrieving: bool = False):
     """
@@ -30,6 +33,3 @@ def catch_result(callback, is_retrieving: bool = False):
         raise e
     except Exception as e:
         raise e
-
-
-# Import the default cached session from cache_manager for backward compatibility
