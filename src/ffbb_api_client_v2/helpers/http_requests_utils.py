@@ -7,6 +7,12 @@ import requests
 from requests import Response
 from requests_cache import CachedSession
 
+from ..utils.retry_utils import (
+    RetryConfig,
+    TimeoutConfig,
+    make_http_request_with_retry,
+)
+
 
 def to_json_from_response(response: Response) -> dict[str, Any]:
     """
@@ -43,16 +49,20 @@ def http_get(
     debug: bool = False,
     cached_session: CachedSession = None,
     timeout: int = 20,
+    retry_config: RetryConfig = None,
+    timeout_config: TimeoutConfig = None,
 ) -> Response:
     """
-    Performs an HTTP GET request.
+    Performs an HTTP GET request with retry logic.
 
     Args:
         url (str): The URL of the request.
         headers (Dict[str, str]): The headers of the request.
         debug (bool): Whether to enable debug mode or not. Default is False.
-        use_cache (bool): Whether to use cache or not. Default is True.
+        cached_session (CachedSession): Cached session to use. Default is None.
         timeout (int): The timeout value in seconds. Default is 20.
+        retry_config (RetryConfig): Retry configuration. Default is None.
+        timeout_config (TimeoutConfig): Timeout configuration. Default is None.
 
     Returns:
         Response: The HTTP response.
@@ -61,10 +71,23 @@ def http_get(
         print(f"Making GET request to {url}")
         start_time = time.time()
 
-    if cached_session:
-        response = cached_session.get(url, headers=headers, timeout=timeout)
+    # Use retry logic if configured
+    if retry_config and timeout_config:
+        response = make_http_request_with_retry(
+            "GET",
+            url,
+            headers,
+            cached_session=cached_session,
+            retry_config=retry_config,
+            timeout_config=timeout_config,
+            debug=debug,
+        )
     else:
-        response = requests.get(url, headers=headers, timeout=timeout)
+        # Fallback to original behavior
+        if cached_session:
+            response = cached_session.get(url, headers=headers, timeout=timeout)
+        else:
+            response = requests.get(url, headers=headers, timeout=timeout)
 
     if debug:
         end_time = time.time()
@@ -81,17 +104,21 @@ def http_post(
     debug: bool = False,
     cached_session: CachedSession = None,
     timeout: int = 20,
+    retry_config: RetryConfig = None,
+    timeout_config: TimeoutConfig = None,
 ) -> Response:
     """
-    Performs an HTTP POST request.
+    Performs an HTTP POST request with retry logic.
 
     Args:
         url (str): The URL of the request.
         headers (Dict[str, str]): The headers of the request.
         data (Dict[str, Any]): The data of the request.
         debug (bool): Whether to enable debug mode or not. Default is False.
-        use_cache (bool): Whether to use cache or not. Default is True.
+        cached_session (CachedSession): Cached session to use. Default is None.
         timeout (int): The timeout value in seconds. Default is 20.
+        retry_config (RetryConfig): Retry configuration. Default is None.
+        timeout_config (TimeoutConfig): Timeout configuration. Default is None.
 
     Returns:
         Response: The HTTP response.
@@ -101,10 +128,26 @@ def http_post(
         print(f"Making POST request to {url} {data_str}")
         start_time = time.time()
 
-    if cached_session:
-        response = cached_session.post(url, headers=headers, json=data, timeout=timeout)
+    # Use retry logic if configured
+    if retry_config and timeout_config:
+        response = make_http_request_with_retry(
+            "POST",
+            url,
+            headers,
+            data=data,
+            cached_session=cached_session,
+            retry_config=retry_config,
+            timeout_config=timeout_config,
+            debug=debug,
+        )
     else:
-        response = requests.post(url, headers=headers, json=data, timeout=timeout)
+        # Fallback to original behavior
+        if cached_session:
+            response = cached_session.post(
+                url, headers=headers, json=data, timeout=timeout
+            )
+        else:
+            response = requests.post(url, headers=headers, json=data, timeout=timeout)
 
     if debug:
         end_time = time.time()
@@ -120,6 +163,8 @@ def http_get_json(
     debug: bool = False,
     cached_session: CachedSession = None,
     timeout: int = 20,
+    retry_config: RetryConfig = None,
+    timeout_config: TimeoutConfig = None,
 ) -> dict[str, Any]:
     """
     Performs an HTTP GET request and returns the result in JSON format.
@@ -128,14 +173,22 @@ def http_get_json(
         url (str): The URL of the request.
         headers (Dict[str, str]): The headers of the request.
         debug (bool): Whether to enable debug mode or not. Default is False.
-        use_cache (bool): Whether to use cache or not. Default is True.
+        cached_session (CachedSession): Cached session to use. Default is None.
         timeout (int): The timeout value in seconds. Default is 20.
+        retry_config (RetryConfig): Retry configuration. Default is None.
+        timeout_config (TimeoutConfig): Timeout configuration. Default is None.
 
     Returns:
         Dict[str, Any]: The result of the request in JSON format.
     """
     response = http_get(
-        url, headers, debug=debug, cached_session=cached_session, timeout=timeout
+        url,
+        headers,
+        debug=debug,
+        cached_session=cached_session,
+        timeout=timeout,
+        retry_config=retry_config,
+        timeout_config=timeout_config,
     )
     return to_json_from_response(response)
 
@@ -147,6 +200,8 @@ def http_post_json(
     debug: bool = False,
     cached_session: CachedSession = None,
     timeout: int = 20,
+    retry_config: RetryConfig = None,
+    timeout_config: TimeoutConfig = None,
 ) -> dict[str, Any]:
     """
     Performs an HTTP POST request and returns the result in JSON format.
@@ -156,8 +211,10 @@ def http_post_json(
         headers (Dict[str, str]): The headers of the request.
         data (Dict[str, Any]): The data of the request.
         debug (bool): Whether to enable debug mode or not. Default is False.
-        use_cache (bool): Whether to use cache or not. Default is True.
+        cached_session (CachedSession): Cached session to use. Default is None.
         timeout (int): The timeout value in seconds. Default is 20.
+        retry_config (RetryConfig): Retry configuration. Default is None.
+        timeout_config (TimeoutConfig): Timeout configuration. Default is None.
 
     Returns:
         Dict[str, Any]: The result of the request in JSON format.
@@ -171,6 +228,8 @@ def http_post_json(
         debug=debug,
         cached_session=cached_session,
         timeout=timeout,
+        retry_config=retry_config,
+        timeout_config=timeout_config,
     )
     return to_json_from_response(response)
 

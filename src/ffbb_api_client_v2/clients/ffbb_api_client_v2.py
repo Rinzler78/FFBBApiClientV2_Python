@@ -26,6 +26,13 @@ from ..models.multi_search_results import MultiSearchResult
 from ..models.organismes_models import GetOrganismeResponse
 from ..models.poules_models import GetPouleResponse
 from ..models.saisons_models import GetSaisonsResponse
+from ..utils.input_validation import (
+    validate_boolean,
+    validate_filter_criteria,
+    validate_search_query,
+    validate_string_list,
+    validate_token,
+)
 from .api_ffbb_app_client import ApiFFBBAppClient
 from .meilisearch_ffbb_client import MeilisearchFFBBClient
 
@@ -46,18 +53,37 @@ class FFBBAPIClientV2:
         debug: bool = False,
         cached_session: CachedSession = default_cached_session,
     ) -> FFBBAPIClientV2:
-        if not api_bearer_token:
-            raise ValueError("Api Bearer token cannot be None or empty.")
+        """
+        Create a new FFBB API Client V2 instance with comprehensive input validation.
 
+        Args:
+            meilisearch_bearer_token (str): Bearer token for Meilisearch API
+            api_bearer_token (str): Bearer token for FFBB API
+            debug (bool, optional): Enable debug logging. Defaults to False.
+            cached_session (CachedSession, optional): HTTP cache session
+
+        Returns:
+            FFBBAPIClientV2: Configured API client instance
+
+        Raises:
+            ValidationError: If any input parameter is invalid
+        """
+        # Validate inputs with comprehensive checks
+        validated_meilisearch_token = validate_token(
+            meilisearch_bearer_token, "meilisearch_bearer_token"
+        )
+        validated_api_token = validate_token(api_bearer_token, "api_bearer_token")
+        validated_debug = validate_boolean(debug, "debug")
+
+        # Create API clients with validated parameters
         api_ffbb_client = ApiFFBBAppClient(
-            api_bearer_token, debug=debug, cached_session=cached_session
+            validated_api_token, debug=validated_debug, cached_session=cached_session
         )
 
-        if not meilisearch_bearer_token:
-            raise ValueError("Meilisearch Bearer token cannot be None or empty.")
-
         meilisearch_ffbb_client: MeilisearchFFBBClient = MeilisearchFFBBClient(
-            meilisearch_bearer_token, debug=debug, cached_session=cached_session
+            validated_meilisearch_token,
+            debug=validated_debug,
+            cached_session=cached_session,
         )
 
         return FFBBAPIClientV2(api_ffbb_client, meilisearch_ffbb_client)
@@ -159,28 +185,48 @@ class FFBBAPIClientV2:
         cached_session: CachedSession = None,
     ) -> list[GetSaisonsResponse]:
         """
-        Retrieves list of seasons.
+        Retrieves list of seasons with comprehensive input validation.
 
         Args:
             fields (List[str], optional): List of fields to retrieve.
-                Defaults to ["id"].
+                 Defaults to ["id"].
             filter_criteria (str, optional): JSON filter criteria.
-                Defaults to active seasons.
+                 Defaults to active seasons.
             cached_session (CachedSession, optional): The cached session to use
 
         Returns:
             List[GetSaisonsResponse]: List of season data
+
+        Raises:
+            ValidationError: If input parameters are invalid
         """
+        validated_fields = validate_string_list(fields, "fields")
+        validated_filter = validate_filter_criteria(filter_criteria, "filter_criteria")
+
         return self.api_ffbb_client.get_saisons(
-            fields=fields,
-            filter_criteria=filter_criteria,
+            fields=validated_fields,
+            filter_criteria=validated_filter,
             cached_session=cached_session,
         )
 
     def multi_search(
         self, name: str = None, cached_session: CachedSession = None
     ) -> list[MultiSearchResult]:
-        queries = generate_queries(name)
+        """
+        Perform multi-search across all resource types with input validation.
+
+        Args:
+            name (str, optional): Search query string
+            cached_session (CachedSession, optional): HTTP cache session
+
+        Returns:
+            list[MultiSearchResult]: Search results across all resource types
+
+        Raises:
+            ValidationError: If search query is invalid
+        """
+        validated_name = validate_search_query(name, "name")
+        queries = generate_queries(validated_name)
         results = self.meilisearch_ffbb_client.recursive_smart_multi_search(
             queries, cached_session=cached_session
         )

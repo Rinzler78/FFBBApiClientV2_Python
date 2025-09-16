@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from requests_cache import CachedSession
 
-from ..helpers.http_requests_helper import catch_result, default_cached_session
+from ..helpers.http_requests_helper import catch_result
 from ..helpers.http_requests_utils import http_get_json, url_with_params
 from ..models.competitions_models import GetCompetitionResponse
 from ..models.lives import Live, lives_from_dict
@@ -13,6 +13,13 @@ from ..models.query_fields import (
     QueryFieldsManager,
 )
 from ..models.saisons_models import GetSaisonsResponse
+from ..utils.cache_manager import CacheConfig, get_cache_manager
+from ..utils.retry_utils import (
+    RetryConfig,
+    TimeoutConfig,
+    get_default_retry_config,
+    get_default_timeout_config,
+)
 from ..utils.secure_logging import get_secure_logger, mask_token
 
 
@@ -22,7 +29,10 @@ class ApiFFBBAppClient:
         bearer_token: str,
         url: str = "https://api.ffbb.app/",
         debug: bool = False,
-        cached_session: CachedSession = default_cached_session,
+        cached_session: CachedSession = None,
+        retry_config: RetryConfig = None,
+        timeout_config: TimeoutConfig = None,
+        cache_config: CacheConfig = None,
     ):
         """
         Initializes an instance of the ApiFFBBAppClient class.
@@ -32,6 +42,9 @@ class ApiFFBBAppClient:
             url (str, optional): The base URL. Defaults to "https://api.ffbb.app/".
             debug (bool, optional): Whether to enable debug mode. Defaults to False.
             cached_session (CachedSession, optional): The cached session to use.
+            retry_config (RetryConfig, optional): Retry configuration. Defaults to None.
+            timeout_config (TimeoutConfig, optional): Timeout configuration. Defaults to None.
+            cache_config (CacheConfig, optional): Cache configuration. Defaults to None.
         """
         if not bearer_token or not bearer_token.strip():
             raise ValueError("bearer_token cannot be None, empty, or whitespace-only")
@@ -43,6 +56,17 @@ class ApiFFBBAppClient:
         self.cached_session = cached_session
         self.headers = {"Authorization": f"Bearer {self._bearer_token}"}
 
+        # Configure retry and timeout settings
+        self.retry_config = retry_config or get_default_retry_config()
+        self.timeout_config = timeout_config or get_default_timeout_config()
+
+        # Configure cache manager
+        self.cache_manager = get_cache_manager(cache_config)
+        if cached_session is None:
+            self.cached_session = self.cache_manager.get_session()
+        else:
+            self.cached_session = cached_session
+
         # Initialize secure logger
         self.logger = get_secure_logger(f"{self.__class__.__name__}")
 
@@ -50,12 +74,16 @@ class ApiFFBBAppClient:
         masked_token = mask_token(self._bearer_token)
         if self.debug:
             self.logger.info(f"ApiFFBBAppClient initialized with token: {masked_token}")
+            self.logger.info(
+                f"Retry config: {self.retry_config.max_attempts} attempts, "
+                f"timeout: {self.timeout_config.total_timeout}s"
+            )
         else:
             self.logger.info("ApiFFBBAppClient initialized successfully")
 
     def get_lives(self, cached_session: CachedSession = None) -> list[Live]:
         """
-        Retrieves a list of live events.
+        Retrieves a list of live events with retry logic.
 
         Args:
             cached_session (CachedSession, optional): The cached session to use
@@ -71,6 +99,8 @@ class ApiFFBBAppClient:
                     self.headers,
                     debug=self.debug,
                     cached_session=cached_session or self.cached_session,
+                    retry_config=self.retry_config,
+                    timeout_config=self.timeout_config,
                 )
             )
         )
@@ -154,6 +184,7 @@ class ApiFFBBAppClient:
         params = {}
         if deep_limit:
             params["deep[rencontres][_limit]"] = deep_limit
+            params["deep[classements][_limit]"] = deep_limit
 
         if fields:
             params["fields[]"] = fields

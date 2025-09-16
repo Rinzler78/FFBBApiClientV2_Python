@@ -4,6 +4,8 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
+from .rankings_models import TeamRanking
+
 
 # Query Parameters Model
 @dataclass
@@ -32,6 +34,7 @@ class GetPouleResponse:
         date_rencontre: datetime
 
     rencontres: list[RencontresitemModel]
+    classements: list[TeamRanking] | None = None
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> GetPouleResponse | None:
@@ -68,4 +71,16 @@ class GetPouleResponse:
                 )
                 rencontres.append(rencontre)
 
-        return cls(id=str(data.get("id", "")), rencontres=rencontres)
+        # Process classements
+        classements = []
+        for classement_data in data.get("classements", []):
+            if classement_data:
+                classement = TeamRanking.from_dict(classement_data)
+                if classement:
+                    classements.append(classement)
+
+        return cls(
+            id=str(data.get("id", "")),
+            rencontres=rencontres,
+            classements=classements if classements else None,
+        )

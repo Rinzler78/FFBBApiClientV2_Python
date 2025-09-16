@@ -10,9 +10,13 @@ class Test000ApiFfbbAppClient(unittest.TestCase):
     def setUp(self):
         load_dotenv()
 
+        api_token = os.getenv("API_FFBB_APP_BEARER_TOKEN")
+        if not api_token:
+            self.skipTest("API_FFBB_APP_BEARER_TOKEN environment variable not set")
+
         # NOTE: Set debug=True for detailed logging if needed during debugging
         self.api_client = ApiFFBBAppClient(
-            bearer_token=os.getenv("API_FFBB_APP_BEARER_TOKEN"),
+            bearer_token=api_token,
             debug=False,
         )
 

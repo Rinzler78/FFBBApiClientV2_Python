@@ -54,12 +54,12 @@ class Test004FfbbApiClientV2(unittest.TestCase):
         api_token = os.getenv("API_FFBB_APP_BEARER_TOKEN")
 
         if not api_token:
-            raise Exception("API_FFBB_APP_BEARER_TOKEN environment variable not set")
+            self.skipTest("API_FFBB_APP_BEARER_TOKEN environment variable not set")
 
         mls_token = os.getenv("MEILISEARCH_BEARER_TOKEN")
 
         if not mls_token:
-            raise Exception("MEILISEARCH_BEARER_TOKEN environment variable not set")
+            self.skipTest("MEILISEARCH_BEARER_TOKEN environment variable not set")
 
         # NOTE: Set debug=True for detailed logging if needed during debugging
         self.api_client = FFBBAPIClientV2.create(

@@ -59,17 +59,20 @@ class Test001FfbbApiClientV2Core(unittest.TestCase):
                 meilisearch_bearer_token="test_ms_token", api_bearer_token=""
             )
         self.assertIn(
-            "Api Bearer token cannot be None or empty", str(context.exception)
+            "api_bearer_token cannot be empty or whitespace-only",
+            str(context.exception),
         )
 
     def test_004_create_factory_method_empty_meilisearch_token(self):
         """Test factory method raises error with empty Meilisearch token."""
         with self.assertRaises(ValueError) as context:
             FFBBAPIClientV2.create(
-                meilisearch_bearer_token="", api_bearer_token="test_api_token"
+                meilisearch_bearer_token="",
+                api_bearer_token="test_api_token_valid_length",
             )
         self.assertIn(
-            "Meilisearch Bearer token cannot be None or empty", str(context.exception)
+            "meilisearch_bearer_token cannot be empty or whitespace-only",
+            str(context.exception),
         )
 
     def test_005_get_lives_delegates_to_api_client(self):
@@ -197,13 +200,16 @@ class Test001ApiFfbbAppCore(unittest.TestCase):
         """Test client raises error with empty token."""
         with self.assertRaises(ValueError) as context:
             ApiFFBBAppClient(bearer_token="")
-        self.assertIn("bearer_token cannot be None or empty", str(context.exception))
+        self.assertIn(
+            "bearer_token cannot be None, empty, or whitespace-only",
+            str(context.exception),
+        )
 
     def test_003_init_with_none_token(self):
         """Test client raises error with None token."""
         with self.assertRaises(ValueError) as context:
             ApiFFBBAppClient(bearer_token=None)
-        self.assertIn("bearer_token cannot be None or empty", str(context.exception))
+        self.assertIn("bearer_token cannot be None", str(context.exception))
 
     def test_004_init_with_custom_url(self):
         """Test client initializes with custom URL."""

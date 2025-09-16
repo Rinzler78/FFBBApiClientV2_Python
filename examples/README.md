@@ -30,6 +30,27 @@ Comprehensive example demonstrating all major features:
 python examples/complete_usage_example.py
 ```
 
+### `team_ranking_analysis.py`
+Advanced example showing team ranking and performance analysis:
+- Team search by name with filters
+- Competition filtering by gender, zone, division, and category
+- Complete ranking table display
+- Detailed team statistics and performance metrics
+- Match history analysis with home/away breakdown
+- Real-world usage patterns for basketball analytics
+
+**Run it:**
+```bash
+python examples/team_ranking_analysis.py
+```
+
+**Features:**
+- Dynamic team search and organisme resolution
+- Advanced competition filtering using Niveau classes
+- Statistical analysis with home/away performance
+- Comprehensive match data visualization
+- Error handling and debugging information
+
 ## Prerequisites
 
 1. **Install the package:**

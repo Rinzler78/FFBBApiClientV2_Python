@@ -9,7 +9,7 @@ from ffbb_api_client_v2.clients.api_ffbb_app_client import ApiFFBBAppClient
 from ffbb_api_client_v2.clients.meilisearch_client import MeilisearchClient
 
 
-class TestSecureLoggingIntegration(unittest.TestCase):
+class Test013SecureLoggingIntegration(unittest.TestCase):
     """Integration tests for secure logging in API clients."""
 
     def setUp(self):

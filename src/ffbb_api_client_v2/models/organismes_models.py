@@ -4,6 +4,8 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
+from .niveau_models import Niveau, get_niveau_from_idcompetition
+
 
 # Query Parameters Model
 @dataclass
@@ -111,6 +113,11 @@ class GetOrganismeResponse:
                 ordre: int
 
             categorie: CategorieModel
+
+            @property
+            def niveau(self) -> Niveau | None:
+                """Extrait automatiquement le niveau depuis le nom de la compétition."""
+                return get_niveau_from_idcompetition(self)
 
         idCompetition: IdcompetitionModel
 

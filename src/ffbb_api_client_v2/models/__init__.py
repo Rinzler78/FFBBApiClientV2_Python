@@ -30,6 +30,7 @@ from .external_id import ExternalID
 from .facet_distribution import FacetDistribution
 from .facet_stats import FacetStats
 from .folder import Folder
+from .game_stats_models import GameStatsModel
 from .geo import Geo
 from .gradient_color import GradientColor
 from .hit import Hit
@@ -84,6 +85,7 @@ from .query_fields import (
     QueryFieldsManager,
     SaisonFields,
 )
+from .rankings_models import RankingEngagement, TeamRanking
 from .saison import Saison
 from .saisons_models import GetSaisonsResponse, SaisonsQuery
 from .salle import Salle
@@ -131,6 +133,7 @@ __all__ = [
     "FacetDistribution",
     "FacetStats",
     "Folder",
+    "GameStatsModel",
     "Geo",
     "GetCompetitionResponse",
     "GetOrganismeResponse",
@@ -164,6 +167,7 @@ __all__ = [
     "Poule",
     "PoulesQuery",
     "Pratique",
+    "RankingEngagement",
     "PratiquesMultiSearchQuery",
     "PratiquesMultiSearchResult",
     "PublicationInternet",
@@ -188,6 +192,7 @@ __all__ = [
     "TerrainsMultiSearchQuery",
     "TerrainsMultiSearchResult",
     "TournoisMultiSearchQuery",
+    "TeamRanking",
     "TournoisMultiSearchResult",
     "TournoiTypeClass",
     "TournoiTypeEnum",

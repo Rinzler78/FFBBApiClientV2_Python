@@ -7,6 +7,12 @@ from ..models.multi_search_results_class import (
     MultiSearchResults,
     multi_search_results_from_dict,
 )
+from ..utils.retry_utils import (
+    RetryConfig,
+    TimeoutConfig,
+    get_default_retry_config,
+    get_default_timeout_config,
+)
 from ..utils.secure_logging import get_secure_logger, mask_token
 
 
@@ -17,6 +23,8 @@ class MeilisearchClient:
         url: str = "https://meilisearch-prod.ffbb.app/",
         debug: bool = False,
         cached_session: CachedSession = default_cached_session,
+        retry_config: RetryConfig = None,
+        timeout_config: TimeoutConfig = None,
     ):
         """
         Initializes an instance of the MeilisearchClient class.
@@ -27,6 +35,8 @@ class MeilisearchClient:
                 Defaults to "https://meilisearch-prod.ffbb.app/".
             debug (bool, optional): Whether to enable debug mode. Defaults to False.
             cached_session (CachedSession, optional): The cached session to use.
+            retry_config (RetryConfig, optional): Retry configuration. Defaults to None.
+            timeout_config (TimeoutConfig, optional): Timeout configuration. Defaults to None.
         """
         if not bearer_token or not bearer_token.strip():
             raise ValueError("bearer_token cannot be None, empty, or whitespace-only")
@@ -40,6 +50,10 @@ class MeilisearchClient:
             "Authorization": f"Bearer {self._bearer_token}",
             "Content-Type": "application/json",
         }
+
+        # Configure retry and timeout settings
+        self.retry_config = retry_config or get_default_retry_config()
+        self.timeout_config = timeout_config or get_default_timeout_config()
 
         # Initialize secure logger
         self.logger = get_secure_logger(f"{self.__class__.__name__}")
@@ -68,6 +82,8 @@ class MeilisearchClient:
                     params,
                     debug=self.debug,
                     cached_session=cached_session or self.cached_session,
+                    retry_config=self.retry_config,
+                    timeout_config=self.timeout_config,
                 )
             )
         )

@@ -1,6 +1,7 @@
 """Helper modules and class extensions."""
 
-from .http_requests_helper import catch_result, create_cache_key, default_cached_session
+from ..utils.cache_manager import create_cache_key, default_cached_session
+from .http_requests_helper import catch_result
 from .http_requests_utils import (
     encode_params,
     http_get,

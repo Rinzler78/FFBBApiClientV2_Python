@@ -12,7 +12,7 @@ from ffbb_api_client_v2.utils.secure_logging import (
 )
 
 
-class TestSecureLogging(unittest.TestCase):
+class Test012SecureLogging(unittest.TestCase):
     """Test cases for secure logging functionality."""
 
     def setUp(self):

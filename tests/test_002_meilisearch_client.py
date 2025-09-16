@@ -9,7 +9,7 @@ class Test002MeilisearchClient(unittest.TestCase):
         mls_token = os.getenv("MEILISEARCH_BEARER_TOKEN")
 
         if not mls_token:
-            raise Exception("MEILISEARCH_TOKEN environment variable not set")
+            self.skipTest("MEILISEARCH_BEARER_TOKEN environment variable not set")
 
         # NOTE: Set debug=True for detailed logging if needed during debugging
         self.api_client: MeilisearchClient = MeilisearchClient(
@@ -22,6 +22,8 @@ class Test002MeilisearchClient(unittest.TestCase):
         self.setUp()
 
     def test_multi_search_with_empty_queries(self):
+        if not hasattr(self, "api_client") or self.api_client is None:
+            self.skipTest("Meilisearch client not initialized - missing token")
         result = self.api_client.multi_search()
         self.assertIsNotNone(result)
 
@@ -37,6 +39,8 @@ class Test002MeilisearchClient(unittest.TestCase):
             self.assertTrue(query.is_valid_result(result))
 
     def test_multi_search_with_all_possible_empty_queries(self):
+        if not hasattr(self, "api_client") or self.api_client is None:
+            self.skipTest("Meilisearch client not initialized - missing token")
         queries = generate_queries()
         result = self.api_client.multi_search(queries)
         self.__validate_result(queries, result)
