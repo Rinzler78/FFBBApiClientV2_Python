@@ -342,7 +342,9 @@ class GetCompetitionResponse:
                                         "cartographie", {}
                                     )
                                     salle_cartographie = (
-                                        cls.PhasesitemModel.PoulesitemModel.RencontresitemModel.SalleModel.CartographieModel(
+                                        (
+                                            cls.PhasesitemModel.PoulesitemModel.RencontresitemModel.SalleModel.CartographieModel
+                                        )(
                                             latitude=float(
                                                 salle_cartographie_data.get(
                                                     "latitude", 0.0
@@ -381,7 +383,9 @@ class GetCompetitionResponse:
                                             "fonction", {}
                                         )
                                         fonction = (
-                                            cls.PhasesitemModel.PoulesitemModel.RencontresitemModel.OfficielsitemModel.FonctionModel(
+                                            (
+                                                cls.PhasesitemModel.PoulesitemModel.RencontresitemModel.OfficielsitemModel.FonctionModel
+                                            )(
                                                 libelle=str(
                                                     fonction_data.get("libelle", "")
                                                 ),
@@ -394,7 +398,9 @@ class GetCompetitionResponse:
                                             "officiel", {}
                                         )
                                         officiel_person = (
-                                            cls.PhasesitemModel.PoulesitemModel.RencontresitemModel.OfficielsitemModel.OfficielModel(
+                                            (
+                                                cls.PhasesitemModel.PoulesitemModel.RencontresitemModel.OfficielsitemModel.OfficielModel
+                                            )(
                                                 nom=str(
                                                     officiel_person_data.get("nom", "")
                                                 ),
@@ -408,7 +414,9 @@ class GetCompetitionResponse:
                                             else None
                                         )
 
-                                        officiel = cls.PhasesitemModel.PoulesitemModel.RencontresitemModel.OfficielsitemModel(
+                                        officiel = (
+                                            cls.PhasesitemModel.PoulesitemModel.RencontresitemModel.OfficielsitemModel
+                                        )(
                                             ordre=int(officiel_data.get("ordre", 0)),
                                             fonction=fonction,
                                             officiel=officiel_person,
