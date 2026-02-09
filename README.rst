@@ -88,7 +88,7 @@ Quick Start
         print(f"  - Teams: {len(organisme_details.engagements)}")
 
     # Get live matches
-    lives = ffbb_api_client.get_lives()
+    lives = client.get_lives()
     print(f"Current live matches: {len(lives)}")
 
     # Get current seasons
@@ -110,13 +110,13 @@ Advanced Usage
 
     # Get organization with basic fields only
     basic_fields = QueryFieldsManager.get_organisme_fields(FieldSet.BASIC)
-    organisme = ffbb_api_client.get_organisme(
+    organisme = client.get_organisme(
         organisme_id=12345,
         fields=basic_fields
     )
 
     # Get organization with detailed information
-    organisme_full = ffbb_api_client.get_organisme(
+    organisme_full = client.get_organisme(
         organisme_id=12345
     )
 
@@ -125,13 +125,13 @@ Advanced Usage
 .. code-block:: python
 
     # Get competition details with default fields
-    competition = ffbb_api_client.get_competition(competition_id=98765)
+    competition = client.get_competition(competition_id=98765)
     print(f"Competition: {competition.nom}")
     print(f"Season: {competition.saison}")
     print(f"Type: {competition.typeCompetition}")
 
     # Get active seasons only
-    active_saisons = ffbb_api_client.get_saisons(
+    active_saisons = client.get_saisons(
         filter_criteria='{"actif":{"_eq":true}}'
     )
 
@@ -140,14 +140,14 @@ Advanced Usage
 .. code-block:: python
 
     # Multi-search across all resource types
-    results = ffbb_api_client.multi_search("Lyon")
+    results = client.multi_search("Lyon")
     for result in results:
         print(f"Found: {result.query} in {type(result).__name__}")
 
     # Search specific resource types
-    clubs = ffbb_api_client.search_organismes("Lyon")
-    matches = ffbb_api_client.search_rencontres("Lyon")
-    venues = ffbb_api_client.search_salles("Lyon")
+    clubs = client.search_organismes("Lyon")
+    matches = client.search_rencontres("Lyon")
+    venues = client.search_salles("Lyon")
 
 Package Structure
 =================
