@@ -41,9 +41,6 @@ from .get_competition_response import GetCompetitionResponse
 from .get_configuration_response import GetConfigurationResponse
 from .get_organisme_response import GetOrganismeResponse
 from .get_poule_response import GetPouleResponse
-from .get_saisons_response import GetSaisonsResponse
-from .gradient_color import GradientColor
-from .hit import Hit
 from .id_engagement_equipe import IDEngagementEquipe
 from .id_organisme_equipe import IDOrganismeEquipe
 from .id_organisme_equipe1_logo import IDOrganismeEquipe1Logo
@@ -146,9 +143,6 @@ __all__ = [
     "GetConfigurationResponse",
     "GetOrganismeResponse",
     "GetPouleResponse",
-    "GetSaisonsResponse",
-    "GradientColor",
-    "Hit",
     "IDEngagementEquipe",
     "IDOrganismeEquipe",
     "IDOrganismeEquipe1Logo",
