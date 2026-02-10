@@ -293,60 +293,45 @@ class TestTournoisToDictCoverage(unittest.TestCase):
         self.assertIn("tournoiType", d)
 
     def test_tournois_hit_to_dict(self) -> None:
-        from ffbb_api_client_v2.models.cartographie import Cartographie
         from ffbb_api_client_v2.models.commune import Commune
         from ffbb_api_client_v2.models.geo import Geo
-        from ffbb_api_client_v2.models.nature_sol import NatureSol
+        from ffbb_api_client_v2.models.terrains_sexe_enum import SexeEnum
+        from ffbb_api_client_v2.models.tournoi_type_enum import TournoiTypeEnum
         from ffbb_api_client_v2.models.tournois_hit import TournoisHit
-        from ffbb_api_client_v2.models.tournois_hit_type import HitType
 
         now = datetime(2024, 6, 1, 12, 0, 0)
         commune = Commune.from_dict({"libelle": "Paris", "departement": "75"})
         geo = Geo.from_dict({"lat": 48.85, "lng": 2.35})
         hit = TournoisHit(
-            nom="Terrain A",
-            rue="1 rue du Sport",
+            nom="Tournoi A",
+            sexe=SexeEnum.MIXTE,
+            adresse="Parc de Bercy",
+            nom_organisateur="FFBB",
+            description="Tournoi outdoor",
             id=42,
-            acces_libre=True,
+            code="T-001",
             date_created=now,
             date_updated=now,
-            largeur=20,
-            longueur=40,
-            numero=1,
-            cartographie=Cartographie(
-                adresse="addr",
-                code_postal="75001",
-                coordonnees=None,
-                date_created=None,
-                date_updated=None,
-                cartographie_id="c1",
-                latitude=48.85,
-                longitude=2.35,
-                title="T",
-                ville="Paris",
-                status="published",
-            ),
+            age_max=99,
+            age_min=10,
             commune=commune,
-            nature_sol=NatureSol.from_dict({"libelle": "Béton"}),
+            tournoi_type=TournoiTypeEnum.OPEN_PLUS,
             geo=geo,
             thumbnail=None,
-            type=HitType.TERRAIN,
         )
         d = hit.to_dict()
-        self.assertEqual(d["nom"], "Terrain A")
-        self.assertEqual(d["rue"], "1 rue du Sport")
+        self.assertEqual(d["nom"], "Tournoi A")
+        self.assertEqual(d["sexe"], "Mixte")
+        self.assertEqual(d["adresse"], "Parc de Bercy")
+        self.assertEqual(d["nomOrganisateur"], "FFBB")
         self.assertIn("id", d)
-        self.assertIs(d["accesLibre"], True)
         self.assertIn("date_created", d)
         self.assertIn("date_updated", d)
-        self.assertEqual(d["largeur"], 20)
-        self.assertEqual(d["longueur"], 40)
-        self.assertEqual(d["numero"], 1)
-        self.assertIn("cartographie", d)
+        self.assertEqual(d["ageMax"], 99)
+        self.assertEqual(d["ageMin"], 10)
         self.assertIn("commune", d)
-        self.assertIn("natureSol", d)
         self.assertIn("_geo", d)
-        self.assertEqual(d["type"], "Terrain")
+        self.assertEqual(d["tournoiType"], "Open Plus")
 
 
 # ---------------------------------------------------------------------------
@@ -634,7 +619,6 @@ class TestMultiSearchResultRencontresToDictCoverage(unittest.TestCase):
             "id": "r-1",
             "date": "2024-06-15T20:00:00",
             "date_rencontre": "2024-06-15T20:00:00",
-            "horaire": "20:00:00",
             "nomEquipe1": "Team A",
             "nomEquipe2": "Team B",
             "numeroJournee": "5",
@@ -669,7 +653,6 @@ class TestMultiSearchResultRencontresToDictCoverage(unittest.TestCase):
         self.assertEqual(d["id"], "r-1")
         self.assertIn("date", d)
         self.assertIn("date_rencontre", d)
-        self.assertEqual(d["horaire"], "20:00:00")
         self.assertEqual(d["numeroJournee"], "5")
         self.assertIn("competitionId", d)
         self.assertIn("idOrganismeEquipe1", d)

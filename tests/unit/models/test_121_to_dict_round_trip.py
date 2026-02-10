@@ -598,33 +598,19 @@ class Test022ToDictRoundTrip(unittest.TestCase):
         )
 
     def test_077_terrains_hit(self) -> None:
-        """TerrainsHit with nested NatureSol, DocumentFlyer."""
+        """TerrainsHit with nested NatureSol, Commune, Geo."""
         self._assert_stable(
             TerrainsHit,
             {
-                "nom": "Terrain Paris 3x3",
-                "sexe": "Mixte",
-                "adresse": "Parc de Bercy",
-                "nomOrganisateur": "FFBB",
-                "description": "Terrain outdoor 3x3",
-                "siteChoisi": None,
-                "id": "555",
-                "code": "T-001",
-                "date_created": "2024-03-01T00:00:00",
+                "nom": "Terrain Bercy",
+                "rue": "Quai de Bercy",
+                "id": "888",
+                "accesLibre": True,
+                "date_created": "2024-01-01T00:00:00",
                 "date_updated": "2024-06-01T00:00:00",
-                "ageMax": 99,
-                "ageMin": 10,
-                "categorieChampionnat3x3Id": None,
-                "categorieChampionnat3x3Libelle": None,
-                "debut": "2024-06-15T09:00:00",
-                "fin": "2024-06-15T18:00:00",
-                "mailOrganisateur": "terrain@ffbb.fr",
-                "nbParticipantPrevu": None,
-                "tarifOrganisateur": None,
-                "telephoneOrganisateur": "0100000002",
-                "urlOrganisateur": None,
-                "adresseComplement": None,
-                "tournoiTypes3x3": None,
+                "largeur": 15,
+                "longueur": 28,
+                "numero": 1,
                 "cartographie": None,
                 "commune": {
                     "codeInsee": None,
@@ -635,12 +621,17 @@ class Test022ToDictRoundTrip(unittest.TestCase):
                     "libelle": "Paris 12e",
                     "departement": "Paris",
                 },
-                "document_flyer": None,
-                "tournoiType": None,
-                "_geo": {"lat": 48.8340, "lng": 2.3860},
-                "debut_timestamp": 1718438400,
-                "fin_timestamp": 1718470800,
+                "natureSol": {
+                    "code": "BIT",
+                    "date_created": "2024-01-01T00:00:00",
+                    "date_updated": None,
+                    "id": "ns-1",
+                    "libelle": "Bitume",
+                    "terrain": "true",
+                },
+                "_geo": {"lat": 48.834, "lng": 2.386},
                 "thumbnail": None,
+                "type": "Terrain",
             },
         )
 
@@ -653,7 +644,6 @@ class Test022ToDictRoundTrip(unittest.TestCase):
                 "id": "renc-001",
                 "date": "2025-01-20T20:30:00",
                 "date_rencontre": "2025-01-20T20:30:00",
-                "horaire": None,
                 "nomEquipe1": "Paris BC 1",
                 "nomEquipe2": "Lyon BC 1",
                 "numeroJournee": "5",
@@ -741,19 +731,33 @@ class Test022ToDictRoundTrip(unittest.TestCase):
         )
 
     def test_080_tournois_hit(self) -> None:
-        """TournoisHit with nested NatureSol, Commune, Geo."""
+        """TournoisHit with nested DocumentFlyer, Commune, Geo."""
         self._assert_stable(
             TournoisHit,
             {
-                "nom": "Terrain Bercy",
-                "rue": "Quai de Bercy",
-                "id": "888",
-                "accesLibre": True,
-                "date_created": "2024-01-01T00:00:00",
+                "nom": "Tournoi Paris 3x3",
+                "sexe": "Mixte",
+                "adresse": "Parc de Bercy",
+                "nomOrganisateur": "FFBB",
+                "description": "Tournoi outdoor 3x3",
+                "siteChoisi": None,
+                "id": "555",
+                "code": "T-001",
+                "date_created": "2024-03-01T00:00:00",
                 "date_updated": "2024-06-01T00:00:00",
-                "largeur": 15,
-                "longueur": 28,
-                "numero": 1,
+                "ageMax": 99,
+                "ageMin": 10,
+                "categorieChampionnat3x3Id": None,
+                "categorieChampionnat3x3Libelle": None,
+                "debut": "2024-06-15T09:00:00",
+                "fin": "2024-06-15T18:00:00",
+                "mailOrganisateur": "tournoi@ffbb.fr",
+                "nbParticipantPrevu": None,
+                "tarifOrganisateur": None,
+                "telephoneOrganisateur": "0100000002",
+                "urlOrganisateur": None,
+                "adresseComplement": None,
+                "tournoiTypes3x3": None,
                 "cartographie": None,
                 "commune": {
                     "codeInsee": None,
@@ -764,17 +768,12 @@ class Test022ToDictRoundTrip(unittest.TestCase):
                     "libelle": "Paris 12e",
                     "departement": "Paris",
                 },
-                "natureSol": {
-                    "code": "BIT",
-                    "date_created": "2024-01-01T00:00:00",
-                    "date_updated": None,
-                    "id": "ns-1",
-                    "libelle": "Bitume",
-                    "terrain": "true",
-                },
+                "document_flyer": None,
+                "tournoiType": None,
                 "_geo": {"lat": 48.834, "lng": 2.386},
+                "debut_timestamp": 1718438400,
+                "fin_timestamp": 1718470800,
                 "thumbnail": None,
-                "type": "Terrain",
             },
         )
 

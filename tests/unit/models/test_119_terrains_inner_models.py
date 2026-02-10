@@ -77,36 +77,15 @@ class Test041TerrainsInnerModels(unittest.TestCase):
         self._assert_stable(
             TerrainsHit,
             {
-                "nom": "Terrain Paris 3x3",
-                "sexe": "Mixte",
-                "adresse": "Parc de Bercy",
-                "nomOrganisateur": "FFBB",
-                "description": "Terrain outdoor 3x3",
-                "siteChoisi": "Paris Bercy",
+                "nom": "Terrain Paris",
+                "rue": "Quai de Bercy",
                 "id": "555",
-                "code": "T-001",
+                "accesLibre": True,
                 "date_created": "2024-03-01T00:00:00",
                 "date_updated": "2024-06-01T00:00:00",
-                "ageMax": 99,
-                "ageMin": 10,
-                "categorieChampionnat3x3Id": None,
-                "categorieChampionnat3x3Libelle": "U18",
-                "debut": "2024-06-15T09:00:00",
-                "fin": "2024-06-15T18:00:00",
-                "mailOrganisateur": "terrain@ffbb.fr",
-                "nbParticipantPrevu": None,
-                "tarifOrganisateur": "10",
-                "telephoneOrganisateur": "0100000002",
-                "urlOrganisateur": "https://ffbb.fr",
-                "adresseComplement": None,
-                "tournoiTypes3x3": [
-                    {
-                        "libelle": "Open Plus - Junior league 3x3",
-                        "logo": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-                        "type_league": "junior",
-                        "type_tournois": "1",
-                    }
-                ],
+                "largeur": 15,
+                "longueur": 28,
+                "numero": 1,
                 "cartographie": {
                     "adresse": "Parc de Bercy",
                     "codePostal": "75012",
@@ -128,12 +107,17 @@ class Test041TerrainsInnerModels(unittest.TestCase):
                     "libelle": "Paris 12e",
                     "departement": "Paris",
                 },
-                "document_flyer": None,
-                "tournoiType": "Open Plus",
+                "natureSol": {
+                    "code": "BIT",
+                    "date_created": "2024-01-01T00:00:00",
+                    "date_updated": None,
+                    "id": "ns-1",
+                    "libelle": "Bitume",
+                    "terrain": "true",
+                },
                 "_geo": {"lat": 48.834, "lng": 2.386},
-                "debut_timestamp": 1718438400,
-                "fin_timestamp": 1718470800,
                 "thumbnail": None,
+                "type": "Terrain",
             },
         )
 
@@ -147,8 +131,6 @@ class Test041TerrainsInnerModels(unittest.TestCase):
                     {
                         "id": "111",
                         "nom": "Terrain Y",
-                        "nbParticipantPrevu": None,
-                        "adresseComplement": None,
                         "thumbnail": None,
                     }
                 ],

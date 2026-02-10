@@ -208,8 +208,6 @@ class Test021RawApiRestConversion(unittest.TestCase):
             self.assertIsInstance(s, GetSaisonsResponse)
             self.assertIsInstance(s.id, str)
             self.assertTrue(len(s.id) > 0)
-            if s.nom is not None:
-                self.assertIsInstance(s.nom, str)
             if s.actif is not None:
                 self.assertIsInstance(s.actif, bool)
 
@@ -704,7 +702,6 @@ class Test021FromDictEdgeCases(unittest.TestCase):
         s = GetSaisonsResponse.from_dict({"id": "42"})
         self.assertIsNotNone(s)
         self.assertEqual(s.id, "42")
-        self.assertIsNone(s.nom)
         self.assertIsNone(s.actif)
 
         # Configuration with just required fields

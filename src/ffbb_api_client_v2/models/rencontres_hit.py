@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, time
+from datetime import datetime
 from typing import Any
 
 from ..utils.converter_utils import (
@@ -11,7 +11,6 @@ from ..utils.converter_utils import (
     from_obj,
     from_officiels_list,
     from_str,
-    from_time,
 )
 from .competition_id import CompetitionID
 from .geo import Geo
@@ -32,7 +31,6 @@ class RencontresHit(Hit):
     id: str | None = None
     date: datetime | None = None
     date_rencontre: datetime | None = None
-    horaire: time | None = None
     nom_equipe1: str | None = None
     nom_equipe2: str | None = None
     numero_journee: int | None = None
@@ -89,7 +87,6 @@ class RencontresHit(Hit):
             id = from_str(obj, "id")
             date = from_datetime(obj, "date")
             date_rencontre = from_datetime(obj, "date_rencontre")
-            horaire = from_time(obj, "horaire")
             nom_equipe1 = from_str(obj, "nomEquipe1")
             nom_equipe2 = from_str(obj, "nomEquipe2")
 
@@ -129,7 +126,6 @@ class RencontresHit(Hit):
                 id=id,
                 date=date,
                 date_rencontre=date_rencontre,
-                horaire=horaire,
                 nom_equipe1=nom_equipe1,
                 nom_equipe2=nom_equipe2,
                 numero_journee=numero_journee,
@@ -167,8 +163,6 @@ class RencontresHit(Hit):
             result["date"] = self.date.isoformat()
         if self.date_rencontre is not None:
             result["date_rencontre"] = self.date_rencontre.isoformat()
-        if self.horaire is not None:
-            result["horaire"] = self.horaire.isoformat()
         if self.nom_equipe1 is not None:
             result["nomEquipe1"] = self.nom_equipe1
         if self.nom_equipe2 is not None:

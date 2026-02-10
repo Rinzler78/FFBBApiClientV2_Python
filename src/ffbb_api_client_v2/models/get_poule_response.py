@@ -17,6 +17,11 @@ class GetPouleResponse:
 
     rencontres: list[PouleRencontreItemModel]
     classements: list[TeamRanking] | None = None
+    nom: str | None = None
+    engagements: list[dict[str, Any]] | None = None
+    id_competition: str | None = None
+    date_created: str | None = None
+    date_updated: str | None = None
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> GetPouleResponse | None:
@@ -65,4 +70,17 @@ class GetPouleResponse:
             id=str(data.get("id", "")),
             rencontres=rencontres,
             classements=classements if classements else None,
+            nom=str(data.get("nom", "")) if data.get("nom") else None,
+            engagements=data.get("engagements") if data.get("engagements") else None,
+            id_competition=(
+                str(data.get("id_competition", ""))
+                if data.get("id_competition")
+                else None
+            ),
+            date_created=(
+                str(data.get("date_created", "")) if data.get("date_created") else None
+            ),
+            date_updated=(
+                str(data.get("date_updated", "")) if data.get("date_updated") else None
+            ),
         )
