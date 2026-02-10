@@ -1,30 +1,26 @@
-.. These are examples of badges you might want to add to your README:
-   please update the URLs accordingly
-
-    .. image:: https://api.cirrus-ci.com/github/<USER>/FFBBApiClientV2_Python.svg?branch=main
-        :alt: Built Status
-        :target: https://cirrus-ci.com/github/<USER>/FFBBApiClientV2_Python
-    .. image:: https://readthedocs.org/projects/FFBBApiClientV2_Python/badge/?version=latest
-        :alt: ReadTheDocs
-        :target: https://FFBBApiClientV2_Python.readthedocs.io/en/stable/
-    .. image:: https://img.shields.io/coveralls/github/<USER>/FFBBApiClientV2_Python/main.svg
-        :alt: Coveralls
-        :target: https://coveralls.io/r/<USER>/FFBBApiClientV2_Python
-    .. image:: https://img.shields.io/pypi/v/FFBBApiClientV2_Python.svg
-        :alt: PyPI-Server
-        :target: https://pypi.org/project/FFBBApiClientV2_Python/
-    .. image:: https://img.shields.io/conda/vn/conda-forge/FFBBApiClientV2_Python.svg
-        :alt: Conda-Forge
-        :target: https://anaconda.org/conda-forge/FFBBApiClientV2_Python
-    .. image:: https://pepy.tech/badge/FFBBApiClientV2_Python/month
-        :alt: Monthly Downloads
-        :target: https://pepy.tech/project/FFBBApiClientV2_Python
-    .. image:: https://img.shields.io/twitter/url/http/shields.io.svg?style=social&label=Twitter
-        :alt: Twitter
-        :target: https://twitter.com/FFBBApiClientV2_Python
 .. image:: https://img.shields.io/pypi/v/ffbb_api_client_v2.svg
-    :alt: PyPI-Server
+    :alt: PyPI version
     :target: https://pypi.org/project/ffbb_api_client_v2/
+
+.. image:: https://img.shields.io/pypi/pyversions/ffbb_api_client_v2.svg
+    :alt: Python versions
+    :target: https://pypi.org/project/ffbb_api_client_v2/
+
+.. image:: https://img.shields.io/pypi/l/ffbb_api_client_v2.svg
+    :alt: License
+    :target: https://github.com/Rinzler78/FFBBApiClientV2_Python/blob/master/LICENSE.txt
+
+.. image:: https://github.com/Rinzler78/FFBBApiClientV2_Python/actions/workflows/ci.yml/badge.svg
+    :alt: CI status
+    :target: https://github.com/Rinzler78/FFBBApiClientV2_Python/actions/workflows/ci.yml
+
+.. image:: https://coveralls.io/repos/github/Rinzler78/FFBBApiClientV2_Python/badge.svg?branch=master
+    :alt: Coverage
+    :target: https://coveralls.io/github/Rinzler78/FFBBApiClientV2_Python?branch=master
+
+.. image:: https://pepy.tech/badge/ffbb_api_client_v2/month
+    :alt: Monthly downloads
+    :target: https://pepy.tech/project/ffbb_api_client_v2
 
 .. image:: https://img.shields.io/badge/-PyScaffold-005CA0?logo=pyscaffold
     :alt: Project generated with PyScaffold
@@ -40,17 +36,26 @@ FFBBApiClientV2_Python
     Modern Python client library for FFBB (French Basketball Federation) APIs
 
 
+**559 tests** | **95%+ coverage** | **MyPy strict** | **Python 3.10+** | **9 Meilisearch indexes**
+
 ffbb_api_client_v2 is a modern Python client library for interacting with the French Basketball Federation (FFBB) APIs.
 It provides a comprehensive interface to retrieve information about clubs, teams, competitions, matches, seasons, and more.
 
 **Key Features:**
 
-- 🏀 **Complete API Coverage**: Access all FFBB services including competitions, organismes, seasons, lives, and search
-- 🔧 **Type-Safe Models**: Strongly-typed data models with automatic validation and error handling
-- 🎯 **Flexible Field Selection**: Customizable field queries (BASIC, DEFAULT, DETAILED) for optimized API calls
-- 📦 **Modern Architecture**: Clean, modular design with organized package structure
-- ⚡ **Request Caching**: Built-in caching support for improved performance
-- 🧪 **Thoroughly Tested**: Comprehensive unit and integration tests ensuring reliability
+- **Complete API Coverage**: Access all FFBB services including competitions, organismes, seasons, lives, and search
+- **Type-Safe Models**: Strongly-typed data models with automatic validation and error handling
+- **Flexible Field Selection**: Customizable field queries (BASIC, DEFAULT, DETAILED) for optimized API calls
+- **Modern Architecture**: Clean, modular design with organized package structure
+- **Request Caching**: Built-in caching support for improved performance
+- **Thoroughly Tested**: Comprehensive unit and integration tests ensuring reliability
+
+What's New
+==========
+
+- **v1.2.0**: TokenManager with automatic token resolution from FFBB public endpoint
+- **9 Meilisearch indexes** including engagements and formations
+- **Basketball analytics notebooks** for Elo rating and season projection
 
 
 Installation
@@ -300,45 +305,33 @@ API Reference
 Testing
 =======
 
-The library includes comprehensive test coverage:
+The library includes comprehensive test coverage: **559 unit tests, 95%+ coverage**.
 
 .. code-block:: bash
 
-    # Run specific unit tests
-    python -m unittest tests.test_001_unit_tests_core -v
+    # Unit tests (parallel)
+    python -m pytest tests/unit/ -x -q -n auto
 
-    # Run integration tests (requires API tokens)
-    python -m unittest tests.test_011_enhanced_integration -v
+    # Integration tests (requires API tokens)
+    python -m pytest tests/integration/ -q
 
-    # Run all tests with discovery
-    python -m unittest discover tests/ -v
-
-    # Alternative: use tox for comprehensive testing
-    tox
+    # Coverage report
+    python -m pytest tests/ --cov=ffbb_api_client_v2 --cov-branch -q
 
 Examples
 ========
 
-For more examples, check out the test files in the ``tests/`` directory, particularly:
+Interactive notebooks and scripts are available in the ``examples/`` directory:
 
-- ``test_011_enhanced_integration.py`` - Real-world usage scenarios
-- ``test_001_unit_tests_core.py`` - Unit test examples showing all client methods
-- ``test_005_integration_user_journey.py`` - Complete user journey scenarios
-- ``test_010_integration_user_journey.py`` - Multi-city comparison examples
-
-This project has been set up using PyScaffold 4.5. For details and usage
-information on PyScaffold see https://pyscaffold.org/.
+- ``examples/simple_rating_notebook.ipynb`` - Elo rating analysis for a championship
+- ``examples/projection_notebook.ipynb`` - End-of-season projection
+- ``examples/basketball_dashboard.py`` - Interactive Streamlit dashboard
 
 Licence
 =======
 
 ffbb_api_client_v2 is distributed under the Apache 2.0 license.
 
-Dev notes
-=========
+.. note::
 
-Command used to create this project:
-
-.. code-block:: bash
-
-    putup FFBBApiClientV2_Python -p ffbb_api_client_v2 -l Apache-2.0 -d "Allow to interact with the new FFBB apis" -u "https://github.com/Rinzler78/FFBBApiClientV2_Python" -v --github-actions --venv .venv
+    This project has been set up using `PyScaffold <https://pyscaffold.org/>`_ 4.5.
