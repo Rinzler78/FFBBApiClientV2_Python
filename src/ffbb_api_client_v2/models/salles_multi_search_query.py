@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from ..config import MEILISEARCH_INDEX_SALLES
+from ..config import MEILISEARCH_FACETS_SALLES, MEILISEARCH_INDEX_SALLES
 from .multi_search_query import MultiSearchQuery
 from .multi_search_result_salles import SallesMultiSearchResult
 from .multi_search_results import MultiSearchResult
@@ -20,6 +20,7 @@ class SallesMultiSearchQuery(MultiSearchQuery):
         super().__init__(
             index_uid=MEILISEARCH_INDEX_SALLES,
             q=q,
+            facets=MEILISEARCH_FACETS_SALLES,
             limit=limit,
             offset=offset,
             filter=filter,

@@ -96,20 +96,83 @@ class TestSallesFacetStats(unittest.TestCase):
 
 
 class TestSallesFacetDistribution(unittest.TestCase):
-    def test_from_dict_returns_instance(self) -> None:
+    def test_from_dict_empty(self) -> None:
         from ffbb_api_client_v2.models.salles_facet_distribution import (
             SallesFacetDistribution,
         )
 
         obj = SallesFacetDistribution.from_dict({})
         self.assertIsInstance(obj, SallesFacetDistribution)
+        self.assertIsNone(obj.type)
+        self.assertIsNone(obj.commune_code_postal)
+        self.assertIsNone(obj.commune_departement)
+        self.assertIsNone(obj.commune_libelle)
 
-    def test_to_dict_returns_empty(self) -> None:
+    def test_to_dict_empty(self) -> None:
         from ffbb_api_client_v2.models.salles_facet_distribution import (
             SallesFacetDistribution,
         )
 
         self.assertEqual(SallesFacetDistribution().to_dict(), {})
+
+    def test_from_dict_with_data(self) -> None:
+        from ffbb_api_client_v2.models.salles_facet_distribution import (
+            SallesFacetDistribution,
+        )
+
+        data = {
+            "type": {"salle": 100, "annexe": 20},
+            "commune.codePostal": {"75000": 5, "69000": 3},
+            "commune.departement": {"75": 5, "69": 3},
+            "commune.libelle": {"Paris": 5, "Lyon": 3},
+        }
+        obj = SallesFacetDistribution.from_dict(data)
+        self.assertEqual(obj.type, {"salle": 100, "annexe": 20})
+        self.assertEqual(obj.commune_code_postal, {"75000": 5, "69000": 3})
+        self.assertEqual(obj.commune_departement, {"75": 5, "69": 3})
+        self.assertEqual(obj.commune_libelle, {"Paris": 5, "Lyon": 3})
+
+    def test_to_dict_with_data(self) -> None:
+        from ffbb_api_client_v2.models.salles_facet_distribution import (
+            SallesFacetDistribution,
+        )
+
+        obj = SallesFacetDistribution(
+            type={"salle": 100},
+            commune_code_postal={"75000": 5},
+            commune_departement={"75": 5},
+            commune_libelle={"Paris": 5},
+        )
+        d = obj.to_dict()
+        self.assertEqual(d["type"], {"salle": 100})
+        self.assertEqual(d["commune.codePostal"], {"75000": 5})
+        self.assertEqual(d["commune.departement"], {"75": 5})
+        self.assertEqual(d["commune.libelle"], {"Paris": 5})
+
+    def test_roundtrip(self) -> None:
+        from ffbb_api_client_v2.models.salles_facet_distribution import (
+            SallesFacetDistribution,
+        )
+
+        data = {
+            "type": {"salle": 100},
+            "commune.codePostal": {"75000": 5},
+            "commune.departement": {"75": 5},
+            "commune.libelle": {"Paris": 5},
+        }
+        obj = SallesFacetDistribution.from_dict(data)
+        self.assertEqual(obj.to_dict(), data)
+
+    def test_partial_data(self) -> None:
+        from ffbb_api_client_v2.models.salles_facet_distribution import (
+            SallesFacetDistribution,
+        )
+
+        obj = SallesFacetDistribution.from_dict({"type": {"salle": 50}})
+        self.assertEqual(obj.type, {"salle": 50})
+        self.assertIsNone(obj.commune_code_postal)
+        d = obj.to_dict()
+        self.assertEqual(d, {"type": {"salle": 50}})
 
 
 class TestTerrainsFacetStats(unittest.TestCase):

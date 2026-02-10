@@ -239,3 +239,11 @@ class OrganismeFields:
             "membres.telephoneFixe",
             "membres.codeFonction",
         ]
+
+    @staticmethod
+    def get_wildcard(depth: int = 4) -> list[str]:
+        """Get wildcard fields at the specified depth.
+
+        Max useful depth for organismes is 4 (2657 fields at *.*.*.*).
+        """
+        return [".".join(["*"] * min(depth, 5))]

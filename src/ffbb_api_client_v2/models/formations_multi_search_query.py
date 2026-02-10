@@ -1,14 +1,14 @@
 from __future__ import annotations
 
-from ..config import MEILISEARCH_FACETS_COMPETITIONS, MEILISEARCH_INDEX_COMPETITIONS
-from .competitions_facet_distribution import CompetitionsFacetDistribution
-from .competitions_facet_stats import CompetitionsFacetStats
+from ..config import MEILISEARCH_FACETS_FORMATIONS, MEILISEARCH_INDEX_FORMATIONS
+from .formations_facet_distribution import FormationsFacetDistribution
+from .formations_facet_stats import FormationsFacetStats
 from .multi_search_query import MultiSearchQuery
-from .multi_search_result_competitions import CompetitionsMultiSearchResult
+from .multi_search_result_formations import FormationsMultiSearchResult
 from .multi_search_results import MultiSearchResult
 
 
-class CompetitionsMultiSearchQuery(MultiSearchQuery):
+class FormationsMultiSearchQuery(MultiSearchQuery):
     def __init__(
         self,
         q: str | None,
@@ -18,9 +18,9 @@ class CompetitionsMultiSearchQuery(MultiSearchQuery):
         sort: list[str] | None = None,
     ):
         super().__init__(
-            index_uid=MEILISEARCH_INDEX_COMPETITIONS,
+            index_uid=MEILISEARCH_INDEX_FORMATIONS,
             q=q,
-            facets=MEILISEARCH_FACETS_COMPETITIONS,
+            facets=MEILISEARCH_FACETS_FORMATIONS,
             limit=limit,
             offset=offset,
             filter=filter,
@@ -29,13 +29,13 @@ class CompetitionsMultiSearchQuery(MultiSearchQuery):
 
     def is_valid_result(self, result: MultiSearchResult):
         return result and (
-            isinstance(result, CompetitionsMultiSearchResult)
+            isinstance(result, FormationsMultiSearchResult)
             and (
                 result.facet_distribution is None
-                or isinstance(result.facet_distribution, CompetitionsFacetDistribution)
+                or isinstance(result.facet_distribution, FormationsFacetDistribution)
             )
             and (
                 result.facet_stats is None
-                or isinstance(result.facet_stats, CompetitionsFacetStats)
+                or isinstance(result.facet_stats, FormationsFacetStats)
             )
         )

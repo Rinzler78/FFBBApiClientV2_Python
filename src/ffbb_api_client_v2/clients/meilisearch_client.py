@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+from typing import Any
 
 from requests_cache import CachedSession
 
@@ -10,7 +11,8 @@ from ..config import (
     MEILISEARCH_ENDPOINT_MULTI_SEARCH,
 )
 from ..helpers.http_requests_helper import catch_result
-from ..helpers.http_requests_utils import http_post_json
+from ..helpers.http_requests_utils import http_get_json, http_post_json
+from ..models.meilisearch_index_settings import MeilisearchIndexSettings
 from ..models.multi_search_query import MultiSearchQuery
 from ..models.multi_search_results_class import (
     MultiSearchResults,
@@ -110,3 +112,78 @@ class MeilisearchClient:
                 )
             )
         )
+
+    def _get_json(
+        self,
+        path: str,
+        cached_session: CachedSession | None = None,
+    ) -> dict[str, Any] | None:
+        """Perform an authenticated GET request to a Meilisearch endpoint."""
+        url = f"{self.url}{path}"
+        return catch_result(
+            lambda: http_get_json(
+                url,
+                self.headers,
+                debug=self.debug,
+                cached_session=cached_session or self.cached_session,
+                retry_config=self.retry_config,
+                timeout_config=self.timeout_config,
+            )
+        )
+
+    def get_index_settings(
+        self,
+        index_uid: str,
+        cached_session: CachedSession | None = None,
+    ) -> MeilisearchIndexSettings | None:
+        """Get settings for a Meilisearch index.
+
+        Falls back to facets discovery if the settings API is unavailable
+        (requires an admin API key).
+        """
+        result = self._get_json(f"indexes/{index_uid}/settings", cached_session)
+        if result is not None and "code" not in result:
+            return catch_result(lambda: MeilisearchIndexSettings.from_dict(result))
+
+        # Fallback: discover filterable attributes via facets: ["*"]
+        self.logger.debug(
+            f"Settings API unavailable for {index_uid}, using facets fallback"
+        )
+        filterable = self._discover_filterable_via_facets(index_uid, cached_session)
+        if filterable is not None:
+            return MeilisearchIndexSettings(filterable_attributes=filterable)
+        return None
+
+    def _discover_filterable_via_facets(
+        self,
+        index_uid: str,
+        cached_session: CachedSession | None = None,
+    ) -> list[str] | None:
+        """Discover filterable attributes by searching with facets: ['*']."""
+        query = MultiSearchQuery(index_uid=index_uid, q="", facets=["*"], limit=0)
+        results = self.multi_search([query], cached_session)
+        if results and results.results:
+            first = results.results[0]
+            if first.facet_distribution is not None:
+                fd = first.facet_distribution
+                if isinstance(fd, dict):
+                    return sorted(fd.keys())
+        return None
+
+    def get_filterable_attributes(
+        self,
+        index_uid: str,
+        cached_session: CachedSession | None = None,
+    ) -> list[str] | None:
+        """Get filterable attributes for a Meilisearch index."""
+        settings = self.get_index_settings(index_uid, cached_session)
+        return settings.filterable_attributes if settings else None
+
+    def get_sortable_attributes(
+        self,
+        index_uid: str,
+        cached_session: CachedSession | None = None,
+    ) -> list[str] | None:
+        """Get sortable attributes for a Meilisearch index."""
+        settings = self.get_index_settings(index_uid, cached_session)
+        return settings.sortable_attributes if settings else None

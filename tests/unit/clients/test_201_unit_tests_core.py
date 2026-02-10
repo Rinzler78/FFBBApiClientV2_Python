@@ -130,7 +130,13 @@ class Test001FfbbApiClientV2Core(unittest.TestCase):
 
             result = self.client.search_organismes("Paris")
 
-            mock_search_multiple.assert_called_once_with(["Paris"], None)
+            mock_search_multiple.assert_called_once_with(
+                ["Paris"],
+                filter=None,
+                sort=None,
+                limit=10,
+                cached_session=None,
+            )
             self.assertEqual(result, mock_result)
 
     def test_009_search_organismes_no_results(self):

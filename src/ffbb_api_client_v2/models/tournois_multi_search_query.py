@@ -24,6 +24,7 @@ class TournoisMultiSearchQuery(MultiSearchQuery):
             limit=limit,
             offset=offset,
             filter=filter,
+            sort=sort,
         )
 
     def is_valid_result(self, result: MultiSearchResult):

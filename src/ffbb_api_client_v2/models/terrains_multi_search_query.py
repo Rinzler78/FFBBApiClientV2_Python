@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from ..config import MEILISEARCH_INDEX_TERRAINS
+from ..config import MEILISEARCH_FACETS_TERRAINS, MEILISEARCH_INDEX_TERRAINS
 from .multi_search_query import MultiSearchQuery
 from .multi_search_result_terrains import TerrainsMultiSearchResult
 from .multi_search_results import MultiSearchResult
@@ -12,7 +12,6 @@ class TerrainsMultiSearchQuery(MultiSearchQuery):
     def __init__(
         self,
         q: str | None,
-        facets: list[str] | None = None,
         limit: int | None = 10,
         offset: int | None = 0,
         filter: list[str] | None = None,
@@ -21,7 +20,7 @@ class TerrainsMultiSearchQuery(MultiSearchQuery):
         super().__init__(
             index_uid=MEILISEARCH_INDEX_TERRAINS,
             q=q,
-            facets=facets,
+            facets=MEILISEARCH_FACETS_TERRAINS,
             limit=limit,
             offset=offset,
             filter=filter,

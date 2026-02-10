@@ -307,3 +307,11 @@ class CompetitionFields:
     def get_detailed_fields(cls) -> list[str]:
         """Get detailed fields (all fields now included in default)."""
         return cls.get_default_fields()
+
+    @staticmethod
+    def get_wildcard(depth: int = 3) -> list[str]:
+        """Get wildcard fields at the specified depth.
+
+        Max useful depth for competitions is 3 (723 fields at *.*.*).
+        """
+        return [".".join(["*"] * min(depth, 5))]

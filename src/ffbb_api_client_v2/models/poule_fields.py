@@ -213,3 +213,11 @@ class PouleFields:
             cls.NOM,
             cls.RENCONTRES_ID,
         ]
+
+    @staticmethod
+    def get_wildcard(depth: int = 1) -> list[str]:
+        """Get wildcard fields at the specified depth.
+
+        Max useful depth for poules is 1 (8 fields at *).
+        """
+        return [".".join(["*"] * min(depth, 5))]

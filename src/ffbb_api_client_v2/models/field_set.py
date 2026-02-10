@@ -8,3 +8,4 @@ class FieldSet(Enum):
     DEFAULT = "default"
     DETAILED = "detailed"
     MINIMAL = "minimal"
+    WILDCARD = "wildcard"

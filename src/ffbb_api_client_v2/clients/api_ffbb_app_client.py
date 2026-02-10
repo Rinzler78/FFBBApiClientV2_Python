@@ -132,6 +132,7 @@ class ApiFFBBAppClient:
         competition_id: int,
         deep_limit: str | None = "1000",
         fields: list[str] | None = None,
+        field_set: FieldSet | None = None,
         cached_session: CachedSession | None = None,
     ) -> GetCompetitionResponse | None:
         """
@@ -142,7 +143,9 @@ class ApiFFBBAppClient:
             deep_limit (str, optional): Limit for nested rencontres.
                 Defaults to "1000".
             fields (List[str], optional): List of fields to retrieve.
-                If None, uses default fields.
+                If None, uses field_set or default fields.
+            field_set (FieldSet, optional): Predefined field set to use.
+                Ignored if fields is provided.
             cached_session (CachedSession, optional): The cached session to use
 
         Returns:
@@ -161,9 +164,8 @@ class ApiFFBBAppClient:
                     params["fields[]"] = []
                 params["fields[]"].append(field)
         else:
-            # Use default fields from descriptor when no fields are specified
             params["fields[]"] = QueryFieldsManager.get_competition_fields(
-                FieldSet.DEFAULT
+                field_set or FieldSet.DEFAULT
             )
 
         final_url = url_with_params(url, params)
@@ -185,6 +187,7 @@ class ApiFFBBAppClient:
         poule_id: int,
         deep_limit: str | None = "1000",
         fields: list[str] | None = None,
+        field_set: FieldSet | None = None,
         cached_session: CachedSession | None = None,
     ) -> GetPouleResponse | None:
         """
@@ -195,7 +198,9 @@ class ApiFFBBAppClient:
             deep_limit (str, optional): Limit for nested rencontres.
                 Defaults to "1000".
             fields (List[str], optional): List of fields to retrieve.
-                If None, uses default fields.
+                If None, uses field_set or default fields.
+            field_set (FieldSet, optional): Predefined field set to use.
+                Ignored if fields is provided.
             cached_session (CachedSession, optional): The cached session to use
 
         Returns:
@@ -211,8 +216,9 @@ class ApiFFBBAppClient:
         if fields:
             params["fields[]"] = fields
         else:
-            # Use default fields from descriptor when no fields are specified
-            params["fields[]"] = QueryFieldsManager.get_poule_fields(FieldSet.DEFAULT)
+            params["fields[]"] = QueryFieldsManager.get_poule_fields(
+                field_set or FieldSet.DEFAULT
+            )
 
         final_url = url_with_params(url, params)
         data = catch_result(
@@ -232,6 +238,7 @@ class ApiFFBBAppClient:
         self,
         fields: list[str] | None = None,
         filter_criteria: str | None = '{"actif":{"_eq":true}}',
+        field_set: FieldSet | None = None,
         cached_session: CachedSession | None = None,
     ) -> list[GetSaisonsResponse]:
         """
@@ -239,9 +246,11 @@ class ApiFFBBAppClient:
 
         Args:
             fields (List[str], optional): List of fields to retrieve.
-                If None, uses default fields.
+                If None, uses field_set or default fields.
             filter_criteria (str, optional): JSON filter criteria.
                 Defaults to active seasons.
+            field_set (FieldSet, optional): Predefined field set to use.
+                Ignored if fields is provided.
             cached_session (CachedSession, optional): The cached session to use
 
         Returns:
@@ -253,8 +262,9 @@ class ApiFFBBAppClient:
         if fields:
             params["fields[]"] = fields
         else:
-            # Use default fields from descriptor when no fields are specified
-            params["fields[]"] = QueryFieldsManager.get_saison_fields(FieldSet.DEFAULT)
+            params["fields[]"] = QueryFieldsManager.get_saison_fields(
+                field_set or FieldSet.DEFAULT
+            )
 
         if filter_criteria:
             params["filter"] = filter_criteria
@@ -279,6 +289,7 @@ class ApiFFBBAppClient:
         self,
         organisme_id: int,
         fields: list[str] | None = None,
+        field_set: FieldSet | None = None,
         cached_session: CachedSession | None = None,
     ) -> GetOrganismeResponse | None:
         """
@@ -287,7 +298,9 @@ class ApiFFBBAppClient:
         Args:
             organisme_id (int): The ID of the organisme
             fields (List[str], optional): List of fields to retrieve.
-                If None, uses default fields.
+                If None, uses field_set or default fields.
+            field_set (FieldSet, optional): Predefined field set to use.
+                Ignored if fields is provided.
             cached_session (CachedSession, optional): The cached session to use
 
         Returns:
@@ -299,9 +312,8 @@ class ApiFFBBAppClient:
         if fields:
             params["fields[]"] = fields
         else:
-            # Use default fields from descriptor when no fields are specified
             params["fields[]"] = QueryFieldsManager.get_organisme_fields(
-                FieldSet.DEFAULT
+                field_set or FieldSet.DEFAULT
             )
 
         final_url = url_with_params(url, params)
