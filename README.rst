@@ -56,9 +56,46 @@ It provides a comprehensive interface to retrieve information about clubs, teams
 Installation
 ============
 
+**For Users (Production):**
+
 .. code-block:: bash
 
     pip install ffbb_api_client_v2
+
+**For Developers (with examples and analysis tools):**
+
+.. code-block:: bash
+
+    # Clone the repository
+    git clone https://github.com/Rinzler78/FFBBApiClientV2_Python.git
+    cd FFBBApiClientV2_Python
+
+    # Run the automated setup script (recommended)
+    ./setup_dev.sh
+
+    # Or set up manually:
+    python3 -m venv .venv
+    source .venv/bin/activate
+    pip install -e .
+    pip install -r requirements.txt
+
+The development setup includes:
+
+- Core FFBB API Client library
+- Data analysis libraries (pandas, numpy, matplotlib, seaborn)
+- Jupyter notebook environment for interactive analysis
+- Testing framework (pytest, coverage)
+- Pre-commit hooks for code quality
+- Type checking tools
+
+**Requirements File:**
+
+The ``requirements.txt`` file contains all development dependencies including:
+
+- Core dependencies (requests, python-dotenv, etc.)
+- Data analysis libraries for examples
+- Testing and development tools
+- Jupyter notebook environment
 
 Quick Start
 ===========
