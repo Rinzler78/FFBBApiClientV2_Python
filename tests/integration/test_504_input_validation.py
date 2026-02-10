@@ -96,9 +96,7 @@ class Test015InputValidationIntegration(unittest.TestCase):
             self.assertIsNotNone(client.api_ffbb_client)
 
             # Test with valid inputs
-            result = client.get_saisons(
-                fields=["id", "nom"], filter_criteria='{"actif":{"_eq":true}}'
-            )
+            result = client.get_saisons(filter_criteria='{"actif":{"_eq":true}}')
 
             # Verify the result is what we expect
             self.assertEqual(result, [])
@@ -106,7 +104,6 @@ class Test015InputValidationIntegration(unittest.TestCase):
             # Verify the API was called
             mock_api_client_instance.get_saisons.assert_called_once()
             call_args = mock_api_client_instance.get_saisons.call_args
-            self.assertEqual(call_args[1]["fields"], ["id", "nom"])
             self.assertEqual(call_args[1]["filter_criteria"], '{"actif":{"_eq":true}}')
 
     def test_get_saisons_invalid_inputs(self):
@@ -118,11 +115,6 @@ class Test015InputValidationIntegration(unittest.TestCase):
                 meilisearch_bearer_token=self.valid_meilisearch_token,
                 api_bearer_token=self.valid_token,
             )
-
-            # Test invalid fields
-            with self.assertRaises(ValidationError) as context:
-                client.get_saisons(fields=[""])
-            self.assertIn("cannot be empty", str(context.exception))
 
             # Test invalid filter criteria
             with self.assertRaises(ValidationError) as context:

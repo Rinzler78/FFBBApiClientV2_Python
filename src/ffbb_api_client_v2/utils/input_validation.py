@@ -244,9 +244,9 @@ def validate_deep_limit(
     if int_value < 1:
         raise ValidationError(f"{field_name} must be at least 1, got {int_value}")
 
-    if int_value > 10000:
+    if int_value > 100000:
         raise ValidationError(
-            f"{field_name} cannot be greater than 10000, got {int_value}"
+            f"{field_name} cannot be greater than 100000, got {int_value}"
         )
 
     return str(int_value)

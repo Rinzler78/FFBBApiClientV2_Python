@@ -238,9 +238,8 @@ class Test011EnhancedIntegration(unittest.TestCase):
 
         organisme_id = int(paris_results.hits[0].id)
 
-        custom_fields = ["id", "nom", "type"]
         organisme = self.api_client.api_ffbb_client.get_organisme(
-            organisme_id=organisme_id, fields=custom_fields
+            organisme_id=organisme_id, field_set=FieldSet.BASIC
         )
 
         self.assertIsNotNone(organisme)

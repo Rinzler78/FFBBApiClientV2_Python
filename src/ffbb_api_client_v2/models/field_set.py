@@ -7,5 +7,4 @@ class FieldSet(Enum):
     BASIC = "basic"
     DEFAULT = "default"
     DETAILED = "detailed"
-    MINIMAL = "minimal"
     WILDCARD = "wildcard"

@@ -237,7 +237,7 @@ class Test014InputValidation(unittest.TestCase):
         invalid_cases = [
             (0, "must be at least 1"),
             (-1, "must be at least 1"),
-            (10001, "cannot be greater than 10000"),
+            (100001, "cannot be greater than 100000"),
             ("not-a-number", "must be a valid integer"),
             ("", "must be a valid integer"),
         ]

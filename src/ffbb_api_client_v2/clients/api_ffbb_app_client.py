@@ -130,9 +130,8 @@ class ApiFFBBAppClient:
     def get_competition(
         self,
         competition_id: int,
-        deep_limit: str | None = "1000",
-        fields: list[str] | None = None,
-        field_set: FieldSet | None = None,
+        deep_rencontres_limit: int | None = 1000,
+        field_set: FieldSet = FieldSet.DETAILED,
         cached_session: CachedSession | None = None,
     ) -> GetCompetitionResponse | None:
         """
@@ -140,12 +139,10 @@ class ApiFFBBAppClient:
 
         Args:
             competition_id (int): The ID of the competition
-            deep_limit (str, optional): Limit for nested rencontres.
-                Defaults to "1000".
-            fields (List[str], optional): List of fields to retrieve.
-                If None, uses field_set or default fields.
-            field_set (FieldSet, optional): Predefined field set to use.
-                Ignored if fields is provided.
+            deep_rencontres_limit (int, optional): Limit for nested rencontres.
+                Defaults to 1000.
+            field_set (FieldSet): Predefined field set to use.
+                Defaults to FieldSet.DETAILED.
             cached_session (CachedSession, optional): The cached session to use
 
         Returns:
@@ -155,18 +152,12 @@ class ApiFFBBAppClient:
         url = f"{self.url}{ENDPOINT_COMPETITIONS}/{competition_id}"
 
         params: dict[str, Any] = {}
-        if deep_limit:
-            params["deep[phases][poules][rencontres][_limit]"] = deep_limit
-
-        if fields:
-            for field in fields:
-                if "fields[]" not in params:
-                    params["fields[]"] = []
-                params["fields[]"].append(field)
-        else:
-            params["fields[]"] = QueryFieldsManager.get_competition_fields(
-                field_set or FieldSet.DEFAULT
+        if deep_rencontres_limit is not None:
+            params["deep[phases][poules][rencontres][_limit]"] = str(
+                deep_rencontres_limit
             )
+
+        params["fields[]"] = QueryFieldsManager.get_competition_fields(field_set)
 
         final_url = url_with_params(url, params)
         data = catch_result(
@@ -185,9 +176,11 @@ class ApiFFBBAppClient:
     def get_poule(
         self,
         poule_id: int,
-        deep_limit: str | None = "1000",
-        fields: list[str] | None = None,
-        field_set: FieldSet | None = None,
+        deep_rencontres_limit: int | None = 1000,
+        deep_rencontres_filter_saison_actif: bool | None = True,
+        deep_rencontres_sort: str | None = "date_rencontre",
+        deep_classements_limit: int | None = 100000,
+        field_set: FieldSet = FieldSet.DETAILED,
         cached_session: CachedSession | None = None,
     ) -> GetPouleResponse | None:
         """
@@ -195,12 +188,16 @@ class ApiFFBBAppClient:
 
         Args:
             poule_id (int): The ID of the poule
-            deep_limit (str, optional): Limit for nested rencontres.
-                Defaults to "1000".
-            fields (List[str], optional): List of fields to retrieve.
-                If None, uses field_set or default fields.
-            field_set (FieldSet, optional): Predefined field set to use.
-                Ignored if fields is provided.
+            deep_rencontres_limit (int, optional): Limit for nested rencontres.
+                Defaults to 1000.
+            deep_rencontres_filter_saison_actif (bool, optional): Filter
+                rencontres by active season. Defaults to True.
+            deep_rencontres_sort (str, optional): Sort field for rencontres.
+                Defaults to "date_rencontre".
+            deep_classements_limit (int, optional): Limit for nested
+                classements. Defaults to 100000.
+            field_set (FieldSet): Predefined field set to use.
+                Defaults to FieldSet.DETAILED.
             cached_session (CachedSession, optional): The cached session to use
 
         Returns:
@@ -209,16 +206,16 @@ class ApiFFBBAppClient:
         url = f"{self.url}{ENDPOINT_POULES}/{poule_id}"
 
         params: dict[str, Any] = {}
-        if deep_limit:
-            params["deep[rencontres][_limit]"] = deep_limit
-            params["deep[classements][_limit]"] = deep_limit
+        if deep_rencontres_limit is not None:
+            params["deep[rencontres][_limit]"] = str(deep_rencontres_limit)
+        if deep_rencontres_filter_saison_actif:
+            params["deep[rencontres][_filter][saison][actif]"] = "true"
+        if deep_rencontres_sort:
+            params["deep[rencontres][_sort][]"] = deep_rencontres_sort
+        if deep_classements_limit is not None:
+            params["deep[classements][_limit]"] = str(deep_classements_limit)
 
-        if fields:
-            params["fields[]"] = fields
-        else:
-            params["fields[]"] = QueryFieldsManager.get_poule_fields(
-                field_set or FieldSet.DEFAULT
-            )
+        params["fields[]"] = QueryFieldsManager.get_poule_fields(field_set)
 
         final_url = url_with_params(url, params)
         data = catch_result(
@@ -236,21 +233,18 @@ class ApiFFBBAppClient:
 
     def get_saisons(
         self,
-        fields: list[str] | None = None,
         filter_criteria: str | None = '{"actif":{"_eq":true}}',
-        field_set: FieldSet | None = None,
+        field_set: FieldSet = FieldSet.DETAILED,
         cached_session: CachedSession | None = None,
     ) -> list[GetSaisonsResponse]:
         """
         Retrieves list of seasons.
 
         Args:
-            fields (List[str], optional): List of fields to retrieve.
-                If None, uses field_set or default fields.
             filter_criteria (str, optional): JSON filter criteria.
                 Defaults to active seasons.
-            field_set (FieldSet, optional): Predefined field set to use.
-                Ignored if fields is provided.
+            field_set (FieldSet): Predefined field set to use.
+                Defaults to FieldSet.DETAILED.
             cached_session (CachedSession, optional): The cached session to use
 
         Returns:
@@ -259,12 +253,7 @@ class ApiFFBBAppClient:
         url = f"{self.url}{ENDPOINT_SAISONS}"
 
         params: dict[str, Any] = {}
-        if fields:
-            params["fields[]"] = fields
-        else:
-            params["fields[]"] = QueryFieldsManager.get_saison_fields(
-                field_set or FieldSet.DEFAULT
-            )
+        params["fields[]"] = QueryFieldsManager.get_saison_fields(field_set)
 
         if filter_criteria:
             params["filter"] = filter_criteria
@@ -288,8 +277,7 @@ class ApiFFBBAppClient:
     def get_organisme(
         self,
         organisme_id: int,
-        fields: list[str] | None = None,
-        field_set: FieldSet | None = None,
+        field_set: FieldSet = FieldSet.DETAILED,
         cached_session: CachedSession | None = None,
     ) -> GetOrganismeResponse | None:
         """
@@ -297,10 +285,8 @@ class ApiFFBBAppClient:
 
         Args:
             organisme_id (int): The ID of the organisme
-            fields (List[str], optional): List of fields to retrieve.
-                If None, uses field_set or default fields.
-            field_set (FieldSet, optional): Predefined field set to use.
-                Ignored if fields is provided.
+            field_set (FieldSet): Predefined field set to use.
+                Defaults to FieldSet.DETAILED.
             cached_session (CachedSession, optional): The cached session to use
 
         Returns:
@@ -309,12 +295,7 @@ class ApiFFBBAppClient:
         url = f"{self.url}{ENDPOINT_ORGANISMES}/{organisme_id}"
 
         params: dict[str, Any] = {}
-        if fields:
-            params["fields[]"] = fields
-        else:
-            params["fields[]"] = QueryFieldsManager.get_organisme_fields(
-                field_set or FieldSet.DEFAULT
-            )
+        params["fields[]"] = QueryFieldsManager.get_organisme_fields(field_set)
 
         final_url = url_with_params(url, params)
         data = catch_result(
@@ -333,7 +314,7 @@ class ApiFFBBAppClient:
     def list_competitions(
         self,
         limit: int = 10,
-        fields: list[str] | None = None,
+        field_set: FieldSet = FieldSet.BASIC,
         cached_session: CachedSession | None = None,
     ) -> list[GetCompetitionResponse | None]:
         """
@@ -341,8 +322,8 @@ class ApiFFBBAppClient:
 
         Args:
             limit (int): Maximum number of competitions to return. Defaults to 10.
-            fields (List[str], optional): List of fields to retrieve.
-                If None, uses basic fields (id, nom).
+            field_set (FieldSet): Predefined field set to use.
+                Defaults to FieldSet.BASIC.
             cached_session (CachedSession, optional): The cached session to use
 
         Returns:
@@ -351,11 +332,7 @@ class ApiFFBBAppClient:
         url = f"{self.url}{ENDPOINT_COMPETITIONS}"
 
         params: dict[str, Any] = {"limit": str(limit)}
-
-        if fields:
-            params["fields[]"] = fields
-        else:
-            params["fields[]"] = ["id", "nom"]
+        params["fields[]"] = QueryFieldsManager.get_competition_fields(field_set)
 
         final_url = url_with_params(url, params)
         data = catch_result(

@@ -65,20 +65,23 @@ class Test000ApiFfbbAppClient(unittest.TestCase):
         self.assertEqual(result.id, str(poule_id))
         self.assertIsNotNone(result.rencontres)
 
-    def test_get_saisons_with_custom_fields(self):
-        fields = ["id", "libelle", "code"]
-        result = self.api_client.get_saisons(fields=fields)
+    def test_get_saisons_with_detailed_field_set(self):
+        from ffbb_api_client_v2.models.field_set import FieldSet
+
+        result = self.api_client.get_saisons(field_set=FieldSet.DETAILED)
         self.assertIsNotNone(result)
         self.assertIsInstance(result, list)
         if result:
             first_item = result[0]
             self.assertIsNotNone(first_item.id)
 
-    def test_get_competition_with_custom_fields(self):
+    def test_get_competition_with_basic_field_set(self):
+        from ffbb_api_client_v2.models.field_set import FieldSet
+
         competition_id = self._get_valid_competition_id()
-        fields = ["id", "nom", "sexe", "saison"]
-        result = self.api_client.get_competition(competition_id, fields=fields)
+        result = self.api_client.get_competition(
+            competition_id, field_set=FieldSet.BASIC
+        )
         self.assertIsNotNone(result)
         self.assertEqual(result.id, str(competition_id))
         self.assertIsNotNone(result.nom)
-        self.assertIsNotNone(result.sexe)

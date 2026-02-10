@@ -36,7 +36,6 @@ from ..utils.input_validation import (
     validate_boolean,
     validate_filter_criteria,
     validate_search_query,
-    validate_string_list,
     validate_token,
 )
 from .api_ffbb_app_client import ApiFFBBAppClient
@@ -103,9 +102,8 @@ class FFBBAPIClientV2:
     def get_competition(
         self,
         competition_id: int,
-        deep_limit: str | None = "1000",
-        fields: list[str] | None = None,
-        field_set: FieldSet | None = None,
+        deep_rencontres_limit: int | None = 1000,
+        field_set: FieldSet = FieldSet.DETAILED,
         cached_session: CachedSession | None = None,
     ) -> GetCompetitionResponse | None:
         """
@@ -113,11 +111,10 @@ class FFBBAPIClientV2:
 
         Args:
             competition_id (int): The ID of the competition
-            deep_limit (str, optional): Limit for nested rencontres.
-                Defaults to "1000".
-            fields (List[str], optional): List of fields to retrieve
-            field_set (FieldSet, optional): Predefined field set to use.
-                Ignored if fields is provided.
+            deep_rencontres_limit (int, optional): Limit for nested rencontres.
+                Defaults to 1000.
+            field_set (FieldSet): Predefined field set to use.
+                Defaults to FieldSet.DETAILED.
             cached_session (CachedSession, optional): The cached session to use
 
         Returns:
@@ -126,8 +123,7 @@ class FFBBAPIClientV2:
         """
         return self.api_ffbb_client.get_competition(
             competition_id=competition_id,
-            deep_limit=deep_limit,
-            fields=fields,
+            deep_rencontres_limit=deep_rencontres_limit,
             field_set=field_set,
             cached_session=cached_session,
         )
@@ -149,8 +145,7 @@ class FFBBAPIClientV2:
     def get_organisme(
         self,
         organisme_id: int,
-        fields: list[str] | None = None,
-        field_set: FieldSet | None = None,
+        field_set: FieldSet = FieldSet.DETAILED,
         cached_session: CachedSession | None = None,
     ) -> GetOrganismeResponse | None:
         """
@@ -158,9 +153,8 @@ class FFBBAPIClientV2:
 
         Args:
             organisme_id (int): The ID of the organisme
-            fields (List[str], optional): List of fields to retrieve
-            field_set (FieldSet, optional): Predefined field set to use.
-                Ignored if fields is provided.
+            field_set (FieldSet): Predefined field set to use.
+                Defaults to FieldSet.DETAILED.
             cached_session (CachedSession, optional): The cached session to use
 
         Returns:
@@ -168,7 +162,6 @@ class FFBBAPIClientV2:
         """
         return self.api_ffbb_client.get_organisme(
             organisme_id=organisme_id,
-            fields=fields,
             field_set=field_set,
             cached_session=cached_session,
         )
@@ -176,9 +169,11 @@ class FFBBAPIClientV2:
     def get_poule(
         self,
         poule_id: int,
-        deep_limit: str | None = "1000",
-        fields: list[str] | None = None,
-        field_set: FieldSet | None = None,
+        deep_rencontres_limit: int | None = 1000,
+        deep_rencontres_filter_saison_actif: bool | None = True,
+        deep_rencontres_sort: str | None = "date_rencontre",
+        deep_classements_limit: int | None = 100000,
+        field_set: FieldSet = FieldSet.DETAILED,
         cached_session: CachedSession | None = None,
     ) -> GetPouleResponse | None:
         """
@@ -186,11 +181,16 @@ class FFBBAPIClientV2:
 
         Args:
             poule_id (int): The ID of the poule
-            deep_limit (str, optional): Limit for nested rencontres.
-                Defaults to "1000".
-            fields (List[str], optional): List of fields to retrieve
-            field_set (FieldSet, optional): Predefined field set to use.
-                Ignored if fields is provided.
+            deep_rencontres_limit (int, optional): Limit for nested rencontres.
+                Defaults to 1000.
+            deep_rencontres_filter_saison_actif (bool, optional): Filter
+                rencontres by active season. Defaults to True.
+            deep_rencontres_sort (str, optional): Sort field for rencontres.
+                Defaults to "date_rencontre".
+            deep_classements_limit (int, optional): Limit for nested
+                classements. Defaults to 100000.
+            field_set (FieldSet): Predefined field set to use.
+                Defaults to FieldSet.DETAILED.
             cached_session (CachedSession, optional): The cached session to use
 
         Returns:
@@ -198,26 +198,28 @@ class FFBBAPIClientV2:
         """
         return self.api_ffbb_client.get_poule(
             poule_id=poule_id,
-            deep_limit=deep_limit,
-            fields=fields,
+            deep_rencontres_limit=deep_rencontres_limit,
+            deep_rencontres_filter_saison_actif=deep_rencontres_filter_saison_actif,
+            deep_rencontres_sort=deep_rencontres_sort,
+            deep_classements_limit=deep_classements_limit,
             field_set=field_set,
             cached_session=cached_session,
         )
 
     def get_saisons(
         self,
-        fields: list[str] | None = None,
         filter_criteria: str | None = '{"actif":{"_eq":true}}',
+        field_set: FieldSet = FieldSet.DETAILED,
         cached_session: CachedSession | None = None,
     ) -> list[GetSaisonsResponse] | None:
         """
         Retrieves list of seasons with comprehensive input validation.
 
         Args:
-            fields (List[str], optional): List of fields to retrieve.
-                 Defaults to ["id"].
             filter_criteria (str, optional): JSON filter criteria.
                  Defaults to active seasons.
+            field_set (FieldSet): Predefined field set to use.
+                 Defaults to FieldSet.DETAILED.
             cached_session (CachedSession, optional): The cached session to use
 
         Returns:
@@ -226,12 +228,11 @@ class FFBBAPIClientV2:
         Raises:
             ValidationError: If input parameters are invalid
         """
-        validated_fields = validate_string_list(fields, "fields")
         validated_filter = validate_filter_criteria(filter_criteria, "filter_criteria")
 
         return self.api_ffbb_client.get_saisons(
-            fields=validated_fields,
             filter_criteria=validated_filter,
+            field_set=field_set,
             cached_session=cached_session,
         )
 

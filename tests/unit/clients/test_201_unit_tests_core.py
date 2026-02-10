@@ -261,10 +261,10 @@ class Test001ApiFfbbAppCore(unittest.TestCase):
         "ffbb_api_client_v2.models.get_competition_response.GetCompetitionResponse.from_dict"
     )
     @patch("ffbb_api_client_v2.clients.api_ffbb_app_client.http_get_json")
-    def test_006b_get_competition_with_basic_fields(
+    def test_006b_get_competition_with_basic_field_set(
         self, mock_http_get, mock_from_dict
     ):
-        """Test get_competition with basic fields."""
+        """Test get_competition with BASIC field_set."""
         mock_inner_data = {"id": 123, "nom": "Test Competition", "sexe": "M"}
         mock_data = {"data": mock_inner_data}
         mock_http_get.return_value = mock_data
@@ -272,12 +272,13 @@ class Test001ApiFfbbAppCore(unittest.TestCase):
         mock_competition_obj = Mock()
         mock_from_dict.return_value = mock_competition_obj
 
-        # Use basic fields explicitly
         from ffbb_api_client_v2.models.field_set import FieldSet
         from ffbb_api_client_v2.models.query_fields_manager import QueryFieldsManager
 
         basic_fields = QueryFieldsManager.get_competition_fields(FieldSet.BASIC)
-        result = self.client.get_competition(competition_id=123, fields=basic_fields)
+        result = self.client.get_competition(
+            competition_id=123, field_set=FieldSet.BASIC
+        )
 
         mock_http_get.assert_called_once()
         # Verify that basic fields are in the URL
@@ -285,36 +286,6 @@ class Test001ApiFfbbAppCore(unittest.TestCase):
         url = call_args[0][0]
         for field in basic_fields:
             self.assertIn(field.replace("[", "%5B").replace("]", "%5D"), url)
-        mock_from_dict.assert_called_once_with(mock_inner_data)
-        self.assertEqual(result, mock_competition_obj)
-
-    @patch(
-        "ffbb_api_client_v2.models.get_competition_response.GetCompetitionResponse.from_dict"
-    )
-    @patch("ffbb_api_client_v2.clients.api_ffbb_app_client.http_get_json")
-    def test_006c_get_competition_with_custom_fields(
-        self, mock_http_get, mock_from_dict
-    ):
-        """Test get_competition with custom fields."""
-        mock_inner_data = {"id": 123, "custom": "value"}
-        mock_data = {"data": mock_inner_data}
-        mock_http_get.return_value = mock_data
-
-        mock_competition_obj = Mock()
-        mock_from_dict.return_value = mock_competition_obj
-
-        # Use custom fields
-        custom_fields = ["id", "custom_field1", "nested.field"]
-        result = self.client.get_competition(competition_id=123, fields=custom_fields)
-
-        mock_http_get.assert_called_once()
-        # Verify that custom fields are in the URL
-        call_args = mock_http_get.call_args
-        url = call_args[0][0]
-        for field in custom_fields:
-            self.assertIn(
-                field.replace("[", "%5B").replace("]", "%5D").replace(".", "."), url
-            )
         mock_from_dict.assert_called_once_with(mock_inner_data)
         self.assertEqual(result, mock_competition_obj)
 
@@ -341,8 +312,8 @@ class Test001ApiFfbbAppCore(unittest.TestCase):
 
     @patch("ffbb_api_client_v2.models.poules_models.GetPouleResponse.from_dict")
     @patch("ffbb_api_client_v2.clients.api_ffbb_app_client.http_get_json")
-    def test_007b_get_poule_with_custom_fields(self, mock_http_get, mock_from_dict):
-        """Test get_poule with custom fields."""
+    def test_007b_get_poule_with_basic_field_set(self, mock_http_get, mock_from_dict):
+        """Test get_poule with BASIC field_set."""
         mock_inner_data = {"id": 456, "nom": "Test Poule", "rencontres": []}
         mock_data = {"data": mock_inner_data}
         mock_http_get.return_value = mock_data
@@ -350,15 +321,15 @@ class Test001ApiFfbbAppCore(unittest.TestCase):
         mock_poule_obj = Mock()
         mock_from_dict.return_value = mock_poule_obj
 
-        # Use custom fields
-        custom_fields = ["id", "nom", "rencontres.id", "rencontres.numero"]
-        result = self.client.get_poule(poule_id=456, fields=custom_fields)
+        from ffbb_api_client_v2.models.field_set import FieldSet
+
+        result = self.client.get_poule(poule_id=456, field_set=FieldSet.BASIC)
 
         mock_http_get.assert_called_once()
-        # Verify custom fields in URL
+        # Verify fields in URL
         call_args = mock_http_get.call_args
         url = call_args[0][0]
-        self.assertIn("rencontres.id", url)
+        self.assertIn("fields%5B%5D", url)
         mock_from_dict.assert_called_once_with(mock_inner_data)
         self.assertEqual(result, mock_poule_obj)
 
@@ -413,8 +384,10 @@ class Test001ApiFfbbAppCore(unittest.TestCase):
         "ffbb_api_client_v2.models.get_organisme_response.GetOrganismeResponse.from_dict"
     )
     @patch("ffbb_api_client_v2.clients.api_ffbb_app_client.http_get_json")
-    def test_009b_get_organisme_with_basic_fields(self, mock_http_get, mock_from_dict):
-        """Test get_organisme with basic fields."""
+    def test_009b_get_organisme_with_basic_field_set(
+        self, mock_http_get, mock_from_dict
+    ):
+        """Test get_organisme with BASIC field_set."""
         mock_inner_data = {"id": 789, "nom": "Test Club", "code": "TEST"}
         mock_data = {"data": mock_inner_data}
         mock_http_get.return_value = mock_data
@@ -422,12 +395,9 @@ class Test001ApiFfbbAppCore(unittest.TestCase):
         mock_organisme_obj = Mock()
         mock_from_dict.return_value = mock_organisme_obj
 
-        # Use basic fields
         from ffbb_api_client_v2.models.field_set import FieldSet
-        from ffbb_api_client_v2.models.query_fields_manager import QueryFieldsManager
 
-        basic_fields = QueryFieldsManager.get_organisme_fields(FieldSet.BASIC)
-        result = self.client.get_organisme(organisme_id=789, fields=basic_fields)
+        result = self.client.get_organisme(organisme_id=789, field_set=FieldSet.BASIC)
 
         mock_http_get.assert_called_once()
         # Verify basic fields in URL
@@ -442,10 +412,10 @@ class Test001ApiFfbbAppCore(unittest.TestCase):
         "ffbb_api_client_v2.models.get_organisme_response.GetOrganismeResponse.from_dict"
     )
     @patch("ffbb_api_client_v2.clients.api_ffbb_app_client.http_get_json")
-    def test_009c_get_organisme_with_detailed_fields(
+    def test_009c_get_organisme_with_detailed_field_set(
         self, mock_http_get, mock_from_dict
     ):
-        """Test get_organisme with detailed fields."""
+        """Test get_organisme with DETAILED field_set (default)."""
         mock_inner_data = {
             "id": 789,
             "nom": "Test Club",
@@ -457,12 +427,8 @@ class Test001ApiFfbbAppCore(unittest.TestCase):
         mock_organisme_obj = Mock()
         mock_from_dict.return_value = mock_organisme_obj
 
-        # Use detailed fields
-        from ffbb_api_client_v2.models.organisme_fields import OrganismeFields
-
-        detailed_fields = OrganismeFields.get_detailed_fields()
-
-        result = self.client.get_organisme(organisme_id=789, fields=detailed_fields)
+        # Default field_set is DETAILED, so no need to pass it
+        result = self.client.get_organisme(organisme_id=789)
 
         mock_http_get.assert_called_once()
         # Verify detailed fields in URL
@@ -541,14 +507,13 @@ class Test001QueryFieldsManagerFieldSets(unittest.TestCase):
     """Tests that QueryFieldsManager returns valid field lists for all FieldSet values."""
 
     def test_001_organisme_all_field_sets(self):
-        """Validate organisme fields for BASIC, DEFAULT, DETAILED, MINIMAL."""
+        """Validate organisme fields for BASIC, DEFAULT, DETAILED."""
         from ffbb_api_client_v2.models.field_set import FieldSet
         from ffbb_api_client_v2.models.query_fields_manager import QueryFieldsManager
 
         basic = QueryFieldsManager.get_organisme_fields(FieldSet.BASIC)
         default = QueryFieldsManager.get_organisme_fields(FieldSet.DEFAULT)
         detailed = QueryFieldsManager.get_organisme_fields(FieldSet.DETAILED)
-        minimal = QueryFieldsManager.get_organisme_fields(FieldSet.MINIMAL)
 
         # All return non-empty lists
         self.assertIsInstance(basic, list)
@@ -557,9 +522,6 @@ class Test001QueryFieldsManagerFieldSets(unittest.TestCase):
         self.assertGreater(len(default), 0)
         self.assertIsInstance(detailed, list)
         self.assertGreater(len(detailed), 0)
-        # MINIMAL falls through to default
-        self.assertIsInstance(minimal, list)
-        self.assertEqual(minimal, default)
         # Ordering: basic < default <= detailed
         self.assertGreater(len(default), len(basic))
         self.assertGreaterEqual(len(detailed), len(default))
@@ -571,14 +533,13 @@ class Test001QueryFieldsManagerFieldSets(unittest.TestCase):
             self.assertIn(f, detailed)
 
     def test_002_competition_all_field_sets(self):
-        """Validate competition fields for BASIC, DEFAULT, DETAILED, MINIMAL."""
+        """Validate competition fields for BASIC, DEFAULT, DETAILED."""
         from ffbb_api_client_v2.models.field_set import FieldSet
         from ffbb_api_client_v2.models.query_fields_manager import QueryFieldsManager
 
         basic = QueryFieldsManager.get_competition_fields(FieldSet.BASIC)
         default = QueryFieldsManager.get_competition_fields(FieldSet.DEFAULT)
         detailed = QueryFieldsManager.get_competition_fields(FieldSet.DETAILED)
-        minimal = QueryFieldsManager.get_competition_fields(FieldSet.MINIMAL)
 
         self.assertIsInstance(basic, list)
         self.assertGreater(len(basic), 0)
@@ -586,7 +547,6 @@ class Test001QueryFieldsManagerFieldSets(unittest.TestCase):
         self.assertGreater(len(default), 0)
         self.assertIsInstance(detailed, list)
         self.assertGreater(len(detailed), 0)
-        self.assertEqual(minimal, default)
         self.assertGreater(len(default), len(basic))
         self.assertGreaterEqual(len(detailed), len(default))
         for f in basic:
@@ -595,14 +555,13 @@ class Test001QueryFieldsManagerFieldSets(unittest.TestCase):
             self.assertIn(f, detailed)
 
     def test_003_poule_all_field_sets(self):
-        """Validate poule fields for BASIC, DEFAULT, DETAILED, MINIMAL."""
+        """Validate poule fields for BASIC, DEFAULT, DETAILED."""
         from ffbb_api_client_v2.models.field_set import FieldSet
         from ffbb_api_client_v2.models.query_fields_manager import QueryFieldsManager
 
         basic = QueryFieldsManager.get_poule_fields(FieldSet.BASIC)
         default = QueryFieldsManager.get_poule_fields(FieldSet.DEFAULT)
         detailed = QueryFieldsManager.get_poule_fields(FieldSet.DETAILED)
-        minimal = QueryFieldsManager.get_poule_fields(FieldSet.MINIMAL)
 
         self.assertIsInstance(basic, list)
         self.assertGreater(len(basic), 0)
@@ -610,7 +569,6 @@ class Test001QueryFieldsManagerFieldSets(unittest.TestCase):
         self.assertGreater(len(default), 0)
         self.assertIsInstance(detailed, list)
         self.assertGreater(len(detailed), 0)
-        self.assertEqual(minimal, default)
         self.assertGreater(len(default), len(basic))
         self.assertGreaterEqual(len(detailed), len(default))
         for f in basic:
@@ -629,11 +587,9 @@ class Test001QueryFieldsManagerFieldSets(unittest.TestCase):
         basic = QueryFieldsManager.get_saison_fields(FieldSet.BASIC)
         default = QueryFieldsManager.get_saison_fields(FieldSet.DEFAULT)
         detailed = QueryFieldsManager.get_saison_fields(FieldSet.DETAILED)
-        minimal = QueryFieldsManager.get_saison_fields(FieldSet.MINIMAL)
 
-        # BASIC and MINIMAL both fall through to default for saisons
+        # BASIC falls through to default for saisons
         self.assertEqual(basic, default)
-        self.assertEqual(minimal, default)
         self.assertIsInstance(default, list)
         self.assertGreater(len(default), 0)
         self.assertIsInstance(detailed, list)
@@ -703,7 +659,6 @@ class Test001QueryFieldsManagerFieldSets(unittest.TestCase):
         """Test get_organisme works with BASIC, DEFAULT, and DETAILED field sets."""
         from ffbb_api_client_v2.clients.api_ffbb_app_client import ApiFFBBAppClient
         from ffbb_api_client_v2.models.field_set import FieldSet
-        from ffbb_api_client_v2.models.query_fields_manager import QueryFieldsManager
 
         mock_inner_data = {"id": 1, "nom": "Test"}
         mock_http_get.return_value = {"data": mock_inner_data}
@@ -715,8 +670,7 @@ class Test001QueryFieldsManagerFieldSets(unittest.TestCase):
             mock_http_get.reset_mock()
             mock_from_dict.reset_mock()
 
-            fields = QueryFieldsManager.get_organisme_fields(fs)
-            result = client.get_organisme(organisme_id=1, fields=fields)
+            result = client.get_organisme(organisme_id=1, field_set=fs)
 
             self.assertIsNotNone(result)
             mock_http_get.assert_called_once()
@@ -734,7 +688,6 @@ class Test001QueryFieldsManagerFieldSets(unittest.TestCase):
         """Test get_competition works with BASIC, DEFAULT, and DETAILED field sets."""
         from ffbb_api_client_v2.clients.api_ffbb_app_client import ApiFFBBAppClient
         from ffbb_api_client_v2.models.field_set import FieldSet
-        from ffbb_api_client_v2.models.query_fields_manager import QueryFieldsManager
 
         mock_inner_data = {"id": 1, "nom": "Test"}
         mock_http_get.return_value = {"data": mock_inner_data}
@@ -746,8 +699,7 @@ class Test001QueryFieldsManagerFieldSets(unittest.TestCase):
             mock_http_get.reset_mock()
             mock_from_dict.reset_mock()
 
-            fields = QueryFieldsManager.get_competition_fields(fs)
-            result = client.get_competition(competition_id=1, fields=fields)
+            result = client.get_competition(competition_id=1, field_set=fs)
 
             self.assertIsNotNone(result)
             mock_http_get.assert_called_once()
@@ -760,7 +712,6 @@ class Test001QueryFieldsManagerFieldSets(unittest.TestCase):
         """Test get_poule works with BASIC, DEFAULT, and DETAILED field sets."""
         from ffbb_api_client_v2.clients.api_ffbb_app_client import ApiFFBBAppClient
         from ffbb_api_client_v2.models.field_set import FieldSet
-        from ffbb_api_client_v2.models.query_fields_manager import QueryFieldsManager
 
         mock_inner_data = {"id": 1, "nom": "Test"}
         mock_http_get.return_value = {"data": mock_inner_data}
@@ -772,8 +723,7 @@ class Test001QueryFieldsManagerFieldSets(unittest.TestCase):
             mock_http_get.reset_mock()
             mock_from_dict.reset_mock()
 
-            fields = QueryFieldsManager.get_poule_fields(fs)
-            result = client.get_poule(poule_id=1, fields=fields)
+            result = client.get_poule(poule_id=1, field_set=fs)
 
             self.assertIsNotNone(result)
             mock_http_get.assert_called_once()
@@ -783,31 +733,21 @@ class Test001QueryFieldsManagerFieldSets(unittest.TestCase):
     @patch("ffbb_api_client_v2.clients.api_ffbb_app_client.http_get_json")
     @patch("ffbb_api_client_v2.models.saisons_models.GetSaisonsResponse.from_list")
     def test_011_get_saisons_with_each_field_set(self, mock_from_list, mock_http_get):
-        """Test get_saisons works with DEFAULT and DETAILED field sets.
-
-        Note: BASIC and MINIMAL fall through to DEFAULT for saisons.
-        """
+        """Test get_saisons works with BASIC, DEFAULT, and DETAILED field sets."""
         from ffbb_api_client_v2.clients.api_ffbb_app_client import ApiFFBBAppClient
         from ffbb_api_client_v2.models.field_set import FieldSet
-        from ffbb_api_client_v2.models.query_fields_manager import QueryFieldsManager
 
         mock_http_get.return_value = {"data": [{"id": "2024"}]}
         mock_from_list.return_value = [Mock()]
 
         client = ApiFFBBAppClient(bearer_token="test_token", debug=False)
 
-        for fs in [
-            FieldSet.BASIC,
-            FieldSet.DEFAULT,
-            FieldSet.DETAILED,
-            FieldSet.MINIMAL,
-        ]:
+        for fs in [FieldSet.BASIC, FieldSet.DEFAULT, FieldSet.DETAILED]:
             mock_http_get.reset_mock()
             mock_from_list.reset_mock()
             mock_from_list.return_value = [Mock()]
 
-            fields = QueryFieldsManager.get_saison_fields(fs)
-            result = client.get_saisons(fields=fields)
+            result = client.get_saisons(field_set=fs)
 
             self.assertIsNotNone(result)
             mock_http_get.assert_called_once()
