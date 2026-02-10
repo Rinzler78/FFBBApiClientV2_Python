@@ -59,3 +59,13 @@ http_cache.db
 .hive-mind
 uv.lock
 data/type_discovery_raw.json
+
+# Generated data (re-generate with scripts/)
+data/api_audit_report.json
+data/directus_field_discovery.json
+data/meilisearch_index_discovery.json
+data/meilisearch_settings_discovery.json
+
+# Executed notebooks (outputs)
+examples/executed_*.ipynb
+examples/http_cache.db
