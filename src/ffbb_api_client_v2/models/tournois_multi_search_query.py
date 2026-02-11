@@ -4,7 +4,7 @@ from ..config import MEILISEARCH_FACETS_TOURNOIS, MEILISEARCH_INDEX_TOURNOIS
 from .multi_search_query import MultiSearchQuery
 from .multi_search_result_tournois import TournoisMultiSearchResult
 from .multi_search_results import MultiSearchResult
-from .tournois_facet_distribution import TournoisFacetDistribution
+from .terrains_facet_distribution import TerrainsFacetDistribution
 from .tournois_facet_stats import TournoisFacetStats
 
 
@@ -32,7 +32,7 @@ class TournoisMultiSearchQuery(MultiSearchQuery):
             isinstance(result, TournoisMultiSearchResult)
             and (
                 result.facet_distribution is None
-                or isinstance(result.facet_distribution, TournoisFacetDistribution)
+                or isinstance(result.facet_distribution, TerrainsFacetDistribution)
             )
             and (
                 result.facet_stats is None

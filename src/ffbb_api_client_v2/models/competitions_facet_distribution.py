@@ -4,17 +4,17 @@ from dataclasses import dataclass
 from typing import Any
 
 from ..utils.converter_utils import from_obj
-from .competition_id_sexe import CompetitionIDSexe
 from .competition_id_type_competition import CompetitionIDTypeCompetition
 from .facet_distribution import FacetDistribution
 from .niveau_class import NiveauClass
+from .sexe_class import SexeClass
 
 
 @dataclass
 class CompetitionsFacetDistribution(FacetDistribution):
     competition_id_categorie_code: dict[str, int] | None = None
     competition_id_nom_extended: dict[str, int] | None = None
-    competition_id_sexe: CompetitionIDSexe | None = None
+    competition_id_sexe: SexeClass | None = None
     competition_id_type_competition: CompetitionIDTypeCompetition | None = None
     niveau: NiveauClass | None = None
     organisateur_id: dict[str, int] | None = None
@@ -25,9 +25,7 @@ class CompetitionsFacetDistribution(FacetDistribution):
         assert isinstance(obj, dict)
         competition_id_categorie_code = obj.get("competitionId.categorie.code")
         competition_id_nom_extended = obj.get("competitionId.nomExtended")
-        competition_id_sexe = from_obj(
-            CompetitionIDSexe.from_dict, obj, "competitionId.sexe"
-        )
+        competition_id_sexe = from_obj(SexeClass.from_dict, obj, "competitionId.sexe")
         competition_id_type_competition = from_obj(
             CompetitionIDTypeCompetition.from_dict, obj, "competitionId.typeCompetition"
         )

@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from ..utils.converter_utils import from_obj, from_str
-from .id_organisme_equipe1_logo import IDOrganismeEquipe1Logo
+from .logo import Logo
 
 
 @dataclass
@@ -14,7 +14,7 @@ class IDOrganismeEquipe:
     nom_simple: str | None = None
     code: str | None = None
     nom_club_pro: str | None = None
-    logo: IDOrganismeEquipe1Logo | None = None
+    logo: Logo | None = None
 
     @staticmethod
     def from_dict(obj: Any) -> IDOrganismeEquipe:
@@ -24,7 +24,7 @@ class IDOrganismeEquipe:
         nom_simple = from_str(obj, "nom_simple")
         code = from_str(obj, "code")
         nom_club_pro = from_str(obj, "nomClubPro")
-        logo = from_obj(IDOrganismeEquipe1Logo.from_dict, obj, "logo")
+        logo = from_obj(Logo.from_dict, obj, "logo")
         return IDOrganismeEquipe(
             id=id,
             nom=nom,

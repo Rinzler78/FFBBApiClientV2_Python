@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from ..config import MEILISEARCH_FACETS_RENCONTRES, MEILISEARCH_INDEX_RENCONTRES
+from .competitions_facet_distribution import CompetitionsFacetDistribution
 from .multi_search_query import MultiSearchQuery
 from .multi_search_result_rencontres import RencontresMultiSearchResult
 from .multi_search_results import MultiSearchResult
-from .rencontres_facet_distribution import RencontresFacetDistribution
 from .rencontres_facet_stats import RencontresFacetStats
 
 
@@ -32,7 +32,7 @@ class RencontresMultiSearchQuery(MultiSearchQuery):
             isinstance(result, RencontresMultiSearchResult)
             and (
                 result.facet_distribution is None
-                or isinstance(result.facet_distribution, RencontresFacetDistribution)
+                or isinstance(result.facet_distribution, CompetitionsFacetDistribution)
             )
             and (
                 result.facet_stats is None

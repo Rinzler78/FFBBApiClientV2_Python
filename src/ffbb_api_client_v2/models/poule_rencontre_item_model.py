@@ -13,7 +13,7 @@ class PouleRencontreItemModel:
     competitionId: str
     resultatEquipe1: str
     resultatEquipe2: str
-    joue: int
+    joue: bool
     nomEquipe1: str
     nomEquipe2: str
     date_rencontre: datetime

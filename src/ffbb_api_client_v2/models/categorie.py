@@ -6,14 +6,16 @@ from typing import Any
 
 from ..utils.converter_utils import (
     from_datetime,
+    from_enum,
     from_int,
     from_str,
 )
+from .categorie_code import CategorieCode
 
 
 @dataclass
 class Categorie:
-    code: str | None = None
+    code: CategorieCode | None = None
     date_created: datetime | None = None
     date_updated: datetime | None = None
     categorie_id: str | None = None
@@ -23,7 +25,7 @@ class Categorie:
     @staticmethod
     def from_dict(obj: Any) -> Categorie:
         assert isinstance(obj, dict)
-        code = from_str(obj, "code")
+        code = from_enum(CategorieCode, obj, "code")
         date_created = from_datetime(obj, "date_created")
         date_updated = from_datetime(obj, "date_updated")
         categorie_id = from_str(obj, "id")

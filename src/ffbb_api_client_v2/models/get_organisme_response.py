@@ -1,459 +1,82 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
 from typing import Any
 
-from .niveau_models import NiveauInfo, get_niveau_from_idcompetition
+from ..utils.converter_utils import from_list, from_obj, from_str
+from .cartographie import Cartographie
+from .commune import Commune
+from .labellisation_item import LabellisationItem
+from .logo import Logo
+from .membre import Membre
+from .offre_pratique import OffrePratique
+from .organisme_engagement import OrganismeEngagement
+from .salle import Salle
 
 
 @dataclass
 class GetOrganismeResponse:
-    id: str
-    nom: str
-    code: str
-    telephone: str
-    adresse: str
-    mail: str
-    type: str
-    nom_simple: Any | None
-    urlSiteWeb: str
-    nomClubPro: str
-    adresseClubPro: Any | None
-
-    @dataclass
-    class CommuneModel:
-        codePostal: str
-        libelle: str
-
-    commune: CommuneModel | None = None
-
-    @dataclass
-    class CartographieModel:
-        latitude: float
-        longitude: float
-
-    cartographie: CartographieModel | None = None
-    communeClubPro: Any | None = None
-
-    @dataclass
-    class MembresitemModel:
-        id: str
-        nom: str
-        prenom: str
-        adresse1: str
-        adresse2: Any | None = None
-        codePostal: str = ""
-        ville: str = ""
-        mail: str = ""
-        telephoneFixe: Any | None = None
-        telephonePortable: str = ""
-        codeFonction: str = ""
-
-    membres: list[MembresitemModel] = field(default_factory=list)
+    id: str | None = None
+    nom: str | None = None
+    code: str | None = None
+    telephone: str | None = None
+    adresse: str | None = None
+    mail: str | None = None
+    type: str | None = None
+    nom_simple: Any | None = None
+    url_site_web: str | None = None
+    nom_club_pro: str | None = None
+    adresse_club_pro: Any | None = None
+    commune: Commune | None = None
+    cartographie: Cartographie | None = None
+    commune_club_pro: Any | None = None
+    membres: list[Membre] = field(default_factory=list)
     competitions: list[Any] = field(default_factory=list)
-
-    @dataclass
-    class EngagementsitemModel:
-        id: str
-
-        @dataclass
-        class IdpouleModel:
-            id: str
-
-        idPoule: IdpouleModel | None = None
-
-        @dataclass
-        class IdcompetitionModel:
-            id: str
-            nom: str
-            code: str
-            sexe: str
-            competition_origine: str
-            competition_origine_nom: str
-            competition_origine_niveau: int
-            typeCompetition: str
-            logo: Any | None = None
-
-            @dataclass
-            class SaisonModel:
-                id: str
-
-            saison: SaisonModel | None = None
-            idCompetitionPere: Any | None = None
-
-            @dataclass
-            class OrganisateurModel:
-                type: str
-
-            organisateur: OrganisateurModel | None = None
-
-            @dataclass
-            class TypecompetitiongeneriqueModel:
-
-                @dataclass
-                class LogoModel:
-                    id: str
-                    gradient_color: str
-
-                logo: LogoModel | None = None
-
-            typeCompetitionGenerique: TypecompetitiongeneriqueModel | None = None
-
-            @dataclass
-            class CategorieModel:
-                code: str
-                ordre: int
-
-            categorie: CategorieModel | None = None
-
-            @property
-            def niveau(self) -> NiveauInfo | None:
-                """Extrait automatiquement le niveau depuis le nom de la competition."""
-                return get_niveau_from_idcompetition(self)
-
-        idCompetition: IdcompetitionModel | None = None
-
-    engagements: list[EngagementsitemModel] = field(default_factory=list)
+    engagements: list[OrganismeEngagement] = field(default_factory=list)
     organismes_fils: list[Any] = field(default_factory=list)
-
-    @dataclass
-    class OffrespratiquesitemModel:
-
-        @dataclass
-        class Ffbbserver_Offres_Pratiques_IdModel:
-            id: str
-            title: str
-            categoriePratique: str
-            typePratique: str
-
-        ffbbserver_offres_pratiques_id: Ffbbserver_Offres_Pratiques_IdModel | None = (
-            None
-        )
-
-    offresPratiques: list[OffrespratiquesitemModel] = field(default_factory=list)
-
-    @dataclass
-    class LabellisationitemModel:
-        id: str
-        debut: datetime
-        fin: datetime
-
-        @dataclass
-        class IdlabellisationprogrammeModel:
-            id: str
-            libelle: str
-            labellisationLabel: str
-            logo_vertical: Any | None = None
-
-        idLabellisationProgramme: IdlabellisationprogrammeModel | None = None
-
-    labellisation: list[LabellisationitemModel] = field(default_factory=list)
-
-    @dataclass
-    class SalleModel:
-        id: str
-        numero: str
-        libelle: str
-        libelle2: str
-        adresse: str
-        adresseComplement: str
-
-        @dataclass
-        class CommuneModel:
-            codePostal: str
-            libelle: str
-
-        commune: CommuneModel | None = None
-
-        @dataclass
-        class CartographieModel:
-            latitude: float
-            longitude: float
-
-        cartographie: CartographieModel | None = None
-
-    salle: SalleModel | None = None
-
-    @dataclass
-    class LogoModel:
-        id: str
-        gradient_color: str
-
-    logo: LogoModel | None = None
+    offres_pratiques: list[OffrePratique] = field(default_factory=list)
+    labellisation: list[LabellisationItem] = field(default_factory=list)
+    salle: Salle | None = None
+    logo: Logo | None = None
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> GetOrganismeResponse | None:
-        """Convert dictionary to OrganismesModel instance."""
+        """Convert dictionary to GetOrganismeResponse instance."""
         if not data:
             return None
-
-        # Handle case where data is not a dictionary
         if not isinstance(data, dict):
             return None
-
-        # Handle API error responses
         if "errors" in data:
             return None
 
-        # Extract nested commune data
-        commune_data = data.get("commune", {})
-        commune = (
-            cls.CommuneModel(
-                codePostal=commune_data.get("codePostal", ""),
-                libelle=commune_data.get("libelle", ""),
-            )
-            if commune_data
-            else None
-        )
-
-        # Extract nested cartographie data
-        cartographie_data = data.get("cartographie", {})
-        cartographie = (
-            cls.CartographieModel(
-                latitude=float(cartographie_data.get("latitude", 0.0)),
-                longitude=float(cartographie_data.get("longitude", 0.0)),
-            )
-            if cartographie_data
-            else None
-        )
-
-        # Extract membres data
-        membres = []
-        for membre_data in data.get("membres", []):
-            if membre_data:
-                membre = cls.MembresitemModel(
-                    id=str(membre_data.get("id", "")),
-                    nom=str(membre_data.get("nom", "")),
-                    prenom=str(membre_data.get("prenom", "")),
-                    adresse1=str(membre_data.get("adresse1", "")),
-                    adresse2=membre_data.get("adresse2"),
-                    codePostal=str(membre_data.get("codePostal", "")),
-                    ville=str(membre_data.get("ville", "")),
-                    mail=str(membre_data.get("mail", "")),
-                    telephoneFixe=membre_data.get("telephoneFixe"),
-                    telephonePortable=str(membre_data.get("telephonePortable", "")),
-                    codeFonction=str(membre_data.get("codeFonction", "")),
-                )
-                membres.append(membre)
-
-        # Extract engagements data
-        engagements = []
-        for engagement_data in data.get("engagements", []):
-            if engagement_data:
-                # Extract idPoule
-                poule_data = engagement_data.get("idPoule", {})
-                id_poule = (
-                    cls.EngagementsitemModel.IdpouleModel(
-                        id=str(poule_data.get("id", ""))
-                    )
-                    if poule_data
-                    else None
-                )
-
-                # Extract idCompetition
-                competition_data = engagement_data.get("idCompetition", {})
-                id_competition = None
-                if competition_data:
-                    saison_data = competition_data.get("saison", {})
-                    saison = (
-                        cls.EngagementsitemModel.IdcompetitionModel.SaisonModel(
-                            id=str(saison_data.get("id", ""))
-                        )
-                        if saison_data
-                        else None
-                    )
-
-                    organisateur_data = competition_data.get("organisateur", {})
-                    organisateur = (
-                        cls.EngagementsitemModel.IdcompetitionModel.OrganisateurModel(
-                            type=str(organisateur_data.get("type", ""))
-                        )
-                        if organisateur_data
-                        else None
-                    )
-
-                    type_comp_generique_data = competition_data.get(
-                        "typeCompetitionGenerique", {}
-                    )
-                    type_comp_generique = None
-                    if type_comp_generique_data:
-                        logo_data = type_comp_generique_data.get("logo", {})
-                        # Use shorter aliases to avoid line length issues
-                        IdComp = cls.EngagementsitemModel.IdcompetitionModel
-                        LogoClass = IdComp.TypecompetitiongeneriqueModel.LogoModel
-                        logo_tcg = (
-                            LogoClass(
-                                id=str(logo_data.get("id", "")),
-                                gradient_color=str(logo_data.get("gradient_color", "")),
-                            )
-                            if logo_data
-                            else None
-                        )
-
-                        TypeCompGenClass = IdComp.TypecompetitiongeneriqueModel
-                        type_comp_generique = TypeCompGenClass(logo=logo_tcg)
-
-                    categorie_data = competition_data.get("categorie", {})
-                    categorie = (
-                        cls.EngagementsitemModel.IdcompetitionModel.CategorieModel(
-                            code=str(categorie_data.get("code", "")),
-                            ordre=int(categorie_data.get("ordre", 0)),
-                        )
-                        if categorie_data
-                        else None
-                    )
-
-                    id_competition = cls.EngagementsitemModel.IdcompetitionModel(
-                        id=str(competition_data.get("id", "")),
-                        nom=str(competition_data.get("nom", "")),
-                        code=str(competition_data.get("code", "")),
-                        sexe=str(competition_data.get("sexe", "")),
-                        competition_origine=str(
-                            competition_data.get("competition_origine", "")
-                        ),
-                        competition_origine_nom=str(
-                            competition_data.get("competition_origine_nom", "")
-                        ),
-                        competition_origine_niveau=int(
-                            competition_data.get("competition_origine_niveau", 0)
-                        ),
-                        typeCompetition=str(
-                            competition_data.get("typeCompetition", "")
-                        ),
-                        logo=competition_data.get("logo"),
-                        saison=saison,
-                        idCompetitionPere=competition_data.get("idCompetitionPere"),
-                        organisateur=organisateur,
-                        typeCompetitionGenerique=type_comp_generique,
-                        categorie=categorie,
-                    )
-
-                engagement = cls.EngagementsitemModel(
-                    id=str(engagement_data.get("id", "")),
-                    idPoule=id_poule,
-                    idCompetition=id_competition,
-                )
-                engagements.append(engagement)
-
-        # Extract offres pratiques
-        offres_pratiques = []
-        for offre_data in data.get("offresPratiques", []):
-            if offre_data:
-                ffbb_pratique_data = offre_data.get(
-                    "ffbbserver_offres_pratiques_id", {}
-                )
-                ffbb_pratique = (
-                    cls.OffrespratiquesitemModel.Ffbbserver_Offres_Pratiques_IdModel(
-                        id=str(ffbb_pratique_data.get("id", "")),
-                        title=str(ffbb_pratique_data.get("title", "")),
-                        categoriePratique=str(
-                            ffbb_pratique_data.get("categoriePratique", "")
-                        ),
-                        typePratique=str(ffbb_pratique_data.get("typePratique", "")),
-                    )
-                    if ffbb_pratique_data
-                    else None
-                )
-
-                offre = cls.OffrespratiquesitemModel(
-                    ffbbserver_offres_pratiques_id=ffbb_pratique
-                )
-                offres_pratiques.append(offre)
-
-        # Extract labellisation
-        labellisations = []
-        for label_data in data.get("labellisation", []):
-            if label_data:
-                programme_data = label_data.get("idLabellisationProgramme", {})
-                programme = (
-                    cls.LabellisationitemModel.IdlabellisationprogrammeModel(
-                        id=str(programme_data.get("id", "")),
-                        libelle=str(programme_data.get("libelle", "")),
-                        labellisationLabel=str(
-                            programme_data.get("labellisationLabel", "")
-                        ),
-                        logo_vertical=programme_data.get("logo_vertical"),
-                    )
-                    if programme_data
-                    else None
-                )
-
-                label = cls.LabellisationitemModel(
-                    id=str(label_data.get("id", "")),
-                    debut=datetime.fromisoformat(label_data.get("debut", "1970-01-01")),
-                    fin=datetime.fromisoformat(label_data.get("fin", "1970-01-01")),
-                    idLabellisationProgramme=programme,
-                )
-                labellisations.append(label)
-
-        # Extract salle
-        salle_data = data.get("salle", {})
-        salle = None
-        if salle_data:
-            salle_commune_data = salle_data.get("commune", {})
-            salle_commune = (
-                cls.SalleModel.CommuneModel(
-                    codePostal=str(salle_commune_data.get("codePostal", "")),
-                    libelle=str(salle_commune_data.get("libelle", "")),
-                )
-                if salle_commune_data
-                else None
-            )
-
-            salle_cartographie_data = salle_data.get("cartographie", {})
-            salle_cartographie = (
-                cls.SalleModel.CartographieModel(
-                    latitude=float(salle_cartographie_data.get("latitude", 0.0)),
-                    longitude=float(salle_cartographie_data.get("longitude", 0.0)),
-                )
-                if salle_cartographie_data
-                else None
-            )
-
-            salle = cls.SalleModel(
-                id=str(salle_data.get("id", "")),
-                numero=str(salle_data.get("numero", "")),
-                libelle=str(salle_data.get("libelle", "")),
-                libelle2=str(salle_data.get("libelle2", "")),
-                adresse=str(salle_data.get("adresse", "")),
-                adresseComplement=str(salle_data.get("adresseComplement", "")),
-                commune=salle_commune,
-                cartographie=salle_cartographie,
-            )
-
-        # Extract logo
-        logo_data = data.get("logo", {})
-        logo = (
-            cls.LogoModel(
-                id=str(logo_data.get("id", "")),
-                gradient_color=str(logo_data.get("gradient_color", "")),
-            )
-            if logo_data
-            else None
+        membres_raw = from_list(Membre.from_dict, data, "membres")
+        engagements_raw = from_list(OrganismeEngagement.from_dict, data, "engagements")
+        offres_raw = from_list(OffrePratique.from_dict, data, "offresPratiques")
+        labellisation_raw = from_list(
+            LabellisationItem.from_dict, data, "labellisation"
         )
 
         return cls(
-            id=str(data.get("id", "")),
-            nom=str(data.get("nom", "")),
-            code=str(data.get("code", "")),
-            telephone=str(data.get("telephone", "")),
-            adresse=str(data.get("adresse", "")),
-            mail=str(data.get("mail", "")),
-            type=str(data.get("type", "")),
+            id=from_str(data, "id"),
+            nom=from_str(data, "nom"),
+            code=from_str(data, "code"),
+            telephone=from_str(data, "telephone"),
+            adresse=from_str(data, "adresse"),
+            mail=from_str(data, "mail"),
+            type=from_str(data, "type"),
             nom_simple=data.get("nom_simple"),
-            urlSiteWeb=str(data.get("urlSiteWeb", "")),
-            nomClubPro=str(data.get("nomClubPro", "")),
-            adresseClubPro=data.get("adresseClubPro"),
-            commune=commune,
-            cartographie=cartographie,
-            communeClubPro=data.get("communeClubPro"),
-            membres=membres,
+            url_site_web=from_str(data, "urlSiteWeb"),
+            nom_club_pro=from_str(data, "nomClubPro"),
+            adresse_club_pro=data.get("adresseClubPro"),
+            commune=from_obj(Commune.from_dict, data, "commune"),
+            cartographie=from_obj(Cartographie.from_dict, data, "cartographie"),
+            commune_club_pro=data.get("communeClubPro"),
+            membres=membres_raw if membres_raw is not None else [],
             competitions=data.get("competitions", []),
-            engagements=engagements,
+            engagements=engagements_raw if engagements_raw is not None else [],
             organismes_fils=data.get("organismes_fils", []),
-            offresPratiques=offres_pratiques,
-            labellisation=labellisations,
-            salle=salle,
-            logo=logo,
+            offres_pratiques=offres_raw if offres_raw is not None else [],
+            labellisation=labellisation_raw if labellisation_raw is not None else [],
+            salle=from_obj(Salle.from_dict, data, "salle"),
+            logo=from_obj(Logo.from_dict, data, "logo"),
         )

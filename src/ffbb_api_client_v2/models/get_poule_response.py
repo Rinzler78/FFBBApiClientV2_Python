@@ -49,7 +49,7 @@ class GetPouleResponse:
                     competitionId=str(rencontre_data.get("competitionId", "")),
                     resultatEquipe1=str(rencontre_data.get("resultatEquipe1", "")),
                     resultatEquipe2=str(rencontre_data.get("resultatEquipe2", "")),
-                    joue=int(rencontre_data.get("joue", 0)),
+                    joue=bool(rencontre_data.get("joue", False)),
                     nomEquipe1=str(rencontre_data.get("nomEquipe1", "")),
                     nomEquipe2=str(rencontre_data.get("nomEquipe2", "")),
                     date_rencontre=datetime.fromisoformat(
