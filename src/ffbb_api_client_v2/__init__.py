@@ -48,7 +48,6 @@ from .models.organismes_hit import OrganismesHit
 from .models.pratiques_facet_distribution import PratiquesFacetDistribution
 from .models.pratiques_facet_stats import PratiquesFacetStats
 from .models.pratiques_hit import PratiquesHit
-from .models.rencontres_facet_distribution import RencontresFacetDistribution
 from .models.rencontres_facet_stats import RencontresFacetStats
 from .models.rencontres_hit import RencontresHit
 from .models.salles_facet_distribution import SallesFacetDistribution
@@ -57,7 +56,6 @@ from .models.salles_hit import SallesHit
 from .models.terrains_facet_distribution import TerrainsFacetDistribution
 from .models.terrains_facet_stats import TerrainsFacetStats
 from .models.terrains_hit import TerrainsHit
-from .models.tournois_facet_distribution import TournoisFacetDistribution
 from .models.tournois_facet_stats import TournoisFacetStats
 from .models.tournois_hit import TournoisHit
 from .utils.token_manager import FFBBTokens, TokenManager
@@ -113,8 +111,7 @@ __all__ = [
     "PratiquesFacetStats",
     "PratiquesHit",
     "PratiquesMultiSearchResult",
-    # Rencontres
-    "RencontresFacetDistribution",
+    # Rencontres (FacetDistribution merged into CompetitionsFacetDistribution)
     "RencontresFacetStats",
     "RencontresHit",
     "RencontresMultiSearchResult",
@@ -128,8 +125,7 @@ __all__ = [
     "TerrainsFacetStats",
     "TerrainsHit",
     "TerrainsMultiSearchResult",
-    # Tournois
-    "TournoisFacetDistribution",
+    # Tournois (FacetDistribution merged into TerrainsFacetDistribution)
     "TournoisFacetStats",
     "TournoisHit",
     "TournoisMultiSearchResult",
