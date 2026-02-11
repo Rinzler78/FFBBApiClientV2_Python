@@ -9,8 +9,18 @@ from ..models.competitions_multi_search_query import CompetitionsMultiSearchQuer
 from ..models.engagements_multi_search_query import EngagementsMultiSearchQuery
 from ..models.field_set import FieldSet
 from ..models.formations_multi_search_query import FormationsMultiSearchQuery
+from ..models.get_communes_response import GetCommunesResponse
 from ..models.get_competition_response import GetCompetitionResponse
+from ..models.get_engagements_response import GetEngagementsResponse
+from ..models.get_entraineurs_response import GetEntraineursResponse
+from ..models.get_formations_response import GetFormationsResponse
+from ..models.get_officiels_response import GetOfficielsResponse
 from ..models.get_organisme_response import GetOrganismeResponse
+from ..models.get_pratiques_response import GetPratiquesResponse
+from ..models.get_rencontres_response import GetRencontresResponse
+from ..models.get_salles_response import GetSallesResponse
+from ..models.get_terrains_response import GetTerrainsResponse
+from ..models.get_tournois_response import GetTournoisResponse
 from ..models.lives import Live
 from ..models.meilisearch_index_settings import MeilisearchIndexSettings
 from ..models.multi_search_result_competitions import CompetitionsMultiSearchResult
@@ -35,7 +45,9 @@ from ..utils.cache_manager import CacheManager
 from ..utils.input_validation import (
     validate_boolean,
     validate_filter_criteria,
+    validate_offset,
     validate_search_query,
+    validate_string_list,
     validate_token,
 )
 from .api_ffbb_app_client import ApiFFBBAppClient
@@ -233,6 +245,539 @@ class FFBBAPIClientV2:
         return self.api_ffbb_client.get_saisons(
             filter_criteria=validated_filter,
             field_set=field_set,
+            cached_session=cached_session,
+        )
+
+    # --- Directus: Rencontres ---
+
+    def get_rencontre(
+        self,
+        rencontre_id: int,
+        field_set: FieldSet = FieldSet.DETAILED,
+        cached_session: CachedSession | None = None,
+    ) -> GetRencontresResponse | None:
+        """Retrieves a rencontre by ID."""
+        return self.api_ffbb_client.get_rencontre(
+            rencontre_id=rencontre_id,
+            field_set=field_set,
+            cached_session=cached_session,
+        )
+
+    def list_rencontres(
+        self,
+        limit: int = 10,
+        field_set: FieldSet = FieldSet.DEFAULT,
+        filter_criteria: str | None = None,
+        sort: list[str] | None = None,
+        offset: int | None = None,
+        search: str | None = None,
+        cached_session: CachedSession | None = None,
+    ) -> list[GetRencontresResponse]:
+        """Lists rencontres."""
+        return self.api_ffbb_client.list_rencontres(
+            limit=limit,
+            field_set=field_set,
+            filter_criteria=validate_filter_criteria(filter_criteria),
+            sort=validate_string_list(sort, "sort"),
+            offset=validate_offset(offset),
+            search=validate_search_query(search, "search"),
+            cached_session=cached_session,
+        )
+
+    # --- Directus: Salles ---
+
+    def get_salle(
+        self,
+        salle_id: int,
+        field_set: FieldSet = FieldSet.DETAILED,
+        cached_session: CachedSession | None = None,
+    ) -> GetSallesResponse | None:
+        """Retrieves a salle by ID."""
+        return self.api_ffbb_client.get_salle(
+            salle_id=salle_id,
+            field_set=field_set,
+            cached_session=cached_session,
+        )
+
+    def list_salles(
+        self,
+        limit: int = 10,
+        field_set: FieldSet = FieldSet.DEFAULT,
+        filter_criteria: str | None = None,
+        sort: list[str] | None = None,
+        offset: int | None = None,
+        search: str | None = None,
+        cached_session: CachedSession | None = None,
+    ) -> list[GetSallesResponse]:
+        """Lists salles."""
+        return self.api_ffbb_client.list_salles(
+            limit=limit,
+            field_set=field_set,
+            filter_criteria=validate_filter_criteria(filter_criteria),
+            sort=validate_string_list(sort, "sort"),
+            offset=validate_offset(offset),
+            search=validate_search_query(search, "search"),
+            cached_session=cached_session,
+        )
+
+    # --- Directus: Terrains ---
+
+    def get_terrain(
+        self,
+        terrain_id: int,
+        field_set: FieldSet = FieldSet.DETAILED,
+        cached_session: CachedSession | None = None,
+    ) -> GetTerrainsResponse | None:
+        """Retrieves a terrain by ID."""
+        return self.api_ffbb_client.get_terrain(
+            terrain_id=terrain_id,
+            field_set=field_set,
+            cached_session=cached_session,
+        )
+
+    def list_terrains(
+        self,
+        limit: int = 10,
+        field_set: FieldSet = FieldSet.DEFAULT,
+        filter_criteria: str | None = None,
+        sort: list[str] | None = None,
+        offset: int | None = None,
+        search: str | None = None,
+        cached_session: CachedSession | None = None,
+    ) -> list[GetTerrainsResponse]:
+        """Lists terrains."""
+        return self.api_ffbb_client.list_terrains(
+            limit=limit,
+            field_set=field_set,
+            filter_criteria=validate_filter_criteria(filter_criteria),
+            sort=validate_string_list(sort, "sort"),
+            offset=validate_offset(offset),
+            search=validate_search_query(search, "search"),
+            cached_session=cached_session,
+        )
+
+    # --- Directus: Tournois ---
+
+    def get_tournoi(
+        self,
+        tournoi_id: int,
+        field_set: FieldSet = FieldSet.DETAILED,
+        cached_session: CachedSession | None = None,
+    ) -> GetTournoisResponse | None:
+        """Retrieves a tournoi by ID."""
+        return self.api_ffbb_client.get_tournoi(
+            tournoi_id=tournoi_id,
+            field_set=field_set,
+            cached_session=cached_session,
+        )
+
+    def list_tournois(
+        self,
+        limit: int = 10,
+        field_set: FieldSet = FieldSet.DEFAULT,
+        filter_criteria: str | None = None,
+        sort: list[str] | None = None,
+        offset: int | None = None,
+        search: str | None = None,
+        cached_session: CachedSession | None = None,
+    ) -> list[GetTournoisResponse]:
+        """Lists tournois."""
+        return self.api_ffbb_client.list_tournois(
+            limit=limit,
+            field_set=field_set,
+            filter_criteria=validate_filter_criteria(filter_criteria),
+            sort=validate_string_list(sort, "sort"),
+            offset=validate_offset(offset),
+            search=validate_search_query(search, "search"),
+            cached_session=cached_session,
+        )
+
+    # --- Directus: Engagements ---
+
+    def get_engagement(
+        self,
+        engagement_id: int,
+        field_set: FieldSet = FieldSet.DETAILED,
+        cached_session: CachedSession | None = None,
+    ) -> GetEngagementsResponse | None:
+        """Retrieves an engagement by ID."""
+        return self.api_ffbb_client.get_engagement(
+            engagement_id=engagement_id,
+            field_set=field_set,
+            cached_session=cached_session,
+        )
+
+    def list_engagements(
+        self,
+        limit: int = 10,
+        field_set: FieldSet = FieldSet.DEFAULT,
+        filter_criteria: str | None = None,
+        sort: list[str] | None = None,
+        offset: int | None = None,
+        search: str | None = None,
+        cached_session: CachedSession | None = None,
+    ) -> list[GetEngagementsResponse]:
+        """Lists engagements."""
+        return self.api_ffbb_client.list_engagements(
+            limit=limit,
+            field_set=field_set,
+            filter_criteria=validate_filter_criteria(filter_criteria),
+            sort=validate_string_list(sort, "sort"),
+            offset=validate_offset(offset),
+            search=validate_search_query(search, "search"),
+            cached_session=cached_session,
+        )
+
+    # --- Directus: Formations ---
+
+    def get_formation(
+        self,
+        formation_id: str,
+        field_set: FieldSet = FieldSet.DETAILED,
+        cached_session: CachedSession | None = None,
+    ) -> GetFormationsResponse | None:
+        """Retrieves a formation by ID."""
+        return self.api_ffbb_client.get_formation(
+            formation_id=formation_id,
+            field_set=field_set,
+            cached_session=cached_session,
+        )
+
+    def list_formations(
+        self,
+        limit: int = 10,
+        field_set: FieldSet = FieldSet.DEFAULT,
+        filter_criteria: str | None = None,
+        sort: list[str] | None = None,
+        offset: int | None = None,
+        search: str | None = None,
+        cached_session: CachedSession | None = None,
+    ) -> list[GetFormationsResponse]:
+        """Lists formations."""
+        return self.api_ffbb_client.list_formations(
+            limit=limit,
+            field_set=field_set,
+            filter_criteria=validate_filter_criteria(filter_criteria),
+            sort=validate_string_list(sort, "sort"),
+            offset=validate_offset(offset),
+            search=validate_search_query(search, "search"),
+            cached_session=cached_session,
+        )
+
+    # --- Directus: Entraineurs ---
+
+    def get_entraineur(
+        self,
+        entraineur_id: int,
+        field_set: FieldSet = FieldSet.DETAILED,
+        cached_session: CachedSession | None = None,
+    ) -> GetEntraineursResponse | None:
+        """Retrieves an entraineur by ID."""
+        return self.api_ffbb_client.get_entraineur(
+            entraineur_id=entraineur_id,
+            field_set=field_set,
+            cached_session=cached_session,
+        )
+
+    def list_entraineurs(
+        self,
+        limit: int = 10,
+        field_set: FieldSet = FieldSet.DEFAULT,
+        filter_criteria: str | None = None,
+        sort: list[str] | None = None,
+        offset: int | None = None,
+        search: str | None = None,
+        cached_session: CachedSession | None = None,
+    ) -> list[GetEntraineursResponse]:
+        """Lists entraineurs."""
+        return self.api_ffbb_client.list_entraineurs(
+            limit=limit,
+            field_set=field_set,
+            filter_criteria=validate_filter_criteria(filter_criteria),
+            sort=validate_string_list(sort, "sort"),
+            offset=validate_offset(offset),
+            search=validate_search_query(search, "search"),
+            cached_session=cached_session,
+        )
+
+    # --- Directus: Communes ---
+
+    def list_communes(
+        self,
+        limit: int = 10,
+        field_set: FieldSet = FieldSet.DEFAULT,
+        filter_criteria: str | None = None,
+        sort: list[str] | None = None,
+        offset: int | None = None,
+        search: str | None = None,
+        cached_session: CachedSession | None = None,
+    ) -> list[GetCommunesResponse]:
+        """Lists communes."""
+        return self.api_ffbb_client.list_communes(
+            limit=limit,
+            field_set=field_set,
+            filter_criteria=validate_filter_criteria(filter_criteria),
+            sort=validate_string_list(sort, "sort"),
+            offset=validate_offset(offset),
+            search=validate_search_query(search, "search"),
+            cached_session=cached_session,
+        )
+
+    # --- Directus: Officiels ---
+
+    def list_officiels(
+        self,
+        limit: int = 10,
+        field_set: FieldSet = FieldSet.DEFAULT,
+        filter_criteria: str | None = None,
+        sort: list[str] | None = None,
+        offset: int | None = None,
+        search: str | None = None,
+        cached_session: CachedSession | None = None,
+    ) -> list[GetOfficielsResponse]:
+        """Lists officiels."""
+        return self.api_ffbb_client.list_officiels(
+            limit=limit,
+            field_set=field_set,
+            filter_criteria=validate_filter_criteria(filter_criteria),
+            sort=validate_string_list(sort, "sort"),
+            offset=validate_offset(offset),
+            search=validate_search_query(search, "search"),
+            cached_session=cached_session,
+        )
+
+    # --- Directus: Pratiques ---
+
+    def list_pratiques(
+        self,
+        limit: int = 10,
+        field_set: FieldSet = FieldSet.DEFAULT,
+        filter_criteria: str | None = None,
+        sort: list[str] | None = None,
+        offset: int | None = None,
+        search: str | None = None,
+        cached_session: CachedSession | None = None,
+    ) -> list[GetPratiquesResponse]:
+        """Lists pratiques."""
+        return self.api_ffbb_client.list_pratiques(
+            limit=limit,
+            field_set=field_set,
+            filter_criteria=validate_filter_criteria(filter_criteria),
+            sort=validate_string_list(sort, "sort"),
+            offset=validate_offset(offset),
+            search=validate_search_query(search, "search"),
+            cached_session=cached_session,
+        )
+
+    # --- Directus: Automatic Pagination ---
+
+    def list_all_rencontres(
+        self,
+        field_set: FieldSet = FieldSet.DEFAULT,
+        filter_criteria: str | None = None,
+        sort: list[str] | None = None,
+        search: str | None = None,
+        page_size: int = 100,
+        max_items: int = 10000,
+        cached_session: CachedSession | None = None,
+    ) -> list[GetRencontresResponse]:
+        """Retrieves all rencontres with automatic pagination."""
+        return self.api_ffbb_client.list_all_rencontres(
+            field_set=field_set,
+            filter_criteria=validate_filter_criteria(filter_criteria),
+            sort=validate_string_list(sort, "sort"),
+            search=validate_search_query(search, "search"),
+            page_size=page_size,
+            max_items=max_items,
+            cached_session=cached_session,
+        )
+
+    def list_all_salles(
+        self,
+        field_set: FieldSet = FieldSet.DEFAULT,
+        filter_criteria: str | None = None,
+        sort: list[str] | None = None,
+        search: str | None = None,
+        page_size: int = 100,
+        max_items: int = 10000,
+        cached_session: CachedSession | None = None,
+    ) -> list[GetSallesResponse]:
+        """Retrieves all salles with automatic pagination."""
+        return self.api_ffbb_client.list_all_salles(
+            field_set=field_set,
+            filter_criteria=validate_filter_criteria(filter_criteria),
+            sort=validate_string_list(sort, "sort"),
+            search=validate_search_query(search, "search"),
+            page_size=page_size,
+            max_items=max_items,
+            cached_session=cached_session,
+        )
+
+    def list_all_terrains(
+        self,
+        field_set: FieldSet = FieldSet.DEFAULT,
+        filter_criteria: str | None = None,
+        sort: list[str] | None = None,
+        search: str | None = None,
+        page_size: int = 100,
+        max_items: int = 10000,
+        cached_session: CachedSession | None = None,
+    ) -> list[GetTerrainsResponse]:
+        """Retrieves all terrains with automatic pagination."""
+        return self.api_ffbb_client.list_all_terrains(
+            field_set=field_set,
+            filter_criteria=validate_filter_criteria(filter_criteria),
+            sort=validate_string_list(sort, "sort"),
+            search=validate_search_query(search, "search"),
+            page_size=page_size,
+            max_items=max_items,
+            cached_session=cached_session,
+        )
+
+    def list_all_tournois(
+        self,
+        field_set: FieldSet = FieldSet.DEFAULT,
+        filter_criteria: str | None = None,
+        sort: list[str] | None = None,
+        search: str | None = None,
+        page_size: int = 100,
+        max_items: int = 10000,
+        cached_session: CachedSession | None = None,
+    ) -> list[GetTournoisResponse]:
+        """Retrieves all tournois with automatic pagination."""
+        return self.api_ffbb_client.list_all_tournois(
+            field_set=field_set,
+            filter_criteria=validate_filter_criteria(filter_criteria),
+            sort=validate_string_list(sort, "sort"),
+            search=validate_search_query(search, "search"),
+            page_size=page_size,
+            max_items=max_items,
+            cached_session=cached_session,
+        )
+
+    def list_all_engagements(
+        self,
+        field_set: FieldSet = FieldSet.DEFAULT,
+        filter_criteria: str | None = None,
+        sort: list[str] | None = None,
+        search: str | None = None,
+        page_size: int = 100,
+        max_items: int = 10000,
+        cached_session: CachedSession | None = None,
+    ) -> list[GetEngagementsResponse]:
+        """Retrieves all engagements with automatic pagination."""
+        return self.api_ffbb_client.list_all_engagements(
+            field_set=field_set,
+            filter_criteria=validate_filter_criteria(filter_criteria),
+            sort=validate_string_list(sort, "sort"),
+            search=validate_search_query(search, "search"),
+            page_size=page_size,
+            max_items=max_items,
+            cached_session=cached_session,
+        )
+
+    def list_all_formations(
+        self,
+        field_set: FieldSet = FieldSet.DEFAULT,
+        filter_criteria: str | None = None,
+        sort: list[str] | None = None,
+        search: str | None = None,
+        page_size: int = 100,
+        max_items: int = 10000,
+        cached_session: CachedSession | None = None,
+    ) -> list[GetFormationsResponse]:
+        """Retrieves all formations with automatic pagination."""
+        return self.api_ffbb_client.list_all_formations(
+            field_set=field_set,
+            filter_criteria=validate_filter_criteria(filter_criteria),
+            sort=validate_string_list(sort, "sort"),
+            search=validate_search_query(search, "search"),
+            page_size=page_size,
+            max_items=max_items,
+            cached_session=cached_session,
+        )
+
+    def list_all_entraineurs(
+        self,
+        field_set: FieldSet = FieldSet.DEFAULT,
+        filter_criteria: str | None = None,
+        sort: list[str] | None = None,
+        search: str | None = None,
+        page_size: int = 100,
+        max_items: int = 10000,
+        cached_session: CachedSession | None = None,
+    ) -> list[GetEntraineursResponse]:
+        """Retrieves all entraineurs with automatic pagination."""
+        return self.api_ffbb_client.list_all_entraineurs(
+            field_set=field_set,
+            filter_criteria=validate_filter_criteria(filter_criteria),
+            sort=validate_string_list(sort, "sort"),
+            search=validate_search_query(search, "search"),
+            page_size=page_size,
+            max_items=max_items,
+            cached_session=cached_session,
+        )
+
+    def list_all_communes(
+        self,
+        field_set: FieldSet = FieldSet.DEFAULT,
+        filter_criteria: str | None = None,
+        sort: list[str] | None = None,
+        search: str | None = None,
+        page_size: int = 100,
+        max_items: int = 10000,
+        cached_session: CachedSession | None = None,
+    ) -> list[GetCommunesResponse]:
+        """Retrieves all communes with automatic pagination."""
+        return self.api_ffbb_client.list_all_communes(
+            field_set=field_set,
+            filter_criteria=validate_filter_criteria(filter_criteria),
+            sort=validate_string_list(sort, "sort"),
+            search=validate_search_query(search, "search"),
+            page_size=page_size,
+            max_items=max_items,
+            cached_session=cached_session,
+        )
+
+    def list_all_officiels(
+        self,
+        field_set: FieldSet = FieldSet.DEFAULT,
+        filter_criteria: str | None = None,
+        sort: list[str] | None = None,
+        search: str | None = None,
+        page_size: int = 100,
+        max_items: int = 10000,
+        cached_session: CachedSession | None = None,
+    ) -> list[GetOfficielsResponse]:
+        """Retrieves all officiels with automatic pagination."""
+        return self.api_ffbb_client.list_all_officiels(
+            field_set=field_set,
+            filter_criteria=validate_filter_criteria(filter_criteria),
+            sort=validate_string_list(sort, "sort"),
+            search=validate_search_query(search, "search"),
+            page_size=page_size,
+            max_items=max_items,
+            cached_session=cached_session,
+        )
+
+    def list_all_pratiques(
+        self,
+        field_set: FieldSet = FieldSet.DEFAULT,
+        filter_criteria: str | None = None,
+        sort: list[str] | None = None,
+        search: str | None = None,
+        page_size: int = 100,
+        max_items: int = 10000,
+        cached_session: CachedSession | None = None,
+    ) -> list[GetPratiquesResponse]:
+        """Retrieves all pratiques with automatic pagination."""
+        return self.api_ffbb_client.list_all_pratiques(
+            field_set=field_set,
+            filter_criteria=validate_filter_criteria(filter_criteria),
+            sort=validate_string_list(sort, "sort"),
+            search=validate_search_query(search, "search"),
+            page_size=page_size,
+            max_items=max_items,
             cached_session=cached_session,
         )
 

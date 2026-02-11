@@ -292,6 +292,33 @@ def validate_filter_criteria(
     return filter_stripped
 
 
+def validate_offset(offset: int | None, field_name: str = "offset") -> int | None:
+    """
+    Validate an offset parameter.
+
+    Args:
+        offset: The offset to validate
+        field_name (str): Name of the field for error messages
+
+    Returns:
+        Optional[int]: The validated offset or None
+
+    Raises:
+        ValidationError: If offset is invalid
+    """
+    if offset is None:
+        return None
+    if not isinstance(offset, int) or isinstance(offset, bool):
+        raise ValidationError(
+            f"{field_name} must be an integer, got {type(offset).__name__}"
+        )
+    if offset < 0:
+        raise ValidationError(f"{field_name} must be non-negative, got {offset}")
+    if offset > 2**31 - 1:
+        raise ValidationError(f"{field_name} is too large (max: {2**31 - 1})")
+    return offset
+
+
 def validate_search_query(query: str | None, field_name: str = "query") -> str | None:
     """
     Validate a search query.

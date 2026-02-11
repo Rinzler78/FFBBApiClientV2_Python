@@ -9,6 +9,7 @@ from ffbb_api_client_v2.utils.input_validation import (
     validate_boolean,
     validate_deep_limit,
     validate_filter_criteria,
+    validate_offset,
     validate_positive_integer,
     validate_search_query,
     validate_string_list,
@@ -276,6 +277,41 @@ class Test014InputValidation(unittest.TestCase):
                 with self.assertRaises(ValidationError) as context:
                     validate_filter_criteria(invalid_value)
                 self.assertIn(expected_error, str(context.exception))
+
+    def test_validate_offset_valid(self):
+        """Test validation of valid offset values."""
+        valid_cases = [
+            (None, None),
+            (0, 0),
+            (100, 100),
+            (2**31 - 1, 2**31 - 1),
+        ]
+        for input_value, expected in valid_cases:
+            with self.subTest(input=input_value):
+                result = validate_offset(input_value)
+                self.assertEqual(result, expected)
+
+    def test_validate_offset_invalid(self):
+        """Test validation of invalid offset values."""
+        # Negative value
+        with self.assertRaises(ValidationError) as context:
+            validate_offset(-1)
+        self.assertIn("must be non-negative", str(context.exception))
+
+        # Boolean (not int)
+        with self.assertRaises(ValidationError) as context:
+            validate_offset(True)
+        self.assertIn("must be an integer", str(context.exception))
+
+        # String
+        with self.assertRaises(ValidationError) as context:
+            validate_offset("string")
+        self.assertIn("must be an integer", str(context.exception))
+
+        # Too large
+        with self.assertRaises(ValidationError) as context:
+            validate_offset(2**31)
+        self.assertIn("is too large", str(context.exception))
 
     def test_validate_search_query_valid(self):
         """Test validation of valid search queries."""
