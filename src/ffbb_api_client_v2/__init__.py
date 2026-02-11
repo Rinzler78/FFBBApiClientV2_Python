@@ -21,6 +21,16 @@ from .models.field_set import FieldSet
 from .models.formations_facet_distribution import FormationsFacetDistribution
 from .models.formations_facet_stats import FormationsFacetStats
 from .models.formations_hit import FormationsHit
+from .models.get_communes_response import GetCommunesResponse
+from .models.get_engagements_response import GetEngagementsResponse
+from .models.get_entraineurs_response import GetEntraineursResponse
+from .models.get_formations_response import GetFormationsResponse
+from .models.get_officiels_response import GetOfficielsResponse
+from .models.get_pratiques_response import GetPratiquesResponse
+from .models.get_rencontres_response import GetRencontresResponse
+from .models.get_salles_response import GetSallesResponse
+from .models.get_terrains_response import GetTerrainsResponse
+from .models.get_tournois_response import GetTournoisResponse
 from .models.meilisearch_index_settings import MeilisearchIndexSettings
 from .models.multi_search_query import MultiSearchQuery
 from .models.multi_search_result_competitions import CompetitionsMultiSearchResult
@@ -65,6 +75,17 @@ __all__ = [
     # Models
     "FieldSet",
     "MeilisearchIndexSettings",
+    # Directus Response Models
+    "GetCommunesResponse",
+    "GetEngagementsResponse",
+    "GetEntraineursResponse",
+    "GetFormationsResponse",
+    "GetOfficielsResponse",
+    "GetPratiquesResponse",
+    "GetRencontresResponse",
+    "GetSallesResponse",
+    "GetTerrainsResponse",
+    "GetTournoisResponse",
     # Query
     "MultiSearchQuery",
     # Engagements

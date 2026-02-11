@@ -7,6 +7,7 @@ from .categorie import Categorie
 from .clock import Clock
 from .code import Code
 from .commune import Commune
+from .communes_fields import CommunesFields
 from .competition_fields import CompetitionFields
 from .competition_id import CompetitionID
 from .competition_id_categorie import CompetitionIDCategorie
@@ -28,6 +29,8 @@ from .coordonnees import Coordonnees
 from .coordonnees_type import CoordonneesType
 from .document_flyer import DocumentFlyer
 from .document_flyer_type import DocumentFlyerType
+from .engagements_fields import EngagementsFields
+from .entraineurs_fields import EntraineursFields
 from .etat import Etat
 from .external_competition_id import ExternalCompetitionID
 from .external_id import ExternalID
@@ -35,12 +38,23 @@ from .facet_distribution import FacetDistribution
 from .facet_stats import FacetStats
 from .field_set import FieldSet
 from .folder import Folder
+from .formations_fields import FormationsFields
 from .game_stats_model import GameStatsModel
 from .geo import Geo
+from .get_communes_response import GetCommunesResponse
 from .get_competition_response import GetCompetitionResponse
 from .get_configuration_response import GetConfigurationResponse
+from .get_engagements_response import GetEngagementsResponse
+from .get_entraineurs_response import GetEntraineursResponse
+from .get_formations_response import GetFormationsResponse
+from .get_officiels_response import GetOfficielsResponse
 from .get_organisme_response import GetOrganismeResponse
 from .get_poule_response import GetPouleResponse
+from .get_pratiques_response import GetPratiquesResponse
+from .get_rencontres_response import GetRencontresResponse
+from .get_salles_response import GetSallesResponse
+from .get_terrains_response import GetTerrainsResponse
+from .get_tournois_response import GetTournoisResponse
 from .id_engagement_equipe import IDEngagementEquipe
 from .id_organisme_equipe import IDOrganismeEquipe
 from .id_organisme_equipe1_logo import IDOrganismeEquipe1Logo
@@ -65,6 +79,7 @@ from .nature_sol import NatureSol
 from .niveau import Niveau
 from .niveau_class import NiveauClass
 from .objectif import Objectif
+from .officiels_fields import OfficielsFields
 from .organisateur import Organisateur
 from .organisateur_type import OrganisateurType
 from .organisme_fields import OrganismeFields
@@ -76,17 +91,20 @@ from .poule import Poule
 from .poule_fields import PouleFields
 from .poules_query import PoulesQuery
 from .pratique import Pratique
+from .pratiques_fields import PratiquesFields
 from .pratiques_multi_search_query import PratiquesMultiSearchQuery
 from .pratiques_type_class import PratiquesTypeClass
 from .publication_internet import PublicationInternet
 from .purple_logo import PurpleLogo
 from .query_fields_manager import QueryFieldsManager
 from .ranking_engagement import RankingEngagement
+from .rencontres_fields import RencontresFields
 from .rencontres_multi_search_query import RencontresMultiSearchQuery
 from .saison import Saison
 from .saison_fields import SaisonFields
 from .saisons_query import SaisonsQuery
 from .salle import Salle
+from .salles_fields import SallesFields
 from .salles_multi_search_query import SallesMultiSearchQuery
 from .sexe import Sexe
 from .sexe_class import SexeClass
@@ -94,9 +112,11 @@ from .source import Source
 from .status import Status
 from .team_engagement import TeamEngagement
 from .team_ranking import TeamRanking
+from .terrains_fields import TerrainsFields
 from .terrains_multi_search_query import TerrainsMultiSearchQuery
 from .tournoi_type_class import TournoiTypeClass
 from .tournoi_type_enum import TournoiTypeEnum
+from .tournois_fields import TournoisFields
 from .tournois_multi_search_query import TournoisMultiSearchQuery
 from .type_association import TypeAssociation
 from .type_association_libelle import TypeAssociationLibelle
@@ -139,10 +159,20 @@ __all__ = [
     "Folder",
     "GameStatsModel",
     "Geo",
+    "GetCommunesResponse",
     "GetCompetitionResponse",
     "GetConfigurationResponse",
+    "GetEngagementsResponse",
+    "GetEntraineursResponse",
+    "GetFormationsResponse",
+    "GetOfficielsResponse",
     "GetOrganismeResponse",
     "GetPouleResponse",
+    "GetPratiquesResponse",
+    "GetRencontresResponse",
+    "GetSallesResponse",
+    "GetTerrainsResponse",
+    "GetTournoisResponse",
     "IDEngagementEquipe",
     "IDOrganismeEquipe",
     "IDOrganismeEquipe1Logo",
@@ -179,6 +209,16 @@ __all__ = [
     "CompetitionFields",
     "PouleFields",
     "SaisonFields",
+    "CommunesFields",
+    "OfficielsFields",
+    "EntraineursFields",
+    "RencontresFields",
+    "SallesFields",
+    "TerrainsFields",
+    "TournoisFields",
+    "EngagementsFields",
+    "FormationsFields",
+    "PratiquesFields",
     "FieldSet",
     "RencontresMultiSearchQuery",
     "RencontresMultiSearchResult",
