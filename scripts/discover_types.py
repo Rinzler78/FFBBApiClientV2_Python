@@ -31,13 +31,26 @@ sys.path.insert(0, str(PROJECT_ROOT / "src"))
 from ffbb_api_client_v2.config import (  # noqa: E402
     API_FFBB_BASE_URL,
     DEFAULT_USER_AGENT,
+    ENDPOINT_COMMUNES,
     ENDPOINT_COMPETITIONS,
+    ENDPOINT_CONFIGURATION,
+    ENDPOINT_ENGAGEMENTS,
+    ENDPOINT_ENTRAINEURS,
+    ENDPOINT_FORMATIONS,
     ENDPOINT_LIVES,
+    ENDPOINT_OFFICIELS,
     ENDPOINT_ORGANISMES,
     ENDPOINT_POULES,
+    ENDPOINT_PRATIQUES,
+    ENDPOINT_RENCONTRES,
     ENDPOINT_SAISONS,
+    ENDPOINT_SALLES,
+    ENDPOINT_TERRAINS,
+    ENDPOINT_TOURNOIS,
     MEILISEARCH_BASE_URL,
     MEILISEARCH_ENDPOINT_MULTI_SEARCH,
+    MEILISEARCH_INDEX_ENGAGEMENTS,
+    MEILISEARCH_INDEX_FORMATIONS,
 )
 from ffbb_api_client_v2.helpers.http_requests_utils import (  # noqa: E402
     http_get_json,
@@ -182,6 +195,8 @@ MEILI_INDEX_TO_CLASSES: dict[str, list[str]] = {
     "ffbbserver_tournois": ["TournoisHit"],
     "ffbbserver_competitions": ["CompetitionsHit"],
     "ffbbnational_pratiques": ["PratiquesHit"],
+    MEILISEARCH_INDEX_ENGAGEMENTS: ["EngagementsHit"],
+    MEILISEARCH_INDEX_FORMATIONS: ["FormationsHit"],
 }
 
 # Build lookup: class_name → list of json_keys to watch
@@ -711,6 +726,19 @@ def main() -> None:
     # 3. Phase 2: REST API collection
     logger.info("Phase 2: REST API collection...")
 
+    # Responses dir for raw JSON samples
+    responses_dir = DATA_DIR / "responses"
+    responses_dir.mkdir(parents=True, exist_ok=True)
+
+    def _save_samples(endpoint_name: str, data: list[dict[str, Any]]) -> None:
+        """Save 2-3 raw response samples to data/responses/."""
+        samples = data[:3]
+        if samples:
+            out_path = responses_dir / f"{endpoint_name}.json"
+            with open(out_path, "w", encoding="utf-8") as f:
+                json.dump(samples, f, indent=2, default=str, ensure_ascii=False)
+            logger.info("  Saved %d samples to %s", len(samples), out_path)
+
     # 2a. Wildcard: organismes
     org_ids = meili_ids.get("ffbbserver_organismes", [])[:REST_SAMPLE_SIZE]
     if org_ids:
@@ -718,6 +746,7 @@ def main() -> None:
         org_data = collector.collect_rest_wildcard(ENDPOINT_ORGANISMES, org_ids)
         for item in org_data:
             rest_flattener.flatten(item, "rest/organismes")
+        _save_samples("organismes", org_data)
 
     # 2a. Wildcard: competitions
     comp_ids = meili_ids.get("ffbbserver_competitions", [])[:REST_SAMPLE_SIZE]
@@ -740,6 +769,7 @@ def main() -> None:
                                     pid = poule.get("id")
                                     if pid is not None:
                                         poule_ids.append(pid)
+        _save_samples("competitions", comp_data)
 
         # 2a. Wildcard: poules
         poule_sample = poule_ids[:REST_POULE_SAMPLE_SIZE]
@@ -748,18 +778,63 @@ def main() -> None:
             poule_data = collector.collect_rest_wildcard(ENDPOINT_POULES, poule_sample)
             for item in poule_data:
                 rest_flattener.flatten(item, "rest/poules")
+            _save_samples("poules", poule_data)
 
     # 2a. Wildcard: saisons
     logger.info("Fetching saisons...")
     saisons_data = collector.collect_rest_list(ENDPOINT_SAISONS, ["*.*.*"])
     for item in saisons_data:
         rest_flattener.flatten(item, "rest/saisons")
+    _save_samples("saisons", saisons_data)
 
     # 2a. lives.json
     logger.info("Fetching lives.json...")
     lives_data = collector.collect_lives()
     if lives_data:
         rest_flattener.flatten(lives_data, "rest/lives")
+        _save_samples(
+            "lives", [lives_data] if isinstance(lives_data, dict) else lives_data
+        )
+
+    # --- NEW: 11 additional REST endpoints ---
+
+    # List endpoints (communes, officiels, entraineurs, pratiques)
+    for endpoint, name in [
+        (ENDPOINT_COMMUNES, "communes"),
+        (ENDPOINT_OFFICIELS, "officiels"),
+        (ENDPOINT_ENTRAINEURS, "entraineurs"),
+        (ENDPOINT_PRATIQUES, "pratiques"),
+    ]:
+        logger.info("Fetching %s (list)...", name)
+        list_data = collector.collect_rest_list(endpoint, ["*.*.*"])
+        for item in list_data:
+            rest_flattener.flatten(item, f"rest/{name}")
+        _save_samples(name, list_data)
+
+    # Wildcard by ID endpoints (using IDs from MeiliSearch)
+    meili_to_rest = [
+        ("ffbbserver_rencontres", ENDPOINT_RENCONTRES, "rencontres"),
+        ("ffbbserver_salles", ENDPOINT_SALLES, "salles"),
+        ("ffbbserver_terrains", ENDPOINT_TERRAINS, "terrains"),
+        ("ffbbserver_tournois", ENDPOINT_TOURNOIS, "tournois"),
+        (MEILISEARCH_INDEX_ENGAGEMENTS, ENDPOINT_ENGAGEMENTS, "engagements"),
+        (MEILISEARCH_INDEX_FORMATIONS, ENDPOINT_FORMATIONS, "formations"),
+    ]
+    for index_uid, endpoint, name in meili_to_rest:
+        ids = meili_ids.get(index_uid, [])[:REST_SAMPLE_SIZE]
+        if ids:
+            logger.info("Fetching %d %s (wildcard)...", len(ids), name)
+            endpoint_data = collector.collect_rest_wildcard(endpoint, ids)
+            for item in endpoint_data:
+                rest_flattener.flatten(item, f"rest/{name}")
+            _save_samples(name, endpoint_data)
+
+    # Single endpoint: configuration
+    logger.info("Fetching configuration...")
+    config_data = collector.collect_rest_list(ENDPOINT_CONFIGURATION, ["*.*.*"])
+    for item in config_data:
+        rest_flattener.flatten(item, "rest/configuration")
+    _save_samples("configuration", config_data)
 
     # 2b. Targeted: organismes with explicit from_none fields
     if org_ids:
@@ -820,6 +895,42 @@ def main() -> None:
     with open(corrections_path, "w", encoding="utf-8") as f:
         json.dump(corrections_report, f, indent=2, default=str, ensure_ascii=False)
     logger.info("Corrections report written to %s", corrections_path)
+
+    # 5. Phase 4: Enum candidate detection
+    logger.info("Phase 4: Detecting enum candidates...")
+    enum_candidates: list[dict[str, Any]] = []
+
+    for path, stats in combined_flattener.paths.items():
+        # Only consider str-typed paths with low cardinality
+        if stats.non_none_count < 10:
+            continue
+        if "str" not in stats.types:
+            continue
+        # Collect all unique string values from samples
+        str_samples = [s for s in stats.samples if isinstance(s, str)]
+        if not str_samples:
+            continue
+        # Estimate unique values — we only have up to MAX_SAMPLES
+        unique_values = sorted(set(str_samples))
+        # If cardinality is low relative to observations, it's likely an enum
+        if len(unique_values) < 50:
+            enum_candidates.append(
+                {
+                    "json_path": path,
+                    "unique_values": unique_values,
+                    "count": len(unique_values),
+                    "total_observations": stats.total,
+                    "non_none_observations": stats.non_none_count,
+                }
+            )
+
+    enum_candidates.sort(key=lambda x: x["count"])
+    enum_path = DATA_DIR / "enum_candidates.json"
+    with open(enum_path, "w", encoding="utf-8") as f:
+        json.dump(enum_candidates, f, indent=2, ensure_ascii=False)
+    logger.info(
+        "Enum candidates: %d paths written to %s", len(enum_candidates), enum_path
+    )
 
     # Console summary
     ReportGenerator.print_console_summary(corrections_report)
