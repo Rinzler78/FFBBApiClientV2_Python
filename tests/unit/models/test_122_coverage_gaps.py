@@ -265,7 +265,7 @@ class TestDocumentFlyerToDictCoverage(unittest.TestCase):
 
 
 class TestTournoisToDictCoverage(unittest.TestCase):
-    """multi_search_result_tournois.py -- cover SexeClass and TournoisFacetDistribution to_dict."""
+    """multi_search_result_tournois.py -- cover SexeClass and TerrainsFacetDistribution to_dict."""
 
     def test_sexe_class_to_dict(self) -> None:
         from ffbb_api_client_v2.models.sexe_class import SexeClass
@@ -276,16 +276,16 @@ class TestTournoisToDictCoverage(unittest.TestCase):
         self.assertEqual(d["Masculin"], 5)
         self.assertEqual(d["Mixte"], 2)
 
-    def test_tournois_facet_distribution_to_dict(self) -> None:
+    def test_terrains_facet_distribution_to_dict(self) -> None:
         from ffbb_api_client_v2.models.sexe_class import SexeClass
-        from ffbb_api_client_v2.models.tournoi_type_class import TournoiTypeClass
-        from ffbb_api_client_v2.models.tournois_facet_distribution import (
-            TournoisFacetDistribution,
+        from ffbb_api_client_v2.models.terrains_facet_distribution import (
+            TerrainsFacetDistribution,
         )
+        from ffbb_api_client_v2.models.tournoi_type_class import TournoiTypeClass
 
         sexe = SexeClass(feminine=1, masculine=2, mixed=0)
         tt = TournoiTypeClass.from_dict({"Terrain": 3})
-        fd = TournoisFacetDistribution(
+        fd = TerrainsFacetDistribution(
             sexe=sexe, tournoi_type=tt, tournoi_types3_x3_libelle=None
         )
         d = fd.to_dict()

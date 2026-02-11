@@ -160,7 +160,7 @@ class Test010UserJourneyIntegration(unittest.TestCase):
                 f"✓ Successfully retrieved competition details for: {competition_details.nom}"
             )
             print(f"  Competition ID: {competition_details.id}")
-            print(f"  Competition type: {competition_details.typeCompetition}")
+            print(f"  Competition type: {competition_details.type_competition}")
         else:
             print(f"⚠ No phases found for competition: {competition_details.nom}")
 

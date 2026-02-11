@@ -16,7 +16,6 @@ from ffbb_api_client_v2 import (
     PratiquesFacetStats,
     PratiquesHit,
     PratiquesMultiSearchResult,
-    RencontresFacetDistribution,
     RencontresFacetStats,
     RencontresHit,
     RencontresMultiSearchResult,
@@ -28,7 +27,6 @@ from ffbb_api_client_v2 import (
     TerrainsFacetStats,
     TerrainsHit,
     TerrainsMultiSearchResult,
-    TournoisFacetDistribution,
     TournoisFacetStats,
     TournoisHit,
     TournoisMultiSearchResult,
@@ -154,7 +152,7 @@ class Test004FfbbApiClientV2(unittest.TestCase):
         self.__validate_test_search(
             search_rencontres_result,
             RencontresMultiSearchResult,
-            RencontresFacetDistribution,
+            CompetitionsFacetDistribution,
             RencontresFacetStats,
             RencontresHit,
         )
@@ -167,7 +165,7 @@ class Test004FfbbApiClientV2(unittest.TestCase):
         self.__validate_test_search_multi(
             search_rencontres_result,
             RencontresMultiSearchResult,
-            RencontresFacetDistribution,
+            CompetitionsFacetDistribution,
             RencontresFacetStats,
             RencontresHit,
         )
@@ -246,7 +244,7 @@ class Test004FfbbApiClientV2(unittest.TestCase):
         self.__validate_test_search(
             search_tournois_result,
             TournoisMultiSearchResult,
-            TournoisFacetDistribution,
+            TerrainsFacetDistribution,
             TournoisFacetStats,
             TournoisHit,
         )
@@ -259,7 +257,7 @@ class Test004FfbbApiClientV2(unittest.TestCase):
         self.__validate_test_search_multi(
             search_tournois_result,
             TournoisMultiSearchResult,
-            TournoisFacetDistribution,
+            TerrainsFacetDistribution,
             TournoisFacetStats,
             TournoisHit,
         )

@@ -218,28 +218,6 @@ class TestTournoisFacetStats(unittest.TestCase):
         self.assertEqual(TournoisFacetStats().to_dict(), {})
 
 
-class TestRencontresFacetDistribution(unittest.TestCase):
-    """Cover from_dict({}) and to_dict() empty-branch paths."""
-
-    def test_from_dict_empty(self) -> None:
-        from ffbb_api_client_v2.models.rencontres_facet_distribution import (
-            RencontresFacetDistribution,
-        )
-
-        obj = RencontresFacetDistribution.from_dict({})
-        self.assertIsInstance(obj, RencontresFacetDistribution)
-        self.assertIsNone(obj.competition_id_categorie_code)
-        self.assertIsNone(obj.competition_id_sexe)
-
-    def test_to_dict_empty(self) -> None:
-        from ffbb_api_client_v2.models.rencontres_facet_distribution import (
-            RencontresFacetDistribution,
-        )
-
-        obj = RencontresFacetDistribution()
-        self.assertEqual(obj.to_dict(), {})
-
-
 class TestCompetitionsFacetDistribution(unittest.TestCase):
     """Cover from_dict({}) and to_dict() empty-branch paths."""
 
@@ -282,12 +260,12 @@ class TestTerrainsFacetDistribution(unittest.TestCase):
         self.assertEqual(TerrainsFacetDistribution().to_dict(), {})
 
 
-class TestTournoisFacetDistribution(unittest.TestCase):
-    """Cover from_dict with data (True branch) and to_dict."""
+class TestTerrainsFacetDistributionWithData(unittest.TestCase):
+    """Cover from_dict with data (True branch) and to_dict (formerly TestTournoisFacetDistribution)."""
 
     def test_from_dict_with_data(self) -> None:
-        from ffbb_api_client_v2.models.tournois_facet_distribution import (
-            TournoisFacetDistribution,
+        from ffbb_api_client_v2.models.terrains_facet_distribution import (
+            TerrainsFacetDistribution,
         )
 
         data = {
@@ -298,7 +276,7 @@ class TestTournoisFacetDistribution(unittest.TestCase):
                 "Open Plus - Super league 3x3": 2,
             },
         }
-        obj = TournoisFacetDistribution.from_dict(data)
+        obj = TerrainsFacetDistribution.from_dict(data)
         self.assertIsNotNone(obj.sexe)
         self.assertEqual(obj.sexe.feminine, 5)
         self.assertIsNotNone(obj.tournoi_type)
@@ -307,12 +285,12 @@ class TestTournoisFacetDistribution(unittest.TestCase):
 
     def test_to_dict_with_data(self) -> None:
         from ffbb_api_client_v2.models.sexe_class import SexeClass
-        from ffbb_api_client_v2.models.tournoi_type_class import TournoiTypeClass
-        from ffbb_api_client_v2.models.tournois_facet_distribution import (
-            TournoisFacetDistribution,
+        from ffbb_api_client_v2.models.terrains_facet_distribution import (
+            TerrainsFacetDistribution,
         )
+        from ffbb_api_client_v2.models.tournoi_type_class import TournoiTypeClass
 
-        obj = TournoisFacetDistribution(
+        obj = TerrainsFacetDistribution(
             sexe=SexeClass(feminine=5, masculine=10, mixed=3),
             tournoi_type=TournoiTypeClass(open_plus=2),
         )
@@ -321,11 +299,11 @@ class TestTournoisFacetDistribution(unittest.TestCase):
         self.assertIn("tournoiType", d)
 
     def test_from_dict_empty(self) -> None:
-        from ffbb_api_client_v2.models.tournois_facet_distribution import (
-            TournoisFacetDistribution,
+        from ffbb_api_client_v2.models.terrains_facet_distribution import (
+            TerrainsFacetDistribution,
         )
 
-        obj = TournoisFacetDistribution.from_dict({})
+        obj = TerrainsFacetDistribution.from_dict({})
         self.assertEqual(obj.to_dict(), {})
 
 
@@ -560,7 +538,6 @@ class TestCompetitionsFacetDistributionWithData(unittest.TestCase):
     """Cover to_dict branches when nested objects are populated."""
 
     def test_to_dict_with_nested_objects(self) -> None:
-        from ffbb_api_client_v2.models.competition_id_sexe import CompetitionIDSexe
         from ffbb_api_client_v2.models.competition_id_type_competition import (
             CompetitionIDTypeCompetition,
         )
@@ -568,45 +545,12 @@ class TestCompetitionsFacetDistributionWithData(unittest.TestCase):
             CompetitionsFacetDistribution,
         )
         from ffbb_api_client_v2.models.niveau_class import NiveauClass
+        from ffbb_api_client_v2.models.sexe_class import SexeClass
 
         obj = CompetitionsFacetDistribution(
             competition_id_categorie_code={"U13": 5},
             competition_id_nom_extended={"National": 3},
-            competition_id_sexe=CompetitionIDSexe(feminine=2, masculine=8),
-            competition_id_type_competition=CompetitionIDTypeCompetition(
-                championnat=10
-            ),
-            niveau=NiveauClass(départemental=4),
-            organisateur_id={"org1": 1},
-            organisateur_nom={"FFBB": 2},
-        )
-        d = obj.to_dict()
-        self.assertEqual(d["competitionId.categorie.code"], {"U13": 5})
-        self.assertEqual(d["competitionId.nomExtended"], {"National": 3})
-        self.assertIn("competitionId.sexe", d)
-        self.assertIn("competitionId.typeCompetition", d)
-        self.assertIn("niveau", d)
-        self.assertEqual(d["organisateur.id"], {"org1": 1})
-        self.assertEqual(d["organisateur.nom"], {"FFBB": 2})
-
-
-class TestRencontresFacetDistributionWithData(unittest.TestCase):
-    """Cover to_dict branches when nested objects are populated."""
-
-    def test_to_dict_with_nested_objects(self) -> None:
-        from ffbb_api_client_v2.models.competition_id_sexe import CompetitionIDSexe
-        from ffbb_api_client_v2.models.competition_id_type_competition import (
-            CompetitionIDTypeCompetition,
-        )
-        from ffbb_api_client_v2.models.niveau_class import NiveauClass
-        from ffbb_api_client_v2.models.rencontres_facet_distribution import (
-            RencontresFacetDistribution,
-        )
-
-        obj = RencontresFacetDistribution(
-            competition_id_categorie_code={"U13": 5},
-            competition_id_nom_extended={"National": 3},
-            competition_id_sexe=CompetitionIDSexe(feminine=2, masculine=8),
+            competition_id_sexe=SexeClass(feminine=2, masculine=8),
             competition_id_type_competition=CompetitionIDTypeCompetition(
                 championnat=10
             ),

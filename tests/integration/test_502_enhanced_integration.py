@@ -62,7 +62,7 @@ class Test011EnhancedIntegration(unittest.TestCase):
 
         if organisme_details.commune:
             self.assertIsNotNone(organisme_details.commune.libelle)
-            self.assertIsNotNone(organisme_details.commune.codePostal)
+            self.assertIsNotNone(organisme_details.commune.code_postal)
 
         if organisme_details.engagements:
             self.assertIsInstance(organisme_details.engagements, list)
@@ -107,8 +107,8 @@ class Test011EnhancedIntegration(unittest.TestCase):
         # Find an engagement with competition information
         competition_id = None
         for engagement in organisme_with_details.engagements:
-            if engagement.idCompetition and engagement.idCompetition.id:
-                competition_id = int(engagement.idCompetition.id)
+            if engagement.id_competition and engagement.id_competition.id:
+                competition_id = int(engagement.id_competition.id)
                 break
 
         if not competition_id:

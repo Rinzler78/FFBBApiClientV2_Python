@@ -26,6 +26,9 @@ from ffbb_api_client_v2.config import (
     MEILISEARCH_BASE_URL,
     MEILISEARCH_ENDPOINT_MULTI_SEARCH,
 )
+from ffbb_api_client_v2.models.competitions_facet_distribution import (
+    CompetitionsFacetDistribution,
+)
 from ffbb_api_client_v2.models.configuration_models import GetConfigurationResponse
 from ffbb_api_client_v2.models.game_stats_models import GameStatsModel
 from ffbb_api_client_v2.models.get_competition_response import GetCompetitionResponse
@@ -70,18 +73,12 @@ from ffbb_api_client_v2.models.pratiques_facet_distribution import (
     PratiquesFacetDistribution,
 )
 from ffbb_api_client_v2.models.rankings_models import RankingEngagement, TeamRanking
-from ffbb_api_client_v2.models.rencontres_facet_distribution import (
-    RencontresFacetDistribution,
-)
 from ffbb_api_client_v2.models.saisons_models import GetSaisonsResponse
 from ffbb_api_client_v2.models.salles_facet_distribution import (
     SallesFacetDistribution,
 )
 from ffbb_api_client_v2.models.terrains_facet_distribution import (
     TerrainsFacetDistribution,
-)
-from ffbb_api_client_v2.models.tournois_facet_distribution import (
-    TournoisFacetDistribution,
 )
 
 # ---------------------------------------------------------------------------
@@ -289,8 +286,8 @@ class Test021RawApiRestConversion(unittest.TestCase):
 
         # Nested commune check
         if result.commune is not None:
-            if result.commune.codePostal is not None:
-                self.assertIsInstance(result.commune.codePostal, str)
+            if result.commune.code_postal is not None:
+                self.assertIsInstance(result.commune.code_postal, str)
             if result.commune.libelle is not None:
                 self.assertIsInstance(result.commune.libelle, str)
 
@@ -575,7 +572,7 @@ class Test021RawMeilisearchConversion(unittest.TestCase):
 
         if result.facet_distribution is not None:
             self.assertIsInstance(
-                result.facet_distribution, RencontresFacetDistribution
+                result.facet_distribution, CompetitionsFacetDistribution
             )
 
     # -- test_015: pratiques search ---------------------------------------
@@ -613,7 +610,7 @@ class Test021RawMeilisearchConversion(unittest.TestCase):
         self.assertIsNotNone(result.hits)
 
         if result.facet_distribution is not None:
-            self.assertIsInstance(result.facet_distribution, TournoisFacetDistribution)
+            self.assertIsInstance(result.facet_distribution, TerrainsFacetDistribution)
 
     # -- test_017: full multi-search results wrapper ----------------------
 
@@ -1032,7 +1029,7 @@ class Test021FromDictEdgeCases(unittest.TestCase):
                     "competitionId": "comp-1",
                     "resultatEquipe1": "85",
                     "resultatEquipe2": "72",
-                    "joue": 1,
+                    "joue": True,
                     "nomEquipe1": "Team A",
                     "nomEquipe2": "Team B",
                     "date_rencontre": "2025-01-15",

@@ -60,9 +60,6 @@ from ffbb_api_client_v2.models.organismes_facet_distribution import (
 )
 from ffbb_api_client_v2.models.organismes_hit import OrganismesHit
 from ffbb_api_client_v2.models.pratiques_hit import PratiquesHit
-from ffbb_api_client_v2.models.rencontres_facet_distribution import (
-    RencontresFacetDistribution,
-)
 from ffbb_api_client_v2.models.rencontres_hit import RencontresHit
 from ffbb_api_client_v2.models.salles_hit import SallesHit
 from ffbb_api_client_v2.models.team_engagement import TeamEngagement
@@ -778,9 +775,9 @@ class Test022ToDictRoundTrip(unittest.TestCase):
         )
 
     def test_081_rencontres_facet_distribution(self) -> None:
-        """RencontresFacetDistribution with dict fields."""
+        """CompetitionsFacetDistribution with dict fields (formerly RencontresFacetDistribution)."""
         self._assert_stable(
-            RencontresFacetDistribution,
+            CompetitionsFacetDistribution,
             {
                 "competitionId.categorie.code": {"SE": 100, "U17": 50},
                 "competitionId.nomExtended": None,

@@ -1,14 +1,14 @@
-"""Round-trip tests for CompetitionIDSexe."""
+"""Round-trip tests for SexeClass (formerly CompetitionIDSexe)."""
 
 from __future__ import annotations
 
 import unittest
 from typing import Any
 
-from ffbb_api_client_v2.models.competition_id_sexe import CompetitionIDSexe
+from ffbb_api_client_v2.models.sexe_class import SexeClass
 
 
-class Test024CompetitionIdSexe(unittest.TestCase):
+class Test024SexeClass(unittest.TestCase):
     def _assert_stable(self, model_class: type, input_data: dict[str, Any]) -> None:
         obj1 = model_class.from_dict(input_data)
         dict1 = obj1.to_dict()
@@ -18,16 +18,16 @@ class Test024CompetitionIdSexe(unittest.TestCase):
 
     def test_001_round_trip_full(self) -> None:
         self._assert_stable(
-            CompetitionIDSexe,
+            SexeClass,
             {"Féminin": 5, "Masculin": 10, "Mixte": 2},
         )
 
     def test_002_round_trip_partial(self) -> None:
-        self._assert_stable(CompetitionIDSexe, {"Masculin": 8})
+        self._assert_stable(SexeClass, {"Masculin": 8})
 
     def test_003_round_trip_none_fields(self) -> None:
         self._assert_stable(
-            CompetitionIDSexe,
+            SexeClass,
             {"Féminin": None, "Masculin": None, "Mixte": None},
         )
 
