@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-02-10
+
+### Added
+- 2 new Meilisearch indexes: `ffbbserver_engagements` (~105k hits), `ffbbserver_formations` (~90 hits)
+- `EngagementsHit`, `FormationsHit`, `MeilisearchIndexSettings` and associated models (facets, stats, multi-search queries)
+- `filter`, `sort`, `limit` parameters on all 18 search methods
+- `FieldSet.WILDCARD` for Directus queries with all fields
+- `MeilisearchClient.get_index_settings()` to retrieve index settings
+- Discovery scripts: `discover_meilisearch_indexes.py`, `discover_meilisearch_settings.py`, `discover_api_fields.py`
+- Analytics notebooks: `simple_rating_notebook.ipynb`, `projection_notebook.ipynb`
+- Interactive Streamlit dashboard: `basketball_dashboard.py`
+- API model audit script: `audit_api_models.py`
+- Automated developer setup: `setup_dev.sh`, `requirements.txt`
+- Tests: `test_207` to `test_209` (clients), `test_124` to `test_127` (models)
+
+### Changed (Breaking)
+- **BREAKING**: `fields` parameter removed from 5 Directus methods, only `field_set: FieldSet` remains (default `FieldSet.DETAILED`)
+- **BREAKING**: `FieldSet.MINIMAL` removed (never handled by QueryFieldsManager)
+- **BREAKING**: `deep_limit` renamed to `deep_rencontres_limit` (int) in `get_competition()`
+- **BREAKING**: `get_poule()` now exposes explicit deep parameters (`deep_rencontres_limit`, `deep_rencontres_filter_saison_actif`, `deep_rencontres_sort`, `deep_classements_limit`)
+- `validate_deep_limit` max increased from 10000 to 100000
+- Completed facets for competitions, salles, terrains indexes
+
+### Fixed
+- Swapped `TerrainsHit` and `TournoisHit` models (fields matched the wrong index)
+- Phantom `horaire` field removed from `RencontresHit`
+- `TournoisMultiSearchQuery`: missing sort propagation
+
+### Removed
+- `GradientColor` model (unused)
+- Old example scripts (`complete_usage_example.py`, `quick_start.py`, `team_ranking_analysis.py`)
+
 ## [1.2.0] - 2025-02-05
 
 ### Added

@@ -377,6 +377,94 @@ Exporting Search Results
                 org.code_postal[:2] if org.code_postal else ''
             ])
 
+Searching Engagements & Formations (v1.3.0+)
+=============================================
+
+Two new Meilisearch indexes are available: engagements (~105k hits) and formations (~90 hits).
+
+.. code-block:: python
+
+    from ffbb_api_client_v2 import FFBBAPIClientV2, TokenManager
+
+    tokens = TokenManager.get_tokens()
+    client = FFBBAPIClientV2.create(
+        api_bearer_token=tokens.api_token,
+        meilisearch_bearer_token=tokens.meilisearch_token
+    )
+
+    # Search engagements
+    engagements = client.search_engagements("Paris", limit=10)
+    print(f"Found {engagements.estimated_total_hits} engagements")
+    for hit in engagements.hits:
+        print(f"  - {hit.source}")
+
+    # Search formations
+    formations = client.search_formations("arbitre", limit=5)
+    print(f"Found {formations.estimated_total_hits} formations")
+    for hit in formations.hits:
+        print(f"  - {hit.source}")
+
+Filtered & Sorted Search (v1.3.0+)
+====================================
+
+All 18 search methods now support ``filter``, ``sort``, and ``limit`` parameters.
+
+.. code-block:: python
+
+    # Search with filter and sort
+    organismes = client.search_organismes(
+        "Paris",
+        filter="type_association_libelle = 'Association'",
+        sort=["nom_officiel:asc"],
+        limit=20
+    )
+
+    # Search competitions with sorting
+    competitions = client.search_competitions(
+        "Championnat",
+        sort=["saison:desc"],
+        limit=10
+    )
+
+    # Search rencontres with filter
+    rencontres = client.search_rencontres(
+        "Lyon",
+        filter="saison_sportive = '2025-2026'",
+        limit=50
+    )
+
+Index Settings Discovery (v1.3.0+)
+====================================
+
+Retrieve the settings of any Meilisearch index at runtime.
+
+.. code-block:: python
+
+    from ffbb_api_client_v2 import MeilisearchFFBBClient
+
+    meilisearch_client = MeilisearchFFBBClient(meilisearch_token)
+
+    # Get settings for the organismes index
+    settings = meilisearch_client.get_index_settings("ffbbserver_organismes")
+    print(f"Filterable attributes: {settings.filterable_attributes}")
+    print(f"Sortable attributes: {settings.sortable_attributes}")
+    print(f"Searchable attributes: {settings.searchable_attributes}")
+
+Using FieldSet.WILDCARD (v1.3.0+)
+===================================
+
+Use ``FieldSet.WILDCARD`` to retrieve all available fields from a Directus endpoint.
+
+.. code-block:: python
+
+    from ffbb_api_client_v2.models.query_fields import FieldSet
+
+    # Get all available fields for an organisme
+    organisme = client.get_organisme(123, field_set=FieldSet.WILDCARD)
+
+    # Get all fields for a competition
+    competition = client.get_competition(456, field_set=FieldSet.WILDCARD)
+
 Complete Example Script
 =======================
 

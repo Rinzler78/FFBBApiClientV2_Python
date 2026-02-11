@@ -36,7 +36,7 @@ FFBBApiClientV2_Python
     Modern Python client library for FFBB (French Basketball Federation) APIs
 
 
-**559 tests** | **95%+ coverage** | **MyPy strict** | **Python 3.10+** | **9 Meilisearch indexes**
+**558 tests** | **95%+ coverage** | **MyPy strict** | **Python 3.10+** | **9 Meilisearch indexes**
 
 ffbb_api_client_v2 is a modern Python client library for interacting with the French Basketball Federation (FFBB) APIs.
 It provides a comprehensive interface to retrieve information about clubs, teams, competitions, matches, seasons, and more.
@@ -53,8 +53,8 @@ It provides a comprehensive interface to retrieve information about clubs, teams
 What's New
 ==========
 
+- **v1.3.0**: Simplified Directus API (``fields`` removed, typed deep params), 2 new Meilisearch indexes (engagements, formations), ``filter``/``sort``/``limit`` on all 18 search methods, corrected TerrainsHit/TournoisHit models
 - **v1.2.0**: TokenManager with automatic token resolution from FFBB public endpoint
-- **9 Meilisearch indexes** including engagements and formations
 - **Basketball analytics notebooks** for Elo rating and season projection
 
 
@@ -144,20 +144,19 @@ Quick Start
 Advanced Usage
 ==============
 
-**Working with Custom Fields**
+**Working with Field Sets (v1.3.0+)**
 
 .. code-block:: python
 
-    from ffbb_api_client_v2.models.query_fields import QueryFieldsManager, FieldSet
+    from ffbb_api_client_v2.models.query_fields import FieldSet
 
     # Get organization with basic fields only
-    basic_fields = QueryFieldsManager.get_organisme_fields(FieldSet.BASIC)
     organisme = client.get_organisme(
         organisme_id=12345,
-        fields=basic_fields
+        field_set=FieldSet.BASIC
     )
 
-    # Get organization with detailed information
+    # Get organization with detailed information (default)
     organisme_full = client.get_organisme(
         organisme_id=12345
     )
@@ -287,9 +286,9 @@ API Reference
 
 - ``get_lives()`` - Get current live matches
 - ``get_saisons()`` - Get seasons with optional filtering
-- ``get_organisme(organisme_id, fields=None)`` - Get detailed organization info
-- ``get_competition(competition_id, fields=None)`` - Get competition details
-- ``get_poule(poule_id, fields=None)`` - Get pool/group information
+- ``get_organisme(organisme_id, field_set=FieldSet.DETAILED)`` - Get detailed organization info
+- ``get_competition(competition_id, field_set=FieldSet.DETAILED)`` - Get competition details
+- ``get_poule(poule_id, field_set=FieldSet.DETAILED)`` - Get pool/group information
 - ``search_organismes(name)`` - Search organizations by name
 - ``search_competitions(name)`` - Search competitions by name
 - ``search_rencontres(name)`` - Search matches by name
@@ -299,13 +298,14 @@ API Reference
 **Field Selection Options:**
 
 - ``FieldSet.BASIC`` - Essential fields only
-- ``FieldSet.DEFAULT`` - Standard field set (used when fields=None)
-- ``FieldSet.DETAILED`` - Comprehensive field set with nested data
+- ``FieldSet.DEFAULT`` - Standard field set
+- ``FieldSet.DETAILED`` - Comprehensive field set with nested data (default)
+- ``FieldSet.WILDCARD`` - All available fields
 
 Testing
 =======
 
-The library includes comprehensive test coverage: **559 unit tests, 95%+ coverage**.
+The library includes comprehensive test coverage: **558 unit tests, 95%+ coverage**.
 
 .. code-block:: bash
 

@@ -1,6 +1,105 @@
 # Release Notes - FFBB API Client V2
 
-## Version 1.2.0 (Next Release)
+## Version 1.3.0 (2026-02-10)
+
+### 🚀 Major Features & Improvements
+
+#### **Full Meilisearch API Coverage**
+- **NEW**: 2 additional Meilisearch indexes: `ffbbserver_engagements` (~105k hits) and `ffbbserver_formations` (~90 hits)
+- **NEW**: `EngagementsHit`, `FormationsHit` models with full search support
+- **NEW**: `MeilisearchIndexSettings` model for index introspection
+- **IMPROVED**: All 18 search methods now support `filter`, `sort`, `limit` parameters
+- **ADDED**: `MeilisearchClient.get_index_settings()` for runtime index discovery
+
+#### **Simplified Directus API**
+- **BREAKING**: Removed redundant `fields` parameter from 5 Directus methods — use `field_set: FieldSet` only (default `FieldSet.DETAILED`)
+- **BREAKING**: `FieldSet.MINIMAL` removed (was never handled by `QueryFieldsManager`)
+- **BREAKING**: `deep_limit` renamed to `deep_rencontres_limit` in `get_competition()`
+- **BREAKING**: `get_poule()` now exposes explicit typed deep parameters (`deep_rencontres_limit`, `deep_rencontres_filter_saison_actif`, `deep_rencontres_sort`, `deep_classements_limit`)
+- **NEW**: `FieldSet.WILDCARD` for querying all available fields
+
+#### **Model Corrections**
+- **FIXED**: `TerrainsHit` and `TournoisHit` models were swapped (fields matched the wrong index)
+- **FIXED**: Phantom `horaire` field removed from `RencontresHit`
+- **FIXED**: `TournoisMultiSearchQuery` missing sort propagation
+- **REMOVED**: `GradientColor` model (unused)
+
+#### **Analytics & Dashboard**
+- **NEW**: Elo rating analysis notebook (`simple_rating_notebook.ipynb`)
+- **NEW**: End-of-season projection notebook (`projection_notebook.ipynb`)
+- **NEW**: Interactive Streamlit dashboard (`basketball_dashboard.py`)
+
+#### **Developer Tooling**
+- **NEW**: Meilisearch index discovery script (`discover_meilisearch_indexes.py`)
+- **NEW**: Meilisearch settings discovery script (`discover_meilisearch_settings.py`)
+- **NEW**: API fields discovery script (`discover_api_fields.py`)
+- **NEW**: API model audit script (`audit_api_models.py`)
+- **NEW**: Automated developer setup (`setup_dev.sh`, `requirements.txt`)
+
+### 🔄 Breaking Changes
+
+| Change | Before (v1.2.0) | After (v1.3.0) |
+|--------|-----------------|-----------------|
+| `fields` parameter removed | `client.get_organisme(123, fields=[...], field_set=FieldSet.DETAILED)` | `client.get_organisme(123, field_set=FieldSet.DETAILED)` |
+| `deep_limit` renamed | `client.get_competition(456, deep_limit=500)` | `client.get_competition(456, deep_rencontres_limit=500)` |
+| `FieldSet.MINIMAL` removed | `FieldSet.MINIMAL` (silently failed) | Use `FieldSet.BASIC` instead |
+| `get_poule()` deep params | Single `deep_limit` | Explicit `deep_rencontres_limit`, `deep_classements_limit`, etc. |
+
+### 🧪 Testing
+
+- **558 unit tests** with 95%+ coverage
+- **ADDED**: `test_207` to `test_209` (clients), `test_124` to `test_127` (models)
+- **IMPROVED**: Completed facet coverage for competitions, salles, terrains indexes
+
+### 📦 Miscellaneous
+
+- `validate_deep_limit` max increased from 10,000 to 100,000
+- Old example scripts removed (`complete_usage_example.py`, `quick_start.py`, `team_ranking_analysis.py`)
+- README updated with badge links, key features, and developer setup instructions
+
+---
+
+## Migration Guide from v1.2.0 to v1.3.0
+
+### Removing the `fields` parameter
+```python
+# Before (v1.2.0)
+organisme = client.get_organisme(123, fields=["id", "nom"], field_set=FieldSet.DETAILED)
+
+# After (v1.3.0) — use field_set only
+organisme = client.get_organisme(123, field_set=FieldSet.DETAILED)
+```
+
+### Renaming `deep_limit` to `deep_rencontres_limit`
+```python
+# Before (v1.2.0)
+competition = client.get_competition(456, deep_limit=500)
+
+# After (v1.3.0)
+competition = client.get_competition(456, deep_rencontres_limit=500)
+```
+
+### New explicit deep parameters for `get_poule()`
+```python
+# After (v1.3.0) — explicit typed parameters
+poule = client.get_poule(
+    789,
+    deep_rencontres_limit=1000,
+    deep_classements_limit=100,
+    deep_rencontres_filter_saison_actif=True
+)
+```
+
+### Replacing `FieldSet.MINIMAL`
+```python
+# Before — FieldSet.MINIMAL raised a silent error
+# After — use FieldSet.BASIC instead
+organisme = client.get_organisme(123, field_set=FieldSet.BASIC)
+```
+
+---
+
+## Version 1.2.0 (2025-02-05)
 
 ### 🚀 Major Features & Improvements
 
