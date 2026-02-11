@@ -38,16 +38,16 @@ def load_data():
         organisme_response = client.get_organisme(organisme_id)
 
         for engagement in organisme_response.engagements:
-            if not engagement.idCompetition:
+            if not engagement.id_competition:
                 continue
-            comp = engagement.idCompetition
+            comp = engagement.id_competition
             if (
                 comp.sexe == filters["sexe"]
-                and comp.typeCompetition == filters["niveau_competition"]
+                and comp.type_competition == filters["niveau_competition"]
             ):
                 if comp.niveau and comp.niveau.type.value == filters["zone"]:
-                    if engagement.idPoule:
-                        return int(engagement.idPoule.id)
+                    if engagement.id_poule:
+                        return int(engagement.id_poule.id)
 
         raise ValueError(f"No poule found for {team_name}")
 
@@ -224,16 +224,16 @@ def calculate_rating_evolution():
         organisme_response = client.get_organisme(organisme_id)
 
         for engagement in organisme_response.engagements:
-            if not engagement.idCompetition:
+            if not engagement.id_competition:
                 continue
-            comp = engagement.idCompetition
+            comp = engagement.id_competition
             if (
                 comp.sexe == filters["sexe"]
-                and comp.typeCompetition == filters["niveau_competition"]
+                and comp.type_competition == filters["niveau_competition"]
             ):
                 if comp.niveau and comp.niveau.type.value == filters["zone"]:
-                    if engagement.idPoule:
-                        return int(engagement.idPoule.id)
+                    if engagement.id_poule:
+                        return int(engagement.id_poule.id)
 
         raise ValueError(f"No poule found for {team_name}")
 
@@ -479,16 +479,16 @@ def get_poule_data():
         organisme_response = client.get_organisme(organisme_id)
 
         for engagement in organisme_response.engagements:
-            if not engagement.idCompetition:
+            if not engagement.id_competition:
                 continue
-            comp = engagement.idCompetition
+            comp = engagement.id_competition
             if (
                 comp.sexe == filters["sexe"]
-                and comp.typeCompetition == filters["niveau_competition"]
+                and comp.type_competition == filters["niveau_competition"]
             ):
                 if comp.niveau and comp.niveau.type.value == filters["zone"]:
-                    if engagement.idPoule:
-                        return int(engagement.idPoule.id)
+                    if engagement.id_poule:
+                        return int(engagement.id_poule.id)
 
         raise ValueError(f"No poule found for {team_name}")
 
