@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from ..utils.converter_utils import from_int, from_str
+
 
 @dataclass
 class GetSallesResponse:
@@ -31,23 +33,19 @@ class GetSallesResponse:
             return None
 
         return cls(
-            id=str(data.get("id", "")),
-            libelle=(str(data.get("libelle", "")) if data.get("libelle") else None),
-            libelle2=(str(data.get("libelle2", "")) if data.get("libelle2") else None),
-            adresse=(str(data.get("adresse", "")) if data.get("adresse") else None),
-            adresseComplement=data.get("adresseComplement"),
-            numero=(str(data.get("numero", "")) if data.get("numero") else None),
-            telephone=data.get("telephone"),
-            mail=data.get("mail"),
-            capaciteSpectateur=data.get("capaciteSpectateur"),
+            id=from_str(data, "id") or "",
+            libelle=from_str(data, "libelle"),
+            libelle2=from_str(data, "libelle2"),
+            adresse=from_str(data, "adresse"),
+            adresseComplement=from_str(data, "adresseComplement"),
+            numero=from_str(data, "numero"),
+            telephone=from_str(data, "telephone"),
+            mail=from_str(data, "mail"),
+            capaciteSpectateur=from_int(data, "capaciteSpectateur"),
             commune=data.get("commune"),
             cartographie=data.get("cartographie"),
-            date_created=(
-                str(data.get("date_created", "")) if data.get("date_created") else None
-            ),
-            date_updated=(
-                str(data.get("date_updated", "")) if data.get("date_updated") else None
-            ),
+            date_created=from_str(data, "date_created"),
+            date_updated=from_str(data, "date_updated"),
         )
 
     @classmethod

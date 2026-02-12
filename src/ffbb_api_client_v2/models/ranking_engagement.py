@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from ..utils.converter_utils import from_str
+
 
 @dataclass
 class RankingEngagement:
@@ -24,18 +26,18 @@ class RankingEngagement:
 
         # Handle logo data
         logo_data = data.get("logo", {})
-        logo_id = logo_data.get("id") if isinstance(logo_data, dict) else None
-        logo_gradient = (
-            logo_data.get("gradient_color") if isinstance(logo_data, dict) else None
-        )
+        if not isinstance(logo_data, dict):
+            logo_data = {}
+        logo_id = from_str(logo_data, "id")
+        logo_gradient = from_str(logo_data, "gradient_color")
 
         return cls(
-            id=str(data.get("id", "")),
-            nom=str(data.get("nom", "")),
-            nom_usuel=data.get("nomUsuel"),
-            code_abrege=data.get("codeAbrege"),
-            numero_equ=data.get("numeroEqu"),
-            numero_equipe=data.get("numeroEquipe"),
-            logo_id=str(logo_id) if logo_id else None,
-            logo_gradient=str(logo_gradient) if logo_gradient else None,
+            id=from_str(data, "id") or "",
+            nom=from_str(data, "nom") or "",
+            nom_usuel=from_str(data, "nomUsuel"),
+            code_abrege=from_str(data, "codeAbrege"),
+            numero_equ=from_str(data, "numeroEqu"),
+            numero_equipe=from_str(data, "numeroEquipe"),
+            logo_id=logo_id,
+            logo_gradient=logo_gradient,
         )

@@ -46,7 +46,7 @@ SAMPLE_HIT: dict[str, Any] = {
 
 
 class TestFormationsHit(unittest.TestCase):
-    def test_from_dict_full(self) -> None:
+    def test_000_from_dict_full(self) -> None:
         hit = FormationsHit.from_dict(SAMPLE_HIT)
         self.assertEqual(hit.id, "5faa8064-93a7-4817-9187-dc87c567dc1c")
         self.assertEqual(hit.title, "DIPLOME DE PREPARATEUR PHYSIQUE EN BASKETBALL")
@@ -59,12 +59,12 @@ class TestFormationsHit(unittest.TestCase):
         self.assertEqual(hit.postal_codes, [])
         self.assertEqual(hit.places, [])
 
-    def test_from_dict_empty(self) -> None:
+    def test_013_from_dict_empty(self) -> None:
         hit = FormationsHit.from_dict({})
         self.assertIsNone(hit.id)
         self.assertIsNone(hit.title)
 
-    def test_to_dict_roundtrip(self) -> None:
+    def test_009_to_dict_roundtrip(self) -> None:
         hit = FormationsHit.from_dict(SAMPLE_HIT)
         d = hit.to_dict()
         self.assertEqual(d["id"], "5faa8064-93a7-4817-9187-dc87c567dc1c")
@@ -72,32 +72,32 @@ class TestFormationsHit(unittest.TestCase):
         self.assertEqual(d["domain"], "Transversales")
         self.assertIn("mode_hidden", d)
 
-    def test_to_dict_empty(self) -> None:
+    def test_010_to_dict_empty(self) -> None:
         self.assertEqual(FormationsHit().to_dict(), {})
 
-    def test_is_valid_for_query_title(self) -> None:
+    def test_004_is_valid_for_query_title(self) -> None:
         hit = FormationsHit.from_dict(SAMPLE_HIT)
         self.assertTrue(hit.is_valid_for_query("diplome"))
         self.assertTrue(hit.is_valid_for_query("transversales"))
         self.assertFalse(hit.is_valid_for_query("xyz_not_found"))
 
-    def test_is_valid_for_query_empty(self) -> None:
+    def test_005_is_valid_for_query_empty(self) -> None:
         hit = FormationsHit.from_dict(SAMPLE_HIT)
         self.assertTrue(hit.is_valid_for_query(""))
 
-    def test_duration_hours_parsed(self) -> None:
+    def test_006_duration_hours_parsed(self) -> None:
         data = {**SAMPLE_HIT, "duration_hours": 40}
         hit = FormationsHit.from_dict(data)
         self.assertEqual(hit.duration_hours, 40)
 
 
 class TestFormationsFacetDistribution(unittest.TestCase):
-    def test_from_dict_empty(self) -> None:
+    def test_013_from_dict_empty(self) -> None:
         fd = FormationsFacetDistribution.from_dict({})
         self.assertIsNone(fd.domain)
         self.assertIsNone(fd.mode)
 
-    def test_from_dict_with_data(self) -> None:
+    def test_008_from_dict_with_data(self) -> None:
         data = {
             "domain": {"Dirigeant": 4, "Officiel": 15, "Technicien": 68},
             "mode": {"in_person": 58, "mixed": 29, "remote": 1},
@@ -110,7 +110,7 @@ class TestFormationsFacetDistribution(unittest.TestCase):
         self.assertEqual(fd.theme, {"Bénévole": 25, "DEFB": 2})
         self.assertEqual(fd.type, {"formation": 55, "session": 35})
 
-    def test_to_dict_roundtrip(self) -> None:
+    def test_009_to_dict_roundtrip(self) -> None:
         data = {
             "domain": {"Technicien": 68},
             "place": {"PARIS": 2},
@@ -122,19 +122,19 @@ class TestFormationsFacetDistribution(unittest.TestCase):
         self.assertEqual(d["place"], {"PARIS": 2})
         self.assertEqual(d["postal_code"], {"75000": 1})
 
-    def test_to_dict_empty(self) -> None:
+    def test_010_to_dict_empty(self) -> None:
         self.assertEqual(FormationsFacetDistribution().to_dict(), {})
 
 
 class TestFormationsFacetStats(unittest.TestCase):
-    def test_from_dict_and_to_dict(self) -> None:
+    def test_011_from_dict_and_to_dict(self) -> None:
         stats = FormationsFacetStats.from_dict({})
         self.assertIsInstance(stats, FormationsFacetStats)
         self.assertEqual(stats.to_dict(), {})
 
 
 class TestFormationsMultiSearchResult(unittest.TestCase):
-    def test_from_dict_with_hits(self) -> None:
+    def test_012_from_dict_with_hits(self) -> None:
         data = {
             "indexUid": "ffbbserver_formations",
             "hits": [SAMPLE_HIT],
@@ -151,7 +151,7 @@ class TestFormationsMultiSearchResult(unittest.TestCase):
         self.assertEqual(len(result.hits), 1)
         self.assertIsInstance(result.hits[0], FormationsHit)
 
-    def test_from_dict_empty(self) -> None:
+    def test_013_from_dict_empty(self) -> None:
         result = FormationsMultiSearchResult.from_dict({})
         self.assertIsNone(result.hits)
 

@@ -19,41 +19,41 @@ import unittest
 
 
 class TestTerrainsNameEnum(unittest.TestCase):
-    def test_tournois_value(self) -> None:
+    def test_000_tournois_value(self) -> None:
         from ffbb_api_client_v2.models.terrains_name import Name
 
         self.assertEqual(Name.TOURNOIS.value, "Tournois")
 
-    def test_from_value(self) -> None:
+    def test_003_from_value(self) -> None:
         from ffbb_api_client_v2.models.terrains_name import Name
 
         self.assertIs(Name("Tournois"), Name.TOURNOIS)
 
 
 class TestTerrainsStorageEnum(unittest.TestCase):
-    def test_minio_value(self) -> None:
+    def test_002_minio_value(self) -> None:
         from ffbb_api_client_v2.models.terrains_storage import Storage
 
         self.assertEqual(Storage.MINIO.value, "minio")
 
-    def test_from_value(self) -> None:
+    def test_003_from_value(self) -> None:
         from ffbb_api_client_v2.models.terrains_storage import Storage
 
         self.assertIs(Storage("minio"), Storage.MINIO)
 
 
 class TestTournoisLibelleEnum(unittest.TestCase):
-    def test_bitume_value(self) -> None:
+    def test_004_bitume_value(self) -> None:
         from ffbb_api_client_v2.models.tournois_libelle import Libelle
 
         self.assertEqual(Libelle.BITUME.value, "BITUME")
 
-    def test_beton_value(self) -> None:
+    def test_005_beton_value(self) -> None:
         from ffbb_api_client_v2.models.tournois_libelle import Libelle
 
         self.assertEqual(Libelle.BÉTON.value, "Béton")
 
-    def test_sol_synthetique_value(self) -> None:
+    def test_006_sol_synthetique_value(self) -> None:
         from ffbb_api_client_v2.models.tournois_libelle import Libelle
 
         self.assertEqual(Libelle.SOL_SYNTHÉTIQUE.value, "Sol synthétique")
@@ -65,7 +65,7 @@ class TestTournoisLibelleEnum(unittest.TestCase):
 
 
 class TestCompetitionsFacetStats(unittest.TestCase):
-    def test_from_dict_returns_instance(self) -> None:
+    def test_021_from_dict_returns_instance(self) -> None:
         from ffbb_api_client_v2.models.competitions_facet_stats import (
             CompetitionsFacetStats,
         )
@@ -73,7 +73,7 @@ class TestCompetitionsFacetStats(unittest.TestCase):
         obj = CompetitionsFacetStats.from_dict({})
         self.assertIsInstance(obj, CompetitionsFacetStats)
 
-    def test_to_dict_returns_empty(self) -> None:
+    def test_022_to_dict_returns_empty(self) -> None:
         from ffbb_api_client_v2.models.competitions_facet_stats import (
             CompetitionsFacetStats,
         )
@@ -83,20 +83,20 @@ class TestCompetitionsFacetStats(unittest.TestCase):
 
 
 class TestSallesFacetStats(unittest.TestCase):
-    def test_from_dict_returns_instance(self) -> None:
+    def test_021_from_dict_returns_instance(self) -> None:
         from ffbb_api_client_v2.models.salles_facet_stats import SallesFacetStats
 
         obj = SallesFacetStats.from_dict({})
         self.assertIsInstance(obj, SallesFacetStats)
 
-    def test_to_dict_returns_empty(self) -> None:
+    def test_022_to_dict_returns_empty(self) -> None:
         from ffbb_api_client_v2.models.salles_facet_stats import SallesFacetStats
 
         self.assertEqual(SallesFacetStats().to_dict(), {})
 
 
 class TestSallesFacetDistribution(unittest.TestCase):
-    def test_from_dict_empty(self) -> None:
+    def test_042_from_dict_empty(self) -> None:
         from ffbb_api_client_v2.models.salles_facet_distribution import (
             SallesFacetDistribution,
         )
@@ -108,14 +108,14 @@ class TestSallesFacetDistribution(unittest.TestCase):
         self.assertIsNone(obj.commune_departement)
         self.assertIsNone(obj.commune_libelle)
 
-    def test_to_dict_empty(self) -> None:
+    def test_026_to_dict_empty(self) -> None:
         from ffbb_api_client_v2.models.salles_facet_distribution import (
             SallesFacetDistribution,
         )
 
         self.assertEqual(SallesFacetDistribution().to_dict(), {})
 
-    def test_from_dict_with_data(self) -> None:
+    def test_027_from_dict_with_data(self) -> None:
         from ffbb_api_client_v2.models.salles_facet_distribution import (
             SallesFacetDistribution,
         )
@@ -132,7 +132,7 @@ class TestSallesFacetDistribution(unittest.TestCase):
         self.assertEqual(obj.commune_departement, {"75": 5, "69": 3})
         self.assertEqual(obj.commune_libelle, {"Paris": 5, "Lyon": 3})
 
-    def test_to_dict_with_data(self) -> None:
+    def test_028_to_dict_with_data(self) -> None:
         from ffbb_api_client_v2.models.salles_facet_distribution import (
             SallesFacetDistribution,
         )
@@ -149,7 +149,7 @@ class TestSallesFacetDistribution(unittest.TestCase):
         self.assertEqual(d["commune.departement"], {"75": 5})
         self.assertEqual(d["commune.libelle"], {"Paris": 5})
 
-    def test_roundtrip(self) -> None:
+    def test_040_roundtrip(self) -> None:
         from ffbb_api_client_v2.models.salles_facet_distribution import (
             SallesFacetDistribution,
         )
@@ -163,7 +163,7 @@ class TestSallesFacetDistribution(unittest.TestCase):
         obj = SallesFacetDistribution.from_dict(data)
         self.assertEqual(obj.to_dict(), data)
 
-    def test_partial_data(self) -> None:
+    def test_016_partial_data(self) -> None:
         from ffbb_api_client_v2.models.salles_facet_distribution import (
             SallesFacetDistribution,
         )
@@ -176,20 +176,20 @@ class TestSallesFacetDistribution(unittest.TestCase):
 
 
 class TestTerrainsFacetStats(unittest.TestCase):
-    def test_from_dict_returns_instance(self) -> None:
+    def test_021_from_dict_returns_instance(self) -> None:
         from ffbb_api_client_v2.models.terrains_facet_stats import TerrainsFacetStats
 
         obj = TerrainsFacetStats.from_dict({})
         self.assertIsInstance(obj, TerrainsFacetStats)
 
-    def test_to_dict_returns_empty(self) -> None:
+    def test_022_to_dict_returns_empty(self) -> None:
         from ffbb_api_client_v2.models.terrains_facet_stats import TerrainsFacetStats
 
         self.assertEqual(TerrainsFacetStats().to_dict(), {})
 
 
 class TestRencontresFacetStats(unittest.TestCase):
-    def test_from_dict_returns_instance(self) -> None:
+    def test_021_from_dict_returns_instance(self) -> None:
         from ffbb_api_client_v2.models.rencontres_facet_stats import (
             RencontresFacetStats,
         )
@@ -197,7 +197,7 @@ class TestRencontresFacetStats(unittest.TestCase):
         obj = RencontresFacetStats.from_dict({})
         self.assertIsInstance(obj, RencontresFacetStats)
 
-    def test_to_dict_returns_empty(self) -> None:
+    def test_022_to_dict_returns_empty(self) -> None:
         from ffbb_api_client_v2.models.rencontres_facet_stats import (
             RencontresFacetStats,
         )
@@ -206,13 +206,13 @@ class TestRencontresFacetStats(unittest.TestCase):
 
 
 class TestTournoisFacetStats(unittest.TestCase):
-    def test_from_dict_returns_instance(self) -> None:
+    def test_021_from_dict_returns_instance(self) -> None:
         from ffbb_api_client_v2.models.tournois_facet_stats import TournoisFacetStats
 
         obj = TournoisFacetStats.from_dict({})
         self.assertIsInstance(obj, TournoisFacetStats)
 
-    def test_to_dict_returns_empty(self) -> None:
+    def test_022_to_dict_returns_empty(self) -> None:
         from ffbb_api_client_v2.models.tournois_facet_stats import TournoisFacetStats
 
         self.assertEqual(TournoisFacetStats().to_dict(), {})
@@ -221,7 +221,7 @@ class TestTournoisFacetStats(unittest.TestCase):
 class TestCompetitionsFacetDistribution(unittest.TestCase):
     """Cover from_dict({}) and to_dict() empty-branch paths."""
 
-    def test_from_dict_empty(self) -> None:
+    def test_042_from_dict_empty(self) -> None:
         from ffbb_api_client_v2.models.competitions_facet_distribution import (
             CompetitionsFacetDistribution,
         )
@@ -230,7 +230,7 @@ class TestCompetitionsFacetDistribution(unittest.TestCase):
         self.assertIsInstance(obj, CompetitionsFacetDistribution)
         self.assertIsNone(obj.competition_id_categorie_code)
 
-    def test_to_dict_empty(self) -> None:
+    def test_026_to_dict_empty(self) -> None:
         from ffbb_api_client_v2.models.competitions_facet_distribution import (
             CompetitionsFacetDistribution,
         )
@@ -241,7 +241,7 @@ class TestCompetitionsFacetDistribution(unittest.TestCase):
 class TestTerrainsFacetDistribution(unittest.TestCase):
     """Cover from_dict({}) and to_dict() empty-branch paths."""
 
-    def test_from_dict_empty(self) -> None:
+    def test_042_from_dict_empty(self) -> None:
         from ffbb_api_client_v2.models.terrains_facet_distribution import (
             TerrainsFacetDistribution,
         )
@@ -252,7 +252,7 @@ class TestTerrainsFacetDistribution(unittest.TestCase):
         self.assertIsNone(obj.tournoi_type)
         self.assertIsNone(obj.tournoi_types3_x3_libelle)
 
-    def test_to_dict_empty(self) -> None:
+    def test_026_to_dict_empty(self) -> None:
         from ffbb_api_client_v2.models.terrains_facet_distribution import (
             TerrainsFacetDistribution,
         )
@@ -263,7 +263,7 @@ class TestTerrainsFacetDistribution(unittest.TestCase):
 class TestTerrainsFacetDistributionWithData(unittest.TestCase):
     """Cover from_dict with data (True branch) and to_dict (formerly TestTournoisFacetDistribution)."""
 
-    def test_from_dict_with_data(self) -> None:
+    def test_027_from_dict_with_data(self) -> None:
         from ffbb_api_client_v2.models.terrains_facet_distribution import (
             TerrainsFacetDistribution,
         )
@@ -283,7 +283,7 @@ class TestTerrainsFacetDistributionWithData(unittest.TestCase):
         self.assertEqual(obj.tournoi_type.open_plus, 2)
         self.assertIsNotNone(obj.tournoi_types3_x3_libelle)
 
-    def test_to_dict_with_data(self) -> None:
+    def test_028_to_dict_with_data(self) -> None:
         from ffbb_api_client_v2.models.sexe_class import SexeClass
         from ffbb_api_client_v2.models.terrains_facet_distribution import (
             TerrainsFacetDistribution,
@@ -298,7 +298,7 @@ class TestTerrainsFacetDistributionWithData(unittest.TestCase):
         self.assertIn("sexe", d)
         self.assertIn("tournoiType", d)
 
-    def test_from_dict_empty(self) -> None:
+    def test_042_from_dict_empty(self) -> None:
         from ffbb_api_client_v2.models.terrains_facet_distribution import (
             TerrainsFacetDistribution,
         )
@@ -315,7 +315,7 @@ class TestTerrainsFacetDistributionWithData(unittest.TestCase):
 class TestDocumentFlyer(unittest.TestCase):
     """Cover to_dict branches for fields not exercised in other tests."""
 
-    def test_from_dict_with_extra_fields(self) -> None:
+    def test_030_from_dict_with_extra_fields(self) -> None:
         from ffbb_api_client_v2.models.document_flyer import DocumentFlyer
 
         data = {
@@ -374,7 +374,7 @@ class TestDocumentFlyer(unittest.TestCase):
 
 
 class TestExternalCompetitionID(unittest.TestCase):
-    def test_from_dict_empty(self) -> None:
+    def test_042_from_dict_empty(self) -> None:
         from ffbb_api_client_v2.models.external_competition_id import (
             ExternalCompetitionID,
         )
@@ -382,7 +382,7 @@ class TestExternalCompetitionID(unittest.TestCase):
         obj = ExternalCompetitionID.from_dict({})
         self.assertEqual(obj.to_dict(), {})
 
-    def test_roundtrip(self) -> None:
+    def test_040_roundtrip(self) -> None:
         from ffbb_api_client_v2.models.external_competition_id import (
             ExternalCompetitionID,
         )
@@ -399,13 +399,13 @@ class TestExternalCompetitionID(unittest.TestCase):
 
 
 class TestTeamEngagement(unittest.TestCase):
-    def test_from_dict_empty(self) -> None:
+    def test_042_from_dict_empty(self) -> None:
         from ffbb_api_client_v2.models.team_engagement import TeamEngagement
 
         obj = TeamEngagement.from_dict({})
         self.assertEqual(obj.to_dict(), {})
 
-    def test_roundtrip(self) -> None:
+    def test_040_roundtrip(self) -> None:
         from ffbb_api_client_v2.models.team_engagement import TeamEngagement
 
         data = {
@@ -421,13 +421,13 @@ class TestTeamEngagement(unittest.TestCase):
 
 
 class TestRencontresEngagement(unittest.TestCase):
-    def test_to_dict_with_id(self) -> None:
+    def test_035_to_dict_with_id(self) -> None:
         from ffbb_api_client_v2.models.rencontres_engagement import Engagement
 
         obj = Engagement(id="test")
         self.assertEqual(obj.to_dict(), {"id": "test"})
 
-    def test_from_dict_empty(self) -> None:
+    def test_042_from_dict_empty(self) -> None:
         from ffbb_api_client_v2.models.rencontres_engagement import Engagement
 
         obj = Engagement.from_dict({})
@@ -435,13 +435,13 @@ class TestRencontresEngagement(unittest.TestCase):
 
 
 class TestSexeClass(unittest.TestCase):
-    def test_from_dict_empty(self) -> None:
+    def test_042_from_dict_empty(self) -> None:
         from ffbb_api_client_v2.models.sexe_class import SexeClass
 
         obj = SexeClass.from_dict({})
         self.assertEqual(obj.to_dict(), {})
 
-    def test_roundtrip(self) -> None:
+    def test_040_roundtrip(self) -> None:
         from ffbb_api_client_v2.models.sexe_class import SexeClass
 
         data = {"Féminin": 5, "Masculin": 10, "Mixte": 3}
@@ -450,13 +450,13 @@ class TestSexeClass(unittest.TestCase):
 
 
 class TestTournoiTypes3X3(unittest.TestCase):
-    def test_from_dict_empty(self) -> None:
+    def test_042_from_dict_empty(self) -> None:
         from ffbb_api_client_v2.models.tournoi_types_3x3 import TournoiTypes3X3
 
         obj = TournoiTypes3X3.from_dict({})
         self.assertEqual(obj.to_dict(), {})
 
-    def test_roundtrip(self) -> None:
+    def test_040_roundtrip(self) -> None:
         from ffbb_api_client_v2.models.tournoi_types_3x3 import TournoiTypes3X3
 
         data = {
@@ -479,13 +479,13 @@ class TestTournoiTypes3X3(unittest.TestCase):
 
 
 class TestOrganismesHit(unittest.TestCase):
-    def test_from_dict_invalid_raises_value_error(self) -> None:
+    def test_041_from_dict_invalid_raises_value_error(self) -> None:
         from ffbb_api_client_v2.models.organismes_hit import OrganismesHit
 
         with self.assertRaises(ValueError):
             OrganismesHit.from_dict("invalid")
 
-    def test_from_dict_empty(self) -> None:
+    def test_042_from_dict_empty(self) -> None:
         from ffbb_api_client_v2.models.organismes_hit import OrganismesHit
 
         obj = OrganismesHit.from_dict({})
@@ -496,7 +496,7 @@ class TestOrganismesHit(unittest.TestCase):
 class TestLive(unittest.TestCase):
     """Cover to_dict branches for OT scores, external_id, team_engagements."""
 
-    def test_to_dict_ot_scores_and_nested(self) -> None:
+    def test_043_to_dict_ot_scores_and_nested(self) -> None:
         from ffbb_api_client_v2.models.external_id import ExternalID
         from ffbb_api_client_v2.models.live import Live
         from ffbb_api_client_v2.models.team_engagement import TeamEngagement
@@ -526,7 +526,7 @@ class TestLive(unittest.TestCase):
 
 
 class TestPratiquesFacetStats(unittest.TestCase):
-    def test_from_dict_and_to_dict(self) -> None:
+    def test_044_from_dict_and_to_dict(self) -> None:
         from ffbb_api_client_v2.models.pratiques_facet_stats import PratiquesFacetStats
 
         obj = PratiquesFacetStats.from_dict({})
@@ -537,7 +537,7 @@ class TestPratiquesFacetStats(unittest.TestCase):
 class TestCompetitionsFacetDistributionWithData(unittest.TestCase):
     """Cover to_dict branches when nested objects are populated."""
 
-    def test_to_dict_with_nested_objects(self) -> None:
+    def test_045_to_dict_with_nested_objects(self) -> None:
         from ffbb_api_client_v2.models.competition_id_type_competition import (
             CompetitionIDTypeCompetition,
         )

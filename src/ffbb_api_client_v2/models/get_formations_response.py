@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+from ..utils.converter_utils import from_float, from_int, from_str
+
 
 @dataclass
 class GetFormationsResponse:
@@ -45,37 +47,33 @@ class GetFormationsResponse:
             return None
 
         return cls(
-            id=str(data.get("id", "")),
-            title=str(data.get("title", "")) if data.get("title") else None,
-            description=data.get("description"),
-            mode=str(data.get("mode", "")) if data.get("mode") else None,
-            level=data.get("level"),
-            reference=data.get("reference"),
-            duration_hours=data.get("duration_hours"),
-            certification=data.get("certification"),
-            status=data.get("status"),
-            sort=data.get("sort"),
+            id=from_str(data, "id") or "",
+            title=from_str(data, "title"),
+            description=from_str(data, "description"),
+            mode=from_str(data, "mode"),
+            level=from_str(data, "level"),
+            reference=from_str(data, "reference"),
+            duration_hours=from_float(data, "duration_hours"),
+            certification=from_str(data, "certification"),
+            status=from_str(data, "status"),
+            sort=from_int(data, "sort"),
             domain=data.get("domain"),
             theme=data.get("theme"),
             sessions=data.get("sessions", []) or [],
-            public=data.get("public"),
-            goals=data.get("goals"),
-            content=data.get("content"),
-            pedagogy=data.get("pedagogy"),
-            prerequisites=data.get("prerequisites"),
-            results=data.get("results"),
-            modalities=data.get("modalities"),
+            public=from_str(data, "public"),
+            goals=from_str(data, "goals"),
+            content=from_str(data, "content"),
+            pedagogy=from_str(data, "pedagogy"),
+            prerequisites=from_str(data, "prerequisites"),
+            results=from_str(data, "results"),
+            modalities=from_str(data, "modalities"),
             image=data.get("image"),
             files=data.get("files", []) or [],
-            idOrigin=data.get("idOrigin"),
-            idOriginHash=data.get("idOriginHash"),
-            programIdFbi=data.get("programIdFbi"),
-            date_created=(
-                str(data.get("date_created", "")) if data.get("date_created") else None
-            ),
-            date_updated=(
-                str(data.get("date_updated", "")) if data.get("date_updated") else None
-            ),
+            idOrigin=from_str(data, "idOrigin"),
+            idOriginHash=from_str(data, "idOriginHash"),
+            programIdFbi=from_str(data, "programIdFbi"),
+            date_created=from_str(data, "date_created"),
+            date_updated=from_str(data, "date_updated"),
         )
 
     @classmethod

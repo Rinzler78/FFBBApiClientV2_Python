@@ -51,7 +51,7 @@ SAMPLE_HIT: dict[str, Any] = {
 
 
 class TestEngagementsHit(unittest.TestCase):
-    def test_from_dict_full(self) -> None:
+    def test_000_from_dict_full(self) -> None:
         hit = EngagementsHit.from_dict(SAMPLE_HIT)
         self.assertEqual(hit.id, "200000005137866")
         self.assertEqual(hit.nom, "Pré nationale féminine Poule A")
@@ -63,12 +63,12 @@ class TestEngagementsHit(unittest.TestCase):
         self.assertIsNotNone(hit.niveau)
         self.assertIsNotNone(hit.geo)
 
-    def test_from_dict_empty(self) -> None:
+    def test_013_from_dict_empty(self) -> None:
         hit = EngagementsHit.from_dict({})
         self.assertIsNone(hit.id)
         self.assertIsNone(hit.nom)
 
-    def test_to_dict_roundtrip(self) -> None:
+    def test_009_to_dict_roundtrip(self) -> None:
         hit = EngagementsHit.from_dict(SAMPLE_HIT)
         d = hit.to_dict()
         self.assertEqual(d["id"], "200000005137866")
@@ -76,20 +76,20 @@ class TestEngagementsHit(unittest.TestCase):
         self.assertIn("idCompetition", d)
         self.assertIn("_geo", d)
 
-    def test_to_dict_empty(self) -> None:
+    def test_010_to_dict_empty(self) -> None:
         self.assertEqual(EngagementsHit().to_dict(), {})
 
-    def test_is_valid_for_query_nom(self) -> None:
+    def test_004_is_valid_for_query_nom(self) -> None:
         hit = EngagementsHit.from_dict(SAMPLE_HIT)
         self.assertTrue(hit.is_valid_for_query("pré nationale"))
         self.assertTrue(hit.is_valid_for_query("mantes"))
         self.assertFalse(hit.is_valid_for_query("xyz_not_found"))
 
-    def test_is_valid_for_query_empty(self) -> None:
+    def test_005_is_valid_for_query_empty(self) -> None:
         hit = EngagementsHit.from_dict(SAMPLE_HIT)
         self.assertTrue(hit.is_valid_for_query(""))
 
-    def test_nested_dicts_not_deserialized(self) -> None:
+    def test_006_nested_dicts_not_deserialized(self) -> None:
         """idCompetition, idPoule, niveau, categorie are kept as raw dicts."""
         hit = EngagementsHit.from_dict(SAMPLE_HIT)
         self.assertIsInstance(hit.id_competition, dict)
@@ -99,12 +99,12 @@ class TestEngagementsHit(unittest.TestCase):
 
 
 class TestEngagementsFacetDistribution(unittest.TestCase):
-    def test_from_dict_empty(self) -> None:
+    def test_013_from_dict_empty(self) -> None:
         fd = EngagementsFacetDistribution.from_dict({})
         self.assertIsNone(fd.club_pro)
         self.assertIsNone(fd.id_competition_sexe)
 
-    def test_from_dict_with_data(self) -> None:
+    def test_008_from_dict_with_data(self) -> None:
         data = {
             "clubPro": {"false": 100, "true": 10},
             "idCompetition.categorie.code": {"SE": 50, "U13": 30},
@@ -117,7 +117,7 @@ class TestEngagementsFacetDistribution(unittest.TestCase):
         self.assertIsNotNone(fd.id_competition_sexe)
         self.assertEqual(fd.niveau_code, {"PNF": 20})
 
-    def test_to_dict_roundtrip(self) -> None:
+    def test_009_to_dict_roundtrip(self) -> None:
         data = {
             "clubPro": {"false": 100},
             "idPoule.nom": {"Poule A": 5},
@@ -127,19 +127,19 @@ class TestEngagementsFacetDistribution(unittest.TestCase):
         self.assertEqual(d["clubPro"], {"false": 100})
         self.assertEqual(d["idPoule.nom"], {"Poule A": 5})
 
-    def test_to_dict_empty(self) -> None:
+    def test_010_to_dict_empty(self) -> None:
         self.assertEqual(EngagementsFacetDistribution().to_dict(), {})
 
 
 class TestEngagementsFacetStats(unittest.TestCase):
-    def test_from_dict_and_to_dict(self) -> None:
+    def test_011_from_dict_and_to_dict(self) -> None:
         stats = EngagementsFacetStats.from_dict({})
         self.assertIsInstance(stats, EngagementsFacetStats)
         self.assertEqual(stats.to_dict(), {})
 
 
 class TestEngagementsMultiSearchResult(unittest.TestCase):
-    def test_from_dict_with_hits(self) -> None:
+    def test_012_from_dict_with_hits(self) -> None:
         data = {
             "indexUid": "ffbbserver_engagements",
             "hits": [SAMPLE_HIT],
@@ -156,7 +156,7 @@ class TestEngagementsMultiSearchResult(unittest.TestCase):
         self.assertEqual(len(result.hits), 1)
         self.assertIsInstance(result.hits[0], EngagementsHit)
 
-    def test_from_dict_empty(self) -> None:
+    def test_013_from_dict_empty(self) -> None:
         result = EngagementsMultiSearchResult.from_dict({})
         self.assertIsNone(result.hits)
 

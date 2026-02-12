@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime
 from typing import Any
 
+from ..utils.converter_utils import from_list, from_str
 from .poule_rencontre_item_model import PouleRencontreItemModel
 from .team_ranking import TeamRanking
 
@@ -37,50 +37,24 @@ class GetPouleResponse:
         if "errors" in data:
             return None
 
-        # Basic implementation - can be expanded later
-        rencontres = []
-        for rencontre_data in data.get("rencontres", []):
-            if rencontre_data:
-                rencontre = PouleRencontreItemModel(
-                    id=str(rencontre_data.get("id", "")),
-                    numero=str(rencontre_data.get("numero", "")),
-                    numeroJournee=str(rencontre_data.get("numeroJournee", "")),
-                    idPoule=str(rencontre_data.get("idPoule", "")),
-                    competitionId=str(rencontre_data.get("competitionId", "")),
-                    resultatEquipe1=str(rencontre_data.get("resultatEquipe1", "")),
-                    resultatEquipe2=str(rencontre_data.get("resultatEquipe2", "")),
-                    joue=bool(rencontre_data.get("joue", False)),
-                    nomEquipe1=str(rencontre_data.get("nomEquipe1", "")),
-                    nomEquipe2=str(rencontre_data.get("nomEquipe2", "")),
-                    date_rencontre=datetime.fromisoformat(
-                        rencontre_data.get("date_rencontre", "1970-01-01")
-                    ),
-                )
-                rencontres.append(rencontre)
+        # Process rencontres
+        rencontres = (
+            from_list(PouleRencontreItemModel.from_dict, data, "rencontres") or []
+        )
 
         # Process classements
-        classements = []
-        for classement_data in data.get("classements", []):
-            if classement_data:
-                classement = TeamRanking.from_dict(classement_data)
-                if classement:
-                    classements.append(classement)
+        classements_raw = from_list(TeamRanking.from_dict, data, "classements")
+        classements = (
+            [c for c in classements_raw if c is not None] if classements_raw else None
+        )
 
         return cls(
-            id=str(data.get("id", "")),
+            id=from_str(data, "id") or "",
             rencontres=rencontres,
-            classements=classements if classements else None,
-            nom=str(data.get("nom", "")) if data.get("nom") else None,
-            engagements=data.get("engagements") if data.get("engagements") else None,
-            id_competition=(
-                str(data.get("id_competition", ""))
-                if data.get("id_competition")
-                else None
-            ),
-            date_created=(
-                str(data.get("date_created", "")) if data.get("date_created") else None
-            ),
-            date_updated=(
-                str(data.get("date_updated", "")) if data.get("date_updated") else None
-            ),
+            classements=classements,
+            nom=from_str(data, "nom"),
+            engagements=data.get("engagements"),  # Keep as is, it's a raw list
+            id_competition=from_str(data, "id_competition"),
+            date_created=from_str(data, "date_created"),
+            date_updated=from_str(data, "date_updated"),
         )

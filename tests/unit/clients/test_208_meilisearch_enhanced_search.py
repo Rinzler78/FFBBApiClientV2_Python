@@ -53,7 +53,7 @@ class Test208MeilisearchEnhancedSearch(unittest.TestCase):
     # --- Competitions with filter/sort ---
 
     @patch.object(MeilisearchFFBBClient, "recursive_multi_search")
-    def test_001_search_competitions_with_filter(self, mock_search: MagicMock) -> None:
+    def test_000_search_competitions_with_filter(self, mock_search: MagicMock) -> None:
         """Test search_competitions passes filter to query."""
         mock_result = MagicMock(spec=CompetitionsMultiSearchResult)
         mock_search.return_value = self._make_mock_results(mock_result)
@@ -71,7 +71,7 @@ class Test208MeilisearchEnhancedSearch(unittest.TestCase):
         self.assertEqual(query.filter, ['sexe = "M"'])
 
     @patch.object(MeilisearchFFBBClient, "recursive_multi_search")
-    def test_002_search_competitions_with_sort(self, mock_search: MagicMock) -> None:
+    def test_001_search_competitions_with_sort(self, mock_search: MagicMock) -> None:
         """Test search_competitions passes sort to query."""
         mock_result = MagicMock(spec=CompetitionsMultiSearchResult)
         mock_search.return_value = self._make_mock_results(mock_result)
@@ -85,7 +85,7 @@ class Test208MeilisearchEnhancedSearch(unittest.TestCase):
         self.assertEqual(queries[0].sort, ["nom:asc"])
 
     @patch.object(MeilisearchFFBBClient, "recursive_multi_search")
-    def test_003_search_competitions_with_limit(self, mock_search: MagicMock) -> None:
+    def test_002_search_competitions_with_limit(self, mock_search: MagicMock) -> None:
         """Test search_competitions passes limit to query."""
         mock_result = MagicMock(spec=CompetitionsMultiSearchResult)
         mock_search.return_value = self._make_mock_results(mock_result)
@@ -98,7 +98,7 @@ class Test208MeilisearchEnhancedSearch(unittest.TestCase):
     # --- Organismes with filter/sort ---
 
     @patch.object(MeilisearchFFBBClient, "recursive_multi_search")
-    def test_004_search_organismes_with_filter(self, mock_search: MagicMock) -> None:
+    def test_003_search_organismes_with_filter(self, mock_search: MagicMock) -> None:
         """Test search_organismes passes filter to query."""
         mock_result = MagicMock(spec=OrganismesMultiSearchResult)
         mock_search.return_value = self._make_mock_results(mock_result)
@@ -114,7 +114,7 @@ class Test208MeilisearchEnhancedSearch(unittest.TestCase):
     # --- Rencontres with filter ---
 
     @patch.object(MeilisearchFFBBClient, "recursive_multi_search")
-    def test_005_search_rencontres_with_filter(self, mock_search: MagicMock) -> None:
+    def test_004_search_rencontres_with_filter(self, mock_search: MagicMock) -> None:
         """Test search_rencontres passes filter."""
         mock_result = MagicMock(spec=RencontresMultiSearchResult)
         mock_search.return_value = self._make_mock_results(mock_result)
@@ -130,7 +130,7 @@ class Test208MeilisearchEnhancedSearch(unittest.TestCase):
     # --- Salles with filter ---
 
     @patch.object(MeilisearchFFBBClient, "recursive_multi_search")
-    def test_006_search_salles_with_filter(self, mock_search: MagicMock) -> None:
+    def test_005_search_salles_with_filter(self, mock_search: MagicMock) -> None:
         """Test search_salles passes filter."""
         mock_result = MagicMock(spec=SallesMultiSearchResult)
         mock_search.return_value = self._make_mock_results(mock_result)
@@ -146,7 +146,7 @@ class Test208MeilisearchEnhancedSearch(unittest.TestCase):
     # --- Terrains with filter ---
 
     @patch.object(MeilisearchFFBBClient, "recursive_multi_search")
-    def test_007_search_terrains_with_filter(self, mock_search: MagicMock) -> None:
+    def test_006_search_terrains_with_filter(self, mock_search: MagicMock) -> None:
         """Test search_terrains passes filter."""
         mock_result = MagicMock(spec=TerrainsMultiSearchResult)
         mock_search.return_value = self._make_mock_results(mock_result)
@@ -162,7 +162,7 @@ class Test208MeilisearchEnhancedSearch(unittest.TestCase):
     # --- Tournois with filter ---
 
     @patch.object(MeilisearchFFBBClient, "recursive_multi_search")
-    def test_008_search_tournois_with_filter(self, mock_search: MagicMock) -> None:
+    def test_007_search_tournois_with_filter(self, mock_search: MagicMock) -> None:
         """Test search_tournois passes filter."""
         mock_result = MagicMock(spec=TournoisMultiSearchResult)
         mock_search.return_value = self._make_mock_results(mock_result)
@@ -178,7 +178,7 @@ class Test208MeilisearchEnhancedSearch(unittest.TestCase):
     # --- Pratiques with filter ---
 
     @patch.object(MeilisearchFFBBClient, "recursive_multi_search")
-    def test_009_search_pratiques_with_filter(self, mock_search: MagicMock) -> None:
+    def test_008_search_pratiques_with_filter(self, mock_search: MagicMock) -> None:
         """Test search_pratiques passes filter."""
         mock_result = MagicMock(spec=PratiquesMultiSearchResult)
         mock_search.return_value = self._make_mock_results(mock_result)
@@ -194,7 +194,7 @@ class Test208MeilisearchEnhancedSearch(unittest.TestCase):
     # --- search_multiple_* with filter/sort ---
 
     @patch.object(MeilisearchFFBBClient, "recursive_multi_search")
-    def test_010_search_multiple_competitions_with_filter(
+    def test_009_search_multiple_competitions_with_filter(
         self, mock_search: MagicMock
     ) -> None:
         """Test search_multiple_competitions creates queries with filter."""
@@ -220,7 +220,7 @@ class Test208MeilisearchEnhancedSearch(unittest.TestCase):
     # --- Default limit ---
 
     @patch.object(MeilisearchFFBBClient, "recursive_multi_search")
-    def test_011_default_limit_is_10(self, mock_search: MagicMock) -> None:
+    def test_010_default_limit_is_10(self, mock_search: MagicMock) -> None:
         """Test that default limit is 10."""
         mock_result = MagicMock(spec=CompetitionsMultiSearchResult)
         mock_search.return_value = self._make_mock_results(mock_result)
@@ -233,7 +233,7 @@ class Test208MeilisearchEnhancedSearch(unittest.TestCase):
     # --- None filter/sort doesn't change query ---
 
     @patch.object(MeilisearchFFBBClient, "recursive_multi_search")
-    def test_012_none_filter_sort(self, mock_search: MagicMock) -> None:
+    def test_011_none_filter_sort(self, mock_search: MagicMock) -> None:
         """Test that None filter/sort results in None on query."""
         mock_result = MagicMock(spec=CompetitionsMultiSearchResult)
         mock_search.return_value = self._make_mock_results(mock_result)
@@ -246,7 +246,7 @@ class Test208MeilisearchEnhancedSearch(unittest.TestCase):
 
     # --- get_all_index_settings ---
 
-    def test_013_get_all_index_settings(self) -> None:
+    def test_012_get_all_index_settings(self) -> None:
         """Test get_all_index_settings calls get_index_settings for each index."""
         mock_settings = MeilisearchIndexSettings(filterable_attributes=["type"])
         with patch.object(
@@ -258,7 +258,7 @@ class Test208MeilisearchEnhancedSearch(unittest.TestCase):
             for uid, settings in result.items():
                 self.assertIsInstance(settings, MeilisearchIndexSettings)
 
-    def test_014_get_all_index_settings_some_fail(self) -> None:
+    def test_013_get_all_index_settings_some_fail(self) -> None:
         """Test get_all_index_settings handles None results gracefully."""
         call_count = 0
 

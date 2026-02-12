@@ -13,7 +13,7 @@ from unittest.mock import MagicMock
 class TestFFBBAPIClientV2Coverage(unittest.TestCase):
     """ffbb_api_client_v2.py -- cover search_multiple_* with None names."""
 
-    def test_search_multiple_with_none_names_returns_none(self) -> None:
+    def test_000_search_multiple_with_none_names_returns_none(self) -> None:
         from ffbb_api_client_v2.clients.ffbb_api_client_v2 import FFBBAPIClientV2
 
         api_client = MagicMock()
@@ -28,7 +28,7 @@ class TestFFBBAPIClientV2Coverage(unittest.TestCase):
         self.assertIsNone(client.search_multiple_terrains(None))
         self.assertIsNone(client.search_multiple_tournois(None))
 
-    def test_search_multiple_with_empty_list_returns_none(self) -> None:
+    def test_001_search_multiple_with_empty_list_returns_none(self) -> None:
         from ffbb_api_client_v2.clients.ffbb_api_client_v2 import FFBBAPIClientV2
 
         api_client = MagicMock()
@@ -38,7 +38,7 @@ class TestFFBBAPIClientV2Coverage(unittest.TestCase):
         self.assertIsNone(client.search_multiple_competitions([]))
         self.assertIsNone(client.search_multiple_organismes([]))
 
-    def test_get_competition_delegates(self) -> None:
+    def test_002_get_competition_delegates(self) -> None:
         from ffbb_api_client_v2.clients.ffbb_api_client_v2 import FFBBAPIClientV2
 
         api_client = MagicMock()
@@ -50,7 +50,7 @@ class TestFFBBAPIClientV2Coverage(unittest.TestCase):
         self.assertEqual(result, "result")
         api_client.get_competition.assert_called_once()
 
-    def test_get_organisme_delegates(self) -> None:
+    def test_003_get_organisme_delegates(self) -> None:
         from ffbb_api_client_v2.clients.ffbb_api_client_v2 import FFBBAPIClientV2
 
         api_client = MagicMock()
@@ -61,7 +61,7 @@ class TestFFBBAPIClientV2Coverage(unittest.TestCase):
         result = client.get_organisme(organisme_id=456)
         self.assertEqual(result, "org_result")
 
-    def test_get_poule_delegates(self) -> None:
+    def test_004_get_poule_delegates(self) -> None:
         from ffbb_api_client_v2.clients.ffbb_api_client_v2 import FFBBAPIClientV2
 
         api_client = MagicMock()

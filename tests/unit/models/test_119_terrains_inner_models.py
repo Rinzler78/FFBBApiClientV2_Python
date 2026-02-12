@@ -25,13 +25,13 @@ class Test041TerrainsInnerModels(unittest.TestCase):
         dict2 = obj2.to_dict()
         self.assertEqual(dict1, dict2, f"{model_class.__name__} round-trip not stable")
 
-    def test_001_sexe_class_full(self) -> None:
+    def test_000_sexe_class_full(self) -> None:
         self._assert_stable(
             SexeClass,
             {"Féminin": 5, "Masculin": 10, "Mixte": 2},
         )
 
-    def test_002_tournoi_types3x3_libelle_full(self) -> None:
+    def test_001_tournoi_types3x3_libelle_full(self) -> None:
         self._assert_stable(
             TournoiTypes3X3Libelle,
             {
@@ -44,7 +44,7 @@ class Test041TerrainsInnerModels(unittest.TestCase):
             },
         )
 
-    def test_003_terrains_facet_distribution_full(self) -> None:
+    def test_002_terrains_facet_distribution_full(self) -> None:
         self._assert_stable(
             TerrainsFacetDistribution,
             {
@@ -61,7 +61,7 @@ class Test041TerrainsInnerModels(unittest.TestCase):
             },
         )
 
-    def test_004_tournoi_types3x3_full(self) -> None:
+    def test_003_tournoi_types3x3_full(self) -> None:
         self._assert_stable(
             TournoiTypes3X3,
             {
@@ -72,7 +72,7 @@ class Test041TerrainsInnerModels(unittest.TestCase):
             },
         )
 
-    def test_005_terrains_hit_with_full_data(self) -> None:
+    def test_004_terrains_hit_with_full_data(self) -> None:
         """TerrainsHit with all fields populated for to_dict coverage."""
         self._assert_stable(
             TerrainsHit,
@@ -121,7 +121,7 @@ class Test041TerrainsInnerModels(unittest.TestCase):
             },
         )
 
-    def test_006_terrains_result_with_facets(self) -> None:
+    def test_005_terrains_result_with_facets(self) -> None:
         """TerrainsMultiSearchResult with facet distribution."""
         self._assert_stable(
             TerrainsMultiSearchResult,

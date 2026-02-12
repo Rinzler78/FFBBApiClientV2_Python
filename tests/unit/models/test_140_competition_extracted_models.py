@@ -21,21 +21,21 @@ from ffbb_api_client_v2.models.phase_engagement import PhaseEngagement
 class TestFonction(unittest.TestCase):
     """Tests for Fonction model."""
 
-    def test_from_dict_full(self) -> None:
+    def test_032_from_dict_full(self) -> None:
         f = Fonction.from_dict({"libelle": "Arbitre"})
         self.assertEqual(f.libelle, "Arbitre")
 
-    def test_from_dict_empty(self) -> None:
+    def test_033_from_dict_empty(self) -> None:
         f = Fonction.from_dict({})
         self.assertIsNone(f.libelle)
 
-    def test_to_dict(self) -> None:
+    def test_002_to_dict(self) -> None:
         self.assertEqual(Fonction(libelle="Arbitre").to_dict(), {"libelle": "Arbitre"})
 
-    def test_to_dict_skips_none(self) -> None:
+    def test_003_to_dict_skips_none(self) -> None:
         self.assertEqual(Fonction().to_dict(), {})
 
-    def test_round_trip(self) -> None:
+    def test_035_round_trip(self) -> None:
         data = {"libelle": "Marqueur"}
         obj1 = Fonction.from_dict(data)
         obj2 = Fonction.from_dict(obj1.to_dict())
@@ -45,17 +45,17 @@ class TestFonction(unittest.TestCase):
 class TestOfficielPersonne(unittest.TestCase):
     """Tests for OfficielPersonne model."""
 
-    def test_from_dict_full(self) -> None:
+    def test_032_from_dict_full(self) -> None:
         p = OfficielPersonne.from_dict({"nom": "Dupont", "prenom": "Jean"})
         self.assertEqual(p.nom, "Dupont")
         self.assertEqual(p.prenom, "Jean")
 
-    def test_from_dict_empty(self) -> None:
+    def test_033_from_dict_empty(self) -> None:
         p = OfficielPersonne.from_dict({})
         self.assertIsNone(p.nom)
         self.assertIsNone(p.prenom)
 
-    def test_round_trip(self) -> None:
+    def test_035_round_trip(self) -> None:
         data = {"nom": "Dupont", "prenom": "Jean"}
         obj1 = OfficielPersonne.from_dict(data)
         obj2 = OfficielPersonne.from_dict(obj1.to_dict())
@@ -65,7 +65,7 @@ class TestOfficielPersonne(unittest.TestCase):
 class TestOfficiel(unittest.TestCase):
     """Tests for Officiel model."""
 
-    def test_from_dict_full(self) -> None:
+    def test_032_from_dict_full(self) -> None:
         data = {
             "ordre": 1,
             "fonction": {"libelle": "Arbitre"},
@@ -78,13 +78,13 @@ class TestOfficiel(unittest.TestCase):
         self.assertIsNotNone(off.officiel)
         self.assertEqual(off.officiel.nom, "Martin")
 
-    def test_from_dict_empty(self) -> None:
+    def test_033_from_dict_empty(self) -> None:
         off = Officiel.from_dict({})
         self.assertIsNone(off.ordre)
         self.assertIsNone(off.fonction)
         self.assertIsNone(off.officiel)
 
-    def test_round_trip(self) -> None:
+    def test_035_round_trip(self) -> None:
         data = {
             "ordre": 1,
             "fonction": {"libelle": "Arbitre"},
@@ -98,18 +98,18 @@ class TestOfficiel(unittest.TestCase):
 class TestOrganismeEquipe(unittest.TestCase):
     """Tests for OrganismeEquipe model."""
 
-    def test_from_dict_with_logo(self) -> None:
+    def test_011_from_dict_with_logo(self) -> None:
         uuid_str = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
         data = {"logo": {"id": uuid_str}}
         oe = OrganismeEquipe.from_dict(data)
         self.assertIsNotNone(oe.logo)
         self.assertEqual(oe.logo.id, UUID(uuid_str))
 
-    def test_from_dict_empty(self) -> None:
+    def test_033_from_dict_empty(self) -> None:
         oe = OrganismeEquipe.from_dict({})
         self.assertIsNone(oe.logo)
 
-    def test_round_trip(self) -> None:
+    def test_035_round_trip(self) -> None:
         data = {"logo": {"id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"}}
         obj1 = OrganismeEquipe.from_dict(data)
         obj2 = OrganismeEquipe.from_dict(obj1.to_dict())
@@ -119,7 +119,7 @@ class TestOrganismeEquipe(unittest.TestCase):
 class TestEngagementEquipe(unittest.TestCase):
     """Tests for EngagementEquipe model."""
 
-    def test_from_dict_full(self) -> None:
+    def test_032_from_dict_full(self) -> None:
         data = {
             "id": "ee-001",
             "nom": "CLUB TEST - 1",
@@ -136,12 +136,12 @@ class TestEngagementEquipe(unittest.TestCase):
         self.assertEqual(ee.code_abrege, "CT1")
         self.assertIsNotNone(ee.logo)
 
-    def test_from_dict_empty(self) -> None:
+    def test_033_from_dict_empty(self) -> None:
         ee = EngagementEquipe.from_dict({})
         self.assertIsNone(ee.id)
         self.assertIsNone(ee.nom)
 
-    def test_to_dict_camelcase_keys(self) -> None:
+    def test_034_to_dict_camelcase_keys(self) -> None:
         ee = EngagementEquipe(
             id="ee-001",
             nom_officiel="Off",
@@ -156,7 +156,7 @@ class TestEngagementEquipe(unittest.TestCase):
         self.assertNotIn("nom_usuel", d)
         self.assertNotIn("code_abrege", d)
 
-    def test_round_trip(self) -> None:
+    def test_035_round_trip(self) -> None:
         data = {
             "id": "ee-001",
             "nom": "CLUB TEST - 1",
@@ -172,15 +172,15 @@ class TestEngagementEquipe(unittest.TestCase):
 class TestOrganismeId(unittest.TestCase):
     """Tests for OrganismeId model."""
 
-    def test_from_dict(self) -> None:
+    def test_018_from_dict(self) -> None:
         oi = OrganismeId.from_dict({"id": "org-001"})
         self.assertEqual(oi.id, "org-001")
 
-    def test_from_dict_empty(self) -> None:
+    def test_033_from_dict_empty(self) -> None:
         oi = OrganismeId.from_dict({})
         self.assertIsNone(oi.id)
 
-    def test_round_trip(self) -> None:
+    def test_035_round_trip(self) -> None:
         data = {"id": "org-001"}
         obj1 = OrganismeId.from_dict(data)
         obj2 = OrganismeId.from_dict(obj1.to_dict())
@@ -190,7 +190,7 @@ class TestOrganismeId(unittest.TestCase):
 class TestPhaseEngagement(unittest.TestCase):
     """Tests for PhaseEngagement model."""
 
-    def test_from_dict_full(self) -> None:
+    def test_032_from_dict_full(self) -> None:
         data = {
             "id": "pe-001",
             "idOrganisme": {"id": "org-001"},
@@ -200,12 +200,12 @@ class TestPhaseEngagement(unittest.TestCase):
         self.assertIsNotNone(pe.id_organisme)
         self.assertEqual(pe.id_organisme.id, "org-001")
 
-    def test_from_dict_empty(self) -> None:
+    def test_033_from_dict_empty(self) -> None:
         pe = PhaseEngagement.from_dict({})
         self.assertIsNone(pe.id)
         self.assertIsNone(pe.id_organisme)
 
-    def test_to_dict_camelcase_keys(self) -> None:
+    def test_034_to_dict_camelcase_keys(self) -> None:
         pe = PhaseEngagement(
             id="pe-001",
             id_organisme=OrganismeId(id="org-001"),
@@ -214,7 +214,7 @@ class TestPhaseEngagement(unittest.TestCase):
         self.assertIn("idOrganisme", d)
         self.assertNotIn("id_organisme", d)
 
-    def test_round_trip(self) -> None:
+    def test_035_round_trip(self) -> None:
         data = {
             "id": "pe-001",
             "idOrganisme": {"id": "org-001"},
@@ -227,7 +227,7 @@ class TestPhaseEngagement(unittest.TestCase):
 class TestCompetitionRencontre(unittest.TestCase):
     """Tests for CompetitionRencontre model."""
 
-    def test_from_dict_full(self) -> None:
+    def test_032_from_dict_full(self) -> None:
         data = {
             "id": "ren-001",
             "numero": "42",
@@ -272,12 +272,12 @@ class TestCompetitionRencontre(unittest.TestCase):
         self.assertEqual(len(ren.officiels), 1)
         self.assertIsInstance(ren.officiels[0], Officiel)
 
-    def test_from_dict_empty(self) -> None:
+    def test_033_from_dict_empty(self) -> None:
         ren = CompetitionRencontre.from_dict({})
         self.assertIsNone(ren.id)
         self.assertEqual(ren.officiels, [])
 
-    def test_to_dict_camelcase_keys(self) -> None:
+    def test_034_to_dict_camelcase_keys(self) -> None:
         ren = CompetitionRencontre(
             id="ren-001",
             numero_journee="3",
@@ -293,7 +293,7 @@ class TestCompetitionRencontre(unittest.TestCase):
         self.assertNotIn("numero_journee", d)
         self.assertNotIn("resultat_equipe1", d)
 
-    def test_round_trip_minimal(self) -> None:
+    def test_028_round_trip_minimal(self) -> None:
         data = {
             "id": "ren-001",
             "numero": "42",
@@ -309,7 +309,7 @@ class TestCompetitionRencontre(unittest.TestCase):
 class TestCompetitionPoule(unittest.TestCase):
     """Tests for CompetitionPoule model."""
 
-    def test_from_dict_full(self) -> None:
+    def test_032_from_dict_full(self) -> None:
         data = {
             "id": "poule-001",
             "nom": "Poule A",
@@ -334,13 +334,13 @@ class TestCompetitionPoule(unittest.TestCase):
         self.assertEqual(len(poule.engagements), 1)
         self.assertIsInstance(poule.engagements[0], PhaseEngagement)
 
-    def test_from_dict_empty(self) -> None:
+    def test_033_from_dict_empty(self) -> None:
         poule = CompetitionPoule.from_dict({})
         self.assertIsNone(poule.id)
         self.assertEqual(poule.rencontres, [])
         self.assertEqual(poule.engagements, [])
 
-    def test_round_trip(self) -> None:
+    def test_035_round_trip(self) -> None:
         data = {
             "id": "poule-001",
             "nom": "Poule A",
@@ -356,7 +356,7 @@ class TestCompetitionPoule(unittest.TestCase):
 class TestCompetitionPhase(unittest.TestCase):
     """Tests for CompetitionPhase model."""
 
-    def test_from_dict_full(self) -> None:
+    def test_032_from_dict_full(self) -> None:
         data = {
             "id": "phase-001",
             "nom": "Phase Aller",
@@ -374,19 +374,19 @@ class TestCompetitionPhase(unittest.TestCase):
         self.assertEqual(len(phase.poules), 1)
         self.assertIsInstance(phase.poules[0], CompetitionPoule)
 
-    def test_from_dict_empty(self) -> None:
+    def test_033_from_dict_empty(self) -> None:
         phase = CompetitionPhase.from_dict({})
         self.assertIsNone(phase.id)
         self.assertEqual(phase.poules, [])
 
-    def test_to_dict_camelcase_keys(self) -> None:
+    def test_034_to_dict_camelcase_keys(self) -> None:
         phase = CompetitionPhase(id="phase-001", live_stat=True, phase_code="ALLER")
         d = phase.to_dict()
         self.assertEqual(d["liveStat"], True)
         self.assertEqual(d["phase_code"], "ALLER")
         self.assertNotIn("live_stat", d)
 
-    def test_round_trip(self) -> None:
+    def test_035_round_trip(self) -> None:
         data = {
             "id": "phase-001",
             "nom": "Phase Aller",
@@ -404,7 +404,7 @@ class TestCompetitionPhase(unittest.TestCase):
 class TestGetCompetitionResponseExtracted(unittest.TestCase):
     """Tests for rewritten GetCompetitionResponse using extracted models."""
 
-    def test_from_dict_with_phases(self) -> None:
+    def test_036_from_dict_with_phases(self) -> None:
         data = {
             "id": "comp-001",
             "nom": "Regionale 2",
@@ -424,7 +424,7 @@ class TestGetCompetitionResponseExtracted(unittest.TestCase):
         self.assertEqual(len(resp.phases), 1)
         self.assertIsInstance(resp.phases[0], CompetitionPhase)
 
-    def test_from_dict_with_poules(self) -> None:
+    def test_037_from_dict_with_poules(self) -> None:
         data = {
             "id": "comp-001",
             "nom": "Regionale 2",
@@ -434,7 +434,7 @@ class TestGetCompetitionResponseExtracted(unittest.TestCase):
         self.assertIsNotNone(resp)
         self.assertEqual(len(resp.poules), 1)
 
-    def test_from_dict_snake_case_fields(self) -> None:
+    def test_038_from_dict_snake_case_fields(self) -> None:
         data = {
             "id": "comp-001",
             "typeCompetition": "Championnat",
@@ -451,7 +451,7 @@ class TestGetCompetitionResponseExtracted(unittest.TestCase):
         self.assertEqual(resp.competition_origine, "orig-001")
         self.assertEqual(resp.competition_origine_nom, "Championnat Regional")
 
-    def test_from_dict_with_categorie(self) -> None:
+    def test_039_from_dict_with_categorie(self) -> None:
         data = {
             "id": "comp-001",
             "categorie": {"code": "SEN", "ordre": 10},
@@ -460,13 +460,13 @@ class TestGetCompetitionResponseExtracted(unittest.TestCase):
         self.assertIsNotNone(resp)
         self.assertIsNotNone(resp.categorie)
 
-    def test_from_dict_empty_returns_none(self) -> None:
+    def test_040_from_dict_empty_returns_none(self) -> None:
         self.assertIsNone(GetCompetitionResponse.from_dict({}))
 
-    def test_from_dict_errors_returns_none(self) -> None:
+    def test_041_from_dict_errors_returns_none(self) -> None:
         self.assertIsNone(GetCompetitionResponse.from_dict({"errors": ["err"]}))
 
-    def test_from_dict_empty_lists_default(self) -> None:
+    def test_042_from_dict_empty_lists_default(self) -> None:
         data = {"id": "comp-001", "nom": "Regionale 2"}
         resp = GetCompetitionResponse.from_dict(data)
         self.assertIsNotNone(resp)

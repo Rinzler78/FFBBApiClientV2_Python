@@ -1,0 +1,36 @@
+"""Round-trip tests for NiveauClass."""
+
+from __future__ import annotations
+
+import unittest
+from typing import Any
+
+from ffbb_api_client_v2.models.niveau_class import NiveauClass
+
+
+class Test034NiveauClass(unittest.TestCase):
+    def _assert_stable(self, model_class: type, input_data: dict[str, Any]) -> None:
+        obj1 = model_class.from_dict(input_data)
+        dict1 = obj1.to_dict()
+        obj2 = model_class.from_dict(dict1)
+        dict2 = obj2.to_dict()
+        self.assertEqual(dict1, dict2, f"{model_class.__name__} round-trip not stable")
+
+    def test_000_round_trip_full(self) -> None:
+        self._assert_stable(
+            NiveauClass,
+            {"Départemental": 5, "Régional": 2},
+        )
+
+    def test_001_round_trip_partial(self) -> None:
+        self._assert_stable(NiveauClass, {"Départemental": 10})
+
+    def test_002_round_trip_none_fields(self) -> None:
+        self._assert_stable(
+            NiveauClass,
+            {"Départemental": None, "Régional": None},
+        )
+
+
+if __name__ == "__main__":
+    unittest.main()

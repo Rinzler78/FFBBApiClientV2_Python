@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from ..utils.converter_utils import from_bool, from_float, from_str
+
 
 @dataclass
 class GetTerrainsResponse:
@@ -30,22 +32,18 @@ class GetTerrainsResponse:
             return None
 
         return cls(
-            id=str(data.get("id", "")),
-            nom=str(data.get("nom", "")) if data.get("nom") else None,
-            rue=str(data.get("rue", "")) if data.get("rue") else None,
-            numero=(str(data.get("numero", "")) if data.get("numero") else None),
-            largeur=data.get("largeur"),
-            longueur=data.get("longueur"),
-            accesLibre=data.get("accesLibre"),
+            id=from_str(data, "id") or "",
+            nom=from_str(data, "nom"),
+            rue=from_str(data, "rue"),
+            numero=from_str(data, "numero"),
+            largeur=from_float(data, "largeur"),
+            longueur=from_float(data, "longueur"),
+            accesLibre=from_bool(data, "accesLibre"),
             natureSol=data.get("natureSol"),
             commune=data.get("commune"),
             cartographie=data.get("cartographie"),
-            date_created=(
-                str(data.get("date_created", "")) if data.get("date_created") else None
-            ),
-            date_updated=(
-                str(data.get("date_updated", "")) if data.get("date_updated") else None
-            ),
+            date_created=from_str(data, "date_created"),
+            date_updated=from_str(data, "date_updated"),
         )
 
     @classmethod

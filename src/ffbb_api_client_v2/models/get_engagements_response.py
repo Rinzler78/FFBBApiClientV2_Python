@@ -3,6 +3,12 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+from ..utils.converter_utils import (
+    from_bool,
+    from_int,
+    from_str,
+)
+
 
 @dataclass
 class GetEngagementsResponse:
@@ -42,42 +48,30 @@ class GetEngagementsResponse:
             return None
 
         return cls(
-            id=str(data.get("id", "")),
-            nom=str(data.get("nom", "")) if data.get("nom") else None,
-            nomEquipe=(
-                str(data.get("nomEquipe", "")) if data.get("nomEquipe") else None
-            ),
-            nomUsuel=(str(data.get("nomUsuel", "")) if data.get("nomUsuel") else None),
-            nomOfficiel=(
-                str(data.get("nomOfficiel", "")) if data.get("nomOfficiel") else None
-            ),
-            numeroEquipe=(
-                str(data.get("numeroEquipe", "")) if data.get("numeroEquipe") else None
-            ),
-            codeAbrege=(
-                str(data.get("codeAbrege", "")) if data.get("codeAbrege") else None
-            ),
-            clubPro=data.get("clubPro"),
-            position=data.get("position"),
-            logo=data.get("logo"),
-            idCompetition=data.get("idCompetition"),
-            idOrganisme=data.get("idOrganisme"),
-            idPoule=data.get("idPoule"),
-            niveau=data.get("niveau"),
-            classement=data.get("classement"),
-            entraineur=data.get("entraineur"),
-            entraineurAdjoint=data.get("entraineurAdjoint"),
-            positionVariation=data.get("positionVariation"),
-            position_n1=data.get("position_n1"),
+            id=from_str(data, "id") or "",
+            nom=from_str(data, "nom"),
+            nomEquipe=from_str(data, "nomEquipe"),
+            nomUsuel=from_str(data, "nomUsuel"),
+            nomOfficiel=from_str(data, "nomOfficiel"),
+            numeroEquipe=from_str(data, "numeroEquipe"),
+            codeAbrege=from_str(data, "codeAbrege"),
+            clubPro=from_bool(data, "clubPro"),
+            position=from_int(data, "position"),
+            logo=data.get("logo"),  # Keep as raw dict
+            idCompetition=data.get("idCompetition"),  # Keep as raw dict
+            idOrganisme=data.get("idOrganisme"),  # Keep as raw dict
+            idPoule=data.get("idPoule"),  # Keep as raw dict
+            niveau=data.get("niveau"),  # Keep as raw dict
+            classement=data.get("classement"),  # Keep as raw dict
+            entraineur=data.get("entraineur"),  # Keep as raw dict
+            entraineurAdjoint=data.get("entraineurAdjoint"),  # Keep as raw dict
+            positionVariation=from_int(data, "positionVariation"),
+            position_n1=from_int(data, "position_n1"),
             positions=data.get("positions", []) or [],
             rencontres_domiciles=data.get("rencontres_domiciles", []) or [],
             rencontres_exterieur=data.get("rencontres_exterieur", []) or [],
-            date_created=(
-                str(data.get("date_created", "")) if data.get("date_created") else None
-            ),
-            date_updated=(
-                str(data.get("date_updated", "")) if data.get("date_updated") else None
-            ),
+            date_created=from_str(data, "date_created"),
+            date_updated=from_str(data, "date_updated"),
         )
 
     @classmethod

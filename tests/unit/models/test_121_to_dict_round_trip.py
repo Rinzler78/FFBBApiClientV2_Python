@@ -83,7 +83,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
     # Section A: Small models
     # -----------------------------------------------------------------------
 
-    def test_040_affiche_full(self) -> None:
+    def test_000_affiche_full(self) -> None:
         """Affiche with UUID id, gradient_color, width, height."""
         self._assert_stable(
             Affiche,
@@ -95,14 +95,14 @@ class Test022ToDictRoundTrip(unittest.TestCase):
             },
         )
 
-    def test_041_affiche_minimal(self) -> None:
+    def test_001_affiche_minimal(self) -> None:
         """Affiche with only id."""
         self._assert_stable(
             Affiche,
             {"id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"},
         )
 
-    def test_042_folder(self) -> None:
+    def test_002_folder(self) -> None:
         """Folder with UUID id and name."""
         self._assert_stable(
             Folder,
@@ -113,7 +113,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
             },
         )
 
-    def test_043_nature_sol(self) -> None:
+    def test_003_nature_sol(self) -> None:
         """NatureSol with Code enum, datetime, terrain bool-string."""
         self._assert_stable(
             NatureSol,
@@ -127,7 +127,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
             },
         )
 
-    def test_044_logo(self) -> None:
+    def test_004_logo(self) -> None:
         """Logo with UUID id and gradient_color."""
         self._assert_stable(
             Logo,
@@ -137,14 +137,14 @@ class Test022ToDictRoundTrip(unittest.TestCase):
             },
         )
 
-    def test_045_geo(self) -> None:
+    def test_005_geo(self) -> None:
         """Geo with lat/lng floats."""
         self._assert_stable(
             Geo,
             {"lat": 48.8566, "lng": 2.3522},
         )
 
-    def test_046_cartographie(self) -> None:
+    def test_006_cartographie(self) -> None:
         """Cartographie with nested Coordonnees, float lat/lng."""
         self._assert_stable(
             Cartographie,
@@ -165,7 +165,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
             },
         )
 
-    def test_047_commune(self) -> None:
+    def test_007_commune(self) -> None:
         """Commune with int-as-string codePostal, datetime, libelle."""
         self._assert_stable(
             Commune,
@@ -180,7 +180,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
             },
         )
 
-    def test_048_document_flyer_full(self) -> None:
+    def test_008_document_flyer_full(self) -> None:
         """DocumentFlyer with many fields, nested Folder, datetime, enum."""
         self._assert_stable(
             DocumentFlyer,
@@ -226,7 +226,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
             },
         )
 
-    def test_049_document_flyer_minimal(self) -> None:
+    def test_009_document_flyer_minimal(self) -> None:
         """DocumentFlyer with only id and title."""
         self._assert_stable(
             DocumentFlyer,
@@ -253,14 +253,14 @@ class Test022ToDictRoundTrip(unittest.TestCase):
             },
         )
 
-    def test_050_type_association(self) -> None:
+    def test_010_type_association(self) -> None:
         """TypeAssociation with libelle."""
         self._assert_stable(
             TypeAssociation,
             {"libelle": "Association sportive"},
         )
 
-    def test_051_organisme_id_pere(self) -> None:
+    def test_011_organisme_id_pere(self) -> None:
         """OrganismeIDPere with nested fields."""
         self._assert_stable(
             OrganismeIDPere,
@@ -301,7 +301,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
     # Section B: Live models
     # -----------------------------------------------------------------------
 
-    def test_060_clock_str(self) -> None:
+    def test_012_clock_str(self) -> None:
         """Clock from_str/to_str round-trip."""
         clock1 = Clock.from_str("5:30:0")
         str1 = clock1.to_str()
@@ -310,7 +310,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
         self.assertEqual(str1, str2)
         self.assertEqual(str1, "5:30:0")
 
-    def test_061_live_full(self) -> None:
+    def test_013_live_full(self) -> None:
         """Live with matchId string->int->string, scores, clock, datetime."""
         self._assert_stable(
             Live,
@@ -345,7 +345,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
             },
         )
 
-    def test_062_live_minimal(self) -> None:
+    def test_014_live_minimal(self) -> None:
         """Live with matchId + clock only."""
         self._assert_stable(
             Live,
@@ -355,7 +355,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
             },
         )
 
-    def test_063_external_id(self) -> None:
+    def test_015_external_id(self) -> None:
         """ExternalID with nested CompetitionID, numeroJournee."""
         self._assert_stable(
             ExternalID,
@@ -376,7 +376,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
             },
         )
 
-    def test_064_team_engagement(self) -> None:
+    def test_016_team_engagement(self) -> None:
         """TeamEngagement with nested Logo."""
         self._assert_stable(
             TeamEngagement,
@@ -391,7 +391,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
             },
         )
 
-    def test_065_competition_id(self) -> None:
+    def test_017_competition_id(self) -> None:
         """CompetitionID (from external_id module) with 4 string fields."""
         self._assert_stable(
             ExternalCompetitionID,
@@ -407,7 +407,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
     # Section C: Multi-search Hit models
     # -----------------------------------------------------------------------
 
-    def test_070_organismes_hit_full(self) -> None:
+    def test_018_organismes_hit_full(self) -> None:
         """OrganismesHit with 24 champs, nested Cartographie/Commune/Logo/Geo."""
         self._assert_stable(
             OrganismesHit,
@@ -461,7 +461,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
             },
         )
 
-    def test_071_organismes_hit_minimal(self) -> None:
+    def test_019_organismes_hit_minimal(self) -> None:
         """OrganismesHit with id + nom only."""
         self._assert_stable(
             OrganismesHit,
@@ -476,7 +476,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
             },
         )
 
-    def test_072_organismes_facet_distribution(self) -> None:
+    def test_020_organismes_facet_distribution(self) -> None:
         """OrganismesFacetDistribution with nested TypeClass, dict[str,int]."""
         self._assert_stable(
             OrganismesFacetDistribution,
@@ -494,7 +494,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
             },
         )
 
-    def test_073_competitions_hit_full(self) -> None:
+    def test_021_competitions_hit_full(self) -> None:
         """CompetitionsHit with Niveau/Sexe/Etat enums, nested Poule/Saison/Logo."""
         self._assert_stable(
             CompetitionsHit,
@@ -533,7 +533,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
             },
         )
 
-    def test_074_competitions_hit_minimal(self) -> None:
+    def test_022_competitions_hit_minimal(self) -> None:
         """CompetitionsHit with id + nom + code."""
         self._assert_stable(
             CompetitionsHit,
@@ -546,7 +546,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
             },
         )
 
-    def test_075_competitions_facet_distribution(self) -> None:
+    def test_023_competitions_facet_distribution(self) -> None:
         """CompetitionsFacetDistribution with dict[str,int] fields."""
         self._assert_stable(
             CompetitionsFacetDistribution,
@@ -561,7 +561,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
             },
         )
 
-    def test_076_salles_hit(self) -> None:
+    def test_024_salles_hit(self) -> None:
         """SallesHit with nested Commune, Geo."""
         self._assert_stable(
             SallesHit,
@@ -594,7 +594,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
             },
         )
 
-    def test_077_terrains_hit(self) -> None:
+    def test_025_terrains_hit(self) -> None:
         """TerrainsHit with nested NatureSol, Commune, Geo."""
         self._assert_stable(
             TerrainsHit,
@@ -632,7 +632,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
             },
         )
 
-    def test_078_rencontres_hit(self) -> None:
+    def test_026_rencontres_hit(self) -> None:
         """RencontresHit with datetime, Niveau enum, nested CompetitionID."""
         self._assert_stable(
             RencontresHit,
@@ -673,7 +673,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
             },
         )
 
-    def test_079_pratiques_hit(self) -> None:
+    def test_027_pratiques_hit(self) -> None:
         """PratiquesHit with nested TypeClass, labels."""
         self._assert_stable(
             PratiquesHit,
@@ -727,7 +727,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
             },
         )
 
-    def test_080_tournois_hit(self) -> None:
+    def test_028_tournois_hit(self) -> None:
         """TournoisHit with nested DocumentFlyer, Commune, Geo."""
         self._assert_stable(
             TournoisHit,
@@ -774,7 +774,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
             },
         )
 
-    def test_081_rencontres_facet_distribution(self) -> None:
+    def test_029_rencontres_facet_distribution(self) -> None:
         """CompetitionsFacetDistribution with dict fields (formerly RencontresFacetDistribution)."""
         self._assert_stable(
             CompetitionsFacetDistribution,
@@ -807,7 +807,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
             "estimatedTotalHits": 1,
         }
 
-    def test_090_organismes_result(self) -> None:
+    def test_030_organismes_result(self) -> None:
         """OrganismesMultiSearchResult with hits and facetDistribution."""
         data = self._result_wrapper(
             "ffbbserver_organismes",
@@ -826,7 +826,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
         }
         self._assert_stable(OrganismesMultiSearchResult, data)
 
-    def test_091_competitions_result(self) -> None:
+    def test_031_competitions_result(self) -> None:
         """CompetitionsMultiSearchResult with hits and facets."""
         data = self._result_wrapper(
             "ffbbserver_competitions",
@@ -843,7 +843,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
         }
         self._assert_stable(CompetitionsMultiSearchResult, data)
 
-    def test_092_salles_result(self) -> None:
+    def test_032_salles_result(self) -> None:
         """SallesMultiSearchResult with hits."""
         data = self._result_wrapper(
             "ffbbserver_salles",
@@ -855,7 +855,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
         )
         self._assert_stable(SallesMultiSearchResult, data)
 
-    def test_093_terrains_result(self) -> None:
+    def test_033_terrains_result(self) -> None:
         """TerrainsMultiSearchResult with hits."""
         data = self._result_wrapper(
             "ffbbserver_terrains",
@@ -869,7 +869,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
         )
         self._assert_stable(TerrainsMultiSearchResult, data)
 
-    def test_094_rencontres_result(self) -> None:
+    def test_034_rencontres_result(self) -> None:
         """RencontresMultiSearchResult with hits and facets."""
         data = self._result_wrapper(
             "ffbbserver_rencontres",
@@ -885,7 +885,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
         }
         self._assert_stable(RencontresMultiSearchResult, data)
 
-    def test_095_pratiques_result(self) -> None:
+    def test_035_pratiques_result(self) -> None:
         """PratiquesMultiSearchResult with hits."""
         data = self._result_wrapper(
             "ffbbnational_pratiques",
@@ -900,7 +900,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
         )
         self._assert_stable(PratiquesMultiSearchResult, data)
 
-    def test_096_tournois_result(self) -> None:
+    def test_036_tournois_result(self) -> None:
         """TournoisMultiSearchResult with hits."""
         data = self._result_wrapper(
             "ffbbserver_tournois",
@@ -912,7 +912,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
         )
         self._assert_stable(TournoisMultiSearchResult, data)
 
-    def test_097_multi_search_results_wrapper(self) -> None:
+    def test_037_multi_search_results_wrapper(self) -> None:
         """MultiSearchResults with results[] containing multiple types."""
         data: dict[str, Any] = {
             "results": [

@@ -22,14 +22,14 @@ from unittest.mock import MagicMock, patch
 class TestSecureLoggingCoverage(unittest.TestCase):
     """secure_logging.py -- cover error, critical, log, and non-string message."""
 
-    def test_mask_non_string_message(self) -> None:
+    def test_000_mask_non_string_message(self) -> None:
         from ffbb_api_client_v2.utils.secure_logging import SecureLogger
 
         sl = SecureLogger("test_mask", level=logging.DEBUG)
         result = sl._mask_sensitive_data(12345)
         self.assertEqual(result, "12345")
 
-    def test_error_level(self) -> None:
+    def test_001_error_level(self) -> None:
         from ffbb_api_client_v2.utils.secure_logging import SecureLogger
 
         sl = SecureLogger("test_error", level=logging.DEBUG)
@@ -37,7 +37,7 @@ class TestSecureLoggingCoverage(unittest.TestCase):
             sl.error("Something failed")
         self.assertTrue(any("Something failed" in msg for msg in cm.output))
 
-    def test_critical_level(self) -> None:
+    def test_002_critical_level(self) -> None:
         from ffbb_api_client_v2.utils.secure_logging import SecureLogger
 
         sl = SecureLogger("test_critical", level=logging.DEBUG)
@@ -45,7 +45,7 @@ class TestSecureLoggingCoverage(unittest.TestCase):
             sl.critical("Critical failure")
         self.assertTrue(any("Critical failure" in msg for msg in cm.output))
 
-    def test_log_with_level(self) -> None:
+    def test_003_log_with_level(self) -> None:
         from ffbb_api_client_v2.utils.secure_logging import SecureLogger
 
         sl = SecureLogger("test_log", level=logging.DEBUG)
@@ -62,7 +62,7 @@ class TestSecureLoggingCoverage(unittest.TestCase):
 class TestRetryUtilsCoverage(unittest.TestCase):
     """retry_utils.py -- cover calculate_delay jitter, execute_with_retry branches."""
 
-    def test_calculate_delay_with_jitter(self) -> None:
+    def test_004_calculate_delay_with_jitter(self) -> None:
         from ffbb_api_client_v2.utils.retry_utils import RetryConfig, calculate_delay
 
         config = RetryConfig(base_delay=1.0, jitter=True)
@@ -70,14 +70,14 @@ class TestRetryUtilsCoverage(unittest.TestCase):
         self.assertGreaterEqual(delay, 0.1)
         self.assertLessEqual(delay, 2.0)  # base 1.0 +/- 25% jitter
 
-    def test_calculate_delay_without_jitter(self) -> None:
+    def test_005_calculate_delay_without_jitter(self) -> None:
         from ffbb_api_client_v2.utils.retry_utils import RetryConfig, calculate_delay
 
         config = RetryConfig(base_delay=1.0, jitter=False)
         delay = calculate_delay(0, config)
         self.assertEqual(delay, 1.0)
 
-    def test_calculate_delay_capped_at_max(self) -> None:
+    def test_006_calculate_delay_capped_at_max(self) -> None:
         from ffbb_api_client_v2.utils.retry_utils import RetryConfig, calculate_delay
 
         config = RetryConfig(
@@ -87,7 +87,7 @@ class TestRetryUtilsCoverage(unittest.TestCase):
         self.assertEqual(delay, 5.0)
 
     @patch("ffbb_api_client_v2.utils.retry_utils.time.sleep")
-    def test_execute_with_retry_retries_on_status_code(
+    def test_007_execute_with_retry_retries_on_status_code(
         self, mock_sleep: MagicMock
     ) -> None:
         from ffbb_api_client_v2.utils.retry_utils import (
@@ -110,7 +110,7 @@ class TestRetryUtilsCoverage(unittest.TestCase):
         self.assertEqual(func.call_count, 2)
 
     @patch("ffbb_api_client_v2.utils.retry_utils.time.sleep")
-    def test_execute_with_retry_retries_on_exception(
+    def test_008_execute_with_retry_retries_on_exception(
         self, mock_sleep: MagicMock
     ) -> None:
         import requests
@@ -130,7 +130,9 @@ class TestRetryUtilsCoverage(unittest.TestCase):
         self.assertEqual(result.status_code, 200)
 
     @patch("ffbb_api_client_v2.utils.retry_utils.time.sleep")
-    def test_execute_with_retry_exhausted_raises(self, mock_sleep: MagicMock) -> None:
+    def test_009_execute_with_retry_exhausted_raises(
+        self, mock_sleep: MagicMock
+    ) -> None:
         import requests
 
         from ffbb_api_client_v2.utils.retry_utils import (
@@ -145,7 +147,7 @@ class TestRetryUtilsCoverage(unittest.TestCase):
         with self.assertRaises(requests.ConnectionError):
             execute_with_retry(func, config=config, timeout_config=TimeoutConfig())
 
-    def test_execute_with_retry_preserves_existing_timeout(self) -> None:
+    def test_010_execute_with_retry_preserves_existing_timeout(self) -> None:
         from ffbb_api_client_v2.utils.retry_utils import (
             RetryConfig,
             TimeoutConfig,
@@ -165,7 +167,7 @@ class TestRetryUtilsCoverage(unittest.TestCase):
         _, kwargs = func.call_args
         self.assertEqual(kwargs["timeout"], 99)
 
-    def test_make_http_request_post(self) -> None:
+    def test_011_make_http_request_post(self) -> None:
         from ffbb_api_client_v2.utils.retry_utils import (
             RetryConfig,
             TimeoutConfig,
@@ -190,7 +192,7 @@ class TestRetryUtilsCoverage(unittest.TestCase):
             self.assertEqual(result.status_code, 200)
             mock_session.post.assert_called_once()
 
-    def test_make_http_request_unsupported_method(self) -> None:
+    def test_012_make_http_request_unsupported_method(self) -> None:
         from ffbb_api_client_v2.utils.retry_utils import (
             RetryConfig,
             TimeoutConfig,
@@ -207,7 +209,7 @@ class TestRetryUtilsCoverage(unittest.TestCase):
             )
         self.assertIn("Unsupported HTTP method", str(ctx.exception))
 
-    def test_make_http_request_debug_logging(self) -> None:
+    def test_013_make_http_request_debug_logging(self) -> None:
         from ffbb_api_client_v2.utils.retry_utils import (
             RetryConfig,
             TimeoutConfig,
@@ -230,7 +232,7 @@ class TestRetryUtilsCoverage(unittest.TestCase):
                 debug=True,
             )
 
-    def test_create_custom_configs(self) -> None:
+    def test_014_create_custom_configs(self) -> None:
         from ffbb_api_client_v2.utils.retry_utils import (
             create_custom_retry_config,
             create_custom_timeout_config,
@@ -268,20 +270,20 @@ class TestCacheManagerCoverage(unittest.TestCase):
 
         CacheManager.reset_instance()
 
-    def test_singleton_returns_same_instance(self) -> None:
+    def test_015_singleton_returns_same_instance(self) -> None:
         from ffbb_api_client_v2.utils.cache_manager import CacheConfig, CacheManager
 
         cm1 = CacheManager(CacheConfig(backend="memory"))
         cm2 = CacheManager()
         self.assertIs(cm1, cm2)
 
-    def test_clear_cache_no_session(self) -> None:
+    def test_016_clear_cache_no_session(self) -> None:
         from ffbb_api_client_v2.utils.cache_manager import CacheConfig, CacheManager
 
         cm = CacheManager(CacheConfig(enabled=False))
         self.assertIs(cm.clear_cache(), False)
 
-    def test_clear_cache_error(self) -> None:
+    def test_017_clear_cache_error(self) -> None:
         from ffbb_api_client_v2.utils.cache_manager import CacheConfig, CacheManager
 
         cm = CacheManager(CacheConfig(backend="memory"))
@@ -290,7 +292,7 @@ class TestCacheManagerCoverage(unittest.TestCase):
         self.assertIs(cm.clear_cache(), False)
         self.assertEqual(cm.metrics.errors, 1)
 
-    def test_get_cache_size_no_session(self) -> None:
+    def test_018_get_cache_size_no_session(self) -> None:
         from ffbb_api_client_v2.utils.cache_manager import CacheManager
 
         CacheManager.reset_instance()
@@ -299,7 +301,7 @@ class TestCacheManagerCoverage(unittest.TestCase):
         cm = CacheManager(CacheConfig(enabled=False))
         self.assertEqual(cm.get_cache_size(), 0)
 
-    def test_get_cache_size_error(self) -> None:
+    def test_019_get_cache_size_error(self) -> None:
         from ffbb_api_client_v2.utils.cache_manager import CacheConfig, CacheManager
 
         cm = CacheManager(CacheConfig(backend="memory"))
@@ -308,7 +310,7 @@ class TestCacheManagerCoverage(unittest.TestCase):
         self.assertEqual(cm.get_cache_size(), 0)
         self.assertGreaterEqual(cm.metrics.errors, 1)
 
-    def test_warm_cache_disabled(self) -> None:
+    def test_020_warm_cache_disabled(self) -> None:
         from ffbb_api_client_v2.utils.cache_manager import CacheManager
 
         CacheManager.reset_instance()
@@ -318,7 +320,7 @@ class TestCacheManagerCoverage(unittest.TestCase):
         result = cm.warm_cache(["https://example.com"])
         self.assertEqual(result, 0)
 
-    def test_invalidate_pattern_disabled(self) -> None:
+    def test_021_invalidate_pattern_disabled(self) -> None:
         from ffbb_api_client_v2.utils.cache_manager import CacheManager
 
         CacheManager.reset_instance()
@@ -328,7 +330,7 @@ class TestCacheManagerCoverage(unittest.TestCase):
         result = cm.invalidate_pattern("test")
         self.assertEqual(result, 0)
 
-    def test_invalidate_pattern_with_matching_keys(self) -> None:
+    def test_022_invalidate_pattern_with_matching_keys(self) -> None:
         from ffbb_api_client_v2.utils.cache_manager import CacheConfig, CacheManager
 
         cm = CacheManager(CacheConfig(backend="memory"))
@@ -343,7 +345,7 @@ class TestCacheManagerCoverage(unittest.TestCase):
         self.assertEqual(result, 1)
         mock_cache.delete.assert_called_once_with("ffbb_api:abc_test_123")
 
-    def test_get_metrics(self) -> None:
+    def test_023_get_metrics(self) -> None:
         from ffbb_api_client_v2.utils.cache_manager import CacheConfig, CacheManager
 
         cm = CacheManager(CacheConfig(backend="memory"))
@@ -351,7 +353,7 @@ class TestCacheManagerCoverage(unittest.TestCase):
         self.assertEqual(metrics.hits, 0)
         self.assertEqual(metrics.hit_rate, 0.0)
 
-    def test_cache_metrics_reset(self) -> None:
+    def test_024_cache_metrics_reset(self) -> None:
         from ffbb_api_client_v2.utils.cache_manager import CacheMetrics
 
         m = CacheMetrics(hits=5, misses=3)
@@ -369,7 +371,7 @@ class TestCacheManagerCoverage(unittest.TestCase):
 class TestInitCoverage(unittest.TestCase):
     """__init__.py -- cover PackageNotFoundError branch."""
 
-    def test_version_is_set(self) -> None:
+    def test_025_version_is_set(self) -> None:
         import ffbb_api_client_v2
 
         self.assertTrue(hasattr(ffbb_api_client_v2, "__version__"))
@@ -380,7 +382,7 @@ class TestInitCoverage(unittest.TestCase):
 class TestInitVersionCoverage(unittest.TestCase):
     """__init__.py -- cover the PackageNotFoundError branch."""
 
-    def test_version_when_package_not_found(self) -> None:
+    def test_026_version_when_package_not_found(self) -> None:
         """The __version__ is either the real version or 'unknown'."""
         import ffbb_api_client_v2
 
@@ -398,31 +400,31 @@ class TestInitVersionCoverage(unittest.TestCase):
 class TestFromOfficielsListEdgeCases(unittest.TestCase):
     """Cover all branches of from_officiels_list."""
 
-    def test_non_empty_string(self) -> None:
+    def test_027_non_empty_string(self) -> None:
         from ffbb_api_client_v2.utils.converter_utils import from_officiels_list
 
         result = from_officiels_list("Alice, Bob, Charlie")
         self.assertEqual(result, ["Alice", "Bob", "Charlie"])
 
-    def test_empty_string(self) -> None:
+    def test_028_empty_string(self) -> None:
         from ffbb_api_client_v2.utils.converter_utils import from_officiels_list
 
         result = from_officiels_list("")
         self.assertIsNone(result)
 
-    def test_list_passthrough(self) -> None:
+    def test_029_list_passthrough(self) -> None:
         from ffbb_api_client_v2.utils.converter_utils import from_officiels_list
 
         data = [{"name": "Alice"}, {"name": "Bob"}]
         result = from_officiels_list(data)
         self.assertIs(result, data)
 
-    def test_none_returns_none(self) -> None:
+    def test_030_none_returns_none(self) -> None:
         from ffbb_api_client_v2.utils.converter_utils import from_officiels_list
 
         self.assertIsNone(from_officiels_list(None))
 
-    def test_invalid_type_returns_none(self) -> None:
+    def test_031_invalid_type_returns_none(self) -> None:
         from ffbb_api_client_v2.utils.converter_utils import from_officiels_list
 
         self.assertIsNone(from_officiels_list(42))
@@ -431,7 +433,7 @@ class TestFromOfficielsListEdgeCases(unittest.TestCase):
 class TestFromStrExceptionPath(unittest.TestCase):
     """Cover the TypeError/ValueError exception path in from_str (lines 102-109)."""
 
-    def test_object_whose_str_raises_type_error(self) -> None:
+    def test_032_object_whose_str_raises_type_error(self) -> None:
         from ffbb_api_client_v2.utils.converter_utils import from_str
 
         class BadStr:

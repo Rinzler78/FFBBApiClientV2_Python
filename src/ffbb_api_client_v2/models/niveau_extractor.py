@@ -49,10 +49,10 @@ class NiveauExtractor:
 
     # Patterns pour extraire les numéros de division
     DIVISION_PATTERNS = [
-        r"\b[DR](\d+)\b",  # R1, R2, D1, D2, etc.
+        r"\b[DRN](\d+)\b",  # R1, R2, D1, D2, N1, N2, etc.
         r"\bREGIONAL\s+(\d+)\b",  # REGIONAL 1, REGIONAL 2
         r"\bDEPARTEMENTAL\s+(\d+)\b",  # DEPARTEMENTAL 1, DEPARTEMENTAL 2
-        r"-\s*DIVISION\s+(\d+)\b",  # - Division 3, - DIVISION 1
+        r"(?i)-\s*division\s+(\d+)\b",  # - Division 3, - division 1 (case insensitive)
     ]
 
     # Patterns pour les catégories
@@ -86,10 +86,10 @@ class NiveauExtractor:
         CategorieType.MINIMES: [r"\bMINIMES\b"],
         CategorieType.BENJAMIN: [r"\bBENJAMIN\b"],
         CategorieType.BENJAMINS: [r"\bBENJAMINS\b"],
-        CategorieType.POUSSIN: [r"\bPOUSSIN\b"],
-        CategorieType.POUSSINS: [r"\bPOUSSINS\b"],
         CategorieType.MINI_POUSSIN: [r"\bMINI\s*POUSSIN\b"],
         CategorieType.MINI_POUSSINS: [r"\bMINI\s*POUSSINS\b"],
+        CategorieType.POUSSIN: [r"\bPOUSSIN\b"],
+        CategorieType.POUSSINS: [r"\bPOUSSINS\b"],
     }
 
     @classmethod
@@ -173,6 +173,9 @@ class NiveauExtractor:
         Returns:
             Objet Niveau ou None
         """
+        if not competition_data:
+            return None
+
         # Essayer d'abord avec le nom de la compétition
         nom = competition_data.get("nom", "")
         niveau = cls.extract_niveau(nom)

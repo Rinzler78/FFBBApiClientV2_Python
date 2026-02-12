@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from ..utils.converter_utils import from_str
+
 
 @dataclass
 class GetEntraineursResponse:
@@ -30,26 +32,18 @@ class GetEntraineursResponse:
             return None
 
         return cls(
-            idLicence=str(data.get("idLicence", "")),
-            nom=str(data.get("nom", "")) if data.get("nom") else None,
-            prenom=str(data.get("prenom", "")) if data.get("prenom") else None,
-            adresse1=(str(data.get("adresse1", "")) if data.get("adresse1") else None),
-            adresse2=data.get("adresse2"),
+            idLicence=from_str(data, "idLicence") or "",
+            nom=from_str(data, "nom"),
+            prenom=from_str(data, "prenom"),
+            adresse1=from_str(data, "adresse1"),
+            adresse2=from_str(data, "adresse2"),
             commune=data.get("commune"),
-            email=str(data.get("email", "")) if data.get("email") else None,
-            telephoneDomicile=data.get("telephoneDomicile"),
-            telephonePortable=(
-                str(data.get("telephonePortable", ""))
-                if data.get("telephonePortable")
-                else None
-            ),
-            telephoneTravail=data.get("telephoneTravail"),
-            date_created=(
-                str(data.get("date_created", "")) if data.get("date_created") else None
-            ),
-            date_updated=(
-                str(data.get("date_updated", "")) if data.get("date_updated") else None
-            ),
+            email=from_str(data, "email"),
+            telephoneDomicile=from_str(data, "telephoneDomicile"),
+            telephonePortable=from_str(data, "telephonePortable"),
+            telephoneTravail=from_str(data, "telephoneTravail"),
+            date_created=from_str(data, "date_created"),
+            date_updated=from_str(data, "date_updated"),
         )
 
     @classmethod

@@ -7,6 +7,7 @@ from typing import Any
 from ..utils.converter_utils import (
     from_bool,
     from_datetime,
+    from_int,
     from_list,
     from_obj,
     from_str,
@@ -21,12 +22,12 @@ from .salle import Salle
 @dataclass
 class CompetitionRencontre:
     id: str | None = None
-    numero: str | None = None
-    numero_journee: str | None = None
+    numero: int | None = None
+    numero_journee: int | None = None
     id_poule: str | None = None
     competition_id: str | None = None
-    resultat_equipe1: str | None = None
-    resultat_equipe2: str | None = None
+    resultat_equipe1: int | None = None
+    resultat_equipe2: int | None = None
     joue: bool | None = None
     nom_equipe1: str | None = None
     nom_equipe2: str | None = None
@@ -48,12 +49,12 @@ class CompetitionRencontre:
         officiels_raw = from_list(Officiel.from_dict, obj, "officiels")
         return CompetitionRencontre(
             id=from_str(obj, "id"),
-            numero=from_str(obj, "numero"),
-            numero_journee=from_str(obj, "numeroJournee"),
+            numero=from_int(obj, "numero"),
+            numero_journee=from_int(obj, "numeroJournee"),
             id_poule=from_str(obj, "idPoule"),
             competition_id=from_str(obj, "competitionId"),
-            resultat_equipe1=from_str(obj, "resultatEquipe1"),
-            resultat_equipe2=from_str(obj, "resultatEquipe2"),
+            resultat_equipe1=from_int(obj, "resultatEquipe1"),
+            resultat_equipe2=from_int(obj, "resultatEquipe2"),
             joue=from_bool(obj, "joue"),
             nom_equipe1=from_str(obj, "nomEquipe1"),
             nom_equipe2=from_str(obj, "nomEquipe2"),

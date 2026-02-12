@@ -29,7 +29,7 @@ class Test042PratiquesInnerModels(unittest.TestCase):
         dict2 = obj2.to_dict()
         self.assertEqual(dict1, dict2, f"{model_class.__name__} round-trip not stable")
 
-    def test_001_type_class_full(self) -> None:
+    def test_000_type_class_full(self) -> None:
         self._assert_stable(
             TypeClass,
             {
@@ -41,7 +41,7 @@ class Test042PratiquesInnerModels(unittest.TestCase):
             },
         )
 
-    def test_002_pratiques_facet_distribution_full(self) -> None:
+    def test_001_pratiques_facet_distribution_full(self) -> None:
         self._assert_stable(
             PratiquesFacetDistribution,
             {
@@ -56,7 +56,7 @@ class Test042PratiquesInnerModels(unittest.TestCase):
             },
         )
 
-    def test_003_affiche_full(self) -> None:
+    def test_002_affiche_full(self) -> None:
         self._assert_stable(
             Affiche,
             {
@@ -67,13 +67,13 @@ class Test042PratiquesInnerModels(unittest.TestCase):
             },
         )
 
-    def test_004_coordonnees_full(self) -> None:
+    def test_003_coordonnees_full(self) -> None:
         self._assert_stable(
             Coordonnees,
             {"type": "Point", "coordinates": [2.3522, 48.8566]},
         )
 
-    def test_005_cartographie_full(self) -> None:
+    def test_004_cartographie_full(self) -> None:
         self._assert_stable(
             Cartographie,
             {
@@ -91,10 +91,10 @@ class Test042PratiquesInnerModels(unittest.TestCase):
             },
         )
 
-    def test_006_geo_full(self) -> None:
+    def test_005_geo_full(self) -> None:
         self._assert_stable(Geo, {"lat": 48.8566, "lng": 2.3522})
 
-    def test_007_pratiques_hit_with_all_fields(self) -> None:
+    def test_006_pratiques_hit_with_all_fields(self) -> None:
         """PratiquesHit with cartographie, affiche, geo, and enums populated."""
         self._assert_stable(
             PratiquesHit,
@@ -164,7 +164,7 @@ class Test042PratiquesInnerModels(unittest.TestCase):
             },
         )
 
-    def test_008_pratiques_result_with_facets(self) -> None:
+    def test_007_pratiques_result_with_facets(self) -> None:
         """PratiquesMultiSearchResult with facets and type."""
         self._assert_stable(
             PratiquesMultiSearchResult,

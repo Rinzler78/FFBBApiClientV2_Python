@@ -25,7 +25,7 @@ class TestMembre(unittest.TestCase):
         dict2 = obj2.to_dict()
         self.assertEqual(dict1, dict2, f"{model_class.__name__} round-trip not stable")
 
-    def test_from_dict_full(self) -> None:
+    def test_026_from_dict_full(self) -> None:
         data = {
             "id": "m-001",
             "nom": "Dupont",
@@ -50,13 +50,13 @@ class TestMembre(unittest.TestCase):
         self.assertEqual(membre.telephone_portable, "0607080910")
         self.assertEqual(membre.code_fonction, "PRES")
 
-    def test_from_dict_empty(self) -> None:
+    def test_027_from_dict_empty(self) -> None:
         membre = Membre.from_dict({})
         self.assertIsNone(membre.id)
         self.assertIsNone(membre.nom)
         self.assertIsNone(membre.prenom)
 
-    def test_to_dict_camelcase_keys(self) -> None:
+    def test_028_to_dict_camelcase_keys(self) -> None:
         membre = Membre(
             id="m-001",
             code_postal="75001",
@@ -71,12 +71,12 @@ class TestMembre(unittest.TestCase):
         self.assertEqual(d["codeFonction"], "PRES")
         self.assertNotIn("code_postal", d)
 
-    def test_to_dict_skips_none(self) -> None:
+    def test_003_to_dict_skips_none(self) -> None:
         membre = Membre(id="m-001")
         d = membre.to_dict()
         self.assertEqual(d, {"id": "m-001"})
 
-    def test_round_trip_full(self) -> None:
+    def test_004_round_trip_full(self) -> None:
         self._assert_stable(
             Membre,
             {
@@ -89,14 +89,14 @@ class TestMembre(unittest.TestCase):
             },
         )
 
-    def test_round_trip_minimal(self) -> None:
+    def test_005_round_trip_minimal(self) -> None:
         self._assert_stable(Membre, {"id": "m-002"})
 
 
 class TestOffrePratiqueDetail(unittest.TestCase):
     """Tests for OffrePratiqueDetail model."""
 
-    def test_from_dict_full(self) -> None:
+    def test_026_from_dict_full(self) -> None:
         data = {
             "id": "op-001",
             "title": "Basketball Loisir",
@@ -109,12 +109,12 @@ class TestOffrePratiqueDetail(unittest.TestCase):
         self.assertEqual(detail.categorie_pratique, "Loisir")
         self.assertEqual(detail.type_pratique, "Basket")
 
-    def test_from_dict_empty(self) -> None:
+    def test_027_from_dict_empty(self) -> None:
         detail = OffrePratiqueDetail.from_dict({})
         self.assertIsNone(detail.id)
         self.assertIsNone(detail.title)
 
-    def test_to_dict_camelcase_keys(self) -> None:
+    def test_028_to_dict_camelcase_keys(self) -> None:
         detail = OffrePratiqueDetail(
             id="op-001",
             categorie_pratique="Loisir",
@@ -125,7 +125,7 @@ class TestOffrePratiqueDetail(unittest.TestCase):
         self.assertEqual(d["typePratique"], "Basket")
         self.assertNotIn("categorie_pratique", d)
 
-    def test_round_trip(self) -> None:
+    def test_031_round_trip(self) -> None:
         data = {
             "id": "op-001",
             "title": "Basketball Loisir",
@@ -140,7 +140,7 @@ class TestOffrePratiqueDetail(unittest.TestCase):
 class TestOffrePratique(unittest.TestCase):
     """Tests for OffrePratique junction model."""
 
-    def test_from_dict_with_detail(self) -> None:
+    def test_010_from_dict_with_detail(self) -> None:
         data = {
             "ffbbserver_offres_pratiques_id": {
                 "id": "op-001",
@@ -151,11 +151,11 @@ class TestOffrePratique(unittest.TestCase):
         self.assertIsNotNone(offre.ffbbserver_offres_pratiques_id)
         self.assertEqual(offre.ffbbserver_offres_pratiques_id.id, "op-001")
 
-    def test_from_dict_empty(self) -> None:
+    def test_027_from_dict_empty(self) -> None:
         offre = OffrePratique.from_dict({})
         self.assertIsNone(offre.ffbbserver_offres_pratiques_id)
 
-    def test_round_trip(self) -> None:
+    def test_031_round_trip(self) -> None:
         data = {
             "ffbbserver_offres_pratiques_id": {
                 "id": "op-001",
@@ -172,7 +172,7 @@ class TestOffrePratique(unittest.TestCase):
 class TestLabellisationProgramme(unittest.TestCase):
     """Tests for LabellisationProgramme model."""
 
-    def test_from_dict_full(self) -> None:
+    def test_026_from_dict_full(self) -> None:
         data = {
             "id": "lp-001",
             "libelle": "Label Ecole de Basket",
@@ -185,11 +185,11 @@ class TestLabellisationProgramme(unittest.TestCase):
         self.assertEqual(prog.labellisation_label, "OR")
         self.assertEqual(prog.logo_vertical, {"id": "img-001"})
 
-    def test_from_dict_empty(self) -> None:
+    def test_027_from_dict_empty(self) -> None:
         prog = LabellisationProgramme.from_dict({})
         self.assertIsNone(prog.id)
 
-    def test_to_dict_camelcase_keys(self) -> None:
+    def test_028_to_dict_camelcase_keys(self) -> None:
         prog = LabellisationProgramme(
             id="lp-001",
             labellisation_label="OR",
@@ -198,7 +198,7 @@ class TestLabellisationProgramme(unittest.TestCase):
         self.assertEqual(d["labellisationLabel"], "OR")
         self.assertNotIn("labellisation_label", d)
 
-    def test_round_trip(self) -> None:
+    def test_031_round_trip(self) -> None:
         data = {
             "id": "lp-001",
             "libelle": "Label Ecole de Basket",
@@ -212,7 +212,7 @@ class TestLabellisationProgramme(unittest.TestCase):
 class TestLabellisationItem(unittest.TestCase):
     """Tests for LabellisationItem model."""
 
-    def test_from_dict_full(self) -> None:
+    def test_026_from_dict_full(self) -> None:
         data = {
             "id": "li-001",
             "debut": "2024-09-01T00:00:00+00:00",
@@ -229,19 +229,19 @@ class TestLabellisationItem(unittest.TestCase):
         self.assertIsNotNone(item.id_labellisation_programme)
         self.assertEqual(item.id_labellisation_programme.id, "lp-001")
 
-    def test_from_dict_empty(self) -> None:
+    def test_027_from_dict_empty(self) -> None:
         item = LabellisationItem.from_dict({})
         self.assertIsNone(item.id)
         self.assertIsNone(item.debut)
         self.assertIsNone(item.fin)
 
-    def test_to_dict_serializes_datetime(self) -> None:
+    def test_019_to_dict_serializes_datetime(self) -> None:
         dt = datetime(2024, 9, 1, tzinfo=timezone.utc)
         item = LabellisationItem(id="li-001", debut=dt)
         d = item.to_dict()
         self.assertEqual(d["debut"], dt.isoformat())
 
-    def test_to_dict_camelcase_keys(self) -> None:
+    def test_028_to_dict_camelcase_keys(self) -> None:
         item = LabellisationItem(
             id="li-001",
             id_labellisation_programme=LabellisationProgramme(id="lp-001"),
@@ -250,7 +250,7 @@ class TestLabellisationItem(unittest.TestCase):
         self.assertIn("idLabellisationProgramme", d)
         self.assertNotIn("id_labellisation_programme", d)
 
-    def test_round_trip(self) -> None:
+    def test_031_round_trip(self) -> None:
         data = {
             "id": "li-001",
             "debut": "2024-09-01T00:00:00+00:00",
@@ -269,7 +269,7 @@ class TestLabellisationItem(unittest.TestCase):
 class TestOrganismeEngagement(unittest.TestCase):
     """Tests for OrganismeEngagement model."""
 
-    def test_from_dict_full(self) -> None:
+    def test_026_from_dict_full(self) -> None:
         data = {
             "id": "eng-001",
             "idPoule": {"id": "poule-001"},
@@ -286,18 +286,18 @@ class TestOrganismeEngagement(unittest.TestCase):
         self.assertIsNotNone(eng.id_competition)
         self.assertEqual(eng.id_competition.nom, "Regionale 2 Masculine")
 
-    def test_from_dict_empty(self) -> None:
+    def test_027_from_dict_empty(self) -> None:
         eng = OrganismeEngagement.from_dict({})
         self.assertIsNone(eng.id)
         self.assertIsNone(eng.id_poule)
         self.assertIsNone(eng.id_competition)
 
-    def test_to_dict_camelcase_keys(self) -> None:
+    def test_028_to_dict_camelcase_keys(self) -> None:
         eng = OrganismeEngagement(id="eng-001")
         d = eng.to_dict()
         self.assertEqual(d, {"id": "eng-001"})
 
-    def test_round_trip(self) -> None:
+    def test_031_round_trip(self) -> None:
         data = {
             "id": "eng-001",
             "idPoule": {"id": "poule-001"},
@@ -315,7 +315,7 @@ class TestOrganismeEngagement(unittest.TestCase):
 class TestCompetitionRef(unittest.TestCase):
     """Tests for CompetitionRef model."""
 
-    def test_from_dict_full(self) -> None:
+    def test_026_from_dict_full(self) -> None:
         data = {
             "id": "comp-001",
             "nom": "Regionale 2 Masculine",
@@ -344,12 +344,12 @@ class TestCompetitionRef(unittest.TestCase):
         self.assertIsNotNone(ref.organisateur)
         self.assertIsNotNone(ref.categorie)
 
-    def test_from_dict_empty(self) -> None:
+    def test_027_from_dict_empty(self) -> None:
         ref = CompetitionRef.from_dict({})
         self.assertIsNone(ref.id)
         self.assertIsNone(ref.nom)
 
-    def test_to_dict_camelcase_keys(self) -> None:
+    def test_028_to_dict_camelcase_keys(self) -> None:
         ref = CompetitionRef(
             id="comp-001",
             type_competition="Championnat",
@@ -362,17 +362,17 @@ class TestCompetitionRef(unittest.TestCase):
         self.assertEqual(d["idCompetitionPere"], "comp-parent")
         self.assertNotIn("type_competition", d)
 
-    def test_niveau_property(self) -> None:
+    def test_029_niveau_property(self) -> None:
         ref = CompetitionRef(nom="Regionale 2 Masculine")
         niveau = ref.niveau
         self.assertIsNotNone(niveau)
 
-    def test_niveau_property_none_when_no_nom(self) -> None:
+    def test_030_niveau_property_none_when_no_nom(self) -> None:
         ref = CompetitionRef()
         niveau = ref.niveau
         self.assertIsNone(niveau)
 
-    def test_round_trip(self) -> None:
+    def test_031_round_trip(self) -> None:
         data = {
             "id": "comp-001",
             "nom": "Regionale 2",
@@ -388,7 +388,7 @@ class TestCompetitionRef(unittest.TestCase):
 class TestGetOrganismeResponseExtracted(unittest.TestCase):
     """Tests for rewritten GetOrganismeResponse using extracted models."""
 
-    def test_from_dict_with_members(self) -> None:
+    def test_032_from_dict_with_members(self) -> None:
         data = {
             "id": "org-001",
             "nom": "Club Test",
@@ -405,7 +405,7 @@ class TestGetOrganismeResponseExtracted(unittest.TestCase):
         self.assertIsInstance(resp.membres[0], Membre)
         self.assertEqual(resp.membres[0].nom, "Dupont")
 
-    def test_from_dict_with_engagements(self) -> None:
+    def test_033_from_dict_with_engagements(self) -> None:
         data = {
             "id": "org-001",
             "nom": "Club Test",
@@ -422,7 +422,7 @@ class TestGetOrganismeResponseExtracted(unittest.TestCase):
         self.assertEqual(len(resp.engagements), 1)
         self.assertIsInstance(resp.engagements[0], OrganismeEngagement)
 
-    def test_from_dict_with_offres_pratiques(self) -> None:
+    def test_034_from_dict_with_offres_pratiques(self) -> None:
         data = {
             "id": "org-001",
             "nom": "Club Test",
@@ -440,7 +440,7 @@ class TestGetOrganismeResponseExtracted(unittest.TestCase):
         self.assertEqual(len(resp.offres_pratiques), 1)
         self.assertIsInstance(resp.offres_pratiques[0], OffrePratique)
 
-    def test_from_dict_with_labellisation(self) -> None:
+    def test_035_from_dict_with_labellisation(self) -> None:
         data = {
             "id": "org-001",
             "nom": "Club Test",
@@ -461,13 +461,13 @@ class TestGetOrganismeResponseExtracted(unittest.TestCase):
         self.assertEqual(len(resp.labellisation), 1)
         self.assertIsInstance(resp.labellisation[0], LabellisationItem)
 
-    def test_from_dict_empty_returns_none(self) -> None:
+    def test_036_from_dict_empty_returns_none(self) -> None:
         self.assertIsNone(GetOrganismeResponse.from_dict({}))
 
-    def test_from_dict_errors_returns_none(self) -> None:
+    def test_037_from_dict_errors_returns_none(self) -> None:
         self.assertIsNone(GetOrganismeResponse.from_dict({"errors": ["err"]}))
 
-    def test_from_dict_snake_case_fields(self) -> None:
+    def test_038_from_dict_snake_case_fields(self) -> None:
         data = {
             "id": "org-001",
             "urlSiteWeb": "https://example.com",
@@ -480,7 +480,7 @@ class TestGetOrganismeResponseExtracted(unittest.TestCase):
         self.assertEqual(resp.nom_club_pro, "Pro Club")
         self.assertEqual(resp.adresse_club_pro, "10 avenue Foch")
 
-    def test_from_dict_empty_lists_default(self) -> None:
+    def test_039_from_dict_empty_lists_default(self) -> None:
         data = {"id": "org-001", "nom": "Club Test"}
         resp = GetOrganismeResponse.from_dict(data)
         self.assertIsNotNone(resp)

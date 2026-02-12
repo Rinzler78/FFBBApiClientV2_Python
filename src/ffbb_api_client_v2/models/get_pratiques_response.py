@@ -3,6 +3,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from ..utils.converter_utils import (
+    from_float,
+    from_int,
+    from_str,
+)
+
 
 @dataclass
 class GetPratiquesResponse:
@@ -50,44 +56,38 @@ class GetPratiquesResponse:
             return None
 
         return cls(
-            id=str(data.get("id", "")),
-            titre=str(data.get("titre", "")) if data.get("titre") else None,
-            type=str(data.get("type", "")) if data.get("type") else None,
-            label=str(data.get("label", "")) if data.get("label") else None,
-            description=data.get("description"),
-            code=str(data.get("code", "")) if data.get("code") else None,
-            adresse=data.get("adresse"),
-            email=data.get("email"),
-            telephone=data.get("telephone"),
-            date_debut=(
-                str(data.get("date_debut", "")) if data.get("date_debut") else None
-            ),
-            date_fin=(str(data.get("date_fin", "")) if data.get("date_fin") else None),
-            horaires_seances=data.get("horaires_seances"),
-            jours=data.get("jours"),
-            nom_structure=data.get("nom_structure"),
-            adresse_structure=data.get("adresse_structure"),
-            mail_structure=data.get("mail_structure"),
-            nom_salle=data.get("nom_salle"),
-            adresse_salle=data.get("adresse_salle"),
-            cp_salle=data.get("cp_salle"),
-            ville_salle=data.get("ville_salle"),
-            cartographie=data.get("cartographie"),
-            latitude=data.get("latitude"),
-            longitude=data.get("longitude"),
-            nombre_personnes=data.get("nombre_personnes"),
-            nombre_seances=data.get("nombre_seances"),
-            public=data.get("public"),
-            objectif=data.get("objectif"),
-            site_web=data.get("site_web"),
-            facebook=data.get("facebook"),
-            twitter=data.get("twitter"),
-            date_created=(
-                str(data.get("date_created", "")) if data.get("date_created") else None
-            ),
-            date_updated=(
-                str(data.get("date_updated", "")) if data.get("date_updated") else None
-            ),
+            id=from_str(data, "id") or "",
+            titre=from_str(data, "titre"),
+            type=from_str(data, "type"),
+            label=from_str(data, "label"),
+            description=data.get("description"),  # Keep as raw
+            code=from_str(data, "code"),
+            adresse=data.get("adresse"),  # Keep as raw
+            email=data.get("email"),  # Keep as raw
+            telephone=data.get("telephone"),  # Keep as raw
+            date_debut=from_str(data, "date_debut"),
+            date_fin=from_str(data, "date_fin"),
+            horaires_seances=data.get("horaires_seances"),  # Keep as raw
+            jours=data.get("jours"),  # Keep as raw
+            nom_structure=data.get("nom_structure"),  # Keep as raw
+            adresse_structure=data.get("adresse_structure"),  # Keep as raw
+            mail_structure=data.get("mail_structure"),  # Keep as raw
+            nom_salle=data.get("nom_salle"),  # Keep as raw
+            adresse_salle=data.get("adresse_salle"),  # Keep as raw
+            cp_salle=data.get("cp_salle"),  # Keep as raw
+            ville_salle=data.get("ville_salle"),  # Keep as raw
+            cartographie=data.get("cartographie"),  # Keep as raw dict
+            latitude=from_float(data, "latitude"),
+            longitude=from_float(data, "longitude"),
+            nombre_personnes=from_int(data, "nombre_personnes"),
+            nombre_seances=from_int(data, "nombre_seances"),
+            public=data.get("public"),  # Keep as raw
+            objectif=data.get("objectif"),  # Keep as raw
+            site_web=data.get("site_web"),  # Keep as raw
+            facebook=data.get("facebook"),  # Keep as raw
+            twitter=data.get("twitter"),  # Keep as raw
+            date_created=from_str(data, "date_created"),
+            date_updated=from_str(data, "date_updated"),
         )
 
     @classmethod

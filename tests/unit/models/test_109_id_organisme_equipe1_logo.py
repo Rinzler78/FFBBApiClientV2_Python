@@ -16,7 +16,7 @@ class Test032Logo(unittest.TestCase):
         dict2 = obj2.to_dict()
         self.assertEqual(dict1, dict2, f"{model_class.__name__} round-trip not stable")
 
-    def test_001_round_trip_full(self) -> None:
+    def test_000_round_trip_full(self) -> None:
         self._assert_stable(
             Logo,
             {
@@ -25,13 +25,13 @@ class Test032Logo(unittest.TestCase):
             },
         )
 
-    def test_002_round_trip_id_only(self) -> None:
+    def test_001_round_trip_id_only(self) -> None:
         self._assert_stable(
             Logo,
             {"id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"},
         )
 
-    def test_003_round_trip_none_fields(self) -> None:
+    def test_002_round_trip_none_fields(self) -> None:
         self._assert_stable(
             Logo,
             {"id": None, "gradient_color": None},

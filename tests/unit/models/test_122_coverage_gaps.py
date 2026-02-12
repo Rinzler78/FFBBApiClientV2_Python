@@ -26,7 +26,7 @@ from uuid import UUID
 class TestCategorieToDictCoverage(unittest.TestCase):
     """categorie.py -- cover to_dict branches for all fields."""
 
-    def test_to_dict_all_fields(self) -> None:
+    def test_025_to_dict_all_fields(self) -> None:
         from ffbb_api_client_v2.models.categorie import Categorie
 
         now = datetime(2024, 6, 15, 12, 0, 0)
@@ -50,7 +50,7 @@ class TestCategorieToDictCoverage(unittest.TestCase):
 class TestCartographieToDictCoverage(unittest.TestCase):
     """cartographie.py -- cover to_dict branches."""
 
-    def test_to_dict_all_fields(self) -> None:
+    def test_025_to_dict_all_fields(self) -> None:
         from ffbb_api_client_v2.models.cartographie import Cartographie
         from ffbb_api_client_v2.models.coordonnees import Coordonnees
 
@@ -83,7 +83,7 @@ class TestCartographieToDictCoverage(unittest.TestCase):
 class TestFolderToDictCoverage(unittest.TestCase):
     """folder.py -- cover to_dict branches for id and name."""
 
-    def test_to_dict_all_fields(self) -> None:
+    def test_025_to_dict_all_fields(self) -> None:
         from ffbb_api_client_v2.models.folder import Folder
 
         uid = UUID("12345678-1234-1234-1234-123456789abc")
@@ -97,7 +97,7 @@ class TestFolderToDictCoverage(unittest.TestCase):
 class TestIDPouleToDictCoverage(unittest.TestCase):
     """id_poule.py -- cover to_dict nom branch."""
 
-    def test_to_dict_with_nom(self) -> None:
+    def test_003_to_dict_with_nom(self) -> None:
         from ffbb_api_client_v2.models.id_poule import IDPoule
 
         p = IDPoule(id="poule-1", nom="Poule A")
@@ -109,7 +109,7 @@ class TestIDPouleToDictCoverage(unittest.TestCase):
 class TestPouleToDictCoverage(unittest.TestCase):
     """poule.py -- cover to_dict engagements branch."""
 
-    def test_to_dict_with_engagements(self) -> None:
+    def test_004_to_dict_with_engagements(self) -> None:
         from ffbb_api_client_v2.models.poule import Poule
         from ffbb_api_client_v2.models.rencontres_engagement import Engagement
 
@@ -125,7 +125,7 @@ class TestPouleToDictCoverage(unittest.TestCase):
 class TestSaisonToDictCoverage(unittest.TestCase):
     """saison.py -- cover to_dict code branch."""
 
-    def test_to_dict_with_code(self) -> None:
+    def test_005_to_dict_with_code(self) -> None:
         from ffbb_api_client_v2.models.saison import Saison
 
         s = Saison(code="2024")
@@ -136,7 +136,7 @@ class TestSaisonToDictCoverage(unittest.TestCase):
 class TestTypeClassToDictCoverage(unittest.TestCase):
     """type_class.py -- cover to_dict groupement branch."""
 
-    def test_to_dict_with_groupement(self) -> None:
+    def test_006_to_dict_with_groupement(self) -> None:
         from ffbb_api_client_v2.models.type_class import TypeClass
 
         t = TypeClass(groupement=5)
@@ -147,7 +147,7 @@ class TestTypeClassToDictCoverage(unittest.TestCase):
 class TestExternalIDToDictCoverage(unittest.TestCase):
     """external_id.py -- cover to_dict branches for CompetitionID and ExternalID."""
 
-    def test_competition_id_to_dict(self) -> None:
+    def test_007_competition_id_to_dict(self) -> None:
         from ffbb_api_client_v2.models.external_id import ExternalCompetitionID
 
         c = ExternalCompetitionID(
@@ -162,7 +162,7 @@ class TestExternalIDToDictCoverage(unittest.TestCase):
         self.assertEqual(d["sexe"], "Masculin")
         self.assertEqual(d["typeCompetition"], "Championnat")
 
-    def test_external_id_to_dict_all_fields(self) -> None:
+    def test_008_external_id_to_dict_all_fields(self) -> None:
         from ffbb_api_client_v2.models.external_id import (
             ExternalCompetitionID,
             ExternalID,
@@ -216,7 +216,7 @@ class TestExternalIDToDictCoverage(unittest.TestCase):
 class TestDocumentFlyerToDictCoverage(unittest.TestCase):
     """document_flyer.py -- cover to_dict branches."""
 
-    def test_to_dict_populated_fields(self) -> None:
+    def test_009_to_dict_populated_fields(self) -> None:
         from ffbb_api_client_v2.models.document_flyer import DocumentFlyer
         from ffbb_api_client_v2.models.document_flyer_type import DocumentFlyerType
         from ffbb_api_client_v2.models.folder import Folder
@@ -267,7 +267,7 @@ class TestDocumentFlyerToDictCoverage(unittest.TestCase):
 class TestTournoisToDictCoverage(unittest.TestCase):
     """multi_search_result_tournois.py -- cover SexeClass and TerrainsFacetDistribution to_dict."""
 
-    def test_sexe_class_to_dict(self) -> None:
+    def test_010_sexe_class_to_dict(self) -> None:
         from ffbb_api_client_v2.models.sexe_class import SexeClass
 
         s = SexeClass(feminine=3, masculine=5, mixed=2)
@@ -276,7 +276,7 @@ class TestTournoisToDictCoverage(unittest.TestCase):
         self.assertEqual(d["Masculin"], 5)
         self.assertEqual(d["Mixte"], 2)
 
-    def test_terrains_facet_distribution_to_dict(self) -> None:
+    def test_011_terrains_facet_distribution_to_dict(self) -> None:
         from ffbb_api_client_v2.models.sexe_class import SexeClass
         from ffbb_api_client_v2.models.terrains_facet_distribution import (
             TerrainsFacetDistribution,
@@ -292,7 +292,7 @@ class TestTournoisToDictCoverage(unittest.TestCase):
         self.assertEqual(d["sexe"]["Féminin"], 1)
         self.assertIn("tournoiType", d)
 
-    def test_tournois_hit_to_dict(self) -> None:
+    def test_012_tournois_hit_to_dict(self) -> None:
         from ffbb_api_client_v2.models.commune import Commune
         from ffbb_api_client_v2.models.geo import Geo
         from ffbb_api_client_v2.models.terrains_sexe_enum import SexeEnum
@@ -342,7 +342,7 @@ class TestTournoisToDictCoverage(unittest.TestCase):
 class TestMultiSearchQueriesCoverage(unittest.TestCase):
     """multi_search_queries.py -- cover from_dict and to_dict."""
 
-    def test_from_dict_with_queries(self) -> None:
+    def test_013_from_dict_with_queries(self) -> None:
         from ffbb_api_client_v2.models.multi_search_queries import MultiSearchQueries
 
         data = {
@@ -359,13 +359,13 @@ class TestMultiSearchQueriesCoverage(unittest.TestCase):
         self.assertIsNotNone(result.queries)
         self.assertEqual(len(result.queries), 1)
 
-    def test_from_dict_none_queries(self) -> None:
+    def test_014_from_dict_none_queries(self) -> None:
         from ffbb_api_client_v2.models.multi_search_queries import MultiSearchQueries
 
         result = MultiSearchQueries.from_dict({"queries": None})
         self.assertIsNone(result.queries)
 
-    def test_to_dict_with_queries(self) -> None:
+    def test_015_to_dict_with_queries(self) -> None:
         from ffbb_api_client_v2.models.multi_search_queries import MultiSearchQueries
         from ffbb_api_client_v2.models.multi_search_query import MultiSearchQuery
 
@@ -375,7 +375,7 @@ class TestMultiSearchQueriesCoverage(unittest.TestCase):
         self.assertIn("queries", d)
         self.assertEqual(len(d["queries"]), 1)
 
-    def test_to_dict_empty(self) -> None:
+    def test_016_to_dict_empty(self) -> None:
         from ffbb_api_client_v2.models.multi_search_queries import MultiSearchQueries
 
         msq = MultiSearchQueries(queries=None)
@@ -391,7 +391,7 @@ class TestMultiSearchQueriesCoverage(unittest.TestCase):
 class TestMultiSearchQueryCoverage(unittest.TestCase):
     """multi_search_query.py -- cover from_dict, to_dict, is_valid_result, filter_result."""
 
-    def test_from_dict(self) -> None:
+    def test_017_from_dict(self) -> None:
         from ffbb_api_client_v2.models.multi_search_query import MultiSearchQuery
 
         data = {
@@ -412,7 +412,7 @@ class TestMultiSearchQueryCoverage(unittest.TestCase):
         self.assertEqual(q.filter, ["type = Club"])
         self.assertEqual(q.sort, ["nom:asc"])
 
-    def test_to_dict_all_fields(self) -> None:
+    def test_025_to_dict_all_fields(self) -> None:
         from ffbb_api_client_v2.models.multi_search_query import MultiSearchQuery
 
         q = MultiSearchQuery(
@@ -433,13 +433,13 @@ class TestMultiSearchQueryCoverage(unittest.TestCase):
         self.assertEqual(d["filter"], ["type = Club"])
         self.assertEqual(d["sort"], ["nom:asc"])
 
-    def test_is_valid_hit(self) -> None:
+    def test_019_is_valid_hit(self) -> None:
         from ffbb_api_client_v2.models.multi_search_query import MultiSearchQuery
 
         q = MultiSearchQuery(index_uid="test", q="test")
         self.assertIs(q.is_valid_hit(MagicMock()), True)
 
-    def test_filter_result_removes_invalid_hits(self) -> None:
+    def test_020_filter_result_removes_invalid_hits(self) -> None:
         from ffbb_api_client_v2.models.multi_search_query import MultiSearchQuery
 
         q = MultiSearchQuery(index_uid="test", q="paris")
@@ -458,7 +458,7 @@ class TestMultiSearchQueryCoverage(unittest.TestCase):
         self.assertEqual(filtered.estimated_total_hits, 1)
         self.assertNotIn(invalid_hit, filtered.hits)
 
-    def test_filter_result_no_query(self) -> None:
+    def test_021_filter_result_no_query(self) -> None:
         from ffbb_api_client_v2.models.multi_search_query import MultiSearchQuery
 
         q = MultiSearchQuery(index_uid="test", q=None)
@@ -476,7 +476,7 @@ class TestMultiSearchQueryCoverage(unittest.TestCase):
 class TestMultiSearchResultsToDictCoverage(unittest.TestCase):
     """multi_search_results.py -- cover to_dict branches."""
 
-    def test_multi_search_result_to_dict_all_fields(self) -> None:
+    def test_022_multi_search_result_to_dict_all_fields(self) -> None:
         from ffbb_api_client_v2.models.multi_search_result_organismes import (
             OrganismesMultiSearchResult,
         )
@@ -522,13 +522,13 @@ class TestMultiSearchResultsToDictCoverage(unittest.TestCase):
 class TestFacetDistributionAssertFalse(unittest.TestCase):
     """facet_distribution.py / facet_stats.py -- cover the assert False line."""
 
-    def test_facet_distribution_from_dict_non_dict_fails(self) -> None:
+    def test_023_facet_distribution_from_dict_non_dict_fails(self) -> None:
         from ffbb_api_client_v2.models.facet_distribution import FacetDistribution
 
         with self.assertRaises(AssertionError):
             FacetDistribution.from_dict("not a dict")
 
-    def test_facet_stats_from_dict_non_dict_fails(self) -> None:
+    def test_024_facet_stats_from_dict_non_dict_fails(self) -> None:
         from ffbb_api_client_v2.models.facet_stats import FacetStats
 
         with self.assertRaises(AssertionError):
@@ -543,7 +543,7 @@ class TestFacetDistributionAssertFalse(unittest.TestCase):
 class TestOrganismeIdPereToDictCoverage(unittest.TestCase):
     """organisme_id_pere.py -- cover to_dict branches."""
 
-    def test_to_dict_all_fields(self) -> None:
+    def test_025_to_dict_all_fields(self) -> None:
         from ffbb_api_client_v2.models.organisme_id_pere import OrganismeIDPere
 
         data = {
@@ -611,7 +611,7 @@ class TestOrganismeIdPereToDictCoverage(unittest.TestCase):
 class TestMultiSearchResultRencontresToDictCoverage(unittest.TestCase):
     """multi_search_result_rencontres.py -- cover to_dict branches."""
 
-    def test_rencontres_hit_to_dict_all_fields(self) -> None:
+    def test_026_rencontres_hit_to_dict_all_fields(self) -> None:
         from ffbb_api_client_v2.models.rencontres_hit import RencontresHit
 
         data = {
@@ -681,7 +681,7 @@ class TestMultiSearchResultRencontresToDictCoverage(unittest.TestCase):
 class TestEmptyToDictBranches(unittest.TestCase):
     """Cover the False branches of to_dict (field IS None -> skip)."""
 
-    def test_cartographie_empty_to_dict(self) -> None:
+    def test_027_cartographie_empty_to_dict(self) -> None:
         from ffbb_api_client_v2.models.cartographie import Cartographie
 
         c = Cartographie.from_dict(
@@ -693,14 +693,14 @@ class TestEmptyToDictBranches(unittest.TestCase):
         d = c.to_dict()
         self.assertEqual(d, {})
 
-    def test_folder_empty_to_dict(self) -> None:
+    def test_028_folder_empty_to_dict(self) -> None:
         from ffbb_api_client_v2.models.folder import Folder
 
         f = Folder.from_dict({"parent": None})
         d = f.to_dict()
         self.assertEqual(d, {})
 
-    def test_document_flyer_minimal_to_dict(self) -> None:
+    def test_029_document_flyer_minimal_to_dict(self) -> None:
         """Test DocumentFlyer to_dict with only None-typed fields skipped."""
         from ffbb_api_client_v2.models.document_flyer import DocumentFlyer
 
@@ -728,7 +728,7 @@ class TestEmptyToDictBranches(unittest.TestCase):
         # All None-typed fields -> empty dict
         self.assertEqual(d, {})
 
-    def test_organisme_id_pere_with_nested_organisme(self) -> None:
+    def test_030_organisme_id_pere_with_nested_organisme(self) -> None:
         """Cover the organisme_id_pere nested field + more to_dict branches."""
         from ffbb_api_client_v2.models.organisme_id_pere import OrganismeIDPere
 
@@ -800,7 +800,7 @@ class TestEmptyToDictBranches(unittest.TestCase):
         self.assertIn("organisme_id_pere", d)
         self.assertEqual(d["organisme_id_pere"]["code"], "N01")
 
-    def test_organisme_id_pere_empty_to_dict(self) -> None:
+    def test_031_organisme_id_pere_empty_to_dict(self) -> None:
         """Cover all False branches in OrganismeIDPere.to_dict."""
         from ffbb_api_client_v2.models.organisme_id_pere import OrganismeIDPere
 
@@ -839,7 +839,7 @@ class TestEmptyToDictBranches(unittest.TestCase):
         d = obj.to_dict()
         self.assertEqual(d, {})
 
-    def test_multi_search_results_to_dict_empty(self) -> None:
+    def test_032_multi_search_results_to_dict_empty(self) -> None:
         """Cover the False branches of MultiSearchResult.to_dict."""
         from ffbb_api_client_v2.models.multi_search_result_organismes import (
             OrganismesMultiSearchResult,
@@ -859,7 +859,7 @@ class TestEmptyToDictBranches(unittest.TestCase):
         d = result.to_dict()
         self.assertEqual(d, {})
 
-    def test_multi_search_results_type_error(self) -> None:
+    def test_033_multi_search_results_type_error(self) -> None:
         """Cover the TypeError branch in MultiSearchResult.from_dict."""
         from ffbb_api_client_v2.models.multi_search_results import MultiSearchResult
 

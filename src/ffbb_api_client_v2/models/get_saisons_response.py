@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from ..utils.converter_utils import from_bool, from_str
+
 
 @dataclass
 class GetSaisonsResponse:
@@ -31,19 +33,15 @@ class GetSaisonsResponse:
             return None
 
         return cls(
-            id=str(data.get("id", "")),
-            actif=bool(data.get("actif", False)) if "actif" in data else None,
-            debut=str(data.get("debut", "")) if data.get("debut") else None,
-            fin=str(data.get("fin", "")) if data.get("fin") else None,
-            code=str(data.get("code", "")) if data.get("code") else None,
-            libelle=str(data.get("libelle", "")) if data.get("libelle") else None,
-            enCours=bool(data.get("enCours", False)) if "enCours" in data else None,
-            date_created=(
-                str(data.get("date_created", "")) if data.get("date_created") else None
-            ),
-            date_updated=(
-                str(data.get("date_updated", "")) if data.get("date_updated") else None
-            ),
+            id=from_str(data, "id") or "",
+            actif=from_bool(data, "actif"),
+            debut=from_str(data, "debut"),
+            fin=from_str(data, "fin"),
+            code=from_str(data, "code"),
+            libelle=from_str(data, "libelle"),
+            enCours=from_bool(data, "enCours"),
+            date_created=from_str(data, "date_created"),
+            date_updated=from_str(data, "date_updated"),
         )
 
     @classmethod

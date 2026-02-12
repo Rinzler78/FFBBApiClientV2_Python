@@ -38,7 +38,7 @@ class Test209EngagementsFormationsSearch(unittest.TestCase):
     # --- Engagements ---
 
     @patch.object(MeilisearchFFBBClient, "recursive_multi_search")
-    def test_001_search_engagements_basic(self, mock_search: MagicMock) -> None:
+    def test_000_search_engagements_basic(self, mock_search: MagicMock) -> None:
         """Test search_engagements calls recursive_multi_search."""
         mock_result = MagicMock(spec=EngagementsMultiSearchResult)
         mock_search.return_value = self._make_mock_results(mock_result)
@@ -48,7 +48,7 @@ class Test209EngagementsFormationsSearch(unittest.TestCase):
         mock_search.assert_called_once()
 
     @patch.object(MeilisearchFFBBClient, "recursive_multi_search")
-    def test_002_search_engagements_with_filter(self, mock_search: MagicMock) -> None:
+    def test_001_search_engagements_with_filter(self, mock_search: MagicMock) -> None:
         """Test search_engagements passes filter."""
         mock_result = MagicMock(spec=EngagementsMultiSearchResult)
         mock_search.return_value = self._make_mock_results(mock_result)
@@ -64,7 +64,7 @@ class Test209EngagementsFormationsSearch(unittest.TestCase):
         self.assertEqual(queries[0].filter, ['idCompetition.sexe = "Féminin"'])
 
     @patch.object(MeilisearchFFBBClient, "recursive_multi_search")
-    def test_003_search_engagements_with_sort(self, mock_search: MagicMock) -> None:
+    def test_002_search_engagements_with_sort(self, mock_search: MagicMock) -> None:
         """Test search_engagements passes sort."""
         mock_result = MagicMock(spec=EngagementsMultiSearchResult)
         mock_search.return_value = self._make_mock_results(mock_result)
@@ -74,7 +74,7 @@ class Test209EngagementsFormationsSearch(unittest.TestCase):
         self.assertEqual(queries[0].sort, ["nom:asc"])
 
     @patch.object(MeilisearchFFBBClient, "recursive_multi_search")
-    def test_004_search_multiple_engagements(self, mock_search: MagicMock) -> None:
+    def test_003_search_multiple_engagements(self, mock_search: MagicMock) -> None:
         """Test search_multiple_engagements."""
         mock_result = MagicMock(spec=EngagementsMultiSearchResult)
         mock_results = MagicMock(spec=MultiSearchResults)
@@ -94,7 +94,7 @@ class Test209EngagementsFormationsSearch(unittest.TestCase):
             self.assertEqual(q.limit, 20)
 
     @patch.object(MeilisearchFFBBClient, "recursive_multi_search")
-    def test_005_search_multiple_engagements_none(self, mock_search: MagicMock) -> None:
+    def test_004_search_multiple_engagements_none(self, mock_search: MagicMock) -> None:
         """Test search_multiple_engagements with None names."""
         result = self.client.search_multiple_engagements(names=None)
         self.assertIsNone(result)
@@ -103,7 +103,7 @@ class Test209EngagementsFormationsSearch(unittest.TestCase):
     # --- Formations ---
 
     @patch.object(MeilisearchFFBBClient, "recursive_multi_search")
-    def test_006_search_formations_basic(self, mock_search: MagicMock) -> None:
+    def test_005_search_formations_basic(self, mock_search: MagicMock) -> None:
         """Test search_formations calls recursive_multi_search."""
         mock_result = MagicMock(spec=FormationsMultiSearchResult)
         mock_search.return_value = self._make_mock_results(mock_result)
@@ -113,7 +113,7 @@ class Test209EngagementsFormationsSearch(unittest.TestCase):
         mock_search.assert_called_once()
 
     @patch.object(MeilisearchFFBBClient, "recursive_multi_search")
-    def test_007_search_formations_with_filter(self, mock_search: MagicMock) -> None:
+    def test_006_search_formations_with_filter(self, mock_search: MagicMock) -> None:
         """Test search_formations passes filter."""
         mock_result = MagicMock(spec=FormationsMultiSearchResult)
         mock_search.return_value = self._make_mock_results(mock_result)
@@ -128,7 +128,7 @@ class Test209EngagementsFormationsSearch(unittest.TestCase):
         self.assertEqual(queries[0].filter, ['domain = "Technicien"'])
 
     @patch.object(MeilisearchFFBBClient, "recursive_multi_search")
-    def test_008_search_formations_with_sort(self, mock_search: MagicMock) -> None:
+    def test_007_search_formations_with_sort(self, mock_search: MagicMock) -> None:
         """Test search_formations passes sort."""
         mock_result = MagicMock(spec=FormationsMultiSearchResult)
         mock_search.return_value = self._make_mock_results(mock_result)
@@ -138,7 +138,7 @@ class Test209EngagementsFormationsSearch(unittest.TestCase):
         self.assertEqual(queries[0].sort, ["title:asc"])
 
     @patch.object(MeilisearchFFBBClient, "recursive_multi_search")
-    def test_009_search_multiple_formations(self, mock_search: MagicMock) -> None:
+    def test_008_search_multiple_formations(self, mock_search: MagicMock) -> None:
         """Test search_multiple_formations."""
         mock_result = MagicMock(spec=FormationsMultiSearchResult)
         mock_results = MagicMock(spec=MultiSearchResults)
@@ -154,7 +154,7 @@ class Test209EngagementsFormationsSearch(unittest.TestCase):
         self.assertEqual(len(queries), 2)
 
     @patch.object(MeilisearchFFBBClient, "recursive_multi_search")
-    def test_010_search_multiple_formations_none(self, mock_search: MagicMock) -> None:
+    def test_009_search_multiple_formations_none(self, mock_search: MagicMock) -> None:
         """Test search_multiple_formations with None names."""
         result = self.client.search_multiple_formations(names=None)
         self.assertIsNone(result)
@@ -163,7 +163,7 @@ class Test209EngagementsFormationsSearch(unittest.TestCase):
     # --- Default limit ---
 
     @patch.object(MeilisearchFFBBClient, "recursive_multi_search")
-    def test_011_default_limit_engagements(self, mock_search: MagicMock) -> None:
+    def test_010_default_limit_engagements(self, mock_search: MagicMock) -> None:
         """Test default limit is 10 for engagements."""
         mock_result = MagicMock(spec=EngagementsMultiSearchResult)
         mock_search.return_value = self._make_mock_results(mock_result)
@@ -173,7 +173,7 @@ class Test209EngagementsFormationsSearch(unittest.TestCase):
         self.assertEqual(queries[0].limit, 10)
 
     @patch.object(MeilisearchFFBBClient, "recursive_multi_search")
-    def test_012_default_limit_formations(self, mock_search: MagicMock) -> None:
+    def test_011_default_limit_formations(self, mock_search: MagicMock) -> None:
         """Test default limit is 10 for formations."""
         mock_result = MagicMock(spec=FormationsMultiSearchResult)
         mock_search.return_value = self._make_mock_results(mock_result)

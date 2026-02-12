@@ -20,7 +20,7 @@ class Test211FFBBAPIClientV2NewEndpointsRencontres(unittest.TestCase):
             meilisearch_ffbb_client=self.mock_meilisearch_client,
         )
 
-    def test_001_get_rencontre_delegates(self):
+    def test_000_get_rencontre_delegates(self):
         """Test get_rencontre delegates to api_ffbb_client."""
         mock_result = Mock()
         self.mock_api_client.get_rencontre.return_value = mock_result
@@ -28,7 +28,7 @@ class Test211FFBBAPIClientV2NewEndpointsRencontres(unittest.TestCase):
         self.mock_api_client.get_rencontre.assert_called_once()
         self.assertEqual(result, mock_result)
 
-    def test_002_list_rencontres_delegates(self):
+    def test_001_list_rencontres_delegates(self):
         """Test list_rencontres delegates to api_ffbb_client."""
         mock_result = [Mock(), Mock()]
         self.mock_api_client.list_rencontres.return_value = mock_result
@@ -49,7 +49,7 @@ class Test211FFBBAPIClientV2NewEndpointsSalles(unittest.TestCase):
             meilisearch_ffbb_client=self.mock_meilisearch_client,
         )
 
-    def test_001_get_salle_delegates(self):
+    def test_002_get_salle_delegates(self):
         """Test get_salle delegates to api_ffbb_client."""
         mock_result = Mock()
         self.mock_api_client.get_salle.return_value = mock_result
@@ -57,7 +57,7 @@ class Test211FFBBAPIClientV2NewEndpointsSalles(unittest.TestCase):
         self.mock_api_client.get_salle.assert_called_once()
         self.assertEqual(result, mock_result)
 
-    def test_002_list_salles_delegates(self):
+    def test_003_list_salles_delegates(self):
         """Test list_salles delegates to api_ffbb_client."""
         mock_result = [Mock(), Mock()]
         self.mock_api_client.list_salles.return_value = mock_result
@@ -78,7 +78,7 @@ class Test211FFBBAPIClientV2NewEndpointsTerrains(unittest.TestCase):
             meilisearch_ffbb_client=self.mock_meilisearch_client,
         )
 
-    def test_001_get_terrain_delegates(self):
+    def test_004_get_terrain_delegates(self):
         """Test get_terrain delegates to api_ffbb_client."""
         mock_result = Mock()
         self.mock_api_client.get_terrain.return_value = mock_result
@@ -86,7 +86,7 @@ class Test211FFBBAPIClientV2NewEndpointsTerrains(unittest.TestCase):
         self.mock_api_client.get_terrain.assert_called_once()
         self.assertEqual(result, mock_result)
 
-    def test_002_list_terrains_delegates(self):
+    def test_005_list_terrains_delegates(self):
         """Test list_terrains delegates to api_ffbb_client."""
         mock_result = [Mock(), Mock()]
         self.mock_api_client.list_terrains.return_value = mock_result
@@ -107,7 +107,7 @@ class Test211FFBBAPIClientV2NewEndpointsTournois(unittest.TestCase):
             meilisearch_ffbb_client=self.mock_meilisearch_client,
         )
 
-    def test_001_get_tournoi_delegates(self):
+    def test_006_get_tournoi_delegates(self):
         """Test get_tournoi delegates to api_ffbb_client."""
         mock_result = Mock()
         self.mock_api_client.get_tournoi.return_value = mock_result
@@ -115,7 +115,7 @@ class Test211FFBBAPIClientV2NewEndpointsTournois(unittest.TestCase):
         self.mock_api_client.get_tournoi.assert_called_once()
         self.assertEqual(result, mock_result)
 
-    def test_002_list_tournois_delegates(self):
+    def test_007_list_tournois_delegates(self):
         """Test list_tournois delegates to api_ffbb_client."""
         mock_result = [Mock(), Mock()]
         self.mock_api_client.list_tournois.return_value = mock_result
@@ -136,7 +136,7 @@ class Test211FFBBAPIClientV2NewEndpointsEngagements(unittest.TestCase):
             meilisearch_ffbb_client=self.mock_meilisearch_client,
         )
 
-    def test_001_get_engagement_delegates(self):
+    def test_008_get_engagement_delegates(self):
         """Test get_engagement delegates to api_ffbb_client."""
         mock_result = Mock()
         self.mock_api_client.get_engagement.return_value = mock_result
@@ -144,7 +144,7 @@ class Test211FFBBAPIClientV2NewEndpointsEngagements(unittest.TestCase):
         self.mock_api_client.get_engagement.assert_called_once()
         self.assertEqual(result, mock_result)
 
-    def test_002_list_engagements_delegates(self):
+    def test_009_list_engagements_delegates(self):
         """Test list_engagements delegates to api_ffbb_client."""
         mock_result = [Mock(), Mock()]
         self.mock_api_client.list_engagements.return_value = mock_result
@@ -165,7 +165,7 @@ class Test211FFBBAPIClientV2NewEndpointsFormations(unittest.TestCase):
             meilisearch_ffbb_client=self.mock_meilisearch_client,
         )
 
-    def test_001_get_formation_delegates(self):
+    def test_010_get_formation_delegates(self):
         """Test get_formation delegates to api_ffbb_client."""
         mock_result = Mock()
         self.mock_api_client.get_formation.return_value = mock_result
@@ -173,7 +173,7 @@ class Test211FFBBAPIClientV2NewEndpointsFormations(unittest.TestCase):
         self.mock_api_client.get_formation.assert_called_once()
         self.assertEqual(result, mock_result)
 
-    def test_002_list_formations_delegates(self):
+    def test_011_list_formations_delegates(self):
         """Test list_formations delegates to api_ffbb_client."""
         mock_result = [Mock(), Mock()]
         self.mock_api_client.list_formations.return_value = mock_result
@@ -194,7 +194,7 @@ class Test211FFBBAPIClientV2NewEndpointsEntraineurs(unittest.TestCase):
             meilisearch_ffbb_client=self.mock_meilisearch_client,
         )
 
-    def test_001_get_entraineur_delegates(self):
+    def test_012_get_entraineur_delegates(self):
         """Test get_entraineur delegates to api_ffbb_client."""
         mock_result = Mock()
         self.mock_api_client.get_entraineur.return_value = mock_result
@@ -202,7 +202,7 @@ class Test211FFBBAPIClientV2NewEndpointsEntraineurs(unittest.TestCase):
         self.mock_api_client.get_entraineur.assert_called_once()
         self.assertEqual(result, mock_result)
 
-    def test_002_list_entraineurs_delegates(self):
+    def test_013_list_entraineurs_delegates(self):
         """Test list_entraineurs delegates to api_ffbb_client."""
         mock_result = [Mock(), Mock()]
         self.mock_api_client.list_entraineurs.return_value = mock_result
@@ -223,7 +223,7 @@ class Test211FFBBAPIClientV2NewEndpointsCommunes(unittest.TestCase):
             meilisearch_ffbb_client=self.mock_meilisearch_client,
         )
 
-    def test_001_list_communes_delegates(self):
+    def test_014_list_communes_delegates(self):
         """Test list_communes delegates to api_ffbb_client."""
         mock_result = [Mock(), Mock()]
         self.mock_api_client.list_communes.return_value = mock_result
@@ -244,7 +244,7 @@ class Test211FFBBAPIClientV2NewEndpointsOfficiels(unittest.TestCase):
             meilisearch_ffbb_client=self.mock_meilisearch_client,
         )
 
-    def test_001_list_officiels_delegates(self):
+    def test_015_list_officiels_delegates(self):
         """Test list_officiels delegates to api_ffbb_client."""
         mock_result = [Mock(), Mock()]
         self.mock_api_client.list_officiels.return_value = mock_result
@@ -265,7 +265,7 @@ class Test211FFBBAPIClientV2NewEndpointsPratiques(unittest.TestCase):
             meilisearch_ffbb_client=self.mock_meilisearch_client,
         )
 
-    def test_001_list_pratiques_delegates(self):
+    def test_016_list_pratiques_delegates(self):
         """Test list_pratiques delegates to api_ffbb_client."""
         mock_result = [Mock(), Mock()]
         self.mock_api_client.list_pratiques.return_value = mock_result
@@ -285,7 +285,7 @@ class Test211FFBBAPIClientV2QueryParamsDelegation(unittest.TestCase):
             meilisearch_ffbb_client=self.mock_meilisearch_client,
         )
 
-    def test_001_list_rencontres_delegates_with_query_params(self):
+    def test_017_list_rencontres_delegates_with_query_params(self):
         """Test list_rencontres passes query params."""
         self.mock_api_client.list_rencontres.return_value = []
         self.client.list_rencontres(
@@ -301,7 +301,7 @@ class Test211FFBBAPIClientV2QueryParamsDelegation(unittest.TestCase):
         self.assertEqual(kwargs["offset"], 20)
         self.assertEqual(kwargs["search"], "paris")
 
-    def test_002_list_salles_delegates_with_query_params(self):
+    def test_018_list_salles_delegates_with_query_params(self):
         self.mock_api_client.list_salles.return_value = []
         self.client.list_salles(
             filter_criteria='{"actif":{"_eq":true}}',
@@ -314,51 +314,51 @@ class Test211FFBBAPIClientV2QueryParamsDelegation(unittest.TestCase):
         self.assertEqual(kwargs["sort"], ["libelle"])
         self.assertEqual(kwargs["offset"], 10)
 
-    def test_003_list_terrains_delegates_with_query_params(self):
+    def test_019_list_terrains_delegates_with_query_params(self):
         self.mock_api_client.list_terrains.return_value = []
         self.client.list_terrains(sort=["nom"], offset=5)
         kwargs = self.mock_api_client.list_terrains.call_args[1]
         self.assertEqual(kwargs["sort"], ["nom"])
         self.assertEqual(kwargs["offset"], 5)
 
-    def test_004_list_tournois_delegates_with_query_params(self):
+    def test_020_list_tournois_delegates_with_query_params(self):
         self.mock_api_client.list_tournois.return_value = []
         self.client.list_tournois(search="3x3")
         kwargs = self.mock_api_client.list_tournois.call_args[1]
         self.assertEqual(kwargs["search"], "3x3")
 
-    def test_005_list_engagements_delegates_with_query_params(self):
+    def test_021_list_engagements_delegates_with_query_params(self):
         self.mock_api_client.list_engagements.return_value = []
         self.client.list_engagements(offset=0)
         kwargs = self.mock_api_client.list_engagements.call_args[1]
         self.assertEqual(kwargs["offset"], 0)
 
-    def test_006_list_formations_delegates_with_query_params(self):
+    def test_022_list_formations_delegates_with_query_params(self):
         self.mock_api_client.list_formations.return_value = []
         self.client.list_formations(filter_criteria='{"test":{"_eq":1}}')
         kwargs = self.mock_api_client.list_formations.call_args[1]
         self.assertEqual(kwargs["filter_criteria"], '{"test":{"_eq":1}}')
 
-    def test_007_list_entraineurs_delegates_with_query_params(self):
+    def test_023_list_entraineurs_delegates_with_query_params(self):
         self.mock_api_client.list_entraineurs.return_value = []
         self.client.list_entraineurs(sort=["nom"], search="dupont")
         kwargs = self.mock_api_client.list_entraineurs.call_args[1]
         self.assertEqual(kwargs["sort"], ["nom"])
         self.assertEqual(kwargs["search"], "dupont")
 
-    def test_008_list_communes_delegates_with_query_params(self):
+    def test_024_list_communes_delegates_with_query_params(self):
         self.mock_api_client.list_communes.return_value = []
         self.client.list_communes(sort=["libelle"])
         kwargs = self.mock_api_client.list_communes.call_args[1]
         self.assertEqual(kwargs["sort"], ["libelle"])
 
-    def test_009_list_officiels_delegates_with_query_params(self):
+    def test_025_list_officiels_delegates_with_query_params(self):
         self.mock_api_client.list_officiels.return_value = []
         self.client.list_officiels(offset=100)
         kwargs = self.mock_api_client.list_officiels.call_args[1]
         self.assertEqual(kwargs["offset"], 100)
 
-    def test_010_list_pratiques_delegates_with_query_params(self):
+    def test_026_list_pratiques_delegates_with_query_params(self):
         self.mock_api_client.list_pratiques.return_value = []
         self.client.list_pratiques(search="basket")
         kwargs = self.mock_api_client.list_pratiques.call_args[1]
@@ -376,61 +376,61 @@ class Test211FFBBAPIClientV2ListAllDelegation(unittest.TestCase):
             meilisearch_ffbb_client=self.mock_meilisearch_client,
         )
 
-    def test_001_list_all_rencontres_delegates(self):
+    def test_027_list_all_rencontres_delegates(self):
         self.mock_api_client.list_all_rencontres.return_value = [Mock()]
         result = self.client.list_all_rencontres()
         self.mock_api_client.list_all_rencontres.assert_called_once()
         self.assertEqual(len(result), 1)
 
-    def test_002_list_all_salles_delegates(self):
+    def test_028_list_all_salles_delegates(self):
         self.mock_api_client.list_all_salles.return_value = [Mock()]
         result = self.client.list_all_salles()
         self.mock_api_client.list_all_salles.assert_called_once()
         self.assertEqual(len(result), 1)
 
-    def test_003_list_all_terrains_delegates(self):
+    def test_029_list_all_terrains_delegates(self):
         self.mock_api_client.list_all_terrains.return_value = [Mock()]
         result = self.client.list_all_terrains()
         self.mock_api_client.list_all_terrains.assert_called_once()
         self.assertEqual(len(result), 1)
 
-    def test_004_list_all_tournois_delegates(self):
+    def test_030_list_all_tournois_delegates(self):
         self.mock_api_client.list_all_tournois.return_value = [Mock()]
         result = self.client.list_all_tournois()
         self.mock_api_client.list_all_tournois.assert_called_once()
         self.assertEqual(len(result), 1)
 
-    def test_005_list_all_engagements_delegates(self):
+    def test_031_list_all_engagements_delegates(self):
         self.mock_api_client.list_all_engagements.return_value = [Mock()]
         result = self.client.list_all_engagements()
         self.mock_api_client.list_all_engagements.assert_called_once()
         self.assertEqual(len(result), 1)
 
-    def test_006_list_all_formations_delegates(self):
+    def test_032_list_all_formations_delegates(self):
         self.mock_api_client.list_all_formations.return_value = [Mock()]
         result = self.client.list_all_formations()
         self.mock_api_client.list_all_formations.assert_called_once()
         self.assertEqual(len(result), 1)
 
-    def test_007_list_all_entraineurs_delegates(self):
+    def test_033_list_all_entraineurs_delegates(self):
         self.mock_api_client.list_all_entraineurs.return_value = [Mock()]
         result = self.client.list_all_entraineurs()
         self.mock_api_client.list_all_entraineurs.assert_called_once()
         self.assertEqual(len(result), 1)
 
-    def test_008_list_all_communes_delegates(self):
+    def test_034_list_all_communes_delegates(self):
         self.mock_api_client.list_all_communes.return_value = [Mock()]
         result = self.client.list_all_communes()
         self.mock_api_client.list_all_communes.assert_called_once()
         self.assertEqual(len(result), 1)
 
-    def test_009_list_all_officiels_delegates(self):
+    def test_035_list_all_officiels_delegates(self):
         self.mock_api_client.list_all_officiels.return_value = [Mock()]
         result = self.client.list_all_officiels()
         self.mock_api_client.list_all_officiels.assert_called_once()
         self.assertEqual(len(result), 1)
 
-    def test_010_list_all_pratiques_delegates(self):
+    def test_036_list_all_pratiques_delegates(self):
         self.mock_api_client.list_all_pratiques.return_value = [Mock()]
         result = self.client.list_all_pratiques()
         self.mock_api_client.list_all_pratiques.assert_called_once()

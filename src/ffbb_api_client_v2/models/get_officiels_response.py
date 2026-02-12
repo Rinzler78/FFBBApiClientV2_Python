@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from ..utils.converter_utils import from_str
+
 
 @dataclass
 class GetOfficielsResponse:
@@ -23,19 +25,11 @@ class GetOfficielsResponse:
             return None
 
         return cls(
-            nom=str(data.get("nom", "")),
-            prenom=(str(data.get("prenom", "")) if data.get("prenom") else None),
-            numeroNational=(
-                str(data.get("numeroNational", ""))
-                if data.get("numeroNational")
-                else None
-            ),
-            date_created=(
-                str(data.get("date_created", "")) if data.get("date_created") else None
-            ),
-            date_updated=(
-                str(data.get("date_updated", "")) if data.get("date_updated") else None
-            ),
+            nom=from_str(data, "nom") or "",
+            prenom=from_str(data, "prenom"),
+            numeroNational=from_str(data, "numeroNational"),
+            date_created=from_str(data, "date_created"),
+            date_updated=from_str(data, "date_updated"),
         )
 
     @classmethod

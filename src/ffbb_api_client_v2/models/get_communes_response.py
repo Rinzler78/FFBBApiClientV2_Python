@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from ..utils.converter_utils import from_str
+
 
 @dataclass
 class GetCommunesResponse:
@@ -25,23 +27,13 @@ class GetCommunesResponse:
             return None
 
         return cls(
-            id=str(data.get("id", "")),
-            codeInsee=(
-                str(data.get("codeInsee", "")) if data.get("codeInsee") else None
-            ),
-            codePostal=(
-                str(data.get("codePostal", "")) if data.get("codePostal") else None
-            ),
-            departement=(
-                str(data.get("departement", "")) if data.get("departement") else None
-            ),
-            libelle=(str(data.get("libelle", "")) if data.get("libelle") else None),
-            date_created=(
-                str(data.get("date_created", "")) if data.get("date_created") else None
-            ),
-            date_updated=(
-                str(data.get("date_updated", "")) if data.get("date_updated") else None
-            ),
+            id=from_str(data, "id") or "",
+            codeInsee=from_str(data, "codeInsee"),
+            codePostal=from_str(data, "codePostal"),
+            departement=from_str(data, "departement"),
+            libelle=from_str(data, "libelle"),
+            date_created=from_str(data, "date_created"),
+            date_updated=from_str(data, "date_updated"),
         )
 
     @classmethod

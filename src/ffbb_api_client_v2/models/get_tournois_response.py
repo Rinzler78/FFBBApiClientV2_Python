@@ -3,6 +3,11 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+from ..utils.converter_utils import (
+    from_int,
+    from_str,
+)
+
 
 @dataclass
 class GetTournoisResponse:
@@ -45,37 +50,37 @@ class GetTournoisResponse:
             return None
 
         return cls(
-            id=str(data.get("id", "")),
-            nom=str(data.get("nom", "")) if data.get("nom") else None,
-            code=str(data.get("code", "")) if data.get("code") else None,
-            sexe=str(data.get("sexe", "")) if data.get("sexe") else None,
-            debut=str(data.get("debut", "")) if data.get("debut") else None,
-            fin=str(data.get("fin", "")) if data.get("fin") else None,
-            description=data.get("description"),
-            adresse=(str(data.get("adresse", "")) if data.get("adresse") else None),
-            adresseComplement=data.get("adresseComplement"),
-            mailOrganisateur=data.get("mailOrganisateur"),
-            nomOrganisateur=data.get("nomOrganisateur"),
-            telephoneOrganisateur=data.get("telephoneOrganisateur"),
-            urlOrganisateur=data.get("urlOrganisateur"),
-            siteChoisi=data.get("siteChoisi"),
-            nbParticipantPrevu=data.get("nbParticipantPrevu"),
-            tarifOrganisateur=data.get("tarifOrganisateur"),
-            ageMin=data.get("ageMin"),
-            ageMax=data.get("ageMax"),
-            tournoiType=data.get("tournoiType"),
-            commune=data.get("commune"),
-            cartographie=data.get("cartographie"),
+            id=from_str(data, "id") or "",
+            nom=from_str(data, "nom"),
+            code=from_str(data, "code"),
+            sexe=from_str(data, "sexe"),
+            debut=from_str(data, "debut"),
+            fin=from_str(data, "fin"),
+            description=data.get("description"),  # Keep as raw
+            adresse=from_str(data, "adresse"),
+            adresseComplement=data.get("adresseComplement"),  # Keep as raw
+            mailOrganisateur=data.get("mailOrganisateur"),  # Keep as raw
+            nomOrganisateur=data.get("nomOrganisateur"),  # Keep as raw
+            telephoneOrganisateur=data.get("telephoneOrganisateur"),  # Keep as raw
+            urlOrganisateur=data.get("urlOrganisateur"),  # Keep as raw
+            siteChoisi=data.get("siteChoisi"),  # Keep as raw
+            nbParticipantPrevu=from_int(data, "nbParticipantPrevu"),
+            tarifOrganisateur=data.get("tarifOrganisateur"),  # Keep as raw
+            ageMin=from_int(data, "ageMin"),
+            ageMax=from_int(data, "ageMax"),
+            tournoiType=data.get("tournoiType"),  # Keep as raw dict
+            commune=data.get("commune"),  # Keep as raw dict
+            cartographie=data.get("cartographie"),  # Keep as raw dict
             tournoiTypes3x3=data.get("tournoiTypes3x3", []) or [],
-            document_flyer=data.get("document_flyer"),
-            categorieChampionnat3x3Id=data.get("categorieChampionnat3x3Id"),
-            categorieChampionnat3x3Libelle=data.get("categorieChampionnat3x3Libelle"),
-            date_created=(
-                str(data.get("date_created", "")) if data.get("date_created") else None
-            ),
-            date_updated=(
-                str(data.get("date_updated", "")) if data.get("date_updated") else None
-            ),
+            document_flyer=data.get("document_flyer"),  # Keep as raw dict
+            categorieChampionnat3x3Id=data.get(
+                "categorieChampionnat3x3Id"
+            ),  # Keep as raw
+            categorieChampionnat3x3Libelle=data.get(
+                "categorieChampionnat3x3Libelle"
+            ),  # Keep as raw
+            date_created=from_str(data, "date_created"),
+            date_updated=from_str(data, "date_updated"),
         )
 
     @classmethod

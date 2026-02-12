@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from ..utils.converter_utils import from_bool, from_float, from_int, from_obj, from_str
 from .ranking_engagement import RankingEngagement
 
 
@@ -49,98 +50,55 @@ class TeamRanking:
         if not isinstance(data, dict):
             return None
 
-        id_engagement_data = data.get("idEngagement", {})
-        id_engagement = (
-            RankingEngagement.from_dict(id_engagement_data)
-            if id_engagement_data
-            else None
-        )
+        id_engagement = from_obj(RankingEngagement.from_dict, data, "idEngagement")
 
         # Handle organisme data
         organisme_data = data.get("organisme", {})
-        organisme_id = (
-            organisme_data.get("id") if isinstance(organisme_data, dict) else None
-        )
-        organisme_nom = (
-            organisme_data.get("nom") if isinstance(organisme_data, dict) else None
-        )
-        organisme_nom_simple = (
-            organisme_data.get("nom_simple")
-            if isinstance(organisme_data, dict)
-            else None
-        )
+        if not isinstance(organisme_data, dict):
+            organisme_data = {}
+        organisme_id = from_str(organisme_data, "id")
+        organisme_nom = from_str(organisme_data, "nom")
+        organisme_nom_simple = from_str(organisme_data, "nom_simple")
 
         # Handle organisme logo
-        organisme_logo_data = (
-            organisme_data.get("logo", {}) if isinstance(organisme_data, dict) else {}
-        )
-        organisme_logo_id = (
-            organisme_logo_data.get("id")
-            if isinstance(organisme_logo_data, dict)
-            else None
-        )
+        organisme_logo_data = organisme_data.get("logo", {})
+        if not isinstance(organisme_logo_data, dict):
+            organisme_logo_data = {}
+        organisme_logo_id = from_str(organisme_logo_data, "id")
 
         # Handle idPoule data
         id_poule_data = data.get("idPoule", {})
-        id_poule_id = (
-            id_poule_data.get("id") if isinstance(id_poule_data, dict) else None
-        )
+        if not isinstance(id_poule_data, dict):
+            id_poule_data = {}
+        id_poule_id = from_str(id_poule_data, "id")
 
         return cls(
-            id=str(data.get("id", "")),
+            id=from_str(data, "id") or "",
             id_engagement=id_engagement,
-            position=int(data.get("position", 0)),
-            points=int(data.get("points", 0)),
-            match_joues=int(data.get("matchJoues", 0)),
-            gagnes=int(data.get("gagnes", 0)),
-            perdus=int(data.get("perdus", 0)),
-            nuls=(
-                int(nuls_val) if (nuls_val := data.get("nuls")) is not None else None
-            ),
-            nombre_forfaits=int(data.get("nombreForfaits", 0)),
-            nombre_defauts=(
-                int(defauts_val)
-                if (defauts_val := data.get("nombreDefauts")) is not None
-                else None
-            ),
-            paniers_marques=int(data.get("paniersMarques", 0)),
-            paniers_encaisses=int(data.get("paniersEncaisses", 0)),
-            difference=int(data.get("difference", 0)),
-            quotient=float(data.get("quotient", 0.0)),
-            point_initiaux=(
-                int(initiaux_val)
-                if (initiaux_val := data.get("pointInitiaux")) is not None
-                else None
-            ),
-            penalites_arbitrage=(
-                int(arb_val)
-                if (arb_val := data.get("penalitesArbitrage")) is not None
-                else None
-            ),
-            penalites_entraineur=(
-                int(entr_val)
-                if (entr_val := data.get("penalitesEntraineur")) is not None
-                else None
-            ),
-            penalites_diverses=(
-                int(div_val)
-                if (div_val := data.get("penalitesDiverses")) is not None
-                else None
-            ),
-            hors_classement=(
-                bool(data.get("horsClassement"))
-                if data.get("horsClassement") is not None
-                else None
-            ),
-            organisme_id=str(organisme_id) if organisme_id else None,
-            organisme_nom=str(organisme_nom) if organisme_nom else None,
-            organisme_logo_id=str(organisme_logo_id) if organisme_logo_id else None,
-            organisme_nom_simple=(
-                str(organisme_nom_simple) if organisme_nom_simple else None
-            ),
-            id_competition=(
-                str(data.get("idCompetition")) if data.get("idCompetition") else None
-            ),
-            id_poule=str(data.get("idPoule")) if data.get("idPoule") else None,
-            id_poule_id=str(id_poule_id) if id_poule_id else None,
+            position=from_int(data, "position") or 0,
+            points=from_int(data, "points") or 0,
+            match_joues=from_int(data, "matchJoues") or 0,
+            gagnes=from_int(data, "gagnes") or 0,
+            perdus=from_int(data, "perdus") or 0,
+            nuls=from_int(data, "nuls"),
+            nombre_forfaits=from_int(data, "nombreForfaits") or 0,
+            nombre_defauts=from_int(data, "nombreDefauts"),
+            paniers_marques=from_int(data, "paniersMarques") or 0,
+            paniers_encaisses=from_int(data, "paniersEncaisses") or 0,
+            difference=from_int(data, "difference") or 0,
+            quotient=from_float(data, "quotient") or 0.0,
+            point_initiaux=from_int(data, "pointInitiaux"),
+            penalites_arbitrage=from_int(data, "penalitesArbitrage"),
+            penalites_entraineur=from_int(data, "penalitesEntraineur"),
+            penalites_diverses=from_int(data, "penalitesDiverses"),
+            hors_classement=from_bool(data, "horsClassement"),
+            organisme_id=organisme_id,
+            organisme_nom=organisme_nom,
+            organisme_logo_id=organisme_logo_id,
+            organisme_nom_simple=organisme_nom_simple,
+            id_competition=from_str(data, "idCompetition"),
+            id_poule=from_str(
+                data, "idPoule"
+            ),  # Note: this was str(dict), likely a bug, but keeping for now
+            id_poule_id=id_poule_id,
         )
