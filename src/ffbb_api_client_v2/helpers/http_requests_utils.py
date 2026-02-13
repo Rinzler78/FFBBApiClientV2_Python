@@ -9,6 +9,14 @@ import requests
 from requests import Response
 from requests_cache import CachedSession
 
+from ..directus_exceptions import DirectusError
+from ..exceptions import (
+    FFBBAuthError,
+    FFBBNotFoundError,
+    FFBBRateLimitError,
+    FFBBServerError,
+)
+from ..meilisearch_exceptions import MeilisearchError
 from ..utils.retry_utils import (
     RetryConfig,
     TimeoutConfig,
@@ -46,6 +54,71 @@ def to_json_from_response(response: Response) -> dict[str, Any]:
         data_str = data_str[2:]
 
     return cast(dict[str, Any], json.loads(data_str))
+
+
+def _check_response_errors(response: Response) -> None:
+    """Check HTTP response for errors and raise appropriate exceptions.
+
+    This function inspects the HTTP response status code and body to raise
+    structured exceptions instead of silently returning error data.
+
+    Args:
+        response: The HTTP response to check.
+
+    Raises:
+        DirectusError: For Directus API errors (detected by 'errors' key in body).
+        MeilisearchError: For Meilisearch API errors (detected by 'code'+'type' in body).
+        FFBBAuthError: For 401/403 responses without recognizable error format.
+        FFBBNotFoundError: For 404 responses.
+        FFBBRateLimitError: For 429 responses.
+        FFBBServerError: For 5xx responses.
+    """
+    status = response.status_code
+
+    # 2xx is success, no error to raise
+    if 200 <= status < 300:
+        return
+
+    # Try to parse the response body for structured error info
+    body: dict[str, Any] | None = None
+    try:
+        body = response.json()
+    except (json.JSONDecodeError, ValueError):
+        pass
+
+    # Detect Meilisearch error format: {"message": ..., "code": ..., "type": ..., "link": ...}
+    if body and "code" in body and "type" in body:
+        raise MeilisearchError.from_response(body, status_code=status)
+
+    # Detect Directus error format: {"errors": [...]}
+    if body and "errors" in body:
+        raise DirectusError.from_response(body, status_code=status)
+
+    # Generic HTTP error mapping
+    message = f"HTTP {status}"
+    if body and isinstance(body, dict):
+        message = body.get("message", message)
+
+    if status in (401, 403):
+        raise FFBBAuthError(message=message, status_code=status, response_body=body)
+    if status == 404:
+        raise FFBBNotFoundError(message=message, status_code=status, response_body=body)
+    if status == 429:
+        retry_after_header = response.headers.get("Retry-After")
+        retry_after = float(retry_after_header) if retry_after_header else None
+        raise FFBBRateLimitError(
+            message=message,
+            status_code=status,
+            response_body=body,
+            retry_after=retry_after,
+        )
+    if status >= 500:
+        raise FFBBServerError(message=message, status_code=status, response_body=body)
+
+    # For other 4xx errors, raise a generic validation-like error
+    from ..exceptions import FFBBValidationError
+
+    raise FFBBValidationError(message=message, status_code=status, response_body=body)
 
 
 def http_get(
@@ -200,6 +273,7 @@ def http_get_json(
         retry_config=retry_config,
         timeout_config=timeout_config,
     )
+    _check_response_errors(response)
     return to_json_from_response(response)
 
 
@@ -241,6 +315,7 @@ def http_post_json(
         retry_config=retry_config,
         timeout_config=timeout_config,
     )
+    _check_response_errors(response)
     return to_json_from_response(response)
 
 

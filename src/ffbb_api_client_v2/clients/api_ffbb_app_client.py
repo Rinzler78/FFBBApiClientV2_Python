@@ -8,11 +8,13 @@ from requests_cache import CachedSession
 from ..config import (
     API_FFBB_BASE_URL,
     DEFAULT_USER_AGENT,
+    ENDPOINT_COLLECTIONS,
     ENDPOINT_COMMUNES,
     ENDPOINT_COMPETITIONS,
     ENDPOINT_CONFIGURATION,
     ENDPOINT_ENGAGEMENTS,
     ENDPOINT_ENTRAINEURS,
+    ENDPOINT_FIELDS,
     ENDPOINT_FORMATIONS,
     ENDPOINT_LIVES,
     ENDPOINT_OFFICIELS,
@@ -982,6 +984,13 @@ class ApiFFBBAppClient:
                 break
 
             if len(all_items) >= max_items:
+                self.logger.warning(
+                    "Pagination stopped: max_items limit (%d) reached for %s. "
+                    "Total available: %d. Results may be truncated.",
+                    max_items,
+                    endpoint,
+                    total,
+                )
                 break
 
             if len(actual_data) < page_size:
@@ -1220,3 +1229,99 @@ class ApiFFBBAppClient:
             max_items=max_items,
             cached_session=cached_session,
         )
+
+    # --- Directus Schema Discovery (Official API Compliance) ---
+
+    def get_collections(
+        self,
+        cached_session: CachedSession | None = None,
+    ) -> list[dict[str, Any]]:
+        """
+        Retrieves all available collections from the Directus schema.
+
+        Official Directus API: GET /collections
+
+        Args:
+            cached_session (CachedSession, optional): The cached session to use
+
+        Returns:
+            list[dict[str, Any]]: List of collection definitions with metadata
+        """
+        url = f"{self.url}{ENDPOINT_COLLECTIONS}"
+        data = catch_result(
+            lambda: http_get_json(
+                url,
+                self.headers,
+                debug=self.debug,
+                cached_session=cached_session or self.cached_session,
+                retry_config=self.retry_config,
+                timeout_config=self.timeout_config,
+            )
+        )
+
+        if data and isinstance(data, dict):
+            collections = data.get("data", [])
+            if isinstance(collections, list):
+                return collections
+        return []
+
+    def get_fields(
+        self,
+        collection: str | None = None,
+        cached_session: CachedSession | None = None,
+    ) -> list[dict[str, Any]]:
+        """
+        Retrieves field schema information from Directus.
+
+        Official Directus API: GET /fields or GET /fields/{collection}
+
+        Args:
+            collection (str, optional): Collection name to get fields for.
+                If None, returns all fields from all collections.
+            cached_session (CachedSession, optional): The cached session to use
+
+        Returns:
+            list[dict[str, Any]]: List of field definitions with:
+                - field: Field name
+                - type: Data type (integer, string, etc.)
+                - meta: Field metadata (interface, special, etc.)
+                - schema: Database schema info (foreign keys, etc.)
+        """
+        if collection:
+            url = f"{self.url}{ENDPOINT_FIELDS}/{collection}"
+        else:
+            url = f"{self.url}{ENDPOINT_FIELDS}"
+
+        data = catch_result(
+            lambda: http_get_json(
+                url,
+                self.headers,
+                debug=self.debug,
+                cached_session=cached_session or self.cached_session,
+                retry_config=self.retry_config,
+                timeout_config=self.timeout_config,
+            )
+        )
+
+        if data and isinstance(data, dict):
+            fields = data.get("data", [])
+            if isinstance(fields, list):
+                return fields
+        return []
+
+    def get_collection_fields(
+        self,
+        collection: str,
+        cached_session: CachedSession | None = None,
+    ) -> list[dict[str, Any]]:
+        """
+        Convenience method to get fields for a specific collection.
+
+        Args:
+            collection (str): Collection name
+            cached_session (CachedSession, optional): The cached session to use
+
+        Returns:
+            list[dict[str, Any]]: List of field definitions for the collection
+        """
+        return self.get_fields(collection=collection, cached_session=cached_session)

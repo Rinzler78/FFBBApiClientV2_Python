@@ -9,14 +9,40 @@ from .clients.api_ffbb_app_client import ApiFFBBAppClient
 from .clients.ffbb_api_client_v2 import FFBBAPIClientV2
 from .clients.meilisearch_client import MeilisearchClient
 from .clients.meilisearch_ffbb_client import MeilisearchFFBBClient
+from .directus_exceptions import (
+    DirectusAuthError,
+    DirectusError,
+    DirectusNotFoundError,
+    DirectusRateLimitError,
+    DirectusServerError,
+)
+from .exceptions import (
+    FFBBApiError,
+    FFBBAuthError,
+    FFBBNetworkError,
+    FFBBNotFoundError,
+    FFBBRateLimitError,
+    FFBBServerError,
+    FFBBValidationError,
+)
 from .helpers.meilisearch_client_extension import MeilisearchClientExtension
 from .helpers.multi_search_query_helper import generate_queries
+from .meilisearch_exceptions import (
+    MeilisearchError,
+    MeilisearchIndexNotFoundError,
+    MeilisearchInvalidFilterError,
+)
 from .models.competitions_facet_distribution import CompetitionsFacetDistribution
 from .models.competitions_facet_stats import CompetitionsFacetStats
 from .models.competitions_hit import CompetitionsHit
 from .models.engagements_facet_distribution import EngagementsFacetDistribution
 from .models.engagements_facet_stats import EngagementsFacetStats
 from .models.engagements_hit import EngagementsHit
+from .models.federated_search_result import (
+    FederatedHit,
+    FederatedSearchResult,
+    FederationInfo,
+)
 from .models.field_set import FieldSet
 from .models.formations_facet_distribution import FormationsFacetDistribution
 from .models.formations_facet_stats import FormationsFacetStats
@@ -67,12 +93,32 @@ __all__ = [
     "FFBBAPIClientV2",
     "MeilisearchClient",
     "MeilisearchFFBBClient",
+    # Exceptions
+    "FFBBApiError",
+    "FFBBNetworkError",
+    "FFBBAuthError",
+    "FFBBNotFoundError",
+    "FFBBRateLimitError",
+    "FFBBValidationError",
+    "FFBBServerError",
+    "DirectusError",
+    "DirectusAuthError",
+    "DirectusNotFoundError",
+    "DirectusRateLimitError",
+    "DirectusServerError",
+    "MeilisearchError",
+    "MeilisearchIndexNotFoundError",
+    "MeilisearchInvalidFilterError",
     # Helpers
     "MeilisearchClientExtension",
     "generate_queries",
     # Models
     "FieldSet",
     "MeilisearchIndexSettings",
+    # Federated search
+    "FederatedSearchResult",
+    "FederatedHit",
+    "FederationInfo",
     # Directus Response Models
     "GetCommunesResponse",
     "GetEngagementsResponse",

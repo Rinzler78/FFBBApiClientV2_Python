@@ -8,6 +8,7 @@ from unittest.mock import MagicMock, Mock, patch
 
 from requests import ReadTimeout
 
+from ffbb_api_client_v2.exceptions import FFBBNetworkError
 from ffbb_api_client_v2.helpers.http_requests_helper import catch_result
 from ffbb_api_client_v2.helpers.http_requests_utils import (
     encode_params,
@@ -57,8 +58,9 @@ class Test045HttpHelpers(unittest.TestCase):
         def always_timeout() -> None:
             raise ReadTimeout("timeout")
 
-        with self.assertRaises(ReadTimeout):
+        with self.assertRaises(FFBBNetworkError) as ctx:
             catch_result(always_timeout)
+        self.assertIsInstance(ctx.exception.original_exception, ReadTimeout)
 
     def test_005_catch_result_connection_error_retry(self) -> None:
         call_count = 0
@@ -77,8 +79,9 @@ class Test045HttpHelpers(unittest.TestCase):
         def always_fail() -> None:
             raise ConnectionError("connection failed")
 
-        with self.assertRaises(ConnectionError):
+        with self.assertRaises(FFBBNetworkError) as ctx:
             catch_result(always_fail)
+        self.assertIsInstance(ctx.exception.original_exception, ConnectionError)
 
     # -- to_json_from_response tests --
 

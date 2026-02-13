@@ -12,6 +12,7 @@ from ..config import (
 )
 from ..helpers.http_requests_helper import catch_result
 from ..helpers.http_requests_utils import http_get_json, http_post_json
+from ..models.federated_search_result import FederatedSearchResult
 from ..models.meilisearch_index_settings import MeilisearchIndexSettings
 from ..models.multi_search_query import MultiSearchQuery
 from ..models.multi_search_results_class import (
@@ -187,3 +188,147 @@ class MeilisearchClient:
         """Get sortable attributes for a Meilisearch index."""
         settings = self.get_index_settings(index_uid, cached_session)
         return settings.sortable_attributes if settings else None
+
+    # --- Official Meilisearch API Compliance: Index Operations ---
+
+    def list_indexes(
+        self,
+        offset: int = 0,
+        limit: int = 20,
+        cached_session: CachedSession | None = None,
+    ) -> dict[str, Any] | None:
+        """
+        List all available Meilisearch indexes.
+
+        Official Meilisearch API: GET /indexes?offset={offset}&limit={limit}
+
+        Args:
+            offset (int): Number of indexes to skip. Defaults to 0.
+            limit (int): Number of indexes to return. Defaults to 20.
+            cached_session (CachedSession, optional): The cached session to use
+
+        Returns:
+            dict with:
+                - results: List of index objects (uid, createdAt, updatedAt, primaryKey)
+                - offset: Number of indexes skipped
+                - limit: Number of indexes returned
+                - total: Total number of indexes
+        """
+        url = f"{self.url}indexes?offset={offset}&limit={limit}"
+        return self._get_json(url, cached_session)
+
+    def search_index(
+        self,
+        index_uid: str,
+        query: str = "",
+        offset: int = 0,
+        limit: int = 20,
+        filter: str | None = None,
+        facets: list[str] | None = None,
+        sort: list[str] | None = None,
+        attributes_to_retrieve: list[str] | None = None,
+        cached_session: CachedSession | None = None,
+    ) -> dict[str, Any] | None:
+        """
+        Search a single Meilisearch index (Official API compliance).
+
+        Official Meilisearch API: POST /indexes/{index_uid}/search
+
+        Args:
+            index_uid (str): Unique identifier of the index
+            query (str): Search query. Empty string for placeholder search.
+            offset (int): Number of documents to skip. Defaults to 0.
+            limit (int): Maximum number of documents to return. Defaults to 20.
+            filter (str, optional): Filter expression
+            facets (list[str], optional): Facets to retrieve
+            sort (list[str], optional): Sort attributes (e.g., ["price:asc"])
+            attributes_to_retrieve (list[str], optional): Fields to return
+            cached_session (CachedSession, optional): The cached session to use
+
+        Returns:
+            dict with:
+                - hits: List of matching documents
+                - offset: Number of documents skipped
+                - limit: Documents returned
+                - estimatedTotalHits: Estimated total matches
+                - totalHits: Exact total (if hitsPerPage/page used)
+                - totalPages: Total pages (if hitsPerPage/page used)
+                - facetDistribution: Facet counts (if facets requested)
+                - facetStats: Min/max per numeric facet
+                - processingTimeMs: Query processing time
+                - query: Original query
+                - requestUid: Unique request identifier
+        """
+        url = f"{self.url}indexes/{index_uid}/search"
+        body: dict[str, Any] = {
+            "q": query,
+            "offset": offset,
+            "limit": limit,
+        }
+
+        if filter:
+            body["filter"] = filter
+        if facets:
+            body["facets"] = facets
+        if sort:
+            body["sort"] = sort
+        if attributes_to_retrieve:
+            body["attributesToRetrieve"] = attributes_to_retrieve
+
+        return catch_result(
+            lambda: http_post_json(
+                url,
+                self.headers,
+                body,
+                debug=self.debug,
+                cached_session=cached_session or self.cached_session,
+                retry_config=self.retry_config,
+                timeout_config=self.timeout_config,
+            )
+        )
+
+    def federated_multi_search(
+        self,
+        queries: Sequence[MultiSearchQuery] | None = None,
+        federation_options: dict[str, Any] | None = None,
+        cached_session: CachedSession | None = None,
+    ) -> FederatedSearchResult | None:
+        """Execute a federated multi-search across multiple indexes.
+
+        Unlike regular multi_search which returns separate results per index,
+        federated search merges all results into a single list ranked by
+        global relevance.
+
+        Args:
+            queries: Search queries targeting different indexes.
+            federation_options: Optional federation configuration:
+                - weight (float): Per-query weight for ranking (in each query).
+                - limit (int): Max total hits in merged results.
+                - offset (int): Skip N merged results.
+                - facetsByIndex (dict): Per-index facets configuration.
+                - mergeFacets (dict): Facet merging configuration.
+            cached_session: Optional cached session.
+
+        Returns:
+            FederatedSearchResult with merged hits across all indexes,
+            or None if the response is empty.
+        """
+        url = f"{self.url}{MEILISEARCH_ENDPOINT_MULTI_SEARCH}"
+        params: dict[str, Any] = {
+            "queries": [query.to_dict() for query in queries] if queries else [],
+            "federation": federation_options if federation_options else {},
+        }
+        raw = catch_result(
+            lambda: http_post_json(
+                url,
+                self.headers,
+                params,
+                debug=self.debug,
+                cached_session=cached_session or self.cached_session,
+                retry_config=self.retry_config,
+                timeout_config=self.timeout_config,
+            )
+        )
+        if raw and isinstance(raw, dict):
+            return FederatedSearchResult.from_dict(raw)
+        return None

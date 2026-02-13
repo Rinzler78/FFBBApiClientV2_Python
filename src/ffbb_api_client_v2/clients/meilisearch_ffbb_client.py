@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import cast
+from typing import Any, cast
 
 from requests_cache import CachedSession
 
@@ -8,6 +8,7 @@ from ..config import MEILISEARCH_BASE_URL
 from ..helpers.meilisearch_client_extension import MeilisearchClientExtension
 from ..models.competitions_multi_search_query import CompetitionsMultiSearchQuery
 from ..models.engagements_multi_search_query import EngagementsMultiSearchQuery
+from ..models.federated_search_result import FederatedSearchResult
 from ..models.formations_multi_search_query import FormationsMultiSearchQuery
 from ..models.meilisearch_index_settings import MeilisearchIndexSettings
 from ..models.multi_search_result_competitions import CompetitionsMultiSearchResult
@@ -404,6 +405,126 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
             cached_session=cached_session,
         )
         return results[0] if results else None
+
+    # --- Geo-search ---
+
+    def search_organismes_by_geo(
+        self,
+        lat: float,
+        lng: float,
+        radius_km: float = 10.0,
+        q: str = "",
+        limit: int | None = 20,
+        sort: list[str] | None = None,
+        cached_session: CachedSession | None = None,
+    ) -> OrganismesMultiSearchResult | None:
+        """Search organismes by geographic proximity.
+
+        Uses Meilisearch _geoRadius() filter to find organismes near a location.
+        The _geo facet data is already present in the organismes index.
+
+        Args:
+            lat: Latitude of the center point.
+            lng: Longitude of the center point.
+            radius_km: Radius in kilometers. Defaults to 10.
+            q: Optional search query to combine with geo filter.
+            limit: Maximum results to return. Defaults to 20.
+            sort: Optional sort criteria. If None, sorts by _geoPoint(lat,lng):asc.
+            cached_session: Optional cached session.
+
+        Returns:
+            OrganismesMultiSearchResult or None.
+        """
+        radius_meters = int(radius_km * 1000)
+        geo_filter = f"_geoRadius({lat}, {lng}, {radius_meters})"
+        if sort is None:
+            sort = [f"_geoPoint({lat}, {lng}):asc"]
+
+        query = OrganismesMultiSearchQuery(
+            q, limit=limit, filter=[geo_filter], sort=sort
+        )
+        results = self.smart_multi_search([query], cached_session)
+        if results and results.results:
+            return cast(OrganismesMultiSearchResult, results.results[0])
+        return None
+
+    def search_salles_by_geo(
+        self,
+        lat: float,
+        lng: float,
+        radius_km: float = 10.0,
+        q: str = "",
+        limit: int | None = 20,
+        sort: list[str] | None = None,
+        cached_session: CachedSession | None = None,
+    ) -> SallesMultiSearchResult | None:
+        """Search salles by geographic proximity.
+
+        Args:
+            lat: Latitude of the center point.
+            lng: Longitude of the center point.
+            radius_km: Radius in kilometers. Defaults to 10.
+            q: Optional search query to combine with geo filter.
+            limit: Maximum results to return. Defaults to 20.
+            sort: Optional sort criteria. If None, sorts by _geoPoint(lat,lng):asc.
+            cached_session: Optional cached session.
+
+        Returns:
+            SallesMultiSearchResult or None.
+        """
+        radius_meters = int(radius_km * 1000)
+        geo_filter = f"_geoRadius({lat}, {lng}, {radius_meters})"
+        if sort is None:
+            sort = [f"_geoPoint({lat}, {lng}):asc"]
+
+        query = SallesMultiSearchQuery(q, limit=limit, filter=[geo_filter], sort=sort)
+        results = self.smart_multi_search([query], cached_session)
+        if results and results.results:
+            return cast(SallesMultiSearchResult, results.results[0])
+        return None
+
+    # --- Federated search (FFBB-specific) ---
+
+    def federated_search_all(
+        self,
+        q: str = "",
+        limit: int = 20,
+        federation_options: dict[str, Any] | None = None,
+        cached_session: CachedSession | None = None,
+    ) -> FederatedSearchResult | None:
+        """Search across all FFBB indexes with federated results.
+
+        Returns a single merged list of hits ranked by global relevance,
+        instead of separate results per index.
+
+        Args:
+            q: Search query.
+            limit: Maximum total hits in merged results. Defaults to 20.
+            federation_options: Optional federation config (weights, etc.).
+            cached_session: Optional cached session.
+
+        Returns:
+            FederatedSearchResult with merged hits, or None.
+        """
+        queries = [
+            OrganismesMultiSearchQuery(q),
+            RencontresMultiSearchQuery(q),
+            CompetitionsMultiSearchQuery(q),
+            SallesMultiSearchQuery(q),
+            TerrainsMultiSearchQuery(q),
+            TournoisMultiSearchQuery(q),
+            PratiquesMultiSearchQuery(q),
+            EngagementsMultiSearchQuery(q),
+            FormationsMultiSearchQuery(q),
+        ]
+        options = federation_options or {}
+        if "limit" not in options:
+            options["limit"] = limit
+        return self.federated_multi_search(
+            queries=queries,
+            federation_options=options,
+            cached_session=cached_session,
+        )
 
     # --- Index Settings ---
 
