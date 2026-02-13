@@ -22,8 +22,8 @@ from .salle import Salle
 @dataclass
 class CompetitionRencontre:
     id: str | None = None
-    numero: int | None = None
-    numero_journee: int | None = None
+    numero: str | None = None
+    numero_journee: str | None = None
     id_poule: str | None = None
     competition_id: str | None = None
     resultat_equipe1: int | None = None
@@ -49,8 +49,8 @@ class CompetitionRencontre:
         officiels_raw = from_list(Officiel.from_dict, obj, "officiels")
         return CompetitionRencontre(
             id=from_str(obj, "id"),
-            numero=from_int(obj, "numero"),
-            numero_journee=from_int(obj, "numeroJournee"),
+            numero=from_str(obj, "numero"),
+            numero_journee=from_str(obj, "numeroJournee"),
             id_poule=from_str(obj, "idPoule"),
             competition_id=from_str(obj, "competitionId"),
             resultat_equipe1=from_int(obj, "resultatEquipe1"),

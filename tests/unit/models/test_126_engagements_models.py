@@ -5,12 +5,14 @@ from __future__ import annotations
 import unittest
 from typing import Any
 
-from ffbb_api_client_v2.models.engagements_facet_distribution import (
+from ffbb_api_client_v2.meilisearch_ffbb.models.engagements_facet_distribution import (
     EngagementsFacetDistribution,
 )
-from ffbb_api_client_v2.models.engagements_facet_stats import EngagementsFacetStats
-from ffbb_api_client_v2.models.engagements_hit import EngagementsHit
-from ffbb_api_client_v2.models.multi_search_result_engagements import (
+from ffbb_api_client_v2.meilisearch_ffbb.models.engagements_facet_stats import (
+    EngagementsFacetStats,
+)
+from ffbb_api_client_v2.meilisearch_ffbb.models.engagements_hit import EngagementsHit
+from ffbb_api_client_v2.meilisearch_ffbb.models.multi_search_result_engagements import (
     EngagementsMultiSearchResult,
 )
 

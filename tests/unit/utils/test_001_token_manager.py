@@ -7,7 +7,8 @@ import unittest
 from unittest.mock import patch
 
 from ffbb_api_client_v2 import FFBBTokens, TokenManager
-from ffbb_api_client_v2.config import ENV_API_TOKEN, ENV_MEILISEARCH_TOKEN
+from ffbb_api_client_v2.config import ENV_MEILISEARCH_TOKEN
+from ffbb_api_client_v2.directus_ffbb.config import ENV_API_TOKEN
 
 
 class Test020TokenManager(unittest.TestCase):
@@ -61,7 +62,7 @@ class Test020TokenManager(unittest.TestCase):
         self.assertEqual(tokens1.api_token, "env_api_token")
         self.assertEqual(tokens2.api_token, "env_api_token")
 
-    @patch("ffbb_api_client_v2.utils.token_manager.http_get_json")
+    @patch("ffbb_api_client_v2._http.client.HttpClient.http_get_json")
     def test_003_get_tokens_from_api_when_env_missing(self, mock_http):
         """Test tokens are fetched from API when env vars are missing."""
         # Clear env vars
@@ -82,7 +83,7 @@ class Test020TokenManager(unittest.TestCase):
         self.assertEqual(tokens.meilisearch_token, "ms_from_fetch")
         mock_http.assert_called_once()
 
-    @patch("ffbb_api_client_v2.utils.token_manager.http_get_json")
+    @patch("ffbb_api_client_v2._http.client.HttpClient.http_get_json")
     def test_004_get_tokens_api_failure(self, mock_http):
         """Test error handling when API fetch fails."""
         # Clear env vars
@@ -96,7 +97,7 @@ class Test020TokenManager(unittest.TestCase):
 
         self.assertIn("Failed to fetch configuration", str(context.exception))
 
-    @patch("ffbb_api_client_v2.utils.token_manager.http_get_json")
+    @patch("ffbb_api_client_v2._http.client.HttpClient.http_get_json")
     def test_005_get_tokens_partial_env_fetches_from_api(self, mock_http):
         """Test API fetch when only one env var is set."""
         # Set only one env var

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import unittest
 
-from ffbb_api_client_v2.models.meilisearch_index_settings import (
+from ffbb_api_client_v2.meilisearch.models.meilisearch_index_settings import (
     MeilisearchIndexSettings,
 )
 

@@ -5,12 +5,14 @@ from __future__ import annotations
 import unittest
 from uuid import UUID
 
+from ffbb_api_client_v2.directus_ffbb.models.get_competition_response import (
+    GetCompetitionResponse,
+)
 from ffbb_api_client_v2.models.competition_phase import CompetitionPhase
 from ffbb_api_client_v2.models.competition_poule import CompetitionPoule
 from ffbb_api_client_v2.models.competition_rencontre import CompetitionRencontre
 from ffbb_api_client_v2.models.engagement_equipe import EngagementEquipe
 from ffbb_api_client_v2.models.fonction import Fonction
-from ffbb_api_client_v2.models.get_competition_response import GetCompetitionResponse
 from ffbb_api_client_v2.models.officiel import Officiel
 from ffbb_api_client_v2.models.officiel_personne import OfficielPersonne
 from ffbb_api_client_v2.models.organisme_equipe import OrganismeEquipe
@@ -261,8 +263,8 @@ class TestCompetitionRencontre(unittest.TestCase):
         self.assertEqual(ren.id, "ren-001")
         self.assertEqual(ren.numero, "42")
         self.assertEqual(ren.numero_journee, "3")
-        self.assertEqual(ren.resultat_equipe1, "78")
-        self.assertEqual(ren.resultat_equipe2, "65")
+        self.assertEqual(ren.resultat_equipe1, 78)
+        self.assertEqual(ren.resultat_equipe2, 65)
         self.assertEqual(ren.joue, True)
         self.assertEqual(ren.nom_equipe1, "Club A")
         self.assertIsNotNone(ren.date_rencontre)
@@ -281,14 +283,14 @@ class TestCompetitionRencontre(unittest.TestCase):
         ren = CompetitionRencontre(
             id="ren-001",
             numero_journee="3",
-            resultat_equipe1="78",
-            resultat_equipe2="65",
+            resultat_equipe1=78,
+            resultat_equipe2=65,
             nom_equipe1="Club A",
             nom_equipe2="Club B",
         )
         d = ren.to_dict()
         self.assertEqual(d["numeroJournee"], "3")
-        self.assertEqual(d["resultatEquipe1"], "78")
+        self.assertEqual(d["resultatEquipe1"], 78)
         self.assertEqual(d["nomEquipe1"], "Club A")
         self.assertNotIn("numero_journee", d)
         self.assertNotIn("resultat_equipe1", d)

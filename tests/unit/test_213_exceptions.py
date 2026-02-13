@@ -5,7 +5,7 @@ from __future__ import annotations
 import unittest
 from typing import Any
 
-from ffbb_api_client_v2.directus_exceptions import (
+from ffbb_api_client_v2.directus.exceptions import (
     DirectusAuthError,
     DirectusError,
     DirectusNotFoundError,
@@ -21,7 +21,7 @@ from ffbb_api_client_v2.exceptions import (
     FFBBServerError,
     FFBBValidationError,
 )
-from ffbb_api_client_v2.meilisearch_exceptions import (
+from ffbb_api_client_v2.meilisearch.exceptions import (
     MeilisearchError,
     MeilisearchIndexNotFoundError,
     MeilisearchInvalidFilterError,

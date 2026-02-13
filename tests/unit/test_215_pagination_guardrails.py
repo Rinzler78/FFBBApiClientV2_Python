@@ -6,23 +6,23 @@ import logging
 import unittest
 from unittest.mock import MagicMock, patch
 
-from ffbb_api_client_v2.helpers.meilisearch_client_extension import (
+from ffbb_api_client_v2.meilisearch.client_extension import (
     DEFAULT_MAX_ITERATIONS,
     DEFAULT_MAX_TOTAL_HITS,
     MeilisearchClientExtension,
 )
-from ffbb_api_client_v2.models.multi_search_query import MultiSearchQuery
-from ffbb_api_client_v2.models.multi_search_results import MultiSearchResult
-from ffbb_api_client_v2.models.multi_search_results_class import MultiSearchResults
+from ffbb_api_client_v2.meilisearch.models.multi_search_query import MultiSearchQuery
+from ffbb_api_client_v2.meilisearch.models.multi_search_results import MultiSearchResult
+from ffbb_api_client_v2.meilisearch.models.multi_search_results_class import (
+    MultiSearchResults,
+)
 
 
 class Test215RecursivePaginationGuardrails(unittest.TestCase):
     """Tests for max_iterations and max_total_hits guard-rails."""
 
     def setUp(self) -> None:
-        with patch(
-            "ffbb_api_client_v2.helpers.meilisearch_client_extension.CacheManager"
-        ):
+        with patch("ffbb_api_client_v2.meilisearch.client_extension.CacheManager"):
             self.client = MeilisearchClientExtension(
                 bearer_token="test-token", url="https://test/"
             )
@@ -67,7 +67,7 @@ class Test215RecursivePaginationGuardrails(unittest.TestCase):
         query = MultiSearchQuery(index_uid="test", q="", limit=5, offset=0)
 
         with self.assertLogs(
-            "ffbb_api_client_v2.helpers.meilisearch_client_extension",
+            "ffbb_api_client_v2.meilisearch.client_extension",
             level=logging.WARNING,
         ) as cm:
             self.client.recursive_smart_multi_search(
@@ -99,7 +99,7 @@ class Test215RecursivePaginationGuardrails(unittest.TestCase):
         query = MultiSearchQuery(index_uid="test", q="", limit=20, offset=990)
 
         with self.assertLogs(
-            "ffbb_api_client_v2.helpers.meilisearch_client_extension",
+            "ffbb_api_client_v2.meilisearch.client_extension",
             level=logging.WARNING,
         ) as cm:
             self.client.recursive_smart_multi_search(
@@ -126,11 +126,11 @@ class Test215FetchAllPagesWarning(unittest.TestCase):
 
     def test_000_warning_logged_when_max_items_reached(self) -> None:
         """_fetch_all_pages should log warning when max_items is hit."""
-        from ffbb_api_client_v2.clients.api_ffbb_app_client import ApiFFBBAppClient
+        from ffbb_api_client_v2.directus_ffbb.client import ApiFFBBAppClient
         from ffbb_api_client_v2.utils.secure_logging import get_secure_logger
 
         with patch(
-            "ffbb_api_client_v2.clients.api_ffbb_app_client.catch_result"
+            "ffbb_api_client_v2._http.helper.HttpHelper.catch_result"
         ) as mock_catch:
             # Simulate a response with more items available than max_items
             mock_catch.return_value = {

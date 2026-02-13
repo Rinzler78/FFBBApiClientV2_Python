@@ -4,7 +4,9 @@ Unit tests for get_saisons_response.py
 
 import unittest
 
-from ffbb_api_client_v2.models.get_saisons_response import GetSaisonsResponse
+from ffbb_api_client_v2.directus_ffbb.models.get_saisons_response import (
+    GetSaisonsResponse,
+)
 
 
 class TestGetSaisonsResponse(unittest.TestCase):
@@ -93,7 +95,7 @@ class TestGetSaisonsResponse(unittest.TestCase):
         self.assertIsNone(result.date_updated)
 
     def test_008_from_dict_empty_strings(self):
-        """Test from_dict avec chaînes vides (devraient être None)"""
+        """Test from_dict avec chaînes vides — from_str preserves empty strings"""
         data = {
             "id": "789",
             "debut": "",
@@ -106,12 +108,12 @@ class TestGetSaisonsResponse(unittest.TestCase):
         result = GetSaisonsResponse.from_dict(data)
         self.assertIsNotNone(result)
         self.assertEqual(result.id, "789")
-        self.assertIsNone(result.debut)
-        self.assertIsNone(result.fin)
-        self.assertIsNone(result.code)
-        self.assertIsNone(result.libelle)
-        self.assertIsNone(result.date_created)
-        self.assertIsNone(result.date_updated)
+        self.assertEqual(result.debut, "")
+        self.assertEqual(result.fin, "")
+        self.assertEqual(result.code, "")
+        self.assertEqual(result.libelle, "")
+        self.assertEqual(result.date_created, "")
+        self.assertEqual(result.date_updated, "")
 
     def test_009_from_list_empty(self):
         """Test from_list avec liste vide"""

@@ -1,4 +1,4 @@
-"""Tests for HTTP response error handling in http_requests_utils."""
+"""Tests for HTTP response error handling in http.client."""
 
 from __future__ import annotations
 
@@ -6,7 +6,9 @@ import json
 import unittest
 from unittest.mock import MagicMock
 
-from ffbb_api_client_v2.directus_exceptions import DirectusAuthError, DirectusError
+from ffbb_api_client_v2._http.client import _check_response_errors
+from ffbb_api_client_v2._http.helper import catch_result
+from ffbb_api_client_v2.directus.exceptions import DirectusAuthError
 from ffbb_api_client_v2.exceptions import (
     FFBBAuthError,
     FFBBNetworkError,
@@ -15,16 +17,19 @@ from ffbb_api_client_v2.exceptions import (
     FFBBServerError,
     FFBBValidationError,
 )
-from ffbb_api_client_v2.helpers.http_requests_helper import catch_result
-from ffbb_api_client_v2.helpers.http_requests_utils import _check_response_errors
-from ffbb_api_client_v2.meilisearch_exceptions import (
-    MeilisearchError,
+from ffbb_api_client_v2.meilisearch.exceptions import (
     MeilisearchIndexNotFoundError,
 )
 
 
 class Test218CheckResponseErrors(unittest.TestCase):
-    """Tests for _check_response_errors function."""
+    """Tests for _check_response_errors function.
+
+    After the http/ refactor, _check_response_errors raises only generic
+    FFBB exceptions (FFBBAuthError, FFBBNotFoundError, etc.) with the
+    response_body attached. Directus/Meilisearch clients are responsible
+    for catching and re-raising as specific exceptions.
+    """
 
     def _make_response(self, status_code: int, body: dict | None = None) -> MagicMock:
         response = MagicMock()
@@ -41,36 +46,38 @@ class Test218CheckResponseErrors(unittest.TestCase):
         # Should not raise
         _check_response_errors(response)
 
-    def test_001_directus_401_raises_directus_auth_error(self) -> None:
+    def test_001_directus_401_raises_auth_error(self) -> None:
         body = {
             "errors": [
                 {"message": "Unauthorized", "extensions": {"code": "UNAUTHORIZED"}}
             ]
         }
         response = self._make_response(401, body)
-        with self.assertRaises(DirectusAuthError) as ctx:
+        with self.assertRaises(FFBBAuthError) as ctx:
             _check_response_errors(response)
         self.assertEqual(ctx.exception.status_code, 401)
+        # Body is attached for downstream enrichment
+        self.assertIsNotNone(ctx.exception.response_body)
 
-    def test_002_directus_403_raises_directus_auth_error(self) -> None:
+    def test_002_directus_403_raises_auth_error(self) -> None:
         body = {"errors": [{"message": "Forbidden"}]}
         response = self._make_response(403, body)
-        with self.assertRaises(DirectusAuthError):
+        with self.assertRaises(FFBBAuthError):
             _check_response_errors(response)
 
-    def test_003_directus_404_raises_directus_not_found(self) -> None:
+    def test_003_directus_404_raises_not_found(self) -> None:
         body = {"errors": [{"message": "Item not found"}]}
         response = self._make_response(404, body)
-        with self.assertRaises(DirectusError):
+        with self.assertRaises(FFBBNotFoundError):
             _check_response_errors(response)
 
-    def test_004_directus_500_raises_directus_server_error(self) -> None:
+    def test_004_directus_500_raises_server_error(self) -> None:
         body = {"errors": [{"message": "Internal error"}]}
         response = self._make_response(500, body)
-        with self.assertRaises(DirectusError):
+        with self.assertRaises(FFBBServerError):
             _check_response_errors(response)
 
-    def test_005_meilisearch_error_format(self) -> None:
+    def test_005_meilisearch_error_format_raises_not_found(self) -> None:
         body = {
             "message": "Index not found",
             "code": "index_not_found",
@@ -78,10 +85,12 @@ class Test218CheckResponseErrors(unittest.TestCase):
             "link": "https://docs.meilisearch.com/errors#index_not_found",
         }
         response = self._make_response(404, body)
-        with self.assertRaises(MeilisearchIndexNotFoundError):
+        with self.assertRaises(FFBBNotFoundError) as ctx:
             _check_response_errors(response)
+        # Body is attached for downstream Meilisearch error enrichment
+        self.assertEqual(ctx.exception.response_body, body)
 
-    def test_006_meilisearch_invalid_filter(self) -> None:
+    def test_006_meilisearch_invalid_filter_raises_validation_error(self) -> None:
         body = {
             "message": "Attribute `foo` is not filterable",
             "code": "invalid_search_filter",
@@ -89,8 +98,10 @@ class Test218CheckResponseErrors(unittest.TestCase):
             "link": "https://docs.meilisearch.com/errors#invalid_search_filter",
         }
         response = self._make_response(400, body)
-        with self.assertRaises(MeilisearchError):
+        with self.assertRaises(FFBBValidationError) as ctx:
             _check_response_errors(response)
+        # Body is attached for downstream Meilisearch error enrichment
+        self.assertEqual(ctx.exception.response_body, body)
 
     def test_007_generic_401_without_body(self) -> None:
         response = self._make_response(401, body=None)

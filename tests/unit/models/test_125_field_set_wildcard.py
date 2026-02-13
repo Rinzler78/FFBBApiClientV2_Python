@@ -4,12 +4,14 @@ from __future__ import annotations
 
 import unittest
 
-from ffbb_api_client_v2.models.competition_fields import CompetitionFields
-from ffbb_api_client_v2.models.field_set import FieldSet
-from ffbb_api_client_v2.models.organisme_fields import OrganismeFields
-from ffbb_api_client_v2.models.poule_fields import PouleFields
-from ffbb_api_client_v2.models.query_fields_manager import QueryFieldsManager
-from ffbb_api_client_v2.models.saison_fields import SaisonFields
+from ffbb_api_client_v2.directus.models.field_set import FieldSet
+from ffbb_api_client_v2.directus_ffbb.models.competition_fields import CompetitionFields
+from ffbb_api_client_v2.directus_ffbb.models.organisme_fields import OrganismeFields
+from ffbb_api_client_v2.directus_ffbb.models.poule_fields import PouleFields
+from ffbb_api_client_v2.directus_ffbb.models.query_fields_manager import (
+    QueryFieldsManager,
+)
+from ffbb_api_client_v2.directus_ffbb.models.saison_fields import SaisonFields
 
 
 class Test125FieldSetWildcard(unittest.TestCase):

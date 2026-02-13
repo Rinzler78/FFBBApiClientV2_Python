@@ -2,16 +2,16 @@
 
 import unittest
 
-from ffbb_api_client_v2.models.communes_fields import CommunesFields
-from ffbb_api_client_v2.models.engagements_fields import EngagementsFields
-from ffbb_api_client_v2.models.entraineurs_fields import EntraineursFields
-from ffbb_api_client_v2.models.formations_fields import FormationsFields
-from ffbb_api_client_v2.models.officiels_fields import OfficielsFields
-from ffbb_api_client_v2.models.pratiques_fields import PratiquesFields
-from ffbb_api_client_v2.models.rencontres_fields import RencontresFields
-from ffbb_api_client_v2.models.salles_fields import SallesFields
-from ffbb_api_client_v2.models.terrains_fields import TerrainsFields
-from ffbb_api_client_v2.models.tournois_fields import TournoisFields
+from ffbb_api_client_v2.directus_ffbb.models.communes_fields import CommunesFields
+from ffbb_api_client_v2.directus_ffbb.models.engagements_fields import EngagementsFields
+from ffbb_api_client_v2.directus_ffbb.models.entraineurs_fields import EntraineursFields
+from ffbb_api_client_v2.directus_ffbb.models.formations_fields import FormationsFields
+from ffbb_api_client_v2.directus_ffbb.models.officiels_fields import OfficielsFields
+from ffbb_api_client_v2.directus_ffbb.models.pratiques_fields import PratiquesFields
+from ffbb_api_client_v2.directus_ffbb.models.rencontres_fields import RencontresFields
+from ffbb_api_client_v2.directus_ffbb.models.salles_fields import SallesFields
+from ffbb_api_client_v2.directus_ffbb.models.terrains_fields import TerrainsFields
+from ffbb_api_client_v2.directus_ffbb.models.tournois_fields import TournoisFields
 
 
 class Test138CommunesFields(unittest.TestCase):

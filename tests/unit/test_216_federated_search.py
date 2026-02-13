@@ -6,14 +6,14 @@ import unittest
 from typing import Any
 from unittest.mock import MagicMock, patch
 
-from ffbb_api_client_v2.clients.meilisearch_client import MeilisearchClient
-from ffbb_api_client_v2.clients.meilisearch_ffbb_client import MeilisearchFFBBClient
-from ffbb_api_client_v2.models.federated_search_result import (
+from ffbb_api_client_v2.meilisearch.client import MeilisearchClient
+from ffbb_api_client_v2.meilisearch.models.federated_search_result import (
     FederatedHit,
     FederatedSearchResult,
     FederationInfo,
 )
-from ffbb_api_client_v2.models.multi_search_query import MultiSearchQuery
+from ffbb_api_client_v2.meilisearch.models.multi_search_query import MultiSearchQuery
+from ffbb_api_client_v2.meilisearch_ffbb.client import MeilisearchFFBBClient
 
 
 class Test216FederationInfo(unittest.TestCase):
@@ -138,12 +138,12 @@ class Test216MeilisearchClientFederated(unittest.TestCase):
     """Tests for MeilisearchClient.federated_multi_search."""
 
     def setUp(self) -> None:
-        with patch("ffbb_api_client_v2.clients.meilisearch_client.CacheManager"):
+        with patch("ffbb_api_client_v2.meilisearch.client.CacheManager"):
             self.client = MeilisearchClient(
                 bearer_token="test-token", url="https://test/"
             )
 
-    @patch("ffbb_api_client_v2.clients.meilisearch_client.catch_result")
+    @patch("ffbb_api_client_v2._http.helper.HttpHelper.catch_result")
     def test_000_federated_search_returns_result(self, mock_catch: MagicMock) -> None:
         mock_catch.return_value = {
             "hits": [
@@ -161,7 +161,7 @@ class Test216MeilisearchClientFederated(unittest.TestCase):
         self.assertIsInstance(result, FederatedSearchResult)
         self.assertEqual(len(result.hits), 1)
 
-    @patch("ffbb_api_client_v2.clients.meilisearch_client.catch_result")
+    @patch("ffbb_api_client_v2._http.helper.HttpHelper.catch_result")
     def test_001_federated_search_with_options(self, mock_catch: MagicMock) -> None:
         mock_catch.return_value = {"hits": [], "processingTimeMs": 1}
         self.client.federated_multi_search(
@@ -172,7 +172,7 @@ class Test216MeilisearchClientFederated(unittest.TestCase):
         call_args = mock_catch.call_args
         self.assertIsNotNone(call_args)
 
-    @patch("ffbb_api_client_v2.clients.meilisearch_client.catch_result")
+    @patch("ffbb_api_client_v2._http.helper.HttpHelper.catch_result")
     def test_002_federated_search_none_on_empty(self, mock_catch: MagicMock) -> None:
         mock_catch.return_value = None
         result = self.client.federated_multi_search(queries=[])
@@ -183,9 +183,7 @@ class Test216MeilisearchFFBBFederatedSearch(unittest.TestCase):
     """Tests for MeilisearchFFBBClient.federated_search_all."""
 
     def setUp(self) -> None:
-        with patch(
-            "ffbb_api_client_v2.helpers.meilisearch_client_extension.CacheManager"
-        ):
+        with patch("ffbb_api_client_v2.meilisearch.client_extension.CacheManager"):
             self.client = MeilisearchFFBBClient(bearer_token="test-token")
 
     @patch.object(MeilisearchFFBBClient, "federated_multi_search")

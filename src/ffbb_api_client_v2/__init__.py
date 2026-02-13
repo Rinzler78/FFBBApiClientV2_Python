@@ -5,17 +5,25 @@ A Python client library for the French Basketball Federation (FFBB) API,
 providing access to clubs, competitions, matches, and other basketball data.
 """
 
-from .clients.api_ffbb_app_client import ApiFFBBAppClient
-from .clients.ffbb_api_client_v2 import FFBBAPIClientV2
-from .clients.meilisearch_client import MeilisearchClient
-from .clients.meilisearch_ffbb_client import MeilisearchFFBBClient
-from .directus_exceptions import (
+from .directus.exceptions import (
     DirectusAuthError,
     DirectusError,
     DirectusNotFoundError,
     DirectusRateLimitError,
     DirectusServerError,
 )
+from .directus.models.field_set import FieldSet
+from .directus_ffbb.client import ApiFFBBAppClient
+from .directus_ffbb.models.get_communes_response import GetCommunesResponse
+from .directus_ffbb.models.get_engagements_response import GetEngagementsResponse
+from .directus_ffbb.models.get_entraineurs_response import GetEntraineursResponse
+from .directus_ffbb.models.get_formations_response import GetFormationsResponse
+from .directus_ffbb.models.get_officiels_response import GetOfficielsResponse
+from .directus_ffbb.models.get_pratiques_response import GetPratiquesResponse
+from .directus_ffbb.models.get_rencontres_response import GetRencontresResponse
+from .directus_ffbb.models.get_salles_response import GetSallesResponse
+from .directus_ffbb.models.get_terrains_response import GetTerrainsResponse
+from .directus_ffbb.models.get_tournois_response import GetTournoisResponse
 from .exceptions import (
     FFBBApiError,
     FFBBAuthError,
@@ -25,66 +33,86 @@ from .exceptions import (
     FFBBServerError,
     FFBBValidationError,
 )
-from .helpers.meilisearch_client_extension import MeilisearchClientExtension
-from .helpers.multi_search_query_helper import generate_queries
-from .meilisearch_exceptions import (
+from .facade.client import FFBBAPIClientV2
+from .facade.token_manager import FFBBTokens, TokenManager
+from .meilisearch.client import MeilisearchClient
+from .meilisearch.client_extension import MeilisearchClientExtension
+from .meilisearch.exceptions import (
     MeilisearchError,
     MeilisearchIndexNotFoundError,
     MeilisearchInvalidFilterError,
 )
-from .models.competitions_facet_distribution import CompetitionsFacetDistribution
-from .models.competitions_facet_stats import CompetitionsFacetStats
-from .models.competitions_hit import CompetitionsHit
-from .models.engagements_facet_distribution import EngagementsFacetDistribution
-from .models.engagements_facet_stats import EngagementsFacetStats
-from .models.engagements_hit import EngagementsHit
-from .models.federated_search_result import (
+from .meilisearch.models.federated_search_result import (
     FederatedHit,
     FederatedSearchResult,
     FederationInfo,
 )
-from .models.field_set import FieldSet
-from .models.formations_facet_distribution import FormationsFacetDistribution
-from .models.formations_facet_stats import FormationsFacetStats
-from .models.formations_hit import FormationsHit
-from .models.get_communes_response import GetCommunesResponse
-from .models.get_engagements_response import GetEngagementsResponse
-from .models.get_entraineurs_response import GetEntraineursResponse
-from .models.get_formations_response import GetFormationsResponse
-from .models.get_officiels_response import GetOfficielsResponse
-from .models.get_pratiques_response import GetPratiquesResponse
-from .models.get_rencontres_response import GetRencontresResponse
-from .models.get_salles_response import GetSallesResponse
-from .models.get_terrains_response import GetTerrainsResponse
-from .models.get_tournois_response import GetTournoisResponse
-from .models.meilisearch_index_settings import MeilisearchIndexSettings
-from .models.multi_search_query import MultiSearchQuery
-from .models.multi_search_result_competitions import CompetitionsMultiSearchResult
-from .models.multi_search_result_engagements import EngagementsMultiSearchResult
-from .models.multi_search_result_formations import FormationsMultiSearchResult
-from .models.multi_search_result_organismes import OrganismesMultiSearchResult
-from .models.multi_search_result_pratiques import PratiquesMultiSearchResult
-from .models.multi_search_result_rencontres import RencontresMultiSearchResult
-from .models.multi_search_result_salles import SallesMultiSearchResult
-from .models.multi_search_result_terrains import TerrainsMultiSearchResult
-from .models.multi_search_result_tournois import TournoisMultiSearchResult
-from .models.organismes_facet_distribution import OrganismesFacetDistribution
-from .models.organismes_facet_stats import OrganismesFacetStats
-from .models.organismes_hit import OrganismesHit
-from .models.pratiques_facet_distribution import PratiquesFacetDistribution
-from .models.pratiques_facet_stats import PratiquesFacetStats
-from .models.pratiques_hit import PratiquesHit
-from .models.rencontres_facet_stats import RencontresFacetStats
-from .models.rencontres_hit import RencontresHit
-from .models.salles_facet_distribution import SallesFacetDistribution
-from .models.salles_facet_stats import SallesFacetStats
-from .models.salles_hit import SallesHit
-from .models.terrains_facet_distribution import TerrainsFacetDistribution
-from .models.terrains_facet_stats import TerrainsFacetStats
-from .models.terrains_hit import TerrainsHit
-from .models.tournois_facet_stats import TournoisFacetStats
-from .models.tournois_hit import TournoisHit
-from .utils.token_manager import FFBBTokens, TokenManager
+from .meilisearch.models.meilisearch_index_settings import MeilisearchIndexSettings
+from .meilisearch.models.multi_search_query import MultiSearchQuery
+from .meilisearch_ffbb.client import MeilisearchFFBBClient
+from .meilisearch_ffbb.models.competitions_facet_distribution import (
+    CompetitionsFacetDistribution,
+)
+from .meilisearch_ffbb.models.competitions_facet_stats import CompetitionsFacetStats
+from .meilisearch_ffbb.models.competitions_hit import CompetitionsHit
+from .meilisearch_ffbb.models.engagements_facet_distribution import (
+    EngagementsFacetDistribution,
+)
+from .meilisearch_ffbb.models.engagements_facet_stats import EngagementsFacetStats
+from .meilisearch_ffbb.models.engagements_hit import EngagementsHit
+from .meilisearch_ffbb.models.formations_facet_distribution import (
+    FormationsFacetDistribution,
+)
+from .meilisearch_ffbb.models.formations_facet_stats import FormationsFacetStats
+from .meilisearch_ffbb.models.formations_hit import FormationsHit
+from .meilisearch_ffbb.models.multi_search_result_competitions import (
+    CompetitionsMultiSearchResult,
+)
+from .meilisearch_ffbb.models.multi_search_result_engagements import (
+    EngagementsMultiSearchResult,
+)
+from .meilisearch_ffbb.models.multi_search_result_formations import (
+    FormationsMultiSearchResult,
+)
+from .meilisearch_ffbb.models.multi_search_result_organismes import (
+    OrganismesMultiSearchResult,
+)
+from .meilisearch_ffbb.models.multi_search_result_pratiques import (
+    PratiquesMultiSearchResult,
+)
+from .meilisearch_ffbb.models.multi_search_result_rencontres import (
+    RencontresMultiSearchResult,
+)
+from .meilisearch_ffbb.models.multi_search_result_salles import SallesMultiSearchResult
+from .meilisearch_ffbb.models.multi_search_result_terrains import (
+    TerrainsMultiSearchResult,
+)
+from .meilisearch_ffbb.models.multi_search_result_tournois import (
+    TournoisMultiSearchResult,
+)
+from .meilisearch_ffbb.models.organismes_facet_distribution import (
+    OrganismesFacetDistribution,
+)
+from .meilisearch_ffbb.models.organismes_facet_stats import OrganismesFacetStats
+from .meilisearch_ffbb.models.organismes_hit import OrganismesHit
+from .meilisearch_ffbb.models.pratiques_facet_distribution import (
+    PratiquesFacetDistribution,
+)
+from .meilisearch_ffbb.models.pratiques_facet_stats import PratiquesFacetStats
+from .meilisearch_ffbb.models.pratiques_hit import PratiquesHit
+from .meilisearch_ffbb.models.rencontres_facet_stats import RencontresFacetStats
+from .meilisearch_ffbb.models.rencontres_hit import RencontresHit
+from .meilisearch_ffbb.models.salles_facet_distribution import SallesFacetDistribution
+from .meilisearch_ffbb.models.salles_facet_stats import SallesFacetStats
+from .meilisearch_ffbb.models.salles_hit import SallesHit
+from .meilisearch_ffbb.models.terrains_facet_distribution import (
+    TerrainsFacetDistribution,
+)
+from .meilisearch_ffbb.models.terrains_facet_stats import TerrainsFacetStats
+from .meilisearch_ffbb.models.terrains_hit import TerrainsHit
+from .meilisearch_ffbb.models.tournois_facet_stats import TournoisFacetStats
+from .meilisearch_ffbb.models.tournois_hit import TournoisHit
+from .meilisearch_ffbb.query_helper import generate_queries
 
 # Public API exports
 __all__ = [
@@ -157,7 +185,7 @@ __all__ = [
     "PratiquesFacetStats",
     "PratiquesHit",
     "PratiquesMultiSearchResult",
-    # Rencontres (FacetDistribution merged into CompetitionsFacetDistribution)
+    # Rencontres
     "RencontresFacetStats",
     "RencontresHit",
     "RencontresMultiSearchResult",
@@ -171,7 +199,7 @@ __all__ = [
     "TerrainsFacetStats",
     "TerrainsHit",
     "TerrainsMultiSearchResult",
-    # Tournois (FacetDistribution merged into TerrainsFacetDistribution)
+    # Tournois
     "TournoisFacetStats",
     "TournoisHit",
     "TournoisMultiSearchResult",

@@ -35,6 +35,11 @@ from typing import Any
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
+from ffbb_api_client_v2._http.client import (  # noqa: E402
+    http_get_json,
+    http_post_json,
+    url_with_params,
+)
 from ffbb_api_client_v2.config import (  # noqa: E402
     API_FFBB_BASE_URL,
     DEFAULT_USER_AGENT,
@@ -45,33 +50,28 @@ from ffbb_api_client_v2.config import (  # noqa: E402
     MEILISEARCH_BASE_URL,
     MEILISEARCH_ENDPOINT_MULTI_SEARCH,
 )
-from ffbb_api_client_v2.helpers.http_requests_utils import (  # noqa: E402
-    http_get_json,
-    http_post_json,
-    url_with_params,
+from ffbb_api_client_v2.directus_ffbb.models.get_competition_response import (  # noqa: E402
+    GetCompetitionResponse,
 )
+from ffbb_api_client_v2.directus_ffbb.models.get_organisme_response import (  # noqa: E402
+    GetOrganismeResponse,
+)
+from ffbb_api_client_v2.directus_ffbb.models.get_poule_response import (  # noqa: E402
+    GetPouleResponse,
+)
+from ffbb_api_client_v2.directus_ffbb.models.get_saisons_response import (  # noqa: E402
+    GetSaisonsResponse,
+)
+from ffbb_api_client_v2.facade.token_manager import TokenManager  # noqa: E402
 from ffbb_api_client_v2.models.competitions_hit import CompetitionsHit  # noqa: E402
 from ffbb_api_client_v2.models.engagements_hit import EngagementsHit  # noqa: E402
 from ffbb_api_client_v2.models.formations_hit import FormationsHit  # noqa: E402
-from ffbb_api_client_v2.models.get_competition_response import (  # noqa: E402
-    GetCompetitionResponse,
-)
-from ffbb_api_client_v2.models.get_organisme_response import (  # noqa: E402
-    GetOrganismeResponse,
-)
-from ffbb_api_client_v2.models.get_poule_response import (  # noqa: E402
-    GetPouleResponse,
-)
-from ffbb_api_client_v2.models.get_saisons_response import (  # noqa: E402
-    GetSaisonsResponse,
-)
 from ffbb_api_client_v2.models.organismes_hit import OrganismesHit  # noqa: E402
 from ffbb_api_client_v2.models.pratiques_hit import PratiquesHit  # noqa: E402
 from ffbb_api_client_v2.models.rencontres_hit import RencontresHit  # noqa: E402
 from ffbb_api_client_v2.models.salles_hit import SallesHit  # noqa: E402
 from ffbb_api_client_v2.models.terrains_hit import TerrainsHit  # noqa: E402
 from ffbb_api_client_v2.models.tournois_hit import TournoisHit  # noqa: E402
-from ffbb_api_client_v2.utils.token_manager import TokenManager  # noqa: E402
 
 logging.basicConfig(
     level=logging.INFO,

@@ -5,23 +5,23 @@ from __future__ import annotations
 import unittest
 from unittest.mock import MagicMock, patch
 
-from ffbb_api_client_v2.clients.meilisearch_ffbb_client import MeilisearchFFBBClient
-from ffbb_api_client_v2.models.multi_search_result_organismes import (
+from ffbb_api_client_v2.meilisearch.models.multi_search_results_class import (
+    MultiSearchResults,
+)
+from ffbb_api_client_v2.meilisearch_ffbb.client import MeilisearchFFBBClient
+from ffbb_api_client_v2.meilisearch_ffbb.models.multi_search_result_organismes import (
     OrganismesMultiSearchResult,
 )
-from ffbb_api_client_v2.models.multi_search_result_salles import (
+from ffbb_api_client_v2.meilisearch_ffbb.models.multi_search_result_salles import (
     SallesMultiSearchResult,
 )
-from ffbb_api_client_v2.models.multi_search_results_class import MultiSearchResults
 
 
 class Test217GeoSearchOrganismes(unittest.TestCase):
     """Tests for search_organismes_by_geo."""
 
     def setUp(self) -> None:
-        with patch(
-            "ffbb_api_client_v2.helpers.meilisearch_client_extension.CacheManager"
-        ):
+        with patch("ffbb_api_client_v2.meilisearch.client_extension.CacheManager"):
             self.client = MeilisearchFFBBClient(bearer_token="test-token")
 
     @patch.object(MeilisearchFFBBClient, "smart_multi_search")
@@ -115,9 +115,7 @@ class Test217GeoSearchSalles(unittest.TestCase):
     """Tests for search_salles_by_geo."""
 
     def setUp(self) -> None:
-        with patch(
-            "ffbb_api_client_v2.helpers.meilisearch_client_extension.CacheManager"
-        ):
+        with patch("ffbb_api_client_v2.meilisearch.client_extension.CacheManager"):
             self.client = MeilisearchFFBBClient(bearer_token="test-token")
 
     @patch.object(MeilisearchFFBBClient, "smart_multi_search")

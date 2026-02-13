@@ -14,7 +14,7 @@ class TestFFBBAPIClientV2Coverage(unittest.TestCase):
     """ffbb_api_client_v2.py -- cover search_multiple_* with None names."""
 
     def test_000_search_multiple_with_none_names_returns_none(self) -> None:
-        from ffbb_api_client_v2.clients.ffbb_api_client_v2 import FFBBAPIClientV2
+        from ffbb_api_client_v2.facade.client import FFBBAPIClientV2
 
         api_client = MagicMock()
         meili_client = MagicMock()
@@ -29,7 +29,7 @@ class TestFFBBAPIClientV2Coverage(unittest.TestCase):
         self.assertIsNone(client.search_multiple_tournois(None))
 
     def test_001_search_multiple_with_empty_list_returns_none(self) -> None:
-        from ffbb_api_client_v2.clients.ffbb_api_client_v2 import FFBBAPIClientV2
+        from ffbb_api_client_v2.facade.client import FFBBAPIClientV2
 
         api_client = MagicMock()
         meili_client = MagicMock()
@@ -39,7 +39,7 @@ class TestFFBBAPIClientV2Coverage(unittest.TestCase):
         self.assertIsNone(client.search_multiple_organismes([]))
 
     def test_002_get_competition_delegates(self) -> None:
-        from ffbb_api_client_v2.clients.ffbb_api_client_v2 import FFBBAPIClientV2
+        from ffbb_api_client_v2.facade.client import FFBBAPIClientV2
 
         api_client = MagicMock()
         api_client.get_competition.return_value = "result"
@@ -51,7 +51,7 @@ class TestFFBBAPIClientV2Coverage(unittest.TestCase):
         api_client.get_competition.assert_called_once()
 
     def test_003_get_organisme_delegates(self) -> None:
-        from ffbb_api_client_v2.clients.ffbb_api_client_v2 import FFBBAPIClientV2
+        from ffbb_api_client_v2.facade.client import FFBBAPIClientV2
 
         api_client = MagicMock()
         api_client.get_organisme.return_value = "org_result"
@@ -62,7 +62,7 @@ class TestFFBBAPIClientV2Coverage(unittest.TestCase):
         self.assertEqual(result, "org_result")
 
     def test_004_get_poule_delegates(self) -> None:
-        from ffbb_api_client_v2.clients.ffbb_api_client_v2 import FFBBAPIClientV2
+        from ffbb_api_client_v2.facade.client import FFBBAPIClientV2
 
         api_client = MagicMock()
         api_client.get_poule.return_value = "poule_result"

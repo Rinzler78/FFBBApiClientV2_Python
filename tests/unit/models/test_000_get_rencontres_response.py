@@ -5,7 +5,9 @@ from __future__ import annotations
 import unittest
 from typing import Any
 
-from ffbb_api_client_v2.models.get_rencontres_response import GetRencontresResponse
+from ffbb_api_client_v2.directus_ffbb.models.get_rencontres_response import (
+    GetRencontresResponse,
+)
 
 SAMPLE_DATA: dict[str, Any] = {
     "id": "200000012345678",

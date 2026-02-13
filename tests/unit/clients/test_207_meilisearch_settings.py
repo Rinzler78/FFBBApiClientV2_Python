@@ -5,25 +5,27 @@ from __future__ import annotations
 import unittest
 from unittest.mock import MagicMock, patch
 
-from ffbb_api_client_v2.clients.meilisearch_client import MeilisearchClient
-from ffbb_api_client_v2.models.meilisearch_index_settings import (
+from ffbb_api_client_v2.meilisearch.client import MeilisearchClient
+from ffbb_api_client_v2.meilisearch.models.meilisearch_index_settings import (
     MeilisearchIndexSettings,
 )
-from ffbb_api_client_v2.models.multi_search_results_class import MultiSearchResults
+from ffbb_api_client_v2.meilisearch.models.multi_search_results_class import (
+    MultiSearchResults,
+)
 
 
 class Test207MeilisearchSettings(unittest.TestCase):
     """Tests for MeilisearchClient get_index_settings and related methods."""
 
     def setUp(self) -> None:
-        with patch("ffbb_api_client_v2.clients.meilisearch_client.CacheManager"):
+        with patch("ffbb_api_client_v2.meilisearch.client.CacheManager"):
             self.client = MeilisearchClient(bearer_token="test-token")
 
     def test_000_get_json_success(self) -> None:
         """Test _get_json makes authenticated GET request."""
         expected = {"filterableAttributes": ["type"]}
         with patch(
-            "ffbb_api_client_v2.clients.meilisearch_client.http_get_json",
+            "ffbb_api_client_v2._http.client.HttpClient.http_get_json",
             return_value=expected,
         ):
             result = self.client._get_json("indexes/test/settings")
@@ -34,7 +36,7 @@ class Test207MeilisearchSettings(unittest.TestCase):
         import json
 
         with patch(
-            "ffbb_api_client_v2.clients.meilisearch_client.http_get_json",
+            "ffbb_api_client_v2._http.client.HttpClient.http_get_json",
             side_effect=json.JSONDecodeError("Expecting value", "", 0),
         ):
             result = self.client._get_json("indexes/test/settings")
@@ -48,7 +50,7 @@ class Test207MeilisearchSettings(unittest.TestCase):
             "type": "auth",
         }
         with patch(
-            "ffbb_api_client_v2.clients.meilisearch_client.http_get_json",
+            "ffbb_api_client_v2._http.client.HttpClient.http_get_json",
             return_value=error_response,
         ):
             result = self.client._get_json("indexes/test/settings")

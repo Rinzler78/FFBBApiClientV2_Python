@@ -5,7 +5,9 @@ from __future__ import annotations
 import unittest
 from typing import Any
 
-from ffbb_api_client_v2.models.get_communes_response import GetCommunesResponse
+from ffbb_api_client_v2.directus_ffbb.models.get_communes_response import (
+    GetCommunesResponse,
+)
 
 SAMPLE_DATA: dict[str, Any] = {
     "id": "a1b2c3d4-5678-9012-abcd-ef0123456789",

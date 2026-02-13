@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
+from ..meilisearch.models.facet_stats import FacetStats
 from ..utils.converter_utils import (
     from_datetime,
     from_enum,
@@ -16,7 +17,6 @@ from ..utils.converter_utils import (
     from_uuid,
 )
 from .document_flyer_type import DocumentFlyerType
-from .facet_stats import FacetStats
 from .folder import Folder
 from .source import Source
 

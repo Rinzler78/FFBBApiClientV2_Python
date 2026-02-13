@@ -5,12 +5,14 @@ from __future__ import annotations
 import unittest
 from typing import Any
 
-from ffbb_api_client_v2.models.formations_facet_distribution import (
+from ffbb_api_client_v2.meilisearch_ffbb.models.formations_facet_distribution import (
     FormationsFacetDistribution,
 )
-from ffbb_api_client_v2.models.formations_facet_stats import FormationsFacetStats
-from ffbb_api_client_v2.models.formations_hit import FormationsHit
-from ffbb_api_client_v2.models.multi_search_result_formations import (
+from ffbb_api_client_v2.meilisearch_ffbb.models.formations_facet_stats import (
+    FormationsFacetStats,
+)
+from ffbb_api_client_v2.meilisearch_ffbb.models.formations_hit import FormationsHit
+from ffbb_api_client_v2.meilisearch_ffbb.models.multi_search_result_formations import (
     FormationsMultiSearchResult,
 )
 

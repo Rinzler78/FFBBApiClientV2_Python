@@ -4,8 +4,8 @@ import unittest
 from unittest.mock import Mock
 
 from ffbb_api_client_v2 import FFBBAPIClientV2
-from ffbb_api_client_v2.clients.api_ffbb_app_client import ApiFFBBAppClient
-from ffbb_api_client_v2.clients.meilisearch_ffbb_client import MeilisearchFFBBClient
+from ffbb_api_client_v2.directus_ffbb.client import ApiFFBBAppClient
+from ffbb_api_client_v2.meilisearch_ffbb.client import MeilisearchFFBBClient
 
 
 class Test211FFBBAPIClientV2NewEndpointsRencontres(unittest.TestCase):

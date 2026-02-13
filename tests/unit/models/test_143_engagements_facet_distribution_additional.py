@@ -4,7 +4,7 @@ Tests additionnels pour le module EngagementsFacetDistribution pour atteindre 90
 
 import unittest
 
-from ffbb_api_client_v2.models.engagements_facet_distribution import (
+from ffbb_api_client_v2.meilisearch_ffbb.models.engagements_facet_distribution import (
     EngagementsFacetDistribution,
 )
 from ffbb_api_client_v2.models.sexe_class import SexeClass

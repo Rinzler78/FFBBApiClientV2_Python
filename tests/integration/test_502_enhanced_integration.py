@@ -5,11 +5,17 @@ import time
 import unittest
 
 from ffbb_api_client_v2 import FFBBAPIClientV2
-from ffbb_api_client_v2.models.field_set import FieldSet
-from ffbb_api_client_v2.models.get_competition_response import GetCompetitionResponse
-from ffbb_api_client_v2.models.get_organisme_response import GetOrganismeResponse
-from ffbb_api_client_v2.models.query_fields_manager import QueryFieldsManager
-from ffbb_api_client_v2.models.saisons_models import GetSaisonsResponse
+from ffbb_api_client_v2.directus.models.field_set import FieldSet
+from ffbb_api_client_v2.directus_ffbb.models.get_competition_response import (
+    GetCompetitionResponse,
+)
+from ffbb_api_client_v2.directus_ffbb.models.get_organisme_response import (
+    GetOrganismeResponse,
+)
+from ffbb_api_client_v2.directus_ffbb.models.query_fields_manager import (
+    QueryFieldsManager,
+)
+from ffbb_api_client_v2.directus_ffbb.models.saisons_models import GetSaisonsResponse
 
 
 class Test011EnhancedIntegration(unittest.TestCase):

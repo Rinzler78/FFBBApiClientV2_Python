@@ -4,7 +4,7 @@ Tests additionnels pour le module FormationsFacetDistribution pour atteindre 90%
 
 import unittest
 
-from ffbb_api_client_v2.models.formations_facet_distribution import (
+from ffbb_api_client_v2.meilisearch_ffbb.models.formations_facet_distribution import (
     FormationsFacetDistribution,
 )
 

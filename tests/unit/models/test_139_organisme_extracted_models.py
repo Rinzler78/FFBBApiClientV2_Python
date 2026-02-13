@@ -6,8 +6,10 @@ import unittest
 from datetime import datetime, timezone
 from typing import Any
 
+from ffbb_api_client_v2.directus_ffbb.models.get_organisme_response import (
+    GetOrganismeResponse,
+)
 from ffbb_api_client_v2.models.competition_ref import CompetitionRef
-from ffbb_api_client_v2.models.get_organisme_response import GetOrganismeResponse
 from ffbb_api_client_v2.models.labellisation_item import LabellisationItem
 from ffbb_api_client_v2.models.labellisation_programme import LabellisationProgramme
 from ffbb_api_client_v2.models.membre import Membre

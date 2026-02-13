@@ -17,7 +17,7 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from ffbb_api_client_v2.helpers.http_requests_utils import http_post_json  # noqa: E402
+from ffbb_api_client_v2._http.client import http_post_json  # noqa: E402
 
 MEILISEARCH_URL = "https://meilisearch-prod.ffbb.app/"
 DEFAULT_USER_AGENT = "okhttp/4.12.0"
@@ -228,7 +228,7 @@ def main() -> None:
     print(f"\n{'='*60}")
     print("Testing: Meilisearch version")
     try:
-        from ffbb_api_client_v2.helpers.http_requests_utils import http_get_json
+        from ffbb_api_client_v2._http.client import http_get_json
 
         version_result = http_get_json(f"{MEILISEARCH_URL}version", headers)
         if version_result and "pkgVersion" in version_result:

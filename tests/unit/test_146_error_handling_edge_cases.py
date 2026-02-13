@@ -9,7 +9,7 @@ import pytest
 import requests
 import requests_mock
 
-from ffbb_api_client_v2.clients.ffbb_api_client_v2 import FFBBAPIClientV2
+from ffbb_api_client_v2.facade.client import FFBBAPIClientV2
 from ffbb_api_client_v2.utils.input_validation import validate_token
 from ffbb_api_client_v2.utils.retry_utils import execute_with_retry
 
@@ -34,11 +34,9 @@ class Test146ErrorHandlingEdgeCases(unittest.TestCase):
     def test_003_api_client_network_error_handling(self):
         """Test de la gestion des erreurs réseau"""
         with (
+            patch("ffbb_api_client_v2.facade.client.ApiFFBBAppClient") as mock_api_cls,
             patch(
-                "ffbb_api_client_v2.clients.ffbb_api_client_v2.ApiFFBBAppClient"
-            ) as mock_api_cls,
-            patch(
-                "ffbb_api_client_v2.clients.ffbb_api_client_v2.MeilisearchFFBBClient"
+                "ffbb_api_client_v2.facade.client.MeilisearchFFBBClient"
             ) as mock_ms_cls,
         ):
             mock_api_instance = Mock()
@@ -65,11 +63,9 @@ class Test146ErrorHandlingEdgeCases(unittest.TestCase):
     def test_004_api_client_timeout_handling(self):
         """Test de la gestion des timeouts"""
         with (
+            patch("ffbb_api_client_v2.facade.client.ApiFFBBAppClient") as mock_api_cls,
             patch(
-                "ffbb_api_client_v2.clients.ffbb_api_client_v2.ApiFFBBAppClient"
-            ) as mock_api_cls,
-            patch(
-                "ffbb_api_client_v2.clients.ffbb_api_client_v2.MeilisearchFFBBClient"
+                "ffbb_api_client_v2.facade.client.MeilisearchFFBBClient"
             ) as mock_ms_cls,
         ):
             mock_api_instance = Mock()
@@ -96,11 +92,9 @@ class Test146ErrorHandlingEdgeCases(unittest.TestCase):
     def test_005_api_client_http_error_handling(self):
         """Test de la gestion des erreurs HTTP"""
         with (
+            patch("ffbb_api_client_v2.facade.client.ApiFFBBAppClient") as mock_api_cls,
             patch(
-                "ffbb_api_client_v2.clients.ffbb_api_client_v2.ApiFFBBAppClient"
-            ) as mock_api_cls,
-            patch(
-                "ffbb_api_client_v2.clients.ffbb_api_client_v2.MeilisearchFFBBClient"
+                "ffbb_api_client_v2.facade.client.MeilisearchFFBBClient"
             ) as mock_ms_cls,
         ):
             mock_api_instance = Mock()
@@ -154,11 +148,9 @@ class Test146ErrorHandlingEdgeCases(unittest.TestCase):
     def test_008_api_client_with_empty_response(self):
         """Test de la gestion d'une réponse vide de l'API"""
         with (
+            patch("ffbb_api_client_v2.facade.client.ApiFFBBAppClient") as mock_api_cls,
             patch(
-                "ffbb_api_client_v2.clients.ffbb_api_client_v2.ApiFFBBAppClient"
-            ) as mock_api_cls,
-            patch(
-                "ffbb_api_client_v2.clients.ffbb_api_client_v2.MeilisearchFFBBClient"
+                "ffbb_api_client_v2.facade.client.MeilisearchFFBBClient"
             ) as mock_ms_cls,
         ):
             mock_api_instance = Mock()
@@ -183,11 +175,9 @@ class Test146ErrorHandlingEdgeCases(unittest.TestCase):
     def test_009_api_client_with_malformed_response(self):
         """Test de la gestion d'une réponse mal formée de l'API"""
         with (
+            patch("ffbb_api_client_v2.facade.client.ApiFFBBAppClient") as mock_api_cls,
             patch(
-                "ffbb_api_client_v2.clients.ffbb_api_client_v2.ApiFFBBAppClient"
-            ) as mock_api_cls,
-            patch(
-                "ffbb_api_client_v2.clients.ffbb_api_client_v2.MeilisearchFFBBClient"
+                "ffbb_api_client_v2.facade.client.MeilisearchFFBBClient"
             ) as mock_ms_cls,
         ):
             mock_api_instance = Mock()
@@ -215,11 +205,9 @@ class Test146ErrorHandlingEdgeCases(unittest.TestCase):
     def test_010_api_client_rate_limit_handling(self):
         """Test de la gestion de la limitation de débit (rate limiting)"""
         with (
+            patch("ffbb_api_client_v2.facade.client.ApiFFBBAppClient") as mock_api_cls,
             patch(
-                "ffbb_api_client_v2.clients.ffbb_api_client_v2.ApiFFBBAppClient"
-            ) as mock_api_cls,
-            patch(
-                "ffbb_api_client_v2.clients.ffbb_api_client_v2.MeilisearchFFBBClient"
+                "ffbb_api_client_v2.facade.client.MeilisearchFFBBClient"
             ) as mock_ms_cls,
         ):
             mock_api_instance = Mock()
@@ -251,11 +239,9 @@ class Test146ErrorHandlingEdgeCases(unittest.TestCase):
     def test_011_api_client_with_special_characters_in_input(self):
         """Test de la gestion d'entrées contenant des caractères spéciaux"""
         with (
+            patch("ffbb_api_client_v2.facade.client.ApiFFBBAppClient") as mock_api_cls,
             patch(
-                "ffbb_api_client_v2.clients.ffbb_api_client_v2.ApiFFBBAppClient"
-            ) as mock_api_cls,
-            patch(
-                "ffbb_api_client_v2.clients.ffbb_api_client_v2.MeilisearchFFBBClient"
+                "ffbb_api_client_v2.facade.client.MeilisearchFFBBClient"
             ) as mock_ms_cls,
         ):
             mock_api_instance = Mock()
@@ -282,11 +268,9 @@ class Test146ErrorHandlingEdgeCases(unittest.TestCase):
     def test_012_api_client_with_extremely_long_input(self):
         """Test de la gestion d'entrées extrêmement longues"""
         with (
+            patch("ffbb_api_client_v2.facade.client.ApiFFBBAppClient") as mock_api_cls,
             patch(
-                "ffbb_api_client_v2.clients.ffbb_api_client_v2.ApiFFBBAppClient"
-            ) as mock_api_cls,
-            patch(
-                "ffbb_api_client_v2.clients.ffbb_api_client_v2.MeilisearchFFBBClient"
+                "ffbb_api_client_v2.facade.client.MeilisearchFFBBClient"
             ) as mock_ms_cls,
         ):
             mock_api_instance = Mock()
@@ -316,11 +300,9 @@ class Test146ErrorHandlingEdgeCases(unittest.TestCase):
     def test_013_api_client_with_null_bytes_in_input(self):
         """Test de la gestion de null bytes dans les entrées"""
         with (
+            patch("ffbb_api_client_v2.facade.client.ApiFFBBAppClient") as mock_api_cls,
             patch(
-                "ffbb_api_client_v2.clients.ffbb_api_client_v2.ApiFFBBAppClient"
-            ) as mock_api_cls,
-            patch(
-                "ffbb_api_client_v2.clients.ffbb_api_client_v2.MeilisearchFFBBClient"
+                "ffbb_api_client_v2.facade.client.MeilisearchFFBBClient"
             ) as mock_ms_cls,
         ):
             mock_api_instance = Mock()
@@ -349,11 +331,9 @@ class Test146ErrorHandlingEdgeCases(unittest.TestCase):
     def test_014_api_client_with_unicode_in_input(self):
         """Test de la gestion de caractères Unicode dans les entrées"""
         with (
+            patch("ffbb_api_client_v2.facade.client.ApiFFBBAppClient") as mock_api_cls,
             patch(
-                "ffbb_api_client_v2.clients.ffbb_api_client_v2.ApiFFBBAppClient"
-            ) as mock_api_cls,
-            patch(
-                "ffbb_api_client_v2.clients.ffbb_api_client_v2.MeilisearchFFBBClient"
+                "ffbb_api_client_v2.facade.client.MeilisearchFFBBClient"
             ) as mock_ms_cls,
         ):
             mock_api_instance = Mock()
@@ -380,11 +360,9 @@ class Test146ErrorHandlingEdgeCases(unittest.TestCase):
     def test_015_api_client_with_invalid_json_response(self):
         """Test de la gestion de réponses JSON invalides"""
         with (
+            patch("ffbb_api_client_v2.facade.client.ApiFFBBAppClient") as mock_api_cls,
             patch(
-                "ffbb_api_client_v2.clients.ffbb_api_client_v2.ApiFFBBAppClient"
-            ) as mock_api_cls,
-            patch(
-                "ffbb_api_client_v2.clients.ffbb_api_client_v2.MeilisearchFFBBClient"
+                "ffbb_api_client_v2.facade.client.MeilisearchFFBBClient"
             ) as mock_ms_cls,
         ):
             mock_api_instance = Mock()

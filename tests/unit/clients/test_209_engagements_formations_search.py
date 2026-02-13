@@ -5,29 +5,29 @@ from __future__ import annotations
 import unittest
 from unittest.mock import MagicMock, patch
 
-from ffbb_api_client_v2.clients.meilisearch_ffbb_client import MeilisearchFFBBClient
-from ffbb_api_client_v2.models.engagements_multi_search_query import (
+from ffbb_api_client_v2.meilisearch.models.multi_search_results_class import (
+    MultiSearchResults,
+)
+from ffbb_api_client_v2.meilisearch_ffbb.client import MeilisearchFFBBClient
+from ffbb_api_client_v2.meilisearch_ffbb.models.engagements_multi_search_query import (
     EngagementsMultiSearchQuery,
 )
-from ffbb_api_client_v2.models.formations_multi_search_query import (
+from ffbb_api_client_v2.meilisearch_ffbb.models.formations_multi_search_query import (
     FormationsMultiSearchQuery,
 )
-from ffbb_api_client_v2.models.multi_search_result_engagements import (
+from ffbb_api_client_v2.meilisearch_ffbb.models.multi_search_result_engagements import (
     EngagementsMultiSearchResult,
 )
-from ffbb_api_client_v2.models.multi_search_result_formations import (
+from ffbb_api_client_v2.meilisearch_ffbb.models.multi_search_result_formations import (
     FormationsMultiSearchResult,
 )
-from ffbb_api_client_v2.models.multi_search_results_class import MultiSearchResults
 
 
 class Test209EngagementsFormationsSearch(unittest.TestCase):
     """Tests for engagements and formations search in MeilisearchFFBBClient."""
 
     def setUp(self) -> None:
-        with patch(
-            "ffbb_api_client_v2.helpers.meilisearch_client_extension.CacheManager"
-        ):
+        with patch("ffbb_api_client_v2.meilisearch.client_extension.CacheManager"):
             self.client = MeilisearchFFBBClient(bearer_token="test-token")
 
     def _make_mock_results(self, result_mock: MagicMock) -> MultiSearchResults:

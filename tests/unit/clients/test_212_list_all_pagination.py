@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 
 from requests_cache import CachedSession
 
-from ffbb_api_client_v2.clients.api_ffbb_app_client import ApiFFBBAppClient
+from ffbb_api_client_v2.directus_ffbb.client import ApiFFBBAppClient
 
 
 class Test212ListAllPaginationRencontres(unittest.TestCase):
@@ -17,7 +17,7 @@ class Test212ListAllPaginationRencontres(unittest.TestCase):
             cached_session=Mock(spec=CachedSession),
         )
 
-    @patch("ffbb_api_client_v2.clients.api_ffbb_app_client.http_get_json")
+    @patch("ffbb_api_client_v2._http.client.HttpClient.http_get_json")
     def test_008_single_page(self, mock_http):
         """Test single page when total < page_size."""
         mock_http.return_value = {
@@ -28,7 +28,7 @@ class Test212ListAllPaginationRencontres(unittest.TestCase):
         self.assertEqual(len(result), 2)
         self.assertEqual(mock_http.call_count, 1)
 
-    @patch("ffbb_api_client_v2.clients.api_ffbb_app_client.http_get_json")
+    @patch("ffbb_api_client_v2._http.client.HttpClient.http_get_json")
     def test_006_multi_page(self, mock_http):
         """Test multi-page pagination with meta total_count."""
         page1 = [{"id": str(i)} for i in range(100)]
@@ -44,7 +44,7 @@ class Test212ListAllPaginationRencontres(unittest.TestCase):
         self.assertEqual(len(result), 250)
         self.assertEqual(mock_http.call_count, 3)
 
-    @patch("ffbb_api_client_v2.clients.api_ffbb_app_client.http_get_json")
+    @patch("ffbb_api_client_v2._http.client.HttpClient.http_get_json")
     def test_002_max_items_guard(self, mock_http):
         """Test max_items stops pagination."""
         page1 = [{"id": str(i)} for i in range(100)]
@@ -58,14 +58,14 @@ class Test212ListAllPaginationRencontres(unittest.TestCase):
         self.assertEqual(len(result), 100)
         self.assertEqual(mock_http.call_count, 1)
 
-    @patch("ffbb_api_client_v2.clients.api_ffbb_app_client.http_get_json")
+    @patch("ffbb_api_client_v2._http.client.HttpClient.http_get_json")
     def test_003_empty_response(self, mock_http):
         """Test empty data returns empty list."""
         mock_http.return_value = {"data": [], "meta": {"total_count": 0}}
         result = self.client.list_all_rencontres()
         self.assertEqual(result, [])
 
-    @patch("ffbb_api_client_v2.clients.api_ffbb_app_client.http_get_json")
+    @patch("ffbb_api_client_v2._http.client.HttpClient.http_get_json")
     def test_004_with_filter_and_sort(self, mock_http):
         """Test filter and sort params are passed."""
         mock_http.return_value = {
@@ -91,7 +91,7 @@ class Test212ListAllPaginationSalles(unittest.TestCase):
             cached_session=Mock(spec=CachedSession),
         )
 
-    @patch("ffbb_api_client_v2.clients.api_ffbb_app_client.http_get_json")
+    @patch("ffbb_api_client_v2._http.client.HttpClient.http_get_json")
     def test_008_single_page(self, mock_http):
         """Test single page when total < page_size."""
         mock_http.return_value = {
@@ -102,7 +102,7 @@ class Test212ListAllPaginationSalles(unittest.TestCase):
         self.assertEqual(len(result), 1)
         self.assertEqual(mock_http.call_count, 1)
 
-    @patch("ffbb_api_client_v2.clients.api_ffbb_app_client.http_get_json")
+    @patch("ffbb_api_client_v2._http.client.HttpClient.http_get_json")
     def test_006_multi_page(self, mock_http):
         """Test multi-page pagination."""
         page1 = [{"id": str(i), "libelle": f"Salle {i}"} for i in range(50)]
@@ -116,7 +116,7 @@ class Test212ListAllPaginationSalles(unittest.TestCase):
         self.assertEqual(len(result), 80)
         self.assertEqual(mock_http.call_count, 2)
 
-    @patch("ffbb_api_client_v2.clients.api_ffbb_app_client.http_get_json")
+    @patch("ffbb_api_client_v2._http.client.HttpClient.http_get_json")
     def test_007_none_response(self, mock_http):
         """Test None response breaks pagination."""
         mock_http.return_value = None
@@ -133,7 +133,7 @@ class Test212ListAllPaginationCommunes(unittest.TestCase):
             cached_session=Mock(spec=CachedSession),
         )
 
-    @patch("ffbb_api_client_v2.clients.api_ffbb_app_client.http_get_json")
+    @patch("ffbb_api_client_v2._http.client.HttpClient.http_get_json")
     def test_008_single_page(self, mock_http):
         """Test single page."""
         mock_http.return_value = {
@@ -143,7 +143,7 @@ class Test212ListAllPaginationCommunes(unittest.TestCase):
         result = self.client.list_all_communes(page_size=100)
         self.assertEqual(len(result), 1)
 
-    @patch("ffbb_api_client_v2.clients.api_ffbb_app_client.http_get_json")
+    @patch("ffbb_api_client_v2._http.client.HttpClient.http_get_json")
     def test_009_with_search(self, mock_http):
         """Test search param is passed."""
         mock_http.return_value = {
@@ -154,7 +154,7 @@ class Test212ListAllPaginationCommunes(unittest.TestCase):
         url = mock_http.call_args[0][0]
         self.assertIn("search=", url)
 
-    @patch("ffbb_api_client_v2.clients.api_ffbb_app_client.http_get_json")
+    @patch("ffbb_api_client_v2._http.client.HttpClient.http_get_json")
     def test_010_partial_last_page(self, mock_http):
         """Test stops when last page is smaller than page_size."""
         page1 = [{"id": str(i)} for i in range(10)]
@@ -168,7 +168,7 @@ class Test212ListAllPaginationCommunes(unittest.TestCase):
         self.assertEqual(len(result), 15)
         self.assertEqual(mock_http.call_count, 2)
 
-    @patch("ffbb_api_client_v2.clients.api_ffbb_app_client.http_get_json")
+    @patch("ffbb_api_client_v2._http.client.HttpClient.http_get_json")
     def test_011_no_meta_stops_after_short_page(self, mock_http):
         """Test stops when no meta and page is short."""
         mock_http.return_value = {

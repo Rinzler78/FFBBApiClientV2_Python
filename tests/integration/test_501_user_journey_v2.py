@@ -9,8 +9,12 @@ from ffbb_api_client_v2 import (
     OrganismesHit,
     OrganismesMultiSearchResult,
 )
-from ffbb_api_client_v2.models.get_competition_response import GetCompetitionResponse
-from ffbb_api_client_v2.models.get_organisme_response import GetOrganismeResponse
+from ffbb_api_client_v2.directus_ffbb.models.get_competition_response import (
+    GetCompetitionResponse,
+)
+from ffbb_api_client_v2.directus_ffbb.models.get_organisme_response import (
+    GetOrganismeResponse,
+)
 
 
 class Test010UserJourneyIntegration(unittest.TestCase):

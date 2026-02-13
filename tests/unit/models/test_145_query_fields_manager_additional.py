@@ -4,8 +4,10 @@ Tests additionnels pour le module QueryFieldsManager pour atteindre 90% de couve
 
 import unittest
 
-from ffbb_api_client_v2.models.field_set import FieldSet
-from ffbb_api_client_v2.models.query_fields_manager import QueryFieldsManager
+from ffbb_api_client_v2.directus.models.field_set import FieldSet
+from ffbb_api_client_v2.directus_ffbb.models.query_fields_manager import (
+    QueryFieldsManager,
+)
 
 
 class Test145QueryFieldsManagerAdditional(unittest.TestCase):

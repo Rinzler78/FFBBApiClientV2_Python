@@ -5,8 +5,8 @@ Integration tests for secure logging in API clients.
 import unittest
 from unittest.mock import MagicMock, patch
 
-from ffbb_api_client_v2.clients.api_ffbb_app_client import ApiFFBBAppClient
-from ffbb_api_client_v2.clients.meilisearch_client import MeilisearchClient
+from ffbb_api_client_v2.directus_ffbb.client import ApiFFBBAppClient
+from ffbb_api_client_v2.meilisearch.client import MeilisearchClient
 
 
 class Test013SecureLoggingIntegration(unittest.TestCase):
@@ -17,7 +17,7 @@ class Test013SecureLoggingIntegration(unittest.TestCase):
         self.test_token = "test_token_123456789"
         self.masked_token = "test***MASKED***"
 
-    @patch("ffbb_api_client_v2.clients.api_ffbb_app_client.get_secure_logger")
+    @patch("ffbb_api_client_v2.directus_ffbb.client.get_secure_logger")
     def test_api_ffbb_client_secure_logging(self, mock_get_logger):
         """Test that ApiFFBBAppClient uses secure logging."""
         mock_logger = MagicMock()
@@ -44,7 +44,7 @@ class Test013SecureLoggingIntegration(unittest.TestCase):
         self.assertIn("***MASKED***", first_call_args)
         self.assertNotIn(self.test_token, first_call_args)
 
-    @patch("ffbb_api_client_v2.clients.meilisearch_client.get_secure_logger")
+    @patch("ffbb_api_client_v2.meilisearch.client.get_secure_logger")
     def test_meilisearch_client_secure_logging(self, mock_get_logger):
         """Test that MeilisearchClient uses secure logging."""
         mock_logger = MagicMock()
@@ -71,7 +71,7 @@ class Test013SecureLoggingIntegration(unittest.TestCase):
         self.assertIn("***MASKED***", first_call_args)
         self.assertNotIn(self.test_token, first_call_args)
 
-    @patch("ffbb_api_client_v2.clients.api_ffbb_app_client.get_secure_logger")
+    @patch("ffbb_api_client_v2.directus_ffbb.client.get_secure_logger")
     def test_api_client_no_debug_logging(self, mock_get_logger):
         """Test that ApiFFBBAppClient doesn't log token details when debug=False."""
         mock_logger = MagicMock()

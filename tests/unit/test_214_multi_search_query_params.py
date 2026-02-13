@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import unittest
 
-from ffbb_api_client_v2.models.multi_search_query import MultiSearchQuery
+from ffbb_api_client_v2.meilisearch.models.multi_search_query import MultiSearchQuery
 
 
 class Test214MultiSearchQueryNewParams(unittest.TestCase):

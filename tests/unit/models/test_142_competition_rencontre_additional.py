@@ -41,8 +41,8 @@ class Test142CompetitionRencontreAdditional(unittest.TestCase):
             numero_journee="J1",
             id_poule="poule123",
             competition_id="comp123",
-            resultat_equipe1="85",
-            resultat_equipe2="78",
+            resultat_equipe1=85,
+            resultat_equipe2=78,
             joue=True,
             nom_equipe1="Équipe A",
             nom_equipe2="Équipe B",
@@ -61,8 +61,8 @@ class Test142CompetitionRencontreAdditional(unittest.TestCase):
         assert rencontre.numero_journee == "J1"
         assert rencontre.id_poule == "poule123"
         assert rencontre.competition_id == "comp123"
-        assert rencontre.resultat_equipe1 == "85"
-        assert rencontre.resultat_equipe2 == "78"
+        assert rencontre.resultat_equipe1 == 85
+        assert rencontre.resultat_equipe2 == 78
         assert rencontre.joue is True
         assert rencontre.nom_equipe1 == "Équipe A"
         assert rencontre.nom_equipe2 == "Équipe B"
@@ -129,8 +129,8 @@ class Test142CompetitionRencontreAdditional(unittest.TestCase):
         assert rencontre.numero_journee == "J1"
         assert rencontre.id_poule == "poule123"
         assert rencontre.competition_id == "comp123"
-        assert rencontre.resultat_equipe1 == "85"
-        assert rencontre.resultat_equipe2 == "78"
+        assert rencontre.resultat_equipe1 == 85
+        assert rencontre.resultat_equipe2 == 78
         assert rencontre.joue is True
         assert rencontre.nom_equipe1 == "Équipe A"
         assert rencontre.nom_equipe2 == "Équipe B"
@@ -190,8 +190,8 @@ class Test142CompetitionRencontreAdditional(unittest.TestCase):
             numero_journee="J1",
             id_poule="poule123",
             competition_id="comp123",
-            resultat_equipe1="85",
-            resultat_equipe2="78",
+            resultat_equipe1=85,
+            resultat_equipe2=78,
             joue=True,
             nom_equipe1="Équipe A",
             nom_equipe2="Équipe B",
@@ -212,8 +212,8 @@ class Test142CompetitionRencontreAdditional(unittest.TestCase):
         assert result["numeroJournee"] == "J1"
         assert result["idPoule"] == "poule123"
         assert result["competitionId"] == "comp123"
-        assert result["resultatEquipe1"] == "85"
-        assert result["resultatEquipe2"] == "78"
+        assert result["resultatEquipe1"] == 85
+        assert result["resultatEquipe2"] == 78
         assert result["joue"] is True
         assert result["nomEquipe1"] == "Équipe A"
         assert result["nomEquipe2"] == "Équipe B"
@@ -320,8 +320,8 @@ class Test142CompetitionRencontreAdditional(unittest.TestCase):
         assert result_data["numeroJournee"] == "J1"
         assert result_data["idPoule"] == "poule123"
         assert result_data["competitionId"] == "comp123"
-        assert result_data["resultatEquipe1"] == "85"
-        assert result_data["resultatEquipe2"] == "78"
+        assert result_data["resultatEquipe1"] == 85
+        assert result_data["resultatEquipe2"] == 78
         assert result_data["joue"] is True
         assert result_data["nomEquipe1"] == "Équipe A"
         assert result_data["nomEquipe2"] == "Équipe B"

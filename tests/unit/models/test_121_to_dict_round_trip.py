@@ -18,53 +18,55 @@ from __future__ import annotations
 import unittest
 from typing import Any
 
+from ffbb_api_client_v2.directus_ffbb.models.lives import Clock, Live
+from ffbb_api_client_v2.meilisearch.models.multi_search_results_class import (
+    MultiSearchResults,
+)
+from ffbb_api_client_v2.meilisearch_ffbb.models.competitions_facet_distribution import (
+    CompetitionsFacetDistribution,
+)
+from ffbb_api_client_v2.meilisearch_ffbb.models.competitions_hit import CompetitionsHit
+from ffbb_api_client_v2.meilisearch_ffbb.models.multi_search_result_competitions import (
+    CompetitionsMultiSearchResult,
+)
+from ffbb_api_client_v2.meilisearch_ffbb.models.multi_search_result_organismes import (
+    OrganismesMultiSearchResult,
+)
+from ffbb_api_client_v2.meilisearch_ffbb.models.multi_search_result_pratiques import (
+    PratiquesMultiSearchResult,
+)
+from ffbb_api_client_v2.meilisearch_ffbb.models.multi_search_result_rencontres import (
+    RencontresMultiSearchResult,
+)
+from ffbb_api_client_v2.meilisearch_ffbb.models.multi_search_result_salles import (
+    SallesMultiSearchResult,
+)
+from ffbb_api_client_v2.meilisearch_ffbb.models.multi_search_result_terrains import (
+    TerrainsMultiSearchResult,
+)
+from ffbb_api_client_v2.meilisearch_ffbb.models.multi_search_result_tournois import (
+    TournoisMultiSearchResult,
+)
+from ffbb_api_client_v2.meilisearch_ffbb.models.organismes_facet_distribution import (
+    OrganismesFacetDistribution,
+)
+from ffbb_api_client_v2.meilisearch_ffbb.models.organismes_hit import OrganismesHit
+from ffbb_api_client_v2.meilisearch_ffbb.models.pratiques_hit import PratiquesHit
+from ffbb_api_client_v2.meilisearch_ffbb.models.rencontres_hit import RencontresHit
+from ffbb_api_client_v2.meilisearch_ffbb.models.salles_hit import SallesHit
+from ffbb_api_client_v2.meilisearch_ffbb.models.terrains_hit import TerrainsHit
+from ffbb_api_client_v2.meilisearch_ffbb.models.tournois_hit import TournoisHit
 from ffbb_api_client_v2.models.affiche import Affiche
 from ffbb_api_client_v2.models.cartographie import Cartographie
 from ffbb_api_client_v2.models.commune import Commune
-from ffbb_api_client_v2.models.competitions_facet_distribution import (
-    CompetitionsFacetDistribution,
-)
-from ffbb_api_client_v2.models.competitions_hit import CompetitionsHit
 from ffbb_api_client_v2.models.document_flyer import DocumentFlyer
 from ffbb_api_client_v2.models.external_id import ExternalCompetitionID, ExternalID
 from ffbb_api_client_v2.models.folder import Folder
 from ffbb_api_client_v2.models.geo import Geo
-from ffbb_api_client_v2.models.lives import Clock, Live
 from ffbb_api_client_v2.models.logo import Logo
-from ffbb_api_client_v2.models.multi_search_result_competitions import (
-    CompetitionsMultiSearchResult,
-)
-from ffbb_api_client_v2.models.multi_search_result_organismes import (
-    OrganismesMultiSearchResult,
-)
-from ffbb_api_client_v2.models.multi_search_result_pratiques import (
-    PratiquesMultiSearchResult,
-)
-from ffbb_api_client_v2.models.multi_search_result_rencontres import (
-    RencontresMultiSearchResult,
-)
-from ffbb_api_client_v2.models.multi_search_result_salles import (
-    SallesMultiSearchResult,
-)
-from ffbb_api_client_v2.models.multi_search_result_terrains import (
-    TerrainsMultiSearchResult,
-)
-from ffbb_api_client_v2.models.multi_search_result_tournois import (
-    TournoisMultiSearchResult,
-)
-from ffbb_api_client_v2.models.multi_search_results_class import MultiSearchResults
 from ffbb_api_client_v2.models.nature_sol import NatureSol
 from ffbb_api_client_v2.models.organisme_id_pere import OrganismeIDPere
-from ffbb_api_client_v2.models.organismes_facet_distribution import (
-    OrganismesFacetDistribution,
-)
-from ffbb_api_client_v2.models.organismes_hit import OrganismesHit
-from ffbb_api_client_v2.models.pratiques_hit import PratiquesHit
-from ffbb_api_client_v2.models.rencontres_hit import RencontresHit
-from ffbb_api_client_v2.models.salles_hit import SallesHit
 from ffbb_api_client_v2.models.team_engagement import TeamEngagement
-from ffbb_api_client_v2.models.terrains_hit import TerrainsHit
-from ffbb_api_client_v2.models.tournois_hit import TournoisHit
 from ffbb_api_client_v2.models.type_association import TypeAssociation
 
 
