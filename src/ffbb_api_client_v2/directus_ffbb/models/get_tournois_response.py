@@ -1,10 +1,16 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from datetime import datetime
 from typing import Any
 
+from ...models.cartographie import Cartographie
+from ...models.commune import Commune
+from ...models.document_flyer import DocumentFlyer
 from ...utils.converter_utils import (
+    from_datetime,
     from_int,
+    from_obj,
     from_str,
 )
 
@@ -30,14 +36,14 @@ class GetTournoisResponse:
     ageMin: int | None = None
     ageMax: int | None = None
     tournoiType: dict[str, Any] | None = None
-    commune: dict[str, Any] | None = None
-    cartographie: dict[str, Any] | None = None
+    commune: Commune | None = None
+    cartographie: Cartographie | None = None
     tournoiTypes3x3: list[Any] = field(default_factory=list)
-    document_flyer: dict[str, Any] | None = None
+    document_flyer: DocumentFlyer | None = None
     categorieChampionnat3x3Id: str | None = None
     categorieChampionnat3x3Libelle: str | None = None
-    date_created: str | None = None
-    date_updated: str | None = None
+    date_created: datetime | None = None
+    date_updated: datetime | None = None
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> GetTournoisResponse | None:
@@ -68,19 +74,19 @@ class GetTournoisResponse:
             tarifOrganisateur=data.get("tarifOrganisateur"),  # Keep as raw
             ageMin=from_int(data, "ageMin"),
             ageMax=from_int(data, "ageMax"),
-            tournoiType=data.get("tournoiType"),  # Keep as raw dict
-            commune=data.get("commune"),  # Keep as raw dict
-            cartographie=data.get("cartographie"),  # Keep as raw dict
+            tournoiType=data.get("tournoiType"),
+            commune=from_obj(Commune.from_dict, data, "commune"),
+            cartographie=from_obj(Cartographie.from_dict, data, "cartographie"),
             tournoiTypes3x3=data.get("tournoiTypes3x3", []) or [],
-            document_flyer=data.get("document_flyer"),  # Keep as raw dict
+            document_flyer=from_obj(DocumentFlyer.from_dict, data, "document_flyer"),
             categorieChampionnat3x3Id=data.get(
                 "categorieChampionnat3x3Id"
             ),  # Keep as raw
             categorieChampionnat3x3Libelle=data.get(
                 "categorieChampionnat3x3Libelle"
             ),  # Keep as raw
-            date_created=from_str(data, "date_created"),
-            date_updated=from_str(data, "date_updated"),
+            date_created=from_datetime(data, "date_created"),
+            date_updated=from_datetime(data, "date_updated"),
         )
 
     @classmethod

@@ -2,12 +2,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Any
+from uuid import UUID
 
 from ...models.categorie import Categorie
 from ...models.competition_phase import CompetitionPhase
 from ...models.id_poule import IDPoule
 from ...models.type_competition_generique import TypeCompetitionGenerique
-from ...utils.converter_utils import from_bool, from_list, from_obj, from_str
+from ...utils.converter_utils import from_bool, from_list, from_obj, from_str, from_uuid
 
 
 @dataclass
@@ -24,7 +25,7 @@ class GetCompetitionResponse:
     publication_internet: str | None = None
     categorie: Categorie | None = None
     type_competition_generique: TypeCompetitionGenerique | None = None
-    logo: Any | None = None
+    logo: UUID | None = None
     poules: list[IDPoule] = field(default_factory=list)
     phases: list[CompetitionPhase] = field(default_factory=list)
 
@@ -56,7 +57,7 @@ class GetCompetitionResponse:
             type_competition_generique=from_obj(
                 TypeCompetitionGenerique.from_dict, data, "typeCompetitionGenerique"
             ),
-            logo=data.get("logo"),
+            logo=from_uuid(data, "logo"),
             poules=poules_raw if poules_raw is not None else [],
             phases=phases_raw if phases_raw is not None else [],
         )

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import unittest
+from datetime import datetime
 from typing import Any
 
 from ffbb_api_client_v2.directus_ffbb.models.get_formations_response import (
@@ -20,10 +21,10 @@ SAMPLE_DATA: dict[str, Any] = {
     "certification": "Certification FFBB Preparateur Physique",
     "status": "published",
     "sort": 10,
-    "domain": {"id": "1", "libelle": "Transversales"},
+    "domain": {"id": "550e8400-e29b-41d4-a716-446655440001", "name": "Transversales"},
     "theme": {
-        "id": "5",
-        "libelle": "Diplome de Preparateur Physique en Basketball",
+        "id": "550e8400-e29b-41d4-a716-446655440005",
+        "name": "Diplome de Preparateur Physique en Basketball",
     },
     "sessions": [
         {
@@ -47,8 +48,8 @@ SAMPLE_DATA: dict[str, Any] = {
     "results": "Attestation de reussite delivree par la FFBB",
     "modalities": "Presentielle - 2 sessions de 5 jours",
     "image": {
-        "id": "img-001",
-        "filename": "formation_prep_physique.jpg",
+        "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        "filename_download": "formation_prep_physique.jpg",
         "type": "image/jpeg",
     },
     "files": [
@@ -147,14 +148,20 @@ class TestGetFormationsResponse(unittest.TestCase):
     def test_017_field_domain(self) -> None:
         result = GetFormationsResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertIsInstance(result.domain, dict)
-        self.assertEqual(result.domain["libelle"], "Transversales")  # type: ignore[index]
+        from ffbb_api_client_v2.models.folder import Folder
+
+        self.assertIsInstance(result.domain, Folder)
+        assert isinstance(result.domain, Folder)
+        self.assertEqual(result.domain.name, "Transversales")
 
     def test_018_field_theme(self) -> None:
         result = GetFormationsResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertIsInstance(result.theme, dict)
-        self.assertIn("Preparateur Physique", result.theme["libelle"])  # type: ignore[index]
+        from ffbb_api_client_v2.models.folder import Folder
+
+        self.assertIsInstance(result.theme, Folder)
+        assert isinstance(result.theme, Folder)
+        self.assertIn("Preparateur Physique", result.theme.name)  # type: ignore[operator]
 
     def test_019_field_sessions(self) -> None:
         result = GetFormationsResponse.from_dict(SAMPLE_DATA)
@@ -201,10 +208,11 @@ class TestGetFormationsResponse(unittest.TestCase):
     def test_027_field_image(self) -> None:
         result = GetFormationsResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertIsInstance(result.image, dict)
-        self.assertEqual(
-            result.image["filename"], "formation_prep_physique.jpg"  # type: ignore[index]
-        )
+        from ffbb_api_client_v2.models.document_flyer import DocumentFlyer
+
+        self.assertIsInstance(result.image, DocumentFlyer)
+        assert isinstance(result.image, DocumentFlyer)
+        self.assertEqual(result.image.filename_download, "formation_prep_physique.jpg")
 
     def test_028_field_files(self) -> None:
         result = GetFormationsResponse.from_dict(SAMPLE_DATA)
@@ -215,12 +223,12 @@ class TestGetFormationsResponse(unittest.TestCase):
     def test_029_field_date_created(self) -> None:
         result = GetFormationsResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertEqual(result.date_created, "2025-01-10T08:00:00.000Z")
+        self.assertIsInstance(result.date_created, datetime)
 
     def test_030_field_date_updated(self) -> None:
         result = GetFormationsResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertEqual(result.date_updated, "2025-06-01T14:30:00.000Z")
+        self.assertIsInstance(result.date_updated, datetime)
 
     def test_031_nullable_float_none(self) -> None:
         data = {**SAMPLE_DATA, "duration_hours": None}

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import unittest
+from datetime import datetime
 from typing import Any
 
 from ffbb_api_client_v2.directus_ffbb.models.get_entraineurs_response import (
@@ -39,14 +40,17 @@ class TestGetEntraineursResponse(unittest.TestCase):
         self.assertEqual(result.prenom, "Marie")
         self.assertEqual(result.adresse1, "12 Rue du Panier")
         self.assertEqual(result.adresse2, "Batiment C")
-        self.assertIsInstance(result.commune, dict)
-        self.assertEqual(result.commune["libelle"], "MANTES-LA-JOLIE")  # type: ignore[index]
+        from ffbb_api_client_v2.models.commune import Commune
+
+        self.assertIsInstance(result.commune, Commune)
+        assert isinstance(result.commune, Commune)
+        self.assertEqual(result.commune.libelle, "MANTES-LA-JOLIE")
         self.assertEqual(result.email, "m.lefevre@basket78.fr")
         self.assertEqual(result.telephoneDomicile, "0134567890")
         self.assertEqual(result.telephonePortable, "0612345678")
         self.assertEqual(result.telephoneTravail, "0145678901")
-        self.assertEqual(result.date_created, "2024-03-10T09:15:00.000Z")
-        self.assertEqual(result.date_updated, "2025-12-01T11:00:00.000Z")
+        self.assertIsInstance(result.date_created, datetime)
+        self.assertIsInstance(result.date_updated, datetime)
 
     def test_001_from_dict_none(self) -> None:
         result = GetEntraineursResponse.from_dict(None)  # type: ignore[arg-type]

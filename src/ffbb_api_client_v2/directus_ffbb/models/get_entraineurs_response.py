@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any
 
-from ...utils.converter_utils import from_str
+from ...models.commune import Commune
+from ...utils.converter_utils import from_datetime, from_obj, from_str
 
 
 @dataclass
@@ -13,13 +15,13 @@ class GetEntraineursResponse:
     prenom: str | None = None
     adresse1: str | None = None
     adresse2: str | None = None
-    commune: dict[str, Any] | None = None
+    commune: Commune | None = None
     email: str | None = None
     telephoneDomicile: str | None = None
     telephonePortable: str | None = None
     telephoneTravail: str | None = None
-    date_created: str | None = None
-    date_updated: str | None = None
+    date_created: datetime | None = None
+    date_updated: datetime | None = None
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> GetEntraineursResponse | None:
@@ -37,13 +39,13 @@ class GetEntraineursResponse:
             prenom=from_str(data, "prenom"),
             adresse1=from_str(data, "adresse1"),
             adresse2=from_str(data, "adresse2"),
-            commune=data.get("commune"),
+            commune=from_obj(Commune.from_dict, data, "commune"),
             email=from_str(data, "email"),
             telephoneDomicile=from_str(data, "telephoneDomicile"),
             telephonePortable=from_str(data, "telephonePortable"),
             telephoneTravail=from_str(data, "telephoneTravail"),
-            date_created=from_str(data, "date_created"),
-            date_updated=from_str(data, "date_updated"),
+            date_created=from_datetime(data, "date_created"),
+            date_updated=from_datetime(data, "date_updated"),
         )
 
     @classmethod

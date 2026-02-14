@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime
+
+from ...utils.converter_utils import from_datetime
 
 
 @dataclass
@@ -16,8 +19,8 @@ class GetConfigurationResponse:
     key_directus_competitions: str | None = None
     ios_version: str | None = None
     android_version: str | None = None
-    date_created: str | None = None
-    date_updated: str | None = None
+    date_created: datetime | None = None
+    date_updated: datetime | None = None
 
     @classmethod
     def from_dict(cls, data: dict) -> GetConfigurationResponse:
@@ -30,8 +33,8 @@ class GetConfigurationResponse:
             key_directus_competitions=data.get("key_directus_competitions"),
             ios_version=data.get("ios_version"),
             android_version=data.get("android_version"),
-            date_created=data.get("date_created"),
-            date_updated=data.get("date_updated"),
+            date_created=from_datetime(data, "date_created"),
+            date_updated=from_datetime(data, "date_updated"),
         )
 
     @property

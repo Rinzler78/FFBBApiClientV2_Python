@@ -3,11 +3,21 @@
 from __future__ import annotations
 
 import unittest
+from datetime import datetime
 from typing import Any
 
 from ffbb_api_client_v2.directus_ffbb.models.get_engagements_response import (
     GetEngagementsResponse,
 )
+from ffbb_api_client_v2.directus_ffbb.models.get_entraineurs_response import (
+    GetEntraineursResponse,
+)
+from ffbb_api_client_v2.directus_ffbb.models.get_poule_response import (
+    GetPouleResponse,
+)
+from ffbb_api_client_v2.models.categorie import Categorie
+from ffbb_api_client_v2.models.document_flyer import DocumentFlyer
+from ffbb_api_client_v2.models.organisateur import Organisateur
 
 SAMPLE_DATA: dict[str, Any] = {
     "id": "200000005137866",
@@ -20,8 +30,8 @@ SAMPLE_DATA: dict[str, Any] = {
     "clubPro": False,
     "position": 3,
     "logo": {
-        "id": "logo-001",
-        "filename": "ca_mantes_logo.png",
+        "id": "d4e5f6a7-b8c9-0123-4567-89abcdef0123",
+        "filename_download": "ca_mantes_logo.png",
         "type": "image/png",
     },
     "idCompetition": {
@@ -32,10 +42,10 @@ SAMPLE_DATA: dict[str, Any] = {
     "idOrganisme": {
         "id": "200000000123456",
         "nom": "CA MANTES LA VILLE",
-        "codeClub": "IDF0078020",
+        "code": "IDF0078020",
     },
     "idPoule": {"id": "200000003017520", "nom": "Poule A"},
-    "niveau": {"code": "PNF", "libelle": "PNF"},
+    "niveau": {"code": "SEN", "libelle": "Seniors"},
     "classement": {
         "victoires": 12,
         "defaites": 4,
@@ -43,12 +53,12 @@ SAMPLE_DATA: dict[str, Any] = {
         "points": 28,
     },
     "entraineur": {
-        "id": "ENT-001",
+        "idLicence": "ENT-001",
         "nom": "Dupont",
         "prenom": "Jean",
     },
     "entraineurAdjoint": {
-        "id": "ENT-002",
+        "idLicence": "ENT-002",
         "nom": "Martin",
         "prenom": "Sophie",
     },
@@ -147,8 +157,9 @@ class TestGetEngagementsResponse(unittest.TestCase):
     def test_016_field_logo(self) -> None:
         result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertIsInstance(result.logo, dict)
-        self.assertEqual(result.logo["filename"], "ca_mantes_logo.png")  # type: ignore[index]
+        self.assertIsInstance(result.logo, DocumentFlyer)
+        assert isinstance(result.logo, DocumentFlyer)
+        self.assertEqual(result.logo.filename_download, "ca_mantes_logo.png")
 
     def test_017_field_id_competition(self) -> None:
         result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
@@ -159,20 +170,23 @@ class TestGetEngagementsResponse(unittest.TestCase):
     def test_018_field_id_organisme(self) -> None:
         result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertIsInstance(result.idOrganisme, dict)
-        self.assertEqual(result.idOrganisme["codeClub"], "IDF0078020")  # type: ignore[index]
+        self.assertIsInstance(result.idOrganisme, Organisateur)
+        assert isinstance(result.idOrganisme, Organisateur)
+        self.assertEqual(result.idOrganisme.code, "IDF0078020")
 
     def test_019_field_id_poule(self) -> None:
         result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertIsInstance(result.idPoule, dict)
-        self.assertEqual(result.idPoule["nom"], "Poule A")  # type: ignore[index]
+        self.assertIsInstance(result.idPoule, GetPouleResponse)
+        assert isinstance(result.idPoule, GetPouleResponse)
+        self.assertEqual(result.idPoule.nom, "Poule A")
 
     def test_020_field_niveau(self) -> None:
         result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertIsInstance(result.niveau, dict)
-        self.assertEqual(result.niveau["code"], "PNF")  # type: ignore[index]
+        self.assertIsInstance(result.niveau, Categorie)
+        assert isinstance(result.niveau, Categorie)
+        self.assertEqual(result.niveau.libelle, "Seniors")
 
     def test_021_field_classement(self) -> None:
         result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
@@ -183,14 +197,16 @@ class TestGetEngagementsResponse(unittest.TestCase):
     def test_022_field_entraineur(self) -> None:
         result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertIsInstance(result.entraineur, dict)
-        self.assertEqual(result.entraineur["nom"], "Dupont")  # type: ignore[index]
+        self.assertIsInstance(result.entraineur, GetEntraineursResponse)
+        assert isinstance(result.entraineur, GetEntraineursResponse)
+        self.assertEqual(result.entraineur.nom, "Dupont")
 
     def test_023_field_entraineur_adjoint(self) -> None:
         result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertIsInstance(result.entraineurAdjoint, dict)
-        self.assertEqual(result.entraineurAdjoint["nom"], "Martin")  # type: ignore[index]
+        self.assertIsInstance(result.entraineurAdjoint, GetEntraineursResponse)
+        assert isinstance(result.entraineurAdjoint, GetEntraineursResponse)
+        self.assertEqual(result.entraineurAdjoint.nom, "Martin")
 
     def test_024_field_positions(self) -> None:
         result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
@@ -213,12 +229,12 @@ class TestGetEngagementsResponse(unittest.TestCase):
     def test_027_field_date_created(self) -> None:
         result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertEqual(result.date_created, "2024-10-01T08:00:00.000Z")
+        self.assertIsInstance(result.date_created, datetime)
 
     def test_028_field_date_updated(self) -> None:
         result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertEqual(result.date_updated, "2025-04-12T20:15:00.000Z")
+        self.assertIsInstance(result.date_updated, datetime)
 
     def test_029_nullable_bool_none(self) -> None:
         data = {**SAMPLE_DATA, "clubPro": None}

@@ -179,13 +179,15 @@ class TestLabellisationProgramme(unittest.TestCase):
             "id": "lp-001",
             "libelle": "Label Ecole de Basket",
             "labellisationLabel": "OR",
-            "logo_vertical": {"id": "img-001"},
+            "logo_vertical": "https://ffbb.fr/images/label_or_vertical.png",
         }
         prog = LabellisationProgramme.from_dict(data)
         self.assertEqual(prog.id, "lp-001")
         self.assertEqual(prog.libelle, "Label Ecole de Basket")
         self.assertEqual(prog.labellisation_label, "OR")
-        self.assertEqual(prog.logo_vertical, {"id": "img-001"})
+        self.assertEqual(
+            prog.logo_vertical, "https://ffbb.fr/images/label_or_vertical.png"
+        )
 
     def test_027_from_dict_empty(self) -> None:
         prog = LabellisationProgramme.from_dict({})

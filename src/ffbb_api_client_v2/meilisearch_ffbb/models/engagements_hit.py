@@ -4,7 +4,11 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from ...meilisearch.models.hit import Hit
+from ...models.categorie import Categorie
+from ...models.competition_id_categorie import CompetitionIDCategorie
+from ...models.competition_origine import CompetitionOrigine
 from ...models.geo import Geo
+from ...models.id_poule import IDPoule
 from ...utils.converter_utils import (
     from_bool,
     from_obj,
@@ -24,11 +28,11 @@ class EngagementsHit(Hit):
     code_comite: str | None = None
     code_ligue: str | None = None
     competitions_url: str | None = None
-    id_competition: dict[str, Any] | None = None
-    id_poule: dict[str, Any] | None = None
+    id_competition: CompetitionOrigine | None = None
+    id_poule: IDPoule | None = None
     logo: str | None = None
-    niveau: dict[str, Any] | None = None
-    categorie: dict[str, Any] | None = None
+    niveau: Categorie | None = None
+    categorie: CompetitionIDCategorie | None = None
     nom_club: str | None = None
     nom_club_pro: str | None = None
     nom_comite: str | None = None
@@ -67,17 +71,11 @@ class EngagementsHit(Hit):
         code_comite = from_str(obj, "codeComite")
         code_ligue = from_str(obj, "codeLigue")
         competitions_url = from_str(obj, "competitionsUrl")
-        id_competition = (
-            obj.get("idCompetition")
-            if isinstance(obj.get("idCompetition"), dict)
-            else None
-        )
-        id_poule = obj.get("idPoule") if isinstance(obj.get("idPoule"), dict) else None
+        id_competition = from_obj(CompetitionOrigine.from_dict, obj, "idCompetition")
+        id_poule = from_obj(IDPoule.from_dict, obj, "idPoule")
         logo = from_str(obj, "logo")
-        niveau = obj.get("niveau") if isinstance(obj.get("niveau"), dict) else None
-        categorie = (
-            obj.get("categorie") if isinstance(obj.get("categorie"), dict) else None
-        )
+        niveau = from_obj(Categorie.from_dict, obj, "niveau")
+        categorie = from_obj(CompetitionIDCategorie.from_dict, obj, "categorie")
         nom_club = from_str(obj, "nomClub")
         nom_club_pro = from_str(obj, "nomClubPro")
         nom_comite = from_str(obj, "nomComite")
@@ -143,15 +141,15 @@ class EngagementsHit(Hit):
         if self.competitions_url is not None:
             result["competitionsUrl"] = self.competitions_url
         if self.id_competition is not None:
-            result["idCompetition"] = self.id_competition
+            result["idCompetition"] = self.id_competition.to_dict()
         if self.id_poule is not None:
-            result["idPoule"] = self.id_poule
+            result["idPoule"] = self.id_poule.to_dict()
         if self.logo is not None:
             result["logo"] = self.logo
         if self.niveau is not None:
-            result["niveau"] = self.niveau
+            result["niveau"] = self.niveau.to_dict()
         if self.categorie is not None:
-            result["categorie"] = self.categorie
+            result["categorie"] = self.categorie.to_dict()
         if self.nom_club is not None:
             result["nomClub"] = self.nom_club
         if self.nom_club_pro is not None:

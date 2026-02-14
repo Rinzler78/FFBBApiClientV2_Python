@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import unittest
+from datetime import datetime
 from typing import Any
 
 from ffbb_api_client_v2.directus_ffbb.models.get_rencontres_response import (
@@ -24,26 +25,24 @@ SAMPLE_DATA: dict[str, Any] = {
     "etat": "TERMINE",
     "pratique": "5x5",
     "status": "published",
-    "competitionId": {
-        "id": "200000002800001",
-        "nom": "Nationale Masculine 1",
-        "code": "NM1",
-    },
+    "competitionId": "200000002800001",
     "idOrganismeEquipe1": {
         "id": "200000001100001",
         "nom": "PARIS BASKET 13",
+        "code": "IDF0075001",
     },
     "idOrganismeEquipe2": {
         "id": "200000001100002",
         "nom": "AS VILLEURBANNE",
+        "code": "ARA0069001",
     },
     "idPoule": {"id": "200000003000001", "nom": "Poule unique"},
-    "saison": {"id": "200000000000010", "nom": "2025-2026"},
+    "saison": {"id": "200000000000010", "code": "25-26", "libelle": "2025-2026"},
     "salle": {
         "id": "200000004000001",
         "libelle": "Gymnase Marie Curie",
     },
-    "gsId": {"id": "GS-12345"},
+    "gsId": None,
     "officiels": [
         {"nom": "DURAND", "prenom": "Luc", "role": "Arbitre 1"},
         {"nom": "MOREAU", "prenom": "Sophie", "role": "Arbitre 2"},
@@ -72,17 +71,28 @@ class TestGetRencontresResponse(unittest.TestCase):
         self.assertEqual(result.etat, "TERMINE")
         self.assertEqual(result.pratique, "5x5")
         self.assertEqual(result.status, "published")
-        self.assertIsInstance(result.competitionId, dict)
-        self.assertIsInstance(result.idOrganismeEquipe1, dict)
-        self.assertIsInstance(result.idOrganismeEquipe2, dict)
-        self.assertIsInstance(result.idPoule, dict)
-        self.assertIsInstance(result.saison, dict)
-        self.assertIsInstance(result.salle, dict)
-        self.assertIsInstance(result.gsId, dict)
+        self.assertEqual(result.competitionId, "200000002800001")
+        from ffbb_api_client_v2.directus_ffbb.models.get_poule_response import (
+            GetPouleResponse,
+        )
+        from ffbb_api_client_v2.directus_ffbb.models.get_saisons_response import (
+            GetSaisonsResponse,
+        )
+        from ffbb_api_client_v2.directus_ffbb.models.get_salles_response import (
+            GetSallesResponse,
+        )
+        from ffbb_api_client_v2.models.organisateur import Organisateur
+
+        self.assertIsInstance(result.idOrganismeEquipe1, Organisateur)
+        self.assertIsInstance(result.idOrganismeEquipe2, Organisateur)
+        self.assertIsInstance(result.idPoule, GetPouleResponse)
+        self.assertIsInstance(result.saison, GetSaisonsResponse)
+        self.assertIsInstance(result.salle, GetSallesResponse)
+        self.assertIsNone(result.gsId)
         self.assertIsInstance(result.officiels, list)
         self.assertEqual(len(result.officiels), 2)
-        self.assertEqual(result.date_created, "2025-10-01T08:00:00.000Z")
-        self.assertEqual(result.date_updated, "2025-12-14T23:30:00.000Z")
+        self.assertIsInstance(result.date_created, datetime)
+        self.assertIsInstance(result.date_updated, datetime)
 
     def test_001_from_dict_none(self) -> None:
         result = GetRencontresResponse.from_dict(None)  # type: ignore[arg-type]
@@ -130,13 +140,14 @@ class TestGetRencontresResponse(unittest.TestCase):
         self.assertIsNone(result.date_created)
         self.assertIsNone(result.date_updated)
 
-    def test_006_from_dict_nested_dicts_kept_raw(self) -> None:
-        """Nested dict fields are kept as raw dicts, not deserialized."""
+    def test_006_from_dict_nested_fields_deserialized(self) -> None:
+        """Nested dict fields are deserialized to typed models."""
         result = GetRencontresResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertEqual(result.competitionId["nom"], "Nationale Masculine 1")  # type: ignore[index]
-        self.assertEqual(result.idPoule["nom"], "Poule unique")  # type: ignore[index]
-        self.assertEqual(result.saison["nom"], "2025-2026")  # type: ignore[index]
+        assert result.idPoule is not None
+        self.assertEqual(result.idPoule.nom, "Poule unique")
+        assert result.saison is not None
+        self.assertEqual(result.saison.libelle, "2025-2026")
 
     def test_007_from_dict_officiels_empty_when_missing(self) -> None:
         """officiels defaults to empty list when key absent."""

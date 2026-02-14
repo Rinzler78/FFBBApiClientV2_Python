@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any
 
-from ...utils.converter_utils import from_int, from_str
+from ...models.cartographie import Cartographie
+from ...models.commune import Commune
+from ...utils.converter_utils import from_datetime, from_int, from_obj, from_str
 
 
 @dataclass
@@ -17,10 +20,10 @@ class GetSallesResponse:
     telephone: str | None = None
     mail: str | None = None
     capaciteSpectateur: int | None = None
-    commune: dict[str, Any] | None = None
-    cartographie: dict[str, Any] | None = None
-    date_created: str | None = None
-    date_updated: str | None = None
+    commune: Commune | None = None
+    cartographie: Cartographie | None = None
+    date_created: datetime | None = None
+    date_updated: datetime | None = None
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> GetSallesResponse | None:
@@ -42,10 +45,10 @@ class GetSallesResponse:
             telephone=from_str(data, "telephone"),
             mail=from_str(data, "mail"),
             capaciteSpectateur=from_int(data, "capaciteSpectateur"),
-            commune=data.get("commune"),
-            cartographie=data.get("cartographie"),
-            date_created=from_str(data, "date_created"),
-            date_updated=from_str(data, "date_updated"),
+            commune=from_obj(Commune.from_dict, data, "commune"),
+            cartographie=from_obj(Cartographie.from_dict, data, "cartographie"),
+            date_created=from_datetime(data, "date_created"),
+            date_updated=from_datetime(data, "date_updated"),
         )
 
     @classmethod

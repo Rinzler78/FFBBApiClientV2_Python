@@ -1,9 +1,19 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any
 
-from ...utils.converter_utils import from_bool, from_float, from_str
+from ...models.cartographie import Cartographie
+from ...models.commune import Commune
+from ...models.nature_sol import NatureSol
+from ...utils.converter_utils import (
+    from_bool,
+    from_datetime,
+    from_float,
+    from_obj,
+    from_str,
+)
 
 
 @dataclass
@@ -15,11 +25,11 @@ class GetTerrainsResponse:
     largeur: float | None = None
     longueur: float | None = None
     accesLibre: bool | None = None
-    natureSol: dict[str, Any] | None = None
-    commune: dict[str, Any] | None = None
-    cartographie: dict[str, Any] | None = None
-    date_created: str | None = None
-    date_updated: str | None = None
+    natureSol: NatureSol | None = None
+    commune: Commune | None = None
+    cartographie: Cartographie | None = None
+    date_created: datetime | None = None
+    date_updated: datetime | None = None
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> GetTerrainsResponse | None:
@@ -39,11 +49,11 @@ class GetTerrainsResponse:
             largeur=from_float(data, "largeur"),
             longueur=from_float(data, "longueur"),
             accesLibre=from_bool(data, "accesLibre"),
-            natureSol=data.get("natureSol"),
-            commune=data.get("commune"),
-            cartographie=data.get("cartographie"),
-            date_created=from_str(data, "date_created"),
-            date_updated=from_str(data, "date_updated"),
+            natureSol=from_obj(NatureSol.from_dict, data, "natureSol"),
+            commune=from_obj(Commune.from_dict, data, "commune"),
+            cartographie=from_obj(Cartographie.from_dict, data, "cartographie"),
+            date_created=from_datetime(data, "date_created"),
+            date_updated=from_datetime(data, "date_updated"),
         )
 
     @classmethod

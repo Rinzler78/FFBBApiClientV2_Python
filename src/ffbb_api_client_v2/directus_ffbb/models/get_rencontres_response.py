@@ -1,13 +1,20 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from datetime import datetime
 from typing import Any
 
+from ...models.organisateur import Organisateur
 from ...utils.converter_utils import (
     from_bool,
+    from_datetime,
     from_int,
+    from_obj,
     from_str,
 )
+from .get_poule_response import GetPouleResponse
+from .get_saisons_response import GetSaisonsResponse
+from .get_salles_response import GetSallesResponse
 
 
 @dataclass
@@ -26,16 +33,16 @@ class GetRencontresResponse:
     etat: str | None = None
     pratique: str | None = None
     status: str | None = None
-    competitionId: dict[str, Any] | None = None
-    idOrganismeEquipe1: dict[str, Any] | None = None
-    idOrganismeEquipe2: dict[str, Any] | None = None
-    idPoule: dict[str, Any] | None = None
-    saison: dict[str, Any] | None = None
-    salle: dict[str, Any] | None = None
-    gsId: dict[str, Any] | None = None
+    competitionId: str | None = None
+    idOrganismeEquipe1: Organisateur | None = None
+    idOrganismeEquipe2: Organisateur | None = None
+    idPoule: GetPouleResponse | None = None
+    saison: GetSaisonsResponse | None = None
+    salle: GetSallesResponse | None = None
+    gsId: str | None = None
     officiels: list[Any] = field(default_factory=list)
-    idEngagementEquipe1: dict[str, Any] | None = None
-    idEngagementEquipe2: dict[str, Any] | None = None
+    idEngagementEquipe1: str | None = None
+    idEngagementEquipe2: str | None = None
     creation: str | None = None
     modification: str | None = None
     validee: bool | None = None
@@ -49,8 +56,8 @@ class GetRencontresResponse:
     handicap2: int | None = None
     remise: bool | None = None
     dateSaisieResultat: str | None = None
-    date_created: str | None = None
-    date_updated: str | None = None
+    date_created: datetime | None = None
+    date_updated: datetime | None = None
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> GetRencontresResponse | None:
@@ -77,16 +84,20 @@ class GetRencontresResponse:
             etat=from_str(data, "etat"),
             pratique=from_str(data, "pratique"),
             status=from_str(data, "status"),
-            competitionId=data.get("competitionId"),  # Keep as raw dict
-            idOrganismeEquipe1=data.get("idOrganismeEquipe1"),
-            idOrganismeEquipe2=data.get("idOrganismeEquipe2"),
-            idPoule=data.get("idPoule"),
-            saison=data.get("saison"),
-            salle=data.get("salle"),
-            gsId=data.get("gsId"),
+            competitionId=from_str(data, "competitionId"),
+            idOrganismeEquipe1=from_obj(
+                Organisateur.from_dict, data, "idOrganismeEquipe1"
+            ),
+            idOrganismeEquipe2=from_obj(
+                Organisateur.from_dict, data, "idOrganismeEquipe2"
+            ),
+            idPoule=from_obj(GetPouleResponse.from_dict, data, "idPoule"),
+            saison=from_obj(GetSaisonsResponse.from_dict, data, "saison"),
+            salle=from_obj(GetSallesResponse.from_dict, data, "salle"),
+            gsId=from_str(data, "gsId"),
             officiels=data.get("officiels", []) or [],
-            idEngagementEquipe1=data.get("idEngagementEquipe1"),
-            idEngagementEquipe2=data.get("idEngagementEquipe2"),
+            idEngagementEquipe1=from_str(data, "idEngagementEquipe1"),
+            idEngagementEquipe2=from_str(data, "idEngagementEquipe2"),
             creation=from_str(data, "creation"),
             modification=from_str(data, "modification"),
             validee=from_bool(data, "validee"),
@@ -100,8 +111,8 @@ class GetRencontresResponse:
             handicap2=from_int(data, "handicap2"),
             remise=from_bool(data, "remise"),
             dateSaisieResultat=from_str(data, "dateSaisieResultat"),
-            date_created=from_str(data, "date_created"),
-            date_updated=from_str(data, "date_updated"),
+            date_created=from_datetime(data, "date_created"),
+            date_updated=from_datetime(data, "date_updated"),
         )
 
     @classmethod

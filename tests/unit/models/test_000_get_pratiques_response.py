@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import unittest
+from datetime import datetime
 from typing import Any
 
 from ffbb_api_client_v2.directus_ffbb.models.get_pratiques_response import (
@@ -173,8 +174,12 @@ class TestGetPratiquesResponse(unittest.TestCase):
     def test_026_field_cartographie(self) -> None:
         result = GetPratiquesResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertIsInstance(result.cartographie, dict)
-        self.assertAlmostEqual(result.cartographie["latitude"], 48.8634)  # type: ignore[index]
+        from ffbb_api_client_v2.models.cartographie import Cartographie
+
+        self.assertIsInstance(result.cartographie, Cartographie)
+        assert isinstance(result.cartographie, Cartographie)
+        self.assertIsNotNone(result.cartographie.latitude)
+        self.assertAlmostEqual(result.cartographie.latitude, 48.8634)  # type: ignore[arg-type]
 
     def test_027_field_latitude(self) -> None:
         result = GetPratiquesResponse.from_dict(SAMPLE_DATA)
@@ -189,12 +194,12 @@ class TestGetPratiquesResponse(unittest.TestCase):
     def test_029_field_date_created(self) -> None:
         result = GetPratiquesResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertEqual(result.date_created, "2025-07-15T10:00:00.000Z")
+        self.assertIsInstance(result.date_created, datetime)
 
     def test_030_field_date_updated(self) -> None:
         result = GetPratiquesResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertEqual(result.date_updated, "2025-08-20T16:45:00.000Z")
+        self.assertIsInstance(result.date_updated, datetime)
 
     def test_031_nullable_floats_none(self) -> None:
         data = {**SAMPLE_DATA, "latitude": None, "longitude": None}

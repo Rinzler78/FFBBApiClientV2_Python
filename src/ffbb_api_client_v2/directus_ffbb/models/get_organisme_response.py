@@ -23,17 +23,17 @@ class GetOrganismeResponse:
     adresse: str | None = None
     mail: str | None = None
     type: str | None = None
-    nom_simple: Any | None = None
+    nom_simple: str | None = None
     url_site_web: str | None = None
     nom_club_pro: str | None = None
-    adresse_club_pro: Any | None = None
+    adresse_club_pro: str | None = None
     commune: Commune | None = None
     cartographie: Cartographie | None = None
-    commune_club_pro: Any | None = None
+    commune_club_pro: Commune | None = None
     membres: list[Membre] = field(default_factory=list)
-    competitions: list[Any] = field(default_factory=list)
+    competitions: list[str] = field(default_factory=list)
     engagements: list[OrganismeEngagement] = field(default_factory=list)
-    organismes_fils: list[Any] = field(default_factory=list)
+    organismes_fils: list[str] = field(default_factory=list)
     offres_pratiques: list[OffrePratique] = field(default_factory=list)
     labellisation: list[LabellisationItem] = field(default_factory=list)
     salle: Salle | None = None
@@ -64,13 +64,13 @@ class GetOrganismeResponse:
             adresse=from_str(data, "adresse"),
             mail=from_str(data, "mail"),
             type=from_str(data, "type"),
-            nom_simple=data.get("nom_simple"),
+            nom_simple=from_str(data, "nom_simple"),
             url_site_web=from_str(data, "urlSiteWeb"),
             nom_club_pro=from_str(data, "nomClubPro"),
-            adresse_club_pro=data.get("adresseClubPro"),
+            adresse_club_pro=from_str(data, "adresseClubPro"),
             commune=from_obj(Commune.from_dict, data, "commune"),
             cartographie=from_obj(Cartographie.from_dict, data, "cartographie"),
-            commune_club_pro=data.get("communeClubPro"),
+            commune_club_pro=from_obj(Commune.from_dict, data, "communeClubPro"),
             membres=membres_raw if membres_raw is not None else [],
             competitions=data.get("competitions", []),
             engagements=engagements_raw if engagements_raw is not None else [],

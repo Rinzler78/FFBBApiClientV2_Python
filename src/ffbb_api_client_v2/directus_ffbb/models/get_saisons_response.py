@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any
 
-from ...utils.converter_utils import from_bool, from_str
+from ...utils.converter_utils import from_bool, from_datetime, from_str
 
 
 @dataclass
@@ -15,8 +16,8 @@ class GetSaisonsResponse:
     code: str | None = None
     libelle: str | None = None
     enCours: bool | None = None
-    date_created: str | None = None
-    date_updated: str | None = None
+    date_created: datetime | None = None
+    date_updated: datetime | None = None
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> GetSaisonsResponse | None:
@@ -40,8 +41,8 @@ class GetSaisonsResponse:
             code=from_str(data, "code"),
             libelle=from_str(data, "libelle"),
             enCours=from_bool(data, "enCours"),
-            date_created=from_str(data, "date_created"),
-            date_updated=from_str(data, "date_updated"),
+            date_created=from_datetime(data, "date_created"),
+            date_updated=from_datetime(data, "date_updated"),
         )
 
     @classmethod

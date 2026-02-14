@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any
 
 from ...models.team_ranking import TeamRanking
-from ...utils.converter_utils import from_list, from_str
+from ...utils.converter_utils import from_datetime, from_list, from_str
 from .poule_rencontre_item_model import PouleRencontreItemModel
 
 
@@ -20,8 +21,8 @@ class GetPouleResponse:
     nom: str | None = None
     engagements: list[dict[str, Any]] | None = None
     id_competition: str | None = None
-    date_created: str | None = None
-    date_updated: str | None = None
+    date_created: datetime | None = None
+    date_updated: datetime | None = None
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> GetPouleResponse | None:
@@ -55,6 +56,6 @@ class GetPouleResponse:
             nom=from_str(data, "nom"),
             engagements=data.get("engagements"),  # Keep as is, it's a raw list
             id_competition=from_str(data, "id_competition"),
-            date_created=from_str(data, "date_created"),
-            date_updated=from_str(data, "date_updated"),
+            date_created=from_datetime(data, "date_created"),
+            date_updated=from_datetime(data, "date_updated"),
         )

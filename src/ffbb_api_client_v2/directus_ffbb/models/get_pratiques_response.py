@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any
 
+from ...models.cartographie import Cartographie
 from ...utils.converter_utils import (
+    from_datetime,
     from_float,
     from_int,
+    from_obj,
     from_str,
 )
 
@@ -32,7 +36,7 @@ class GetPratiquesResponse:
     adresse_salle: str | None = None
     cp_salle: str | None = None
     ville_salle: str | None = None
-    cartographie: dict[str, Any] | None = None
+    cartographie: Cartographie | None = None
     latitude: float | None = None
     longitude: float | None = None
     nombre_personnes: int | None = None
@@ -42,8 +46,8 @@ class GetPratiquesResponse:
     site_web: str | None = None
     facebook: str | None = None
     twitter: str | None = None
-    date_created: str | None = None
-    date_updated: str | None = None
+    date_created: datetime | None = None
+    date_updated: datetime | None = None
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> GetPratiquesResponse | None:
@@ -76,7 +80,7 @@ class GetPratiquesResponse:
             adresse_salle=data.get("adresse_salle"),  # Keep as raw
             cp_salle=data.get("cp_salle"),  # Keep as raw
             ville_salle=data.get("ville_salle"),  # Keep as raw
-            cartographie=data.get("cartographie"),  # Keep as raw dict
+            cartographie=from_obj(Cartographie.from_dict, data, "cartographie"),
             latitude=from_float(data, "latitude"),
             longitude=from_float(data, "longitude"),
             nombre_personnes=from_int(data, "nombre_personnes"),
@@ -86,8 +90,8 @@ class GetPratiquesResponse:
             site_web=data.get("site_web"),  # Keep as raw
             facebook=data.get("facebook"),  # Keep as raw
             twitter=data.get("twitter"),  # Keep as raw
-            date_created=from_str(data, "date_created"),
-            date_updated=from_str(data, "date_updated"),
+            date_created=from_datetime(data, "date_created"),
+            date_updated=from_datetime(data, "date_updated"),
         )
 
     @classmethod

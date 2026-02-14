@@ -1,9 +1,18 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from datetime import datetime
 from typing import Any
 
-from ...utils.converter_utils import from_float, from_int, from_str
+from ...models.document_flyer import DocumentFlyer
+from ...models.folder import Folder
+from ...utils.converter_utils import (
+    from_datetime,
+    from_float,
+    from_int,
+    from_obj,
+    from_str,
+)
 
 
 @dataclass
@@ -18,8 +27,8 @@ class GetFormationsResponse:
     certification: str | None = None
     status: str | None = None
     sort: int | None = None
-    domain: dict[str, Any] | None = None
-    theme: dict[str, Any] | None = None
+    domain: Folder | None = None
+    theme: Folder | None = None
     sessions: list[Any] = field(default_factory=list)
     public: str | None = None
     goals: str | None = None
@@ -28,13 +37,13 @@ class GetFormationsResponse:
     prerequisites: str | None = None
     results: str | None = None
     modalities: str | None = None
-    image: dict[str, Any] | None = None
+    image: DocumentFlyer | None = None
     files: list[Any] = field(default_factory=list)
     idOrigin: str | None = None
     idOriginHash: str | None = None
     programIdFbi: str | None = None
-    date_created: str | None = None
-    date_updated: str | None = None
+    date_created: datetime | None = None
+    date_updated: datetime | None = None
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> GetFormationsResponse | None:
@@ -57,8 +66,8 @@ class GetFormationsResponse:
             certification=from_str(data, "certification"),
             status=from_str(data, "status"),
             sort=from_int(data, "sort"),
-            domain=data.get("domain"),
-            theme=data.get("theme"),
+            domain=from_obj(Folder.from_dict, data, "domain"),
+            theme=from_obj(Folder.from_dict, data, "theme"),
             sessions=data.get("sessions", []) or [],
             public=from_str(data, "public"),
             goals=from_str(data, "goals"),
@@ -67,13 +76,13 @@ class GetFormationsResponse:
             prerequisites=from_str(data, "prerequisites"),
             results=from_str(data, "results"),
             modalities=from_str(data, "modalities"),
-            image=data.get("image"),
+            image=from_obj(DocumentFlyer.from_dict, data, "image"),
             files=data.get("files", []) or [],
             idOrigin=from_str(data, "idOrigin"),
             idOriginHash=from_str(data, "idOriginHash"),
             programIdFbi=from_str(data, "programIdFbi"),
-            date_created=from_str(data, "date_created"),
-            date_updated=from_str(data, "date_updated"),
+            date_created=from_datetime(data, "date_created"),
+            date_updated=from_datetime(data, "date_updated"),
         )
 
     @classmethod

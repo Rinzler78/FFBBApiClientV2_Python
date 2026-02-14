@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 import unittest
+from datetime import datetime
 from typing import Any
 
 from ffbb_api_client_v2.directus_ffbb.models.get_salles_response import (
     GetSallesResponse,
 )
+from ffbb_api_client_v2.models.cartographie import Cartographie
+from ffbb_api_client_v2.models.commune import Commune
 
 SAMPLE_DATA: dict[str, Any] = {
     "id": "200000004500123",
@@ -25,8 +28,8 @@ SAMPLE_DATA: dict[str, Any] = {
         "codePostal": "78200",
     },
     "cartographie": {
-        "lat": 48.9906,
-        "lng": 1.7169,
+        "latitude": 48.9906,
+        "longitude": 1.7169,
     },
     "date_created": "2023-06-15T12:00:00.000Z",
     "date_updated": "2025-09-30T18:00:00.000Z",
@@ -47,12 +50,15 @@ class TestGetSallesResponse(unittest.TestCase):
         self.assertEqual(result.telephone, "0134567899")
         self.assertEqual(result.mail, "gymnase.coubertin@mairie-mantes.fr")
         self.assertEqual(result.capaciteSpectateur, 1200)
-        self.assertIsInstance(result.commune, dict)
-        self.assertEqual(result.commune["libelle"], "MANTES-LA-JOLIE")  # type: ignore[index]
-        self.assertIsInstance(result.cartographie, dict)
-        self.assertEqual(result.cartographie["lat"], 48.9906)  # type: ignore[index]
-        self.assertEqual(result.date_created, "2023-06-15T12:00:00.000Z")
-        self.assertEqual(result.date_updated, "2025-09-30T18:00:00.000Z")
+        self.assertIsInstance(result.commune, Commune)
+        assert isinstance(result.commune, Commune)
+        self.assertEqual(result.commune.libelle, "MANTES-LA-JOLIE")
+        self.assertIsInstance(result.cartographie, Cartographie)
+        assert isinstance(result.cartographie, Cartographie)
+        self.assertIsNotNone(result.cartographie.latitude)
+        self.assertAlmostEqual(result.cartographie.latitude, 48.9906)  # type: ignore[arg-type]
+        self.assertIsInstance(result.date_created, datetime)
+        self.assertIsInstance(result.date_updated, datetime)
 
     def test_001_from_dict_none(self) -> None:
         result = GetSallesResponse.from_dict(None)  # type: ignore[arg-type]

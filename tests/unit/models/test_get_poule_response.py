@@ -80,21 +80,21 @@ class TestGetPouleResponse(unittest.TestCase):
         data = {"id": "poule-006", "date_created": "2023-01-01"}
         result = GetPouleResponse.from_dict(data)
         self.assertIsNotNone(result)
-        self.assertEqual(result.date_created, "2023-01-01")
+        self.assertIsInstance(result.date_created, datetime)
 
     def test_011_from_dict_with_empty_date_created(self):
-        """Test from_dict avec date_created vide — from_str preserves empty string"""
+        """Test from_dict avec date_created vide — from_datetime returns None for empty string"""
         data = {"id": "poule-007", "date_created": ""}
         result = GetPouleResponse.from_dict(data)
         self.assertIsNotNone(result)
-        self.assertEqual(result.date_created, "")
+        self.assertIsNone(result.date_created)
 
     def test_012_from_dict_with_date_updated(self):
         """Test from_dict avec date_updated"""
         data = {"id": "poule-008", "date_updated": "2023-01-02"}
         result = GetPouleResponse.from_dict(data)
         self.assertIsNotNone(result)
-        self.assertEqual(result.date_updated, "2023-01-02")
+        self.assertIsInstance(result.date_updated, datetime)
 
     def test_013_from_dict_with_engagements(self):
         """Test from_dict avec engagements"""
@@ -393,8 +393,8 @@ class TestGetPouleResponse(unittest.TestCase):
         self.assertEqual(result.id, "poule-029")
         self.assertEqual(result.nom, "")
         self.assertEqual(result.id_competition, "")
-        self.assertEqual(result.date_created, "")
-        self.assertEqual(result.date_updated, "")
+        self.assertIsNone(result.date_created)
+        self.assertIsNone(result.date_updated)
         self.assertEqual(result.engagements, [])
         self.assertEqual(result.rencontres, [])
         self.assertIsNone(result.classements)

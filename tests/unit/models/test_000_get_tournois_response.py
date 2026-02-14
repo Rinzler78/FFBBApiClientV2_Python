@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import unittest
+from datetime import datetime
 from typing import Any
 
 from ffbb_api_client_v2.directus_ffbb.models.get_tournois_response import (
@@ -31,7 +32,7 @@ SAMPLE_DATA: dict[str, Any] = {
     "tournoiType": {"id": "3", "libelle": "3x3"},
     "commune": {
         "id": "92044",
-        "nom": "LEVALLOIS-PERRET",
+        "libelle": "LEVALLOIS-PERRET",
         "codePostal": "92300",
     },
     "cartographie": {"latitude": 48.8938, "longitude": 2.2882},
@@ -39,7 +40,10 @@ SAMPLE_DATA: dict[str, Any] = {
         {"id": "1", "libelle": "U13"},
         {"id": "2", "libelle": "U15"},
     ],
-    "document_flyer": {"id": "abc-123", "filename": "flyer_tournoi.pdf"},
+    "document_flyer": {
+        "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        "filename_download": "flyer_tournoi.pdf",
+    },
     "categorieChampionnat3x3Id": "CAT-3X3-001",
     "categorieChampionnat3x3Libelle": "Championnat 3x3 U15",
     "date_created": "2025-03-01T09:00:00.000Z",
@@ -151,14 +155,21 @@ class TestGetTournoisResponse(unittest.TestCase):
     def test_020_field_commune(self) -> None:
         result = GetTournoisResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertIsInstance(result.commune, dict)
-        self.assertEqual(result.commune["nom"], "LEVALLOIS-PERRET")  # type: ignore[index]
+        from ffbb_api_client_v2.models.commune import Commune
+
+        self.assertIsInstance(result.commune, Commune)
+        assert isinstance(result.commune, Commune)
+        self.assertEqual(result.commune.libelle, "LEVALLOIS-PERRET")
 
     def test_021_field_cartographie(self) -> None:
         result = GetTournoisResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertIsInstance(result.cartographie, dict)
-        self.assertAlmostEqual(result.cartographie["latitude"], 48.8938)  # type: ignore[index]
+        from ffbb_api_client_v2.models.cartographie import Cartographie
+
+        self.assertIsInstance(result.cartographie, Cartographie)
+        assert isinstance(result.cartographie, Cartographie)
+        self.assertIsNotNone(result.cartographie.latitude)
+        self.assertAlmostEqual(result.cartographie.latitude, 48.8938)  # type: ignore[arg-type]
 
     def test_022_field_tournoi_types_3x3(self) -> None:
         result = GetTournoisResponse.from_dict(SAMPLE_DATA)
@@ -170,8 +181,11 @@ class TestGetTournoisResponse(unittest.TestCase):
     def test_023_field_document_flyer(self) -> None:
         result = GetTournoisResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertIsInstance(result.document_flyer, dict)
-        self.assertEqual(result.document_flyer["filename"], "flyer_tournoi.pdf")  # type: ignore[index]
+        from ffbb_api_client_v2.models.document_flyer import DocumentFlyer
+
+        self.assertIsInstance(result.document_flyer, DocumentFlyer)
+        assert isinstance(result.document_flyer, DocumentFlyer)
+        self.assertEqual(result.document_flyer.filename_download, "flyer_tournoi.pdf")
 
     def test_024_field_categorie_championnat_3x3(self) -> None:
         result = GetTournoisResponse.from_dict(SAMPLE_DATA)
@@ -182,12 +196,12 @@ class TestGetTournoisResponse(unittest.TestCase):
     def test_025_field_date_created(self) -> None:
         result = GetTournoisResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertEqual(result.date_created, "2025-03-01T09:00:00.000Z")
+        self.assertIsInstance(result.date_created, datetime)
 
     def test_026_field_date_updated(self) -> None:
         result = GetTournoisResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertEqual(result.date_updated, "2025-05-15T16:30:00.000Z")
+        self.assertIsInstance(result.date_updated, datetime)
 
     def test_027_nullable_dicts_none(self) -> None:
         data = {

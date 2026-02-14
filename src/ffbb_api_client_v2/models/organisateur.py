@@ -13,6 +13,8 @@ from ..utils.converter_utils import (
     from_str,
     from_uuid,
 )
+from .id_poule import IDPoule
+from .labellisation_item import LabellisationItem
 from .organisme_id_pere import OrganismeIDPere
 
 
@@ -43,8 +45,8 @@ class Organisateur:
     omnisport: bool | None = None
     hors_association: bool | None = None
     offres_pratiques: list[Any] | None = None
-    engagements: list[Any] | None = None
-    labellisation: list[Any] | None = None
+    engagements: list[IDPoule] | None = None
+    labellisation: list[LabellisationItem] | None = None
     membres: list[int] | None = None
     date_created: datetime | None = None
     date_updated: datetime | None = None
@@ -82,8 +84,8 @@ class Organisateur:
         omnisport = from_bool(obj, "omnisport")
         hors_association = from_bool(obj, "horsAssociation")
         offres_pratiques = from_list(lambda x: x, obj, "offresPratiques")
-        engagements = from_list(lambda x: x, obj, "engagements")
-        labellisation = from_list(lambda x: x, obj, "labellisation")
+        engagements = from_list(IDPoule.from_dict, obj, "engagements")
+        labellisation = from_list(LabellisationItem.from_dict, obj, "labellisation")
         membres = from_list(int, obj, "membres")
         date_created = from_datetime(obj, "date_created")
         date_updated = from_datetime(obj, "date_updated")
@@ -179,9 +181,9 @@ class Organisateur:
         if self.offres_pratiques is not None:
             result["offresPratiques"] = self.offres_pratiques
         if self.engagements is not None:
-            result["engagements"] = self.engagements
+            result["engagements"] = [e.to_dict() for e in self.engagements]
         if self.labellisation is not None:
-            result["labellisation"] = self.labellisation
+            result["labellisation"] = [lb.to_dict() for lb in self.labellisation]
         if self.membres is not None:
             result["membres"] = [str(x) for x in self.membres]
         if self.date_created is not None:

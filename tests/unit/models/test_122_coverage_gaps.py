@@ -600,8 +600,14 @@ class TestOrganismeIdPereToDictCoverage(unittest.TestCase):
             "omnisport": "false",
             "horsAssociation": "false",
             "offresPratiques": ["basket"],
-            "engagements": ["eng1"],
-            "labellisation": ["label1"],
+            "engagements": [{"id": "eng1", "nom": "Equipe 1"}],
+            "labellisation": [
+                {
+                    "id": "lab1",
+                    "debut": "2024-01-01T00:00:00",
+                    "fin": "2024-12-31T00:00:00",
+                }
+            ],
         }
         obj = OrganismeIDPere.from_dict(data)
         d = obj.to_dict()
@@ -624,8 +630,17 @@ class TestOrganismeIdPereToDictCoverage(unittest.TestCase):
         self.assertIs(d["omnisport"], False)
         self.assertIs(d["horsAssociation"], False)
         self.assertEqual(d["offresPratiques"], ["basket"])
-        self.assertEqual(d["engagements"], ["eng1"])
-        self.assertEqual(d["labellisation"], ["label1"])
+        self.assertEqual(d["engagements"], [{"id": "eng1", "nom": "Equipe 1"}])
+        self.assertEqual(
+            d["labellisation"],
+            [
+                {
+                    "id": "lab1",
+                    "debut": "2024-01-01T00:00:00",
+                    "fin": "2024-12-31T00:00:00",
+                }
+            ],
+        )
         self.assertIn("logo", d)
 
 

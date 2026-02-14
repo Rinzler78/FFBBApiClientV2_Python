@@ -11,7 +11,7 @@ class LabellisationProgramme:
     id: str | None = None
     libelle: str | None = None
     labellisation_label: str | None = None
-    logo_vertical: Any | None = None
+    logo_vertical: str | None = None
 
     @staticmethod
     def from_dict(obj: Any) -> LabellisationProgramme:
@@ -20,7 +20,7 @@ class LabellisationProgramme:
             id=from_str(obj, "id"),
             libelle=from_str(obj, "libelle"),
             labellisation_label=from_str(obj, "labellisationLabel"),
-            logo_vertical=obj.get("logo_vertical"),
+            logo_vertical=from_str(obj, "logo_vertical"),
         )
 
     def to_dict(self) -> dict:

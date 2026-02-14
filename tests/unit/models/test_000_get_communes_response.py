@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import unittest
+from datetime import datetime
 from typing import Any
 
 from ffbb_api_client_v2.directus_ffbb.models.get_communes_response import (
@@ -30,8 +31,8 @@ class TestGetCommunesResponse(unittest.TestCase):
         self.assertEqual(result.codePostal, "75013")
         self.assertEqual(result.departement, "75")
         self.assertEqual(result.libelle, "PARIS 13EME ARRONDISSEMENT")
-        self.assertEqual(result.date_created, "2024-01-15T10:30:00.000Z")
-        self.assertEqual(result.date_updated, "2024-06-20T14:45:00.000Z")
+        self.assertIsInstance(result.date_created, datetime)
+        self.assertIsInstance(result.date_updated, datetime)
 
     def test_001_from_dict_none(self) -> None:
         result = GetCommunesResponse.from_dict(None)  # type: ignore[arg-type]

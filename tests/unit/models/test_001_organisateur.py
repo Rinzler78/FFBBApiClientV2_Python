@@ -45,8 +45,17 @@ class Test043Organisateur(unittest.TestCase):
                 "omnisport": False,
                 "horsAssociation": False,
                 "offresPratiques": ["Basket Santé", "Micro Basket"],
-                "engagements": ["eng-1", "eng-2"],
-                "labellisation": ["Label Or"],
+                "engagements": [
+                    {"id": "eng-1", "nom": "Equipe 1"},
+                    {"id": "eng-2", "nom": "Equipe 2"},
+                ],
+                "labellisation": [
+                    {
+                        "id": "lab-1",
+                        "debut": "2024-01-01T00:00:00",
+                        "fin": "2024-12-31T00:00:00",
+                    },
+                ],
                 "membres": ["101", "102"],
                 "date_created": "2024-01-01T00:00:00",
                 "date_updated": "2024-06-01T00:00:00",

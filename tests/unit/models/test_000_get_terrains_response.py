@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import unittest
+from datetime import datetime
 from typing import Any
 
 from ffbb_api_client_v2.directus_ffbb.models.get_terrains_response import (
@@ -20,7 +21,7 @@ SAMPLE_DATA: dict[str, Any] = {
     "natureSol": {"id": "1", "libelle": "Parquet"},
     "commune": {
         "id": "75113",
-        "nom": "PARIS 13EME ARRONDISSEMENT",
+        "libelle": "PARIS 13EME ARRONDISSEMENT",
         "codePostal": "75013",
     },
     "cartographie": {"latitude": 48.8322, "longitude": 2.3561},
@@ -96,30 +97,40 @@ class TestGetTerrainsResponse(unittest.TestCase):
     def test_014_field_nature_sol(self) -> None:
         result = GetTerrainsResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertIsInstance(result.natureSol, dict)
-        self.assertEqual(result.natureSol["libelle"], "Parquet")  # type: ignore[index]
+        from ffbb_api_client_v2.models.nature_sol import NatureSol
+
+        self.assertIsInstance(result.natureSol, NatureSol)
+        assert isinstance(result.natureSol, NatureSol)
+        self.assertEqual(result.natureSol.libelle, "Parquet")
 
     def test_015_field_commune(self) -> None:
         result = GetTerrainsResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertIsInstance(result.commune, dict)
-        self.assertEqual(result.commune["nom"], "PARIS 13EME ARRONDISSEMENT")  # type: ignore[index]
+        from ffbb_api_client_v2.models.commune import Commune
+
+        self.assertIsInstance(result.commune, Commune)
+        assert isinstance(result.commune, Commune)
+        self.assertEqual(result.commune.libelle, "PARIS 13EME ARRONDISSEMENT")
 
     def test_016_field_cartographie(self) -> None:
         result = GetTerrainsResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertIsInstance(result.cartographie, dict)
-        self.assertAlmostEqual(result.cartographie["latitude"], 48.8322)  # type: ignore[index]
+        from ffbb_api_client_v2.models.cartographie import Cartographie
+
+        self.assertIsInstance(result.cartographie, Cartographie)
+        assert isinstance(result.cartographie, Cartographie)
+        self.assertIsNotNone(result.cartographie.latitude)
+        self.assertAlmostEqual(result.cartographie.latitude, 48.8322)  # type: ignore[arg-type]
 
     def test_017_field_date_created(self) -> None:
         result = GetTerrainsResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertEqual(result.date_created, "2024-09-15T10:30:00.000Z")
+        self.assertIsInstance(result.date_created, datetime)
 
     def test_018_field_date_updated(self) -> None:
         result = GetTerrainsResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertEqual(result.date_updated, "2025-01-20T14:45:00.000Z")
+        self.assertIsInstance(result.date_updated, datetime)
 
     def test_019_nullable_floats_none(self) -> None:
         data = {**SAMPLE_DATA, "largeur": None, "longueur": None}

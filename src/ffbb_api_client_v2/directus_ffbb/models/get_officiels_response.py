@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any
 
-from ...utils.converter_utils import from_str
+from ...utils.converter_utils import from_datetime, from_str
 
 
 @dataclass
@@ -11,8 +12,8 @@ class GetOfficielsResponse:
     nom: str
     prenom: str | None = None
     numeroNational: str | None = None
-    date_created: str | None = None
-    date_updated: str | None = None
+    date_created: datetime | None = None
+    date_updated: datetime | None = None
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> GetOfficielsResponse | None:
@@ -28,8 +29,8 @@ class GetOfficielsResponse:
             nom=from_str(data, "nom") or "",
             prenom=from_str(data, "prenom"),
             numeroNational=from_str(data, "numeroNational"),
-            date_created=from_str(data, "date_created"),
-            date_updated=from_str(data, "date_updated"),
+            date_created=from_datetime(data, "date_created"),
+            date_updated=from_datetime(data, "date_updated"),
         )
 
     @classmethod

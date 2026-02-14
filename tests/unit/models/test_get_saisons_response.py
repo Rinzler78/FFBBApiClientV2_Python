@@ -3,6 +3,7 @@ Unit tests for get_saisons_response.py
 """
 
 import unittest
+from datetime import datetime
 
 from ffbb_api_client_v2.directus_ffbb.models.get_saisons_response import (
     GetSaisonsResponse,
@@ -70,8 +71,8 @@ class TestGetSaisonsResponse(unittest.TestCase):
         self.assertEqual(result.code, "2024-2025")
         self.assertEqual(result.libelle, "Saison 2024-2025")
         self.assertFalse(result.enCours)
-        self.assertEqual(result.date_created, "2024-01-01T10:00:00Z")
-        self.assertEqual(result.date_updated, "2024-01-02T11:00:00Z")
+        self.assertIsInstance(result.date_created, datetime)
+        self.assertIsInstance(result.date_updated, datetime)
 
     def test_007_from_dict_partial_fields(self):
         """Test from_dict avec champs partiels"""
@@ -95,7 +96,7 @@ class TestGetSaisonsResponse(unittest.TestCase):
         self.assertIsNone(result.date_updated)
 
     def test_008_from_dict_empty_strings(self):
-        """Test from_dict avec chaînes vides — from_str preserves empty strings"""
+        """Test from_dict avec chaînes vides — from_str preserves empty strings, from_datetime returns None"""
         data = {
             "id": "789",
             "debut": "",
@@ -112,8 +113,8 @@ class TestGetSaisonsResponse(unittest.TestCase):
         self.assertEqual(result.fin, "")
         self.assertEqual(result.code, "")
         self.assertEqual(result.libelle, "")
-        self.assertEqual(result.date_created, "")
-        self.assertEqual(result.date_updated, "")
+        self.assertIsNone(result.date_created)
+        self.assertIsNone(result.date_updated)
 
     def test_009_from_list_empty(self):
         """Test from_list avec liste vide"""

@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
 """
-Discover real types for properties currently typed as None (from_none).
+Discover real types for incorrectly typed model properties.
 
-This script makes real API calls (MeiliSearch + REST) to collect raw JSON data,
-flattens it to map every JSON path to observed values, infers Python types,
-and generates a corrections report.
+This script:
+  1. Dynamically scans source code (AST) to find properties typed as
+     dict[str, Any], list[Any], Any | None, or using raw obj.get().
+  2. Builds model signatures from all from_dict methods for structural matching.
+  3. Makes real API calls (MeiliSearch + REST) to collect raw JSON data.
+  4. Infers correct Python types using observed data, structural matching,
+     and a name-based concordance table.
+  5. Generates a comprehensive corrections report.
 
 Usage:
     python scripts/discover_types.py
@@ -12,11 +17,13 @@ Usage:
 
 from __future__ import annotations
 
+import ast
 import json
 import logging
 import re
 import sys
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -26,36 +33,24 @@ from typing import Any
 # Ensure project root is on sys.path so we can import the client library
 # ---------------------------------------------------------------------------
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_ROOT / "src"))
+SRC_ROOT = PROJECT_ROOT / "src"
+sys.path.insert(0, str(SRC_ROOT))
 
+# Import config modules for dynamic constant discovery
+import ffbb_api_client_v2.directus_ffbb.config as _directus_config  # noqa: E402
+import ffbb_api_client_v2.meilisearch_ffbb.config as _meili_config  # noqa: E402
 from ffbb_api_client_v2._http.client import (  # noqa: E402
     http_get_json,
     http_post_json,
     url_with_params,
 )
 from ffbb_api_client_v2.config import (  # noqa: E402
-    API_FFBB_BASE_URL,
-    DEFAULT_USER_AGENT,
-    ENDPOINT_COMMUNES,
-    ENDPOINT_COMPETITIONS,
-    ENDPOINT_CONFIGURATION,
-    ENDPOINT_ENGAGEMENTS,
-    ENDPOINT_ENTRAINEURS,
-    ENDPOINT_FORMATIONS,
-    ENDPOINT_LIVES,
-    ENDPOINT_OFFICIELS,
-    ENDPOINT_ORGANISMES,
-    ENDPOINT_POULES,
-    ENDPOINT_PRATIQUES,
-    ENDPOINT_RENCONTRES,
-    ENDPOINT_SAISONS,
-    ENDPOINT_SALLES,
-    ENDPOINT_TERRAINS,
-    ENDPOINT_TOURNOIS,
     MEILISEARCH_BASE_URL,
     MEILISEARCH_ENDPOINT_MULTI_SEARCH,
-    MEILISEARCH_INDEX_ENGAGEMENTS,
-    MEILISEARCH_INDEX_FORMATIONS,
+)
+from ffbb_api_client_v2.directus.client import DEFAULT_USER_AGENT  # noqa: E402
+from ffbb_api_client_v2.directus_ffbb.config import (  # noqa: E402
+    API_FFBB_BASE_URL,
 )
 from ffbb_api_client_v2.facade.token_manager import TokenManager  # noqa: E402
 
@@ -70,139 +65,452 @@ logger = logging.getLogger(__name__)
 # Configuration
 # ---------------------------------------------------------------------------
 MEILI_BATCH_SIZE = 1000
-MEILI_MAX_HITS = 100_000
-REST_SAMPLE_SIZE = 50
-REST_POULE_SAMPLE_SIZE = 20
-REST_DELAY = 0.5  # seconds between REST calls
+MEILI_MAX_HITS = sys.maxsize  # no limit — collect ALL hits from every index
+REST_PAGE_SIZE = 100
+REST_MAX_ITEMS = sys.maxsize  # no limit — collect ALL items from every endpoint
+REST_DELAY = 0.05  # seconds between REST calls (throttle)
+REST_RETRY_MAX = 3  # retry 502/504 errors
+REST_RETRY_BACKOFF = 5.0  # seconds initial backoff for retries
+REST_PARALLEL_WORKERS = 4  # concurrent endpoint fetchers
 DATA_DIR = PROJECT_ROOT / "data"
 
-# ---------------------------------------------------------------------------
-# FROM_NONE_REGISTRY — 48 properties across 13 files
-# ---------------------------------------------------------------------------
-# Each entry: (file, class, python_name, json_key)
-FROM_NONE_REGISTRY: list[tuple[str, str, str, str]] = [
-    # document_flyer.py — DocumentFlyer (16)
-    ("document_flyer.py", "DocumentFlyer", "charset", "charset"),
-    ("document_flyer.py", "DocumentFlyer", "duration", "duration"),
-    ("document_flyer.py", "DocumentFlyer", "embed", "embed"),
-    ("document_flyer.py", "DocumentFlyer", "description", "description"),
-    ("document_flyer.py", "DocumentFlyer", "location", "location"),
-    ("document_flyer.py", "DocumentFlyer", "tags", "tags"),
-    ("document_flyer.py", "DocumentFlyer", "credits", "credits"),
-    (
-        "document_flyer.py",
-        "DocumentFlyer",
-        "newsbridge_media_id",
-        "newsbridge_media_id",
-    ),
-    (
-        "document_flyer.py",
-        "DocumentFlyer",
-        "newsbridge_metadatas",
-        "newsbridge_metadatas",
-    ),
-    ("document_flyer.py", "DocumentFlyer", "newsbridge_name", "newsbridge_name"),
-    (
-        "document_flyer.py",
-        "DocumentFlyer",
-        "newsbridge_recorded_at",
-        "newsbridge_recorded_at",
-    ),
-    ("document_flyer.py", "DocumentFlyer", "focal_point_x", "focal_point_x"),
-    ("document_flyer.py", "DocumentFlyer", "focal_point_y", "focal_point_y"),
-    ("document_flyer.py", "DocumentFlyer", "uploaded_by", "uploaded_by"),
-    ("document_flyer.py", "DocumentFlyer", "modified_by", "modified_by"),
-    ("document_flyer.py", "DocumentFlyer", "newsbridge_mission", "newsbridge_mission"),
-    # organisateur.py — Organisateur (6)
-    ("organisateur.py", "Organisateur", "adresse_club_pro", "adresseClubPro"),
-    ("organisateur.py", "Organisateur", "commune_club_pro", "communeClubPro"),
-    ("organisateur.py", "Organisateur", "salle", "salle"),
-    ("organisateur.py", "Organisateur", "type_association", "type_association"),
-    ("organisateur.py", "Organisateur", "date_affiliation", "dateAffiliation"),
-    ("organisateur.py", "Organisateur", "logo_base64", "logo_base64"),
-    # organisme_id_pere.py — OrganismeIDPere (5)
-    ("organisme_id_pere.py", "OrganismeIDPere", "adresse_club_pro", "adresseClubPro"),
-    ("organisme_id_pere.py", "OrganismeIDPere", "commune_club_pro", "communeClubPro"),
-    ("organisme_id_pere.py", "OrganismeIDPere", "salle", "salle"),
-    ("organisme_id_pere.py", "OrganismeIDPere", "type_association", "type_association"),
-    ("organisme_id_pere.py", "OrganismeIDPere", "date_affiliation", "dateAffiliation"),
-    # cartographie.py — Cartographie (2)
-    ("cartographie.py", "Cartographie", "date_created", "date_created"),
-    ("cartographie.py", "Cartographie", "date_updated", "date_updated"),
-    # commune.py — Commune (1)
-    ("commune.py", "Commune", "code_insee", "codeInsee"),
-    # folder.py — Folder (1)
-    ("folder.py", "Folder", "parent", "parent"),
-    # multi_search_result_organismes.py — OrganismesHit (1)
-    (
-        "multi_search_result_organismes.py",
-        "OrganismesHit",
-        "adresse_club_pro",
-        "adresseClubPro",
-    ),
-    # multi_search_result_terrains.py — TerrainsHit (3)
-    (
-        "multi_search_result_terrains.py",
-        "TerrainsHit",
-        "nb_participant_prevu",
-        "nbParticipantPrevu",
-    ),
-    (
-        "multi_search_result_terrains.py",
-        "TerrainsHit",
-        "adresse_complement",
-        "adresseComplement",
-    ),
-    ("multi_search_result_terrains.py", "TerrainsHit", "thumbnail", "thumbnail"),
-    # multi_search_result_rencontres.py — RencontresHit (1)
-    ("multi_search_result_rencontres.py", "RencontresHit", "thumbnail", "thumbnail"),
-    # multi_search_result_competitions.py — CompetitionsHit (1)
-    (
-        "multi_search_result_competitions.py",
-        "CompetitionsHit",
-        "id_competition_pere",
-        "idCompetitionPere",
-    ),
-    # multi_search_result_pratiques.py — PratiquesHit (6)
-    (
-        "multi_search_result_pratiques.py",
-        "PratiquesHit",
-        "date_created",
-        "date_created",
-    ),
-    (
-        "multi_search_result_pratiques.py",
-        "PratiquesHit",
-        "date_updated",
-        "date_updated",
-    ),
-    ("multi_search_result_pratiques.py", "PratiquesHit", "facebook", "facebook"),
-    ("multi_search_result_pratiques.py", "PratiquesHit", "twitter", "twitter"),
-    ("multi_search_result_pratiques.py", "PratiquesHit", "latitude", "latitude"),
-    ("multi_search_result_pratiques.py", "PratiquesHit", "longitude", "longitude"),
-    # multi_search_result_salles.py — SallesHit (1)
-    ("multi_search_result_salles.py", "SallesHit", "thumbnail", "thumbnail"),
-    # multi_search_result_tournois.py — TournoisHit (1)
-    ("multi_search_result_tournois.py", "TournoisHit", "thumbnail", "thumbnail"),
+# Model source directories to scan
+MODEL_DIRS = [
+    SRC_ROOT / "ffbb_api_client_v2" / "models",
+    SRC_ROOT / "ffbb_api_client_v2" / "meilisearch_ffbb" / "models",
+    SRC_ROOT / "ffbb_api_client_v2" / "directus_ffbb" / "models",
 ]
 
-# Map MeiliSearch index → class names whose json_keys appear directly in hits
-MEILI_INDEX_TO_CLASSES: dict[str, list[str]] = {
-    "ffbbserver_organismes": ["OrganismesHit"],
-    "ffbbserver_rencontres": ["RencontresHit"],
-    "ffbbserver_terrains": ["TerrainsHit"],
-    "ffbbserver_salles": ["SallesHit"],
-    "ffbbserver_tournois": ["TournoisHit"],
-    "ffbbserver_competitions": ["CompetitionsHit"],
-    "ffbbnational_pratiques": ["PratiquesHit"],
-    MEILISEARCH_INDEX_ENGAGEMENTS: ["EngagementsHit"],
-    MEILISEARCH_INDEX_FORMATIONS: ["FormationsHit"],
-}
 
-# Build lookup: class_name → list of json_keys to watch
-CLASS_JSON_KEYS: dict[str, list[str]] = {}
-for _, cls, _, jk in FROM_NONE_REGISTRY:
-    CLASS_JSON_KEYS.setdefault(cls, []).append(jk)
+# ---------------------------------------------------------------------------
+# IncorrectProperty — result of source code scanning
+# ---------------------------------------------------------------------------
+@dataclass
+class IncorrectProperty:
+    """A property with an incorrect or imprecise type annotation."""
+
+    file: str  # relative to src/
+    class_name: str
+    python_name: str
+    json_key: str
+    current_type: str  # annotation string
+    category: str  # dict_any, list_any, any_none, list_dict_any
+
+
+# ---------------------------------------------------------------------------
+# AST helpers
+# ---------------------------------------------------------------------------
+def _is_dataclass(node: ast.ClassDef) -> bool:
+    """Check if a class has @dataclass decorator."""
+    for dec in node.decorator_list:
+        if isinstance(dec, ast.Name) and dec.id == "dataclass":
+            return True
+        if isinstance(dec, ast.Call) and isinstance(dec.func, ast.Name):
+            if dec.func.id == "dataclass":
+                return True
+    return False
+
+
+def _extract_json_key_from_call(call: ast.Call) -> str | None:
+    """Extract json_key string from a converter call or obj.get() call."""
+    # from_str(obj, "key"), from_int(obj, "key"), from_bool(obj, "key"), etc.
+    if isinstance(call.func, ast.Name) and call.func.id.startswith("from_"):
+        fn_name = call.func.id
+        # from_obj(fn, obj, "key"), from_list(fn, obj, "key"), from_enum(cls, obj, "key")
+        if fn_name in ("from_obj", "from_list", "from_enum"):
+            if (
+                len(call.args) >= 3
+                and isinstance(call.args[2], ast.Constant)
+                and isinstance(call.args[2].value, str)
+            ):
+                return call.args[2].value
+        # from_str(obj, "key"), from_int(obj, "key"), etc.
+        else:
+            if (
+                len(call.args) >= 2
+                and isinstance(call.args[1], ast.Constant)
+                and isinstance(call.args[1].value, str)
+            ):
+                return call.args[1].value
+
+    # obj.get("key") or data.get("key")
+    if isinstance(call.func, ast.Attribute) and call.func.attr == "get":
+        if (
+            call.args
+            and isinstance(call.args[0], ast.Constant)
+            and isinstance(call.args[0].value, str)
+        ):
+            return call.args[0].value
+
+    return None
+
+
+def _extract_json_key_from_expr(expr: ast.expr) -> str | None:
+    """Recursively search an expression tree for a json_key."""
+    for child in ast.walk(expr):
+        if isinstance(child, ast.Call):
+            key = _extract_json_key_from_call(child)
+            if key:
+                return key
+    return None
+
+
+def _classify_annotation(
+    annotation_str: str,
+    field_name: str = "",
+) -> str | None:
+    """Classify an annotation string as an incorrect type, or None if OK."""
+    s = annotation_str.strip()
+
+    # list[dict[str, Any]] (with or without | None)
+    if re.search(r"list\[dict\[str,\s*Any\]\]", s):
+        return "list_dict_any"
+
+    # dict[str, Any] (with or without | None)
+    if re.search(r"dict\[str,\s*Any\]", s):
+        return "dict_any"
+
+    # list[Any] (with or without | None) — but not list[list[Any]]
+    if re.search(r"(?<!\[)list\[Any\]", s):
+        return "list_any"
+
+    # Bare "Any | None" or "Any"
+    if re.match(r"^Any(\s*\|\s*None)?$", s):
+        return "any_none"
+
+    # str | None on date-like fields (should be datetime | None)
+    if re.match(r"^str(\s*\|\s*None)?$", s) and field_name:
+        hint = infer_from_name(field_name)
+        if hint and hint[0] != "str | None":
+            return "str_wrong_type"
+
+    return None
+
+
+def _extract_json_keys_from_method(
+    class_node: ast.ClassDef,
+) -> dict[str, str]:
+    """Extract python_name -> json_key mapping from from_dict method."""
+    mapping: dict[str, str] = {}
+
+    # Find from_dict method
+    from_dict_method: ast.FunctionDef | None = None
+    for item in class_node.body:
+        if isinstance(item, ast.FunctionDef) and item.name == "from_dict":
+            from_dict_method = item
+            break
+
+    if not from_dict_method:
+        return mapping
+
+    # Pass 1: collect variable -> json_key from assignments
+    var_to_key: dict[str, str] = {}
+    for node in ast.walk(from_dict_method):
+        if isinstance(node, ast.Assign) and len(node.targets) == 1:
+            if isinstance(node.targets[0], ast.Name):
+                var_name = node.targets[0].id
+                key = _extract_json_key_from_expr(node.value)
+                if key:
+                    var_to_key[var_name] = key
+                    mapping[var_name] = key
+
+    # Pass 2: collect from keyword arguments in constructor calls
+    for node in ast.walk(from_dict_method):
+        if not isinstance(node, ast.keyword) or not node.arg:
+            continue
+        # Direct call in value: cls(field=data.get("key"))
+        key = _extract_json_key_from_expr(node.value)
+        if key:
+            mapping[node.arg] = key
+        # Variable reference: cls(field=var) where var was assigned earlier
+        elif isinstance(node.value, ast.Name) and node.value.id in var_to_key:
+            mapping[node.arg] = var_to_key[node.value.id]
+        # IfExp: cls(field=var if cond else default)
+        elif isinstance(node.value, ast.IfExp):
+            if (
+                isinstance(node.value.body, ast.Name)
+                and node.value.body.id in var_to_key
+            ):
+                mapping[node.arg] = var_to_key[node.value.body.id]
+
+    return mapping
+
+
+# ---------------------------------------------------------------------------
+# SourceCodeScanner — dynamic discovery of incorrectly typed properties
+# ---------------------------------------------------------------------------
+class SourceCodeScanner:
+    """Scan model source files with AST to find incorrectly typed properties."""
+
+    @staticmethod
+    def scan_all(model_dirs: list[Path]) -> list[IncorrectProperty]:
+        """Scan all model directories and return incorrectly typed properties."""
+        results: list[IncorrectProperty] = []
+        for model_dir in model_dirs:
+            if not model_dir.exists():
+                continue
+            for py_file in sorted(model_dir.glob("*.py")):
+                if py_file.name.startswith("__"):
+                    continue
+                try:
+                    results.extend(SourceCodeScanner._scan_file(py_file))
+                except SyntaxError as e:
+                    logger.warning("Syntax error in %s: %s", py_file, e)
+        return results
+
+    @staticmethod
+    def _scan_file(file_path: Path) -> list[IncorrectProperty]:
+        source = file_path.read_text(encoding="utf-8")
+        tree = ast.parse(source)
+
+        results: list[IncorrectProperty] = []
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.ClassDef):
+                continue
+            if not _is_dataclass(node):
+                continue
+
+            # Extract json_key mapping from from_dict
+            json_key_map = _extract_json_keys_from_method(node)
+
+            # Check each field annotation
+            for field_name, annotation_node in SourceCodeScanner._get_field_annotations(
+                node
+            ):
+                annotation_str = ast.unparse(annotation_node)
+                category = _classify_annotation(annotation_str, field_name)
+                if category:
+                    json_key = json_key_map.get(field_name, field_name)
+                    rel_path = str(
+                        file_path.relative_to(SRC_ROOT / "ffbb_api_client_v2")
+                    )
+                    results.append(
+                        IncorrectProperty(
+                            file=rel_path,
+                            class_name=node.name,
+                            python_name=field_name,
+                            json_key=json_key,
+                            current_type=annotation_str,
+                            category=category,
+                        )
+                    )
+
+        return results
+
+    @staticmethod
+    def _get_field_annotations(
+        class_node: ast.ClassDef,
+    ) -> list[tuple[str, ast.expr]]:
+        """Get (field_name, annotation_node) for class-level annotated assignments."""
+        results: list[tuple[str, ast.expr]] = []
+        for node in class_node.body:
+            if isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
+                results.append((node.target.id, node.annotation))
+        return results
+
+
+# ---------------------------------------------------------------------------
+# ModelSignature & ModelSignatureRegistry — for structural matching
+# ---------------------------------------------------------------------------
+@dataclass
+class ModelSignature:
+    class_name: str
+    module_path: str  # relative to src/ffbb_api_client_v2/
+    json_keys: frozenset[str]
+
+
+class ModelSignatureRegistry:
+    """Build model JSON key signatures dynamically from source code."""
+
+    def __init__(self, signatures: list[ModelSignature]) -> None:
+        self.signatures = signatures
+
+    @classmethod
+    def build_from_source(cls, model_dirs: list[Path]) -> ModelSignatureRegistry:
+        """Parse all model files and extract from_dict JSON key signatures."""
+        sigs: list[ModelSignature] = []
+        for model_dir in model_dirs:
+            if not model_dir.exists():
+                continue
+            for py_file in sorted(model_dir.glob("*.py")):
+                if py_file.name.startswith("__"):
+                    continue
+                try:
+                    source = py_file.read_text(encoding="utf-8")
+                    tree = ast.parse(source)
+                except SyntaxError:
+                    continue
+
+                for node in ast.walk(tree):
+                    if not isinstance(node, ast.ClassDef):
+                        continue
+                    if not _is_dataclass(node):
+                        continue
+
+                    json_keys = _extract_json_keys_from_method(node)
+                    if len(json_keys) < 2:
+                        continue  # skip trivially small models
+
+                    rel_path = str(py_file.relative_to(SRC_ROOT / "ffbb_api_client_v2"))
+                    sigs.append(
+                        ModelSignature(
+                            class_name=node.name,
+                            module_path=rel_path,
+                            json_keys=frozenset(json_keys.values()),
+                        )
+                    )
+
+        logger.info(
+            "ModelSignatureRegistry: built %d signatures from source", len(sigs)
+        )
+        return cls(sigs)
+
+    def match(
+        self, observed_keys: set[str], min_overlap: float = 0.4
+    ) -> list[tuple[str, str, float]]:
+        """Return [(class_name, module_path, jaccard_score)] sorted by score desc."""
+        results: list[tuple[str, str, float]] = []
+        for sig in self.signatures:
+            if len(sig.json_keys) < 2:
+                continue
+            intersection = observed_keys & sig.json_keys
+            union = observed_keys | sig.json_keys
+            score = len(intersection) / len(union) if union else 0
+            if score >= min_overlap:
+                results.append((sig.class_name, sig.module_path, score))
+        return sorted(results, key=lambda x: -x[2])
+
+
+# ---------------------------------------------------------------------------
+# Dynamic discovery of config constants and class-to-source mappings
+# ---------------------------------------------------------------------------
+def _discover_config_constants(module: Any, prefix: str) -> dict[str, str]:
+    """Discover string constants from a module by prefix.
+
+    Returns {base_name_lower: value}.
+    E.g., prefix="ENDPOINT_" on directus_config gives:
+        {"organismes": "items/ffbbserver_organismes", ...}
+    """
+    prefix_len = len(prefix)
+    return {
+        attr[prefix_len:].lower(): getattr(module, attr)
+        for attr in dir(module)
+        if attr.startswith(prefix) and isinstance(getattr(module, attr), str)
+    }
+
+
+def _build_meili_class_to_index(
+    model_dirs: list[Path], meili_constants: dict[str, str]
+) -> dict[str, str]:
+    """Dynamically map Hit class names to MeiliSearch index UIDs.
+
+    Scans *_hit.py files and matches the base name to MEILISEARCH_INDEX_*
+    config constants.
+    """
+    meili_dir = next((d for d in model_dirs if "meilisearch_ffbb" in str(d)), None)
+    if not meili_dir or not meili_dir.exists():
+        return {}
+
+    mapping: dict[str, str] = {}
+    for py_file in sorted(meili_dir.glob("*_hit.py")):
+        base = py_file.stem.replace("_hit", "")  # e.g. "engagements"
+        index_uid = meili_constants.get(base)
+        if not index_uid:
+            logger.warning("No MEILISEARCH_INDEX_* constant for base=%s", base)
+            continue
+        source = py_file.read_text(encoding="utf-8")
+        tree = ast.parse(source)
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ClassDef) and node.name.endswith("Hit"):
+                mapping[node.name] = index_uid
+    return mapping
+
+
+def _build_rest_class_to_prefix(
+    model_dirs: list[Path], endpoint_map: dict[str, str]
+) -> dict[str, str]:
+    """Dynamically map Response class names to REST flattener prefixes.
+
+    Scans get_*_response.py files, derives the base name from the file name,
+    and matches it against discovered endpoint keys to get the correct prefix
+    (avoiding naive pluralization issues like 'configuration' → 'configurations').
+    """
+    directus_dir = next((d for d in model_dirs if "directus_ffbb" in str(d)), None)
+    if not directus_dir or not directus_dir.exists():
+        return {}
+
+    mapping: dict[str, str] = {}
+    for py_file in sorted(directus_dir.glob("get_*_response.py")):
+        stem = py_file.stem  # e.g. "get_organisme_response"
+        base = stem[4:].rsplit("_response", 1)[0]  # e.g. "organisme"
+
+        # Match to an endpoint key: first exact, then with 's' suffix
+        if base in endpoint_map:
+            endpoint_base = base
+        elif base + "s" in endpoint_map:
+            endpoint_base = base + "s"
+        else:
+            endpoint_base = base  # fallback
+
+        source = py_file.read_text(encoding="utf-8")
+        tree = ast.parse(source)
+        for node in ast.walk(tree):
+            if (
+                isinstance(node, ast.ClassDef)
+                and node.name.startswith("Get")
+                and node.name.endswith("Response")
+            ):
+                mapping[node.name] = f"rest/{endpoint_base}"
+    return mapping
+
+
+# ---------------------------------------------------------------------------
+# NAME_TYPE_HINTS — concordance table for always-None properties
+# ---------------------------------------------------------------------------
+# Order matters: first match wins. Default is str | None.
+NAME_TYPE_HINTS: list[tuple[re.Pattern[str], str, str]] = [
+    # Dates and timestamps
+    (
+        re.compile(r"(^date_|_date$|^date$|_recorded_at$|_at$|^debut$|^fin$)"),
+        "datetime | None",
+        "from_datetime",
+    ),
+    # Floating point
+    (
+        re.compile(r"(^focal_point_|^latitude$|^longitude$|_x$|_y$|^tarif|_hours$)"),
+        "float | None",
+        "from_float",
+    ),
+    # Integers
+    (
+        re.compile(
+            r"(^numero|^nb_|_count$|^position$|^ordre$|^age_|^duration$"
+            r"|^sort$|_prevu$|^capacite|^filesize$|^width$|^height$)"
+        ),
+        "int | None",
+        "from_int",
+    ),
+    # Booleans
+    (
+        re.compile(r"(^is_|^has_|^club_pro$|^saison_en_cours$)"),
+        "bool | None",
+        "from_bool",
+    ),
+    # UUIDs
+    (
+        re.compile(r"(^uploaded_by$|^modified_by$|_uuid$|^uuid$|^parent$)"),
+        "UUID | None",
+        "from_uuid",
+    ),
+]
+
+
+def infer_from_name(python_name: str) -> tuple[str, str] | None:
+    """Infer type from property name using concordance table. Returns None if no match."""
+    for pattern, py_type, converter in NAME_TYPE_HINTS:
+        if pattern.search(python_name):
+            return py_type, converter
+    return None
 
 
 # ---------------------------------------------------------------------------
@@ -217,8 +525,14 @@ class PathStats:
     non_none_count: int = 0
     types: dict[str, int] = field(default_factory=dict)
     samples: list[Any] = field(default_factory=list)
+    # Enhanced: capture dict key sets for structural matching
+    dict_key_sets: list[frozenset[str]] = field(default_factory=list)
+    # Enhanced: capture list element info
+    list_element_types: dict[str, int] = field(default_factory=dict)
+    list_element_key_sets: list[frozenset[str]] = field(default_factory=list)
 
     MAX_SAMPLES = 10
+    MAX_KEY_SETS = 20
 
     def add_value(self, value: Any) -> None:
         self.total += 1
@@ -231,8 +545,24 @@ class PathStats:
         if len(self.samples) < self.MAX_SAMPLES:
             self.samples.append(value)
 
+        # Capture dict key sets for structural matching
+        if isinstance(value, dict) and len(self.dict_key_sets) < self.MAX_KEY_SETS:
+            self.dict_key_sets.append(frozenset(value.keys()))
+
+        # Capture list element info
+        if isinstance(value, list) and value:
+            for elem in value[:5]:
+                elem_type = type(elem).__name__
+                self.list_element_types[elem_type] = (
+                    self.list_element_types.get(elem_type, 0) + 1
+                )
+                if (
+                    isinstance(elem, dict)
+                    and len(self.list_element_key_sets) < self.MAX_KEY_SETS
+                ):
+                    self.list_element_key_sets.append(frozenset(elem.keys()))
+
     def to_dict(self) -> dict[str, Any]:
-        # Truncate long sample strings for readability
         safe_samples = []
         for s in self.samples:
             if isinstance(s, str) and len(s) > 200:
@@ -242,21 +572,395 @@ class PathStats:
                 safe_samples.append(txt[:200] + "..." if len(txt) > 200 else txt)
             else:
                 safe_samples.append(s)
-        return {
+        result: dict[str, Any] = {
             "total": self.total,
             "none_count": self.none_count,
             "non_none_count": self.non_none_count,
             "types": self.types,
             "samples": safe_samples,
         }
+        if self.dict_key_sets:
+            result["dict_key_sets"] = [sorted(ks) for ks in self.dict_key_sets[:3]]
+        if self.list_element_types:
+            result["list_element_types"] = self.list_element_types
+        if self.list_element_key_sets:
+            result["list_element_key_sets"] = [
+                sorted(ks) for ks in self.list_element_key_sets[:3]
+            ]
+        return result
+
+
+# ---------------------------------------------------------------------------
+# JsonFlattener (enhanced with record_whole_keys)
+# ---------------------------------------------------------------------------
+class JsonFlattener:
+    """Flatten nested JSON, recording watched keys as whole values."""
+
+    def __init__(self, record_whole_keys: set[str] | None = None) -> None:
+        self.paths: dict[str, PathStats] = {}
+        self.record_whole_keys = record_whole_keys or set()
+
+    def flatten(self, obj: Any, prefix: str = "") -> None:
+        if isinstance(obj, dict):
+            for key, value in obj.items():
+                child_prefix = f"{prefix}.{key}" if prefix else key
+                # Record whole value for watched keys (for structural matching)
+                if key in self.record_whole_keys:
+                    self._record(child_prefix, value)
+                # Continue flattening for detailed leaf analysis
+                if isinstance(value, (dict, list)):
+                    self.flatten(value, child_prefix)
+                elif key not in self.record_whole_keys:
+                    self._record(child_prefix, value)
+        elif isinstance(obj, list):
+            arr_prefix = f"{prefix}[]" if prefix else "[]"
+            for item in obj:
+                self.flatten(item, arr_prefix)
+        else:
+            self._record(prefix, obj)
+
+    def _record(self, path: str, value: Any) -> None:
+        if path not in self.paths:
+            self.paths[path] = PathStats()
+        self.paths[path].add_value(value)
+
+    def get_stats(self, path: str) -> PathStats | None:
+        return self.paths.get(path)
+
+    def find_matching_paths(self, json_key: str) -> list[str]:
+        """Find all flattened paths ending with the given json_key."""
+        suffix = f".{json_key}"
+        return [p for p in self.paths if p.endswith(suffix) or p == json_key]
+
+    def find_paths_with_prefix(self, prefix: str, json_key: str) -> list[str]:
+        """Find paths starting with prefix and ending with json_key."""
+        suffix = f".{json_key}"
+        return [
+            p
+            for p in self.paths
+            if p.startswith(prefix) and (p.endswith(suffix) or p == json_key)
+        ]
+
+
+# ---------------------------------------------------------------------------
+# TypeInferrer (enhanced with structural matching + name hints)
+# ---------------------------------------------------------------------------
+ISO_DATETIME_RE = re.compile(r"^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}")
+UUID_RE = re.compile(
+    r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+    re.IGNORECASE,
+)
+
+
+@dataclass
+class TypeInference:
+    """Result of type inference for a single property."""
+
+    file: str
+    class_name: str
+    python_name: str
+    json_key: str
+    current_type: str
+    inferred_type: str
+    converter: str
+    inference_method: str  # data, structure, name_hint, default
+    match_score: float | None
+    evidence: dict[str, Any]
+    structural_match: dict[str, Any] | None
+
+
+class TypeInferrer:
+    """Analyze collected values and infer Python types."""
+
+    def __init__(self, registry: ModelSignatureRegistry) -> None:
+        self.registry = registry
+
+    def infer(self, stats: PathStats, prop: IncorrectProperty) -> TypeInference:
+        """Full inference pipeline for a single property."""
+        inferred_type: str
+        converter: str
+        method: str
+        match_score: float | None = None
+        structural: dict[str, Any] | None = None
+
+        if stats.non_none_count == 0:
+            # No data observed — use name hint or default to str
+            hint = infer_from_name(prop.python_name)
+            if hint:
+                inferred_type, converter_fn = hint
+                converter = f'{converter_fn}(obj, "{prop.json_key}")'
+                method = "name_hint"
+            else:
+                inferred_type = "str | None"
+                converter = (
+                    f'from_str(obj, "{prop.json_key}")  # default, always None in data'
+                )
+                method = "default"
+        elif prop.category in ("dict_any", "list_dict_any"):
+            inferred_type, converter, method, match_score, structural = (
+                self._infer_dict(stats, prop)
+            )
+        elif prop.category == "list_any":
+            inferred_type, converter, method, match_score, structural = (
+                self._infer_list(stats, prop)
+            )
+        elif prop.category == "any_none":
+            inferred_type, converter, method = self._infer_any(stats, prop)
+        elif prop.category == "str_wrong_type":
+            # First: try to infer from observed values (e.g. ISO datetime strings)
+            if stats.non_none_count > 0:
+                inferred_type, converter = self._infer_from_observed(stats, prop)
+                method = "data"
+                # If still str, fallback to name hint
+                if inferred_type == "str | None":
+                    hint = infer_from_name(prop.python_name)
+                    if hint:
+                        inferred_type, converter_fn = hint
+                        converter = f'{converter_fn}(obj, "{prop.json_key}")'
+                        method = "name_hint"
+            else:
+                # No data — use name hint
+                hint = infer_from_name(prop.python_name)
+                if hint:
+                    inferred_type, converter_fn = hint
+                    converter = f'{converter_fn}(obj, "{prop.json_key}")'
+                    method = "name_hint"
+                else:
+                    inferred_type = prop.current_type
+                    converter = f'from_str(obj, "{prop.json_key}")'
+                    method = "default"
+        else:
+            inferred_type, converter = self._infer_from_observed(stats, prop)
+            method = "data"
+
+        return TypeInference(
+            file=f"src/ffbb_api_client_v2/{prop.file}",
+            class_name=prop.class_name,
+            python_name=prop.python_name,
+            json_key=prop.json_key,
+            current_type=prop.current_type,
+            inferred_type=inferred_type,
+            converter=converter,
+            inference_method=method,
+            match_score=match_score,
+            evidence={
+                "total": stats.total,
+                "non_none": stats.non_none_count,
+                "types": stats.types,
+                "samples": stats.to_dict()["samples"],
+            },
+            structural_match=structural,
+        )
+
+    def _infer_dict(
+        self, stats: PathStats, prop: IncorrectProperty
+    ) -> tuple[str, str, str, float | None, dict[str, Any] | None]:
+        """Infer type for dict[str, Any] properties using structural matching."""
+        # Merge all observed dict keys
+        all_keys: set[str] = set()
+        for ks in stats.dict_key_sets:
+            all_keys.update(ks)
+
+        if all_keys:
+            matches = self.registry.match(all_keys)
+            if matches:
+                best_class, best_path, score = matches[0]
+                structural = {
+                    "matched_model": best_class,
+                    "model_path": best_path,
+                    "observed_keys": sorted(all_keys),
+                    "score": round(score, 3),
+                }
+                return (
+                    f"{best_class} | None",
+                    f'from_obj({best_class}.from_dict, obj, "{prop.json_key}")  # score={score:.2f}',
+                    "structure",
+                    score,
+                    structural,
+                )
+
+        # Fallback: report as dict with observed keys
+        return (
+            "dict[str, Any] | None",
+            f'# dict with keys: {sorted(all_keys) if all_keys else "unknown"}',
+            "data",
+            None,
+            {"observed_keys": sorted(all_keys)} if all_keys else None,
+        )
+
+    def _infer_list(
+        self, stats: PathStats, prop: IncorrectProperty
+    ) -> tuple[str, str, str, float | None, dict[str, Any] | None]:
+        """Infer type for list[Any] properties."""
+        # Check if list elements are dicts → structural match
+        if stats.list_element_key_sets:
+            all_keys: set[str] = set()
+            for ks in stats.list_element_key_sets:
+                all_keys.update(ks)
+
+            if all_keys:
+                matches = self.registry.match(all_keys)
+                if matches:
+                    best_class, best_path, score = matches[0]
+                    structural = {
+                        "matched_model": best_class,
+                        "model_path": best_path,
+                        "observed_keys": sorted(all_keys),
+                        "score": round(score, 3),
+                    }
+                    return (
+                        f"list[{best_class}]",
+                        f'from_list({best_class}.from_dict, obj, "{prop.json_key}")  # score={score:.2f}',
+                        "structure",
+                        score,
+                        structural,
+                    )
+
+        # Check if elements are simple types
+        if stats.list_element_types:
+            if set(stats.list_element_types.keys()) == {"str"}:
+                return (
+                    "list[str] | None",
+                    f'from_list(str, obj, "{prop.json_key}")',
+                    "data",
+                    None,
+                    None,
+                )
+            if set(stats.list_element_types.keys()) == {"int"}:
+                return (
+                    "list[int] | None",
+                    f'from_list(int, obj, "{prop.json_key}")',
+                    "data",
+                    None,
+                    None,
+                )
+            if set(stats.list_element_types.keys()) == {"float"}:
+                return (
+                    "list[float] | None",
+                    f'from_list(float, obj, "{prop.json_key}")',
+                    "data",
+                    None,
+                    None,
+                )
+
+        # Check if observed type is actually not a list (e.g. always None)
+        if "list" not in stats.types and stats.non_none_count > 0:
+            return self._infer_from_observed_as_tuple(stats, prop)
+
+        # Unknown list element type
+        key_info = {}
+        if stats.list_element_key_sets:
+            merged_keys: set[str] = set()
+            for ks in stats.list_element_key_sets:
+                merged_keys.update(ks)
+            key_info = {"element_keys": sorted(merged_keys)}
+        return (
+            "list[Any] | None",
+            f'# list element type unknown for "{prop.json_key}"',
+            "data",
+            None,
+            key_info if key_info else None,
+        )
+
+    def _infer_from_observed_as_tuple(
+        self, stats: PathStats, prop: IncorrectProperty
+    ) -> tuple[str, str, str, float | None, dict[str, Any] | None]:
+        """Wrap _infer_from_observed to return 5-tuple."""
+        py_type, conv = self._infer_from_observed(stats, prop)
+        return py_type, conv, "data", None, None
+
+    def _infer_any(
+        self, stats: PathStats, prop: IncorrectProperty
+    ) -> tuple[str, str, str]:
+        """Infer type for Any | None properties."""
+        # Check if observed values are dicts → try structural match
+        if "dict" in stats.types and stats.dict_key_sets:
+            all_keys: set[str] = set()
+            for ks in stats.dict_key_sets:
+                all_keys.update(ks)
+            matches = self.registry.match(all_keys)
+            if matches:
+                best_class, _, score = matches[0]
+                return (
+                    f"{best_class} | None",
+                    f'from_obj({best_class}.from_dict, obj, "{prop.json_key}")  # score={score:.2f}',
+                    "structure",
+                )
+
+        py_type, conv = self._infer_from_observed(stats, prop)
+        return py_type, conv, "data"
+
+    def _infer_from_observed(
+        self, stats: PathStats, prop: IncorrectProperty
+    ) -> tuple[str, str]:
+        """Infer type from observed primitive values."""
+        if stats.non_none_count == 0:
+            hint = infer_from_name(prop.python_name)
+            if hint:
+                return hint[0], f'{hint[1]}(obj, "{prop.json_key}")'
+            return "str | None", f'from_str(obj, "{prop.json_key}")  # default'
+
+        type_counts = stats.types
+
+        if len(type_counts) == 1:
+            type_name = next(iter(type_counts))
+            return self._infer_single(type_name, stats.samples, prop.json_key)
+
+        # Mixed types — build union
+        type_parts: list[str] = []
+        converter_parts: list[str] = []
+        for tn in sorted(type_counts.keys()):
+            type_samples = [s for s in stats.samples if type(s).__name__ == tn]
+            py_type, conv = self._infer_single(tn, type_samples, prop.json_key)
+            py_type = py_type.replace(" | None", "")
+            type_parts.append(py_type)
+            converter_parts.append(conv.split("(")[0])
+
+        union_type = " | ".join(type_parts) + " | None"
+        converter = (
+            f"from_union([{', '.join(converter_parts)}], obj, \"{prop.json_key}\")"
+        )
+        return union_type, converter
+
+    @staticmethod
+    def _infer_single(
+        type_name: str, samples: list[Any], json_key: str
+    ) -> tuple[str, str]:
+        if type_name == "str":
+            return TypeInferrer._refine_str(samples, json_key)
+        if type_name == "int":
+            return "int | None", f'from_int(obj, "{json_key}")'
+        if type_name == "float":
+            return "float | None", f'from_float(obj, "{json_key}")'
+        if type_name == "bool":
+            return "bool | None", f'from_bool(obj, "{json_key}")'
+        if type_name == "dict":
+            return "dict | None", f'from_obj(SubClass.from_dict, obj, "{json_key}")'
+        if type_name == "list":
+            return "list | None", f'from_list(item_fn, obj, "{json_key}")'
+        return f"{type_name} | None", "# unknown type"
+
+    @staticmethod
+    def _refine_str(samples: list[Any], json_key: str) -> tuple[str, str]:
+        str_samples = [s for s in samples if isinstance(s, str)]
+        if not str_samples:
+            return "str | None", f'from_str(obj, "{json_key}")'
+
+        dt_matches = sum(1 for s in str_samples if ISO_DATETIME_RE.match(s))
+        if dt_matches == len(str_samples):
+            return "datetime | None", f'from_datetime(obj, "{json_key}")'
+
+        uuid_matches = sum(1 for s in str_samples if UUID_RE.match(s))
+        if uuid_matches == len(str_samples):
+            return "UUID | None", f'from_uuid(obj, "{json_key}")'
+
+        return "str | None", f'from_str(obj, "{json_key}")'
 
 
 # ---------------------------------------------------------------------------
 # TokenFetcher
 # ---------------------------------------------------------------------------
 class TokenFetcher:
-    """Fetch API tokens using the project's TokenManager."""
-
     @staticmethod
     def fetch() -> tuple[str, str]:
         tokens = TokenManager.get_tokens()
@@ -285,10 +989,16 @@ class RawDataCollector:
 
     # -- MeiliSearch --------------------------------------------------------
 
-    def collect_meilisearch(self, index_uid: str) -> list[dict[str, Any]]:
-        """Paginate through a MeiliSearch index, returning raw hit dicts."""
-        all_hits: list[dict[str, Any]] = []
+    def collect_meilisearch_streaming(
+        self, index_uid: str, flattener: JsonFlattener
+    ) -> list[Any]:
+        """Paginate through MeiliSearch index, flatten hits on the fly.
+
+        Returns list of hit IDs for the REST phase.
+        """
+        ids: list[Any] = []
         offset = 0
+        total_hits = 0
 
         while offset < MEILI_MAX_HITS:
             payload = {
@@ -320,12 +1030,20 @@ class RawDataCollector:
             if not hits:
                 break
 
-            all_hits.extend(hits)
+            # Flatten each hit immediately (streaming)
+            prefix = f"meilisearch/{index_uid}/hits[]"
+            for hit in hits:
+                flattener.flatten(hit, prefix)
+                hit_id = hit.get("id")
+                if hit_id is not None:
+                    ids.append(hit_id)
+            total_hits += len(hits)
+
             estimated_total = results[0].get("estimatedTotalHits", 0)
             logger.info(
                 "  %s: fetched %d hits (offset=%d, estimated=%d)",
                 index_uid,
-                len(all_hits),
+                total_hits,
                 offset,
                 estimated_total,
             )
@@ -334,85 +1052,115 @@ class RawDataCollector:
                 break
             offset += MEILI_BATCH_SIZE
 
-        self.stats["hits_per_index"][index_uid] = len(all_hits)
-        return all_hits
+        self.stats["hits_per_index"][index_uid] = total_hits
+        return ids
 
-    # -- REST Directus API --------------------------------------------------
+    # -- REST ---------------------------------------------------------------
 
-    def _rest_get(self, url: str) -> dict[str, Any] | None:
-        """Single REST GET with rate limiting."""
-        try:
-            resp = http_get_json(url, self.api_headers, timeout=30)
-            time.sleep(REST_DELAY)
-            return resp
-        except Exception as exc:
-            logger.warning("REST GET %s failed: %s", url, exc)
-            time.sleep(REST_DELAY)
-            return None
+    def _rest_get(self, url: str, timeout: int = 60) -> dict[str, Any] | None:
+        for attempt in range(REST_RETRY_MAX + 1):
+            try:
+                resp = http_get_json(url, self.api_headers, timeout=timeout)
+                time.sleep(REST_DELAY)
+                return resp
+            except Exception as exc:
+                exc_str = str(exc)
+                is_retryable = any(
+                    code in exc_str for code in ("502", "504", "timed out")
+                )
+                if is_retryable and attempt < REST_RETRY_MAX:
+                    wait = REST_RETRY_BACKOFF * (2**attempt)
+                    logger.warning(
+                        "REST GET %s failed (attempt %d/%d): %s — retrying in %.0fs",
+                        url,
+                        attempt + 1,
+                        REST_RETRY_MAX + 1,
+                        exc,
+                        wait,
+                    )
+                    time.sleep(wait)
+                else:
+                    logger.warning("REST GET %s failed: %s", url, exc)
+                    time.sleep(REST_DELAY)
+                    return None
+        return None
 
-    def collect_rest_wildcard(
-        self, endpoint: str, ids: list[Any]
+    def collect_rest_list_paginated(
+        self,
+        endpoint: str,
+        fields: list[str] | None = None,
+        max_items: int = REST_MAX_ITEMS,
     ) -> list[dict[str, Any]]:
-        """Fetch items by ID with fields[]=*.*.*"""
-        results: list[dict[str, Any]] = []
-        call_key = f"{endpoint}/wildcard"
-        success = 0
+        """Fetch items from a list endpoint with pagination, dedup, and cap."""
+        all_data: list[dict[str, Any]] = []
+        seen_ids: set[str] = set()
+        offset = 0
+        page = 0
+        duplicates = 0
 
-        for item_id in ids:
-            base_url = f"{API_FFBB_BASE_URL}{endpoint}/{item_id}"
-            url = url_with_params(base_url, {"fields[]": ["*.*.*"]})
+        while len(all_data) < max_items:
+            params: dict[str, Any] = {"limit": REST_PAGE_SIZE, "offset": offset}
+            if fields:
+                params["fields[]"] = fields
+            base_url = f"{API_FFBB_BASE_URL}{endpoint}"
+            url = url_with_params(base_url, params)
+
             resp = self._rest_get(url)
-            if resp and isinstance(resp, dict):
-                data = resp.get("data", resp)
-                if isinstance(data, dict):
-                    results.append(data)
-                    success += 1
-                elif isinstance(data, list):
-                    results.extend(data)
-                    success += 1
+            if not resp:
+                break
 
-        self.stats["rest_calls"][call_key] = {
-            "requested": len(ids),
-            "success": success,
+            data = resp.get("data", resp)
+            if isinstance(data, list):
+                if not data:
+                    break
+                # Deduplicate by 'id' field
+                new_items: list[dict[str, Any]] = []
+                for item in data:
+                    item_id = str(item.get("id", ""))
+                    if item_id and item_id in seen_ids:
+                        duplicates += 1
+                        continue
+                    if item_id:
+                        seen_ids.add(item_id)
+                    new_items.append(item)
+                all_data.extend(new_items)
+                # Log every 10 pages or on first/last page
+                if page == 0 or (page + 1) % 10 == 0 or len(data) < REST_PAGE_SIZE:
+                    logger.info(
+                        "  %s: page %d — %d new (%d dup, total: %d)",
+                        endpoint,
+                        page + 1,
+                        len(new_items),
+                        duplicates,
+                        len(all_data),
+                    )
+                if len(data) < REST_PAGE_SIZE:
+                    break
+            elif isinstance(data, dict):
+                all_data.append(data)
+                break
+            else:
+                break
+
+            offset += REST_PAGE_SIZE
+            page += 1
+
+        self.stats["rest_calls"][endpoint] = {
+            "count": len(all_data),
+            "duplicates": duplicates,
         }
-        logger.info("  REST %s: %d/%d successful", call_key, success, len(ids))
-        return results
-
-    def collect_rest_targeted(
-        self, endpoint: str, ids: list[Any], extra_fields: list[str]
-    ) -> list[dict[str, Any]]:
-        """Fetch items by ID with specific targeted fields."""
-        results: list[dict[str, Any]] = []
-        call_key = f"{endpoint}/targeted"
-        success = 0
-
-        # Build fields list: base + extra from_none fields
-        all_fields = ["*.*.*"] + extra_fields
-
-        for item_id in ids:
-            base_url = f"{API_FFBB_BASE_URL}{endpoint}/{item_id}"
-            url = url_with_params(base_url, {"fields[]": all_fields})
-            resp = self._rest_get(url)
-            if resp and isinstance(resp, dict):
-                data = resp.get("data", resp)
-                if isinstance(data, dict):
-                    results.append(data)
-                    success += 1
-                elif isinstance(data, list):
-                    results.extend(data)
-                    success += 1
-
-        self.stats["rest_calls"][call_key] = {
-            "requested": len(ids),
-            "success": success,
-        }
-        logger.info("  REST %s: %d/%d successful", call_key, success, len(ids))
-        return results
+        logger.info(
+            "  REST %s: %d items (%d duplicates skipped)",
+            endpoint,
+            len(all_data),
+            duplicates,
+        )
+        return all_data
 
     def collect_rest_list(
         self, endpoint: str, fields: list[str] | None = None
     ) -> list[dict[str, Any]]:
-        """Fetch a list endpoint (saisons, etc.)."""
+        """Fetch a list endpoint (single page)."""
         base_url = f"{API_FFBB_BASE_URL}{endpoint}"
         params: dict[str, Any] = {}
         if fields:
@@ -432,9 +1180,8 @@ class RawDataCollector:
             return [data]
         return []
 
-    def collect_lives(self) -> dict[str, Any] | None:
-        """Fetch lives.json (no fields param)."""
-        url = f"{API_FFBB_BASE_URL}{ENDPOINT_LIVES}"
+    def collect_lives(self, endpoint: str) -> dict[str, Any] | None:
+        url = f"{API_FFBB_BASE_URL}{endpoint}"
         resp = self._rest_get(url)
         if resp:
             self.stats["rest_calls"]["lives"] = {"fetched": True}
@@ -442,142 +1189,9 @@ class RawDataCollector:
 
 
 # ---------------------------------------------------------------------------
-# JsonFlattener
-# ---------------------------------------------------------------------------
-class JsonFlattener:
-    """Flatten nested JSON into path → list[value] mappings."""
-
-    def __init__(self) -> None:
-        self.paths: dict[str, PathStats] = {}
-
-    def flatten(self, obj: Any, prefix: str = "") -> None:
-        if isinstance(obj, dict):
-            for key, value in obj.items():
-                child_prefix = f"{prefix}.{key}" if prefix else key
-                if isinstance(value, (dict, list)):
-                    self.flatten(value, child_prefix)
-                else:
-                    self._record(child_prefix, value)
-        elif isinstance(obj, list):
-            arr_prefix = f"{prefix}[]" if prefix else "[]"
-            for item in obj:
-                self.flatten(item, arr_prefix)
-        else:
-            self._record(prefix, obj)
-
-    def _record(self, path: str, value: Any) -> None:
-        if path not in self.paths:
-            self.paths[path] = PathStats()
-        self.paths[path].add_value(value)
-
-    def get_stats(self, path: str) -> PathStats | None:
-        return self.paths.get(path)
-
-    def find_matching_paths(self, json_key: str) -> list[str]:
-        """Find all flattened paths ending with the given json_key."""
-        suffix = f".{json_key}"
-        return [p for p in self.paths if p.endswith(suffix) or p == json_key]
-
-
-# ---------------------------------------------------------------------------
-# TypeInferrer
-# ---------------------------------------------------------------------------
-
-# Regex patterns for type refinement
-ISO_DATETIME_RE = re.compile(r"^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}")
-UUID_RE = re.compile(
-    r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", re.IGNORECASE
-)
-
-
-@dataclass
-class TypeInference:
-    """Result of type inference for a single property."""
-
-    file: str
-    class_name: str
-    python_name: str
-    json_key: str
-    current_type: str
-    inferred_type: str
-    converter: str
-    evidence: dict[str, Any]
-
-
-class TypeInferrer:
-    """Analyze collected values and infer Python types."""
-
-    @staticmethod
-    def infer(stats: PathStats) -> tuple[str, str]:
-        """Return (inferred_type, converter_function) from observed values."""
-        if stats.non_none_count == 0:
-            return "None", "from_none(obj, key)  # confirmed always None"
-
-        type_counts = stats.types
-
-        # Single type
-        if len(type_counts) == 1:
-            type_name = next(iter(type_counts))
-            return TypeInferrer._infer_single(type_name, stats.samples)
-
-        # Mixed types
-        type_parts: list[str] = []
-        converter_parts: list[str] = []
-        for tn in sorted(type_counts.keys()):
-            # Filter samples by type
-            type_samples = [s for s in stats.samples if type(s).__name__ == tn]
-            py_type, conv = TypeInferrer._infer_single(tn, type_samples)
-            # Remove " | None" suffix for union building
-            py_type = py_type.replace(" | None", "")
-            type_parts.append(py_type)
-            converter_parts.append(conv.split("(")[0])  # just the fn name
-
-        union_type = " | ".join(type_parts) + " | None"
-        converter = f"from_union([{', '.join(converter_parts)}], obj, key)"
-        return union_type, converter
-
-    @staticmethod
-    def _infer_single(type_name: str, samples: list[Any]) -> tuple[str, str]:
-        """Infer type from a single JSON type + samples."""
-        if type_name == "str":
-            return TypeInferrer._refine_str(samples)
-        if type_name == "int":
-            return "int | None", 'from_int(obj, "KEY")'
-        if type_name == "float":
-            return "float | None", 'from_float(obj, "KEY")'
-        if type_name == "bool":
-            return "bool | None", 'from_bool(obj, "KEY")'
-        if type_name == "dict":
-            return "dict | None", "from_obj(SubClass.from_dict, obj, key)"
-        if type_name == "list":
-            return "list | None", "from_list(item_fn, obj, key)"
-        return f"{type_name} | None", "# unknown type"
-
-    @staticmethod
-    def _refine_str(samples: list[Any]) -> tuple[str, str]:
-        """Refine string type: datetime, UUID, or plain str."""
-        str_samples = [s for s in samples if isinstance(s, str)]
-        if not str_samples:
-            return "str | None", 'from_str(obj, "KEY")'
-
-        # Check datetime pattern
-        dt_matches = sum(1 for s in str_samples if ISO_DATETIME_RE.match(s))
-        if dt_matches == len(str_samples):
-            return "datetime | None", 'from_datetime(obj, "KEY")'
-
-        # Check UUID pattern
-        uuid_matches = sum(1 for s in str_samples if UUID_RE.match(s))
-        if uuid_matches == len(str_samples):
-            return "UUID | None", 'from_uuid(obj, "KEY")'
-
-        return "str | None", 'from_str(obj, "KEY")'
-
-
-# ---------------------------------------------------------------------------
 # ReportGenerator
 # ---------------------------------------------------------------------------
 class ReportGenerator:
-    """Generate JSON reports and console summary."""
 
     @staticmethod
     def generate_raw_report(
@@ -597,65 +1211,77 @@ class ReportGenerator:
 
     @staticmethod
     def generate_corrections(
-        flattener: JsonFlattener,
-        meili_flattener: JsonFlattener,
+        inferences: list[TypeInference],
     ) -> dict[str, Any]:
+        resolved_data = 0
+        resolved_structure = 0
+        resolved_name = 0
+        defaulted = 0
+
         corrections: list[dict[str, Any]] = []
-        resolved = 0
-        confirmed_none = 0
+        for inf in inferences:
+            if inf.inference_method == "data":
+                resolved_data += 1
+            elif inf.inference_method == "structure":
+                resolved_structure += 1
+            elif inf.inference_method == "name_hint":
+                resolved_name += 1
+            elif inf.inference_method == "default":
+                defaulted += 1
 
-        for file_name, class_name, py_name, json_key in FROM_NONE_REGISTRY:
-            # Gather stats from all flatteners, merging them
-            merged = PathStats()
+            entry: dict[str, Any] = {
+                "file": inf.file,
+                "class": inf.class_name,
+                "property": inf.python_name,
+                "json_key": inf.json_key,
+                "current_type": inf.current_type,
+                "inferred_type": inf.inferred_type,
+                "converter": inf.converter,
+                "inference_method": inf.inference_method,
+                "evidence": inf.evidence,
+            }
+            if inf.match_score is not None:
+                entry["match_score"] = round(inf.match_score, 3)
+            if inf.structural_match:
+                entry["structural_match"] = inf.structural_match
 
-            # Search in both flatteners
-            for fl in [flattener, meili_flattener]:
-                matching_paths = fl.find_matching_paths(json_key)
-                for mp in matching_paths:
-                    ps = fl.get_stats(mp)
-                    if ps:
-                        merged.total += ps.total
-                        merged.none_count += ps.none_count
-                        merged.non_none_count += ps.non_none_count
-                        for tn, cnt in ps.types.items():
-                            merged.types[tn] = merged.types.get(tn, 0) + cnt
-                        remaining = PathStats.MAX_SAMPLES - len(merged.samples)
-                        if remaining > 0:
-                            merged.samples.extend(ps.samples[:remaining])
+            corrections.append(entry)
 
-            inferred_type, converter = TypeInferrer.infer(merged)
-            # Replace KEY placeholder with actual json_key
-            converter = converter.replace("KEY", json_key)
-
-            if inferred_type == "None":
-                confirmed_none += 1
-            else:
-                resolved += 1
-
-            corrections.append(
-                {
-                    "file": f"src/ffbb_api_client_v2/models/{file_name}",
-                    "class": class_name,
-                    "property": py_name,
-                    "json_key": json_key,
-                    "current_type": "None",
-                    "inferred_type": inferred_type,
-                    "converter": converter,
-                    "evidence": {
-                        "total": merged.total,
-                        "non_none": merged.non_none_count,
-                        "samples": merged.to_dict()["samples"],
-                    },
-                }
-            )
+        # Detect new model candidates (unresolved dict structures)
+        new_model_candidates: list[dict[str, Any]] = []
+        seen_key_sets: set[frozenset[str]] = set()
+        for inf in inferences:
+            if (
+                inf.structural_match
+                and "observed_keys" in inf.structural_match
+                and inf.inference_method != "structure"
+            ):
+                keys_fs = frozenset(inf.structural_match["observed_keys"])
+                if keys_fs not in seen_key_sets and len(keys_fs) >= 2:
+                    seen_key_sets.add(keys_fs)
+                    new_model_candidates.append(
+                        {
+                            "suggested_name": f"New{inf.python_name.title().replace('_', '')}Model",
+                            "observed_keys": inf.structural_match["observed_keys"],
+                            "source_properties": [
+                                {
+                                    "class": inf.class_name,
+                                    "property": inf.python_name,
+                                }
+                            ],
+                        }
+                    )
 
         return {
             "summary": {
-                "total": len(FROM_NONE_REGISTRY),
-                "resolved": resolved,
-                "confirmed_none": confirmed_none,
+                "total_scanned": len(inferences),
+                "resolved_from_data": resolved_data,
+                "resolved_from_structure": resolved_structure,
+                "resolved_from_name_hint": resolved_name,
+                "defaulted_to_str": defaulted,
             },
             "corrections": corrections,
+            "new_model_candidates": new_model_candidates,
         }
 
     @staticmethod
@@ -664,24 +1290,51 @@ class ReportGenerator:
         print("\n" + "=" * 70)
         print("TYPE DISCOVERY RESULTS")
         print("=" * 70)
-        print(f"Total properties analyzed: {summary['total']}")
-        print(f"  Resolved (type found):   {summary['resolved']}")
-        print(f"  Confirmed None:          {summary['confirmed_none']}")
+        print(f"Total properties analyzed: {summary['total_scanned']}")
+        print(f"  Resolved from data:      {summary['resolved_from_data']}")
+        print(f"  Resolved from structure:  {summary['resolved_from_structure']}")
+        print(f"  Resolved from name hint:  {summary['resolved_from_name_hint']}")
+        print(f"  Defaulted to str:         {summary['defaulted_to_str']}")
         print("-" * 70)
 
         for c in corrections_report["corrections"]:
-            status = "NONE" if c["inferred_type"] == "None" else "FOUND"
-            marker = "  " if status == "NONE" else ">>"
+            method = c["inference_method"]
+            if method == "structure":
+                marker = "**"
+            elif method == "data":
+                marker = ">>"
+            elif method == "name_hint":
+                marker = "~~"
+            else:
+                marker = "  "
+
+            score_str = ""
+            if "match_score" in c:
+                score_str = f" [score={c['match_score']:.2f}]"
+
             print(
                 f"{marker} {c['class']}.{c['property']}: "
                 f"{c['current_type']} -> {c['inferred_type']}  "
-                f"(evidence: {c['evidence']['non_none']}/{c['evidence']['total']})"
+                f"({method}, evidence: {c['evidence']['non_none']}/{c['evidence']['total']})"
+                f"{score_str}"
             )
-            if c["evidence"]["samples"] and c["inferred_type"] != "None":
+            if c["evidence"]["samples"] and c["inference_method"] != "default":
                 sample_str = str(c["evidence"]["samples"][0])
                 if len(sample_str) > 80:
                     sample_str = sample_str[:80] + "..."
                 print(f"     sample: {sample_str}")
+
+        # New model candidates
+        candidates = corrections_report.get("new_model_candidates", [])
+        if candidates:
+            print()
+            print("-" * 70)
+            print(f"NEW MODEL CANDIDATES: {len(candidates)}")
+            print("-" * 70)
+            for cand in candidates:
+                print(f"  {cand['suggested_name']}: keys={cand['observed_keys']}")
+                for sp in cand["source_properties"]:
+                    print(f"    from: {sp['class']}.{sp['property']}")
 
         print("=" * 70)
 
@@ -691,188 +1344,226 @@ class ReportGenerator:
 # ---------------------------------------------------------------------------
 def main() -> None:
     logger.info("=== Type Discovery Script ===")
-
-    # 0. Ensure data/ directory exists
     DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-    # 1. Fetch tokens
-    logger.info("Phase 0: Fetching tokens...")
+    # -----------------------------------------------------------------------
+    # Phase 0: Dynamic discovery of config constants and source code scanning
+    # -----------------------------------------------------------------------
+    logger.info("Phase 0: Dynamic discovery...")
+
+    # 0a. Discover config constants dynamically from modules
+    endpoint_map = _discover_config_constants(_directus_config, "ENDPOINT_")
+    meili_index_map = _discover_config_constants(_meili_config, "MEILISEARCH_INDEX_")
+
+    # Filter out the aggregate UIDS list constant (it's a list, not a string,
+    # so _discover_config_constants already skips it)
+    logger.info(
+        "  Discovered %d REST endpoints: %s",
+        len(endpoint_map),
+        sorted(endpoint_map.keys()),
+    )
+    logger.info(
+        "  Discovered %d MeiliSearch indexes: %s",
+        len(meili_index_map),
+        sorted(meili_index_map.keys()),
+    )
+
+    meili_index_uids = list(meili_index_map.values())
+
+    # 0b. Build class → index/prefix mappings from source code
+    meili_class_to_index = _build_meili_class_to_index(MODEL_DIRS, meili_index_map)
+    rest_class_to_prefix = _build_rest_class_to_prefix(MODEL_DIRS, endpoint_map)
+
+    logger.info("  meili_class_to_index: %s", meili_class_to_index)
+    logger.info("  rest_class_to_prefix: %s", rest_class_to_prefix)
+
+    # 0c. Build paginated endpoint list: ALL Directus endpoints (except special)
+    special_endpoints = {"lives", "configuration", "saisons"}
+    directus_dir = next((d for d in MODEL_DIRS if "directus_ffbb" in str(d)), None)
+    directus_model_bases: set[str] = set()
+    if directus_dir and directus_dir.exists():
+        for py_file in directus_dir.glob("get_*_response.py"):
+            stem = py_file.stem
+            base = stem[4:].rsplit("_response", 1)[0]
+            plural = base if base.endswith("s") else base + "s"
+            directus_model_bases.add(plural)
+    paginated_bases = sorted(directus_model_bases - special_endpoints)
+    paginated_endpoints: list[tuple[str, str]] = [
+        (endpoint_map[base], base) for base in paginated_bases if base in endpoint_map
+    ]
+    logger.info(
+        "  paginated_endpoints: %s",
+        [name for _, name in paginated_endpoints],
+    )
+
+    # 0e. Scan source code for incorrectly typed properties
+    logger.info("Phase 0e: Scanning source code for incorrectly typed properties...")
+    incorrect_props = SourceCodeScanner.scan_all(MODEL_DIRS)
+    logger.info("  Found %d incorrectly typed properties", len(incorrect_props))
+
+    for prop in incorrect_props:
+        logger.info(
+            "    [%s] %s.%s (%s) -> json_key=%s",
+            prop.category,
+            prop.class_name,
+            prop.python_name,
+            prop.current_type,
+            prop.json_key,
+        )
+
+    # Build record_whole_keys from scanned properties
+    record_whole_keys: set[str] = set()
+    for prop in incorrect_props:
+        if prop.category in ("dict_any", "list_any", "list_dict_any", "any_none"):
+            record_whole_keys.add(prop.json_key)
+
+    logger.info("  record_whole_keys: %d keys", len(record_whole_keys))
+
+    # Build model signature registry
+    logger.info("Phase 0f: Building model signature registry...")
+    sig_registry = ModelSignatureRegistry.build_from_source(MODEL_DIRS)
+
+    # -----------------------------------------------------------------------
+    # Phase 1: Fetch tokens
+    # -----------------------------------------------------------------------
+    logger.info("Phase 1: Fetching tokens...")
     api_token, meili_token = TokenFetcher.fetch()
 
     collector = RawDataCollector(api_token, meili_token)
-    meili_flattener = JsonFlattener()  # MeiliSearch hits
-    rest_flattener = JsonFlattener()  # REST API responses
+    meili_flattener = JsonFlattener(record_whole_keys=record_whole_keys)
+    rest_flattener = JsonFlattener(record_whole_keys=record_whole_keys)
 
-    # 2. Phase 1: MeiliSearch collection
-    logger.info("Phase 1: MeiliSearch collection...")
-    meili_ids: dict[str, list[Any]] = {}  # index → list of IDs for REST phase
+    # -----------------------------------------------------------------------
+    # Phase 2: MeiliSearch collection (streaming)
+    # -----------------------------------------------------------------------
+    logger.info("Phase 2: MeiliSearch collection...")
+    meili_ids: dict[str, list[Any]] = {}
 
-    for index_uid in MEILI_INDEX_TO_CLASSES:
+    for index_uid in meili_index_uids:
         logger.info("Collecting from %s...", index_uid)
-        hits = collector.collect_meilisearch(index_uid)
-
-        # Extract IDs for REST phase
-        ids = []
-        for hit in hits:
-            hit_id = hit.get("id")
-            if hit_id is not None:
-                ids.append(hit_id)
+        ids = collector.collect_meilisearch_streaming(index_uid, meili_flattener)
         meili_ids[index_uid] = ids
 
-        # Flatten hits for type discovery
-        for hit in hits:
-            meili_flattener.flatten(hit, f"meilisearch/{index_uid}/hits[]")
+    # -----------------------------------------------------------------------
+    # Phase 3: REST API collection (all paginated)
+    # -----------------------------------------------------------------------
+    logger.info("Phase 3: REST API collection...")
 
-    # 3. Phase 2: REST API collection
-    logger.info("Phase 2: REST API collection...")
-
-    # Responses dir for raw JSON samples
     responses_dir = DATA_DIR / "responses"
     responses_dir.mkdir(parents=True, exist_ok=True)
 
     def _save_samples(endpoint_name: str, data: list[dict[str, Any]]) -> None:
-        """Save 2-3 raw response samples to data/responses/."""
-        samples = data[:3]
+        samples = data[:10]
         if samples:
             out_path = responses_dir / f"{endpoint_name}.json"
             with open(out_path, "w", encoding="utf-8") as f:
                 json.dump(samples, f, indent=2, default=str, ensure_ascii=False)
             logger.info("  Saved %d samples to %s", len(samples), out_path)
 
-    # 2a. Wildcard: organismes
-    org_ids = meili_ids.get("ffbbserver_organismes", [])[:REST_SAMPLE_SIZE]
-    if org_ids:
-        logger.info("Fetching %d organismes (wildcard)...", len(org_ids))
-        org_data = collector.collect_rest_wildcard(ENDPOINT_ORGANISMES, org_ids)
-        for item in org_data:
-            rest_flattener.flatten(item, "rest/organismes")
-        _save_samples("organismes", org_data)
+    # 3a. All paginated endpoints in parallel
+    def _fetch_endpoint(
+        ep_tuple: tuple[str, str],
+    ) -> tuple[str, list[dict[str, Any]]]:
+        endpoint, name = ep_tuple
+        logger.info("Fetching %s (paginated, fields=*.*) ...", name)
+        data = collector.collect_rest_list_paginated(endpoint, ["*.*"])
+        return name, data
 
-    # 2a. Wildcard: competitions
-    comp_ids = meili_ids.get("ffbbserver_competitions", [])[:REST_SAMPLE_SIZE]
-    if comp_ids:
-        logger.info("Fetching %d competitions (wildcard)...", len(comp_ids))
-        comp_data = collector.collect_rest_wildcard(ENDPOINT_COMPETITIONS, comp_ids)
-        # Extract poule IDs from nested competition data
-        poule_ids: list[Any] = []
-        for item in comp_data:
-            rest_flattener.flatten(item, "rest/competitions")
-            # Look for nested phases → poules
-            phases = item.get("phases", [])
-            if isinstance(phases, list):
-                for phase in phases:
-                    if isinstance(phase, dict):
-                        poules = phase.get("poules", [])
-                        if isinstance(poules, list):
-                            for poule in poules:
-                                if isinstance(poule, dict):
-                                    pid = poule.get("id")
-                                    if pid is not None:
-                                        poule_ids.append(pid)
-        _save_samples("competitions", comp_data)
+    with ThreadPoolExecutor(max_workers=REST_PARALLEL_WORKERS) as executor:
+        futures = {
+            executor.submit(_fetch_endpoint, ep): ep[1] for ep in paginated_endpoints
+        }
+        for future in as_completed(futures):
+            name = futures[future]
+            try:
+                name, data = future.result()
+                for item in data:
+                    rest_flattener.flatten(item, f"rest/{name}")
+                _save_samples(name, data)
+            except Exception as exc:
+                logger.error("Failed to fetch %s: %s", name, exc)
 
-        # 2a. Wildcard: poules
-        poule_sample = poule_ids[:REST_POULE_SAMPLE_SIZE]
-        if poule_sample:
-            logger.info("Fetching %d poules (wildcard)...", len(poule_sample))
-            poule_data = collector.collect_rest_wildcard(ENDPOINT_POULES, poule_sample)
-            for item in poule_data:
-                rest_flattener.flatten(item, "rest/poules")
-            _save_samples("poules", poule_data)
+    # 3b. Saisons
+    saisons_endpoint = endpoint_map.get("saisons")
+    if saisons_endpoint:
+        logger.info("Fetching saisons...")
+        saisons_data = collector.collect_rest_list(saisons_endpoint, ["*.*"])
+        for item in saisons_data:
+            rest_flattener.flatten(item, "rest/saisons")
+        _save_samples("saisons", saisons_data)
 
-    # 2a. Wildcard: saisons
-    logger.info("Fetching saisons...")
-    saisons_data = collector.collect_rest_list(ENDPOINT_SAISONS, ["*.*.*"])
-    for item in saisons_data:
-        rest_flattener.flatten(item, "rest/saisons")
-    _save_samples("saisons", saisons_data)
+    # 3d. Lives
+    lives_endpoint = endpoint_map.get("lives")
+    if lives_endpoint:
+        logger.info("Fetching lives.json...")
+        lives_data = collector.collect_lives(lives_endpoint)
+        if lives_data:
+            rest_flattener.flatten(lives_data, "rest/lives")
 
-    # 2a. lives.json
-    logger.info("Fetching lives.json...")
-    lives_data = collector.collect_lives()
-    if lives_data:
-        rest_flattener.flatten(lives_data, "rest/lives")
-        _save_samples(
-            "lives", [lives_data] if isinstance(lives_data, dict) else lives_data
-        )
+    # 3e. Configuration
+    config_endpoint = endpoint_map.get("configuration")
+    if config_endpoint:
+        logger.info("Fetching configuration...")
+        config_data = collector.collect_rest_list(config_endpoint, ["*.*"])
+        for item in config_data:
+            rest_flattener.flatten(item, "rest/configuration")
 
-    # --- NEW: 11 additional REST endpoints ---
+    # -----------------------------------------------------------------------
+    # Phase 4: Type inference
+    # -----------------------------------------------------------------------
+    logger.info("Phase 4: Inferring types...")
+    inferrer = TypeInferrer(sig_registry)
+    inferences: list[TypeInference] = []
 
-    # List endpoints (communes, officiels, entraineurs, pratiques)
-    for endpoint, name in [
-        (ENDPOINT_COMMUNES, "communes"),
-        (ENDPOINT_OFFICIELS, "officiels"),
-        (ENDPOINT_ENTRAINEURS, "entraineurs"),
-        (ENDPOINT_PRATIQUES, "pratiques"),
-    ]:
-        logger.info("Fetching %s (list)...", name)
-        list_data = collector.collect_rest_list(endpoint, ["*.*.*"])
-        for item in list_data:
-            rest_flattener.flatten(item, f"rest/{name}")
-        _save_samples(name, list_data)
+    for prop in incorrect_props:
+        # Determine which flattener(s) to search based on file location
+        merged = PathStats()
 
-    # Wildcard by ID endpoints (using IDs from MeiliSearch)
-    meili_to_rest = [
-        ("ffbbserver_rencontres", ENDPOINT_RENCONTRES, "rencontres"),
-        ("ffbbserver_salles", ENDPOINT_SALLES, "salles"),
-        ("ffbbserver_terrains", ENDPOINT_TERRAINS, "terrains"),
-        ("ffbbserver_tournois", ENDPOINT_TOURNOIS, "tournois"),
-        (MEILISEARCH_INDEX_ENGAGEMENTS, ENDPOINT_ENGAGEMENTS, "engagements"),
-        (MEILISEARCH_INDEX_FORMATIONS, ENDPOINT_FORMATIONS, "formations"),
-    ]
-    for index_uid, endpoint, name in meili_to_rest:
-        ids = meili_ids.get(index_uid, [])[:REST_SAMPLE_SIZE]
-        if ids:
-            logger.info("Fetching %d %s (wildcard)...", len(ids), name)
-            endpoint_data = collector.collect_rest_wildcard(endpoint, ids)
-            for item in endpoint_data:
-                rest_flattener.flatten(item, f"rest/{name}")
-            _save_samples(name, endpoint_data)
+        if prop.file.startswith("meilisearch_ffbb/"):
+            # Search MeiliSearch flattener with targeted prefix
+            index_uid = meili_class_to_index.get(prop.class_name)
+            if index_uid:
+                prefix = f"meilisearch/{index_uid}/hits[]"
+                paths = meili_flattener.find_paths_with_prefix(prefix, prop.json_key)
+            else:
+                paths = meili_flattener.find_matching_paths(prop.json_key)
+            for mp in paths:
+                ps = meili_flattener.get_stats(mp)
+                if ps:
+                    _merge_stats(merged, ps)
 
-    # Single endpoint: configuration
-    logger.info("Fetching configuration...")
-    config_data = collector.collect_rest_list(ENDPOINT_CONFIGURATION, ["*.*.*"])
-    for item in config_data:
-        rest_flattener.flatten(item, "rest/configuration")
-    _save_samples("configuration", config_data)
+        elif prop.file.startswith("directus_ffbb/"):
+            # Search REST flattener with targeted prefix
+            rest_prefix = rest_class_to_prefix.get(prop.class_name)
+            if rest_prefix:
+                paths = rest_flattener.find_paths_with_prefix(
+                    rest_prefix, prop.json_key
+                )
+            else:
+                paths = rest_flattener.find_matching_paths(prop.json_key)
+            for mp in paths:
+                ps = rest_flattener.get_stats(mp)
+                if ps:
+                    _merge_stats(merged, ps)
 
-    # 2b. Targeted: organismes with explicit from_none fields
-    if org_ids:
-        logger.info("Fetching %d organismes (targeted)...", len(org_ids))
-        targeted_org = collector.collect_rest_targeted(
-            ENDPOINT_ORGANISMES,
-            org_ids,
-            [
-                "adresseClubPro",
-                "communeClubPro",
-                "salle.*",
-                "type_association.*",
-                "dateAffiliation",
-                "logo_base64",
-                "commune.codeInsee",
-                "cartographie.date_created",
-                "cartographie.date_updated",
-                "document_flyer.*",
-            ],
-        )
-        for item in targeted_org:
-            rest_flattener.flatten(item, "rest/organismes_targeted")
+        else:
+            # Core models — search both flatteners
+            for fl in [meili_flattener, rest_flattener]:
+                paths = fl.find_matching_paths(prop.json_key)
+                for mp in paths:
+                    ps = fl.get_stats(mp)
+                    if ps:
+                        _merge_stats(merged, ps)
 
-    # 2b. Targeted: competitions with from_none fields
-    if comp_ids:
-        logger.info("Fetching %d competitions (targeted)...", len(comp_ids))
-        targeted_comp = collector.collect_rest_targeted(
-            ENDPOINT_COMPETITIONS,
-            comp_ids,
-            ["idCompetitionPere.*"],
-        )
-        for item in targeted_comp:
-            rest_flattener.flatten(item, "rest/competitions_targeted")
+        inference = inferrer.infer(merged, prop)
+        inferences.append(inference)
 
-    # 4. Generate reports
-    logger.info("Phase 3: Generating reports...")
+    # -----------------------------------------------------------------------
+    # Phase 5: Generate reports
+    # -----------------------------------------------------------------------
+    logger.info("Phase 5: Generating reports...")
 
-    # Merge both flatteners for the raw report
+    # Combined flattener for raw report
     combined_flattener = JsonFlattener()
     combined_flattener.paths.update(meili_flattener.paths)
     combined_flattener.paths.update(rest_flattener.paths)
@@ -880,9 +1571,7 @@ def main() -> None:
     raw_report = ReportGenerator.generate_raw_report(
         combined_flattener, collector.stats
     )
-    corrections_report = ReportGenerator.generate_corrections(
-        rest_flattener, meili_flattener
-    )
+    corrections_report = ReportGenerator.generate_corrections(inferences)
 
     # Write JSON files
     raw_path = DATA_DIR / "type_discovery_raw.json"
@@ -896,23 +1585,21 @@ def main() -> None:
         json.dump(corrections_report, f, indent=2, default=str, ensure_ascii=False)
     logger.info("Corrections report written to %s", corrections_path)
 
-    # 5. Phase 4: Enum candidate detection
-    logger.info("Phase 4: Detecting enum candidates...")
+    # -----------------------------------------------------------------------
+    # Phase 6: Enum candidate detection
+    # -----------------------------------------------------------------------
+    logger.info("Phase 6: Detecting enum candidates...")
     enum_candidates: list[dict[str, Any]] = []
 
     for path, stats in combined_flattener.paths.items():
-        # Only consider str-typed paths with low cardinality
         if stats.non_none_count < 10:
             continue
         if "str" not in stats.types:
             continue
-        # Collect all unique string values from samples
         str_samples = [s for s in stats.samples if isinstance(s, str)]
         if not str_samples:
             continue
-        # Estimate unique values — we only have up to MAX_SAMPLES
         unique_values = sorted(set(str_samples))
-        # If cardinality is low relative to observations, it's likely an enum
         if len(unique_values) < 50:
             enum_candidates.append(
                 {
@@ -936,6 +1623,28 @@ def main() -> None:
     ReportGenerator.print_console_summary(corrections_report)
 
     logger.info("Done.")
+
+
+def _merge_stats(target: PathStats, source: PathStats) -> None:
+    """Merge source PathStats into target."""
+    target.total += source.total
+    target.none_count += source.none_count
+    target.non_none_count += source.non_none_count
+    for tn, cnt in source.types.items():
+        target.types[tn] = target.types.get(tn, 0) + cnt
+    remaining = PathStats.MAX_SAMPLES - len(target.samples)
+    if remaining > 0:
+        target.samples.extend(source.samples[:remaining])
+    remaining_ks = PathStats.MAX_KEY_SETS - len(target.dict_key_sets)
+    if remaining_ks > 0:
+        target.dict_key_sets.extend(source.dict_key_sets[:remaining_ks])
+    for tn, cnt in source.list_element_types.items():
+        target.list_element_types[tn] = target.list_element_types.get(tn, 0) + cnt
+    remaining_lks = PathStats.MAX_KEY_SETS - len(target.list_element_key_sets)
+    if remaining_lks > 0:
+        target.list_element_key_sets.extend(
+            source.list_element_key_sets[:remaining_lks]
+        )
 
 
 if __name__ == "__main__":
