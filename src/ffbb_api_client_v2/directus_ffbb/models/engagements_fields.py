@@ -1,5 +1,8 @@
-class EngagementsFields:
-    """Default fields for engagements queries."""
+from .query_fields_manager import QueryFieldsManager
+
+
+class EngagementsFields(QueryFieldsManager):
+    """Fields for engagements queries."""
 
     ID = "id"
     NOM = "nom"
@@ -22,8 +25,8 @@ class EngagementsFields:
     DATE_UPDATED = "date_updated"
 
     @classmethod
-    def get_default_fields(cls) -> list[str]:
-        """Get default fields for engagements queries."""
+    def get_fields(cls) -> list[str]:
+        """Return the complete list of fields for engagements."""
         return [
             cls.ID,
             cls.NOM,
@@ -35,22 +38,6 @@ class EngagementsFields:
             cls.CLUB_PRO,
             cls.POSITION,
             cls.LOGO,
-        ]
-
-    @classmethod
-    def get_basic_fields(cls) -> list[str]:
-        """Get basic fields for simple engagements queries."""
-        return [
-            cls.ID,
-            cls.NOM,
-            cls.NOM_EQUIPE,
-            cls.POSITION,
-        ]
-
-    @classmethod
-    def get_detailed_fields(cls) -> list[str]:
-        """Get detailed fields for engagements queries."""
-        return cls.get_default_fields() + [
             cls.ID_COMPETITION,
             cls.ID_ORGANISME,
             cls.ID_POULE,
@@ -61,5 +48,3 @@ class EngagementsFields:
             cls.DATE_CREATED,
             cls.DATE_UPDATED,
         ]
-
-    WILDCARD = "*.*"

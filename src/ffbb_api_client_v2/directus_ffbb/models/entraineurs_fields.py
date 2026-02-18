@@ -1,5 +1,8 @@
-class EntraineursFields:
-    """Default fields for entraineurs queries."""
+from .query_fields_manager import QueryFieldsManager
+
+
+class EntraineursFields(QueryFieldsManager):
+    """Fields for entraineurs queries."""
 
     ID_LICENCE = "idLicence"
     NOM = "nom"
@@ -18,8 +21,8 @@ class EntraineursFields:
     DATE_UPDATED = "date_updated"
 
     @classmethod
-    def get_default_fields(cls) -> list[str]:
-        """Get default fields for entraineurs queries."""
+    def get_fields(cls) -> list[str]:
+        """Return the complete list of fields for entraineurs."""
         return [
             cls.ID_LICENCE,
             cls.NOM,
@@ -28,12 +31,6 @@ class EntraineursFields:
             cls.TELEPHONE_PORTABLE,
             cls.COMMUNE_CODE_POSTAL,
             cls.COMMUNE_LIBELLE,
-        ]
-
-    @classmethod
-    def get_detailed_fields(cls) -> list[str]:
-        """Get detailed fields for entraineurs queries."""
-        return cls.get_default_fields() + [
             cls.ADRESSE1,
             cls.ADRESSE2,
             cls.TELEPHONE_DOMICILE,
@@ -43,5 +40,3 @@ class EntraineursFields:
             cls.DATE_CREATED,
             cls.DATE_UPDATED,
         ]
-
-    WILDCARD = "*.*"

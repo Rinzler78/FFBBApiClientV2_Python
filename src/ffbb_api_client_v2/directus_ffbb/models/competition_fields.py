@@ -1,5 +1,8 @@
-class CompetitionFields:
-    """Default fields for competition queries."""
+from .query_fields_manager import QueryFieldsManager
+
+
+class CompetitionFields(QueryFieldsManager):
+    """Fields for competition queries."""
 
     # Basic fields
     ID = "id"
@@ -196,8 +199,8 @@ class CompetitionFields:
     )
 
     @classmethod
-    def get_default_fields(cls) -> list[str]:
-        """Get default fields for competition queries based on real API usage."""
+    def get_fields(cls) -> list[str]:
+        """Return the complete list of fields for competition queries."""
         return [
             # Basic competition fields
             cls.ID,
@@ -291,21 +294,3 @@ class CompetitionFields:
             cls.PHASES_POULES_RENCONTRES_OFFICIELS_OFFICIEL_NOM,
             cls.PHASES_POULES_RENCONTRES_OFFICIELS_OFFICIEL_PRENOM,
         ]
-
-    @classmethod
-    def get_basic_fields(cls) -> list[str]:
-        """Get basic fields for simple competition queries."""
-        return [
-            cls.ID,
-            cls.NOM,
-            cls.SEXE,
-            cls.SAISON,
-            cls.CODE,
-        ]
-
-    @classmethod
-    def get_detailed_fields(cls) -> list[str]:
-        """Get detailed fields (all fields now included in default)."""
-        return cls.get_default_fields()
-
-    WILDCARD = "*.*.*.*.*"

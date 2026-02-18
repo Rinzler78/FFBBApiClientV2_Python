@@ -450,20 +450,19 @@ Retrieve the settings of any Meilisearch index at runtime.
     print(f"Sortable attributes: {settings.sortable_attributes}")
     print(f"Searchable attributes: {settings.searchable_attributes}")
 
-Using FieldSet.WILDCARD (v1.3.0+)
-===================================
+FieldSet (v1.4.0+)
+===================
 
-Use ``FieldSet.WILDCARD`` to retrieve all available fields from a Directus endpoint.
+Since v1.4.0, only ``FieldSet.DEFAULT`` is supported. All queries use comprehensive
+field lists that include every available field for each endpoint.
 
 .. code-block:: python
 
-    from ffbb_api_client_v2.models.query_fields import FieldSet
+    from ffbb_api_client_v2 import FieldSet
 
-    # Get all available fields for an organisme
-    organisme = client.get_organisme(123, field_set=FieldSet.WILDCARD)
-
-    # Get all fields for a competition
-    competition = client.get_competition(456, field_set=FieldSet.WILDCARD)
+    # Only DEFAULT is available
+    assert len(FieldSet) == 1
+    assert FieldSet.DEFAULT.value == "default"
 
 Complete Example Script
 =======================

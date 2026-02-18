@@ -19,7 +19,7 @@ python examples/quick_start.py
 ### `complete_usage_example.py`
 Comprehensive example demonstrating all major features:
 - Type-safe model objects
-- Field selection (BASIC, DEFAULT, DETAILED)
+- Field selection (DEFAULT)
 - Error handling
 - Multi-search functionality
 - Competition details
@@ -88,7 +88,7 @@ python examples/directus_collections.py
 
 ### `field_sets_and_filtering.py`
 Tutorial on FieldSet, filtering, sorting, and pagination:
-- `FieldSet` comparison (BASIC, DEFAULT, DETAILED, WILDCARD)
+- `FieldSet` (DEFAULT — single level)
 - Directus `filter_criteria` (JSON) vs Meilisearch `filter` (list)
 - Sort syntax differences between APIs
 - Manual pagination (offset) and auto-pagination (list_all)
@@ -165,7 +165,7 @@ meilisearch_token = os.getenv("MEILISEARCH_BEARER_TOKEN")
 | Directus REST (list) | 10 list methods | `directus_collections.py`, `field_sets_and_filtering.py` |
 | Directus REST (list_all) | 10 list_all methods | `directus_collections.py`, `field_sets_and_filtering.py` |
 | Core (lives, saisons) | 2 methods | `quick_start.py` |
-| FieldSet | 4 levels | `complete_usage_example.py`, `field_sets_and_filtering.py` |
+| FieldSet | 1 level (DEFAULT) | `complete_usage_example.py`, `field_sets_and_filtering.py` |
 
 ## Support
 

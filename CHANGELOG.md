@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-02-18
+
+### Changed (Breaking)
+- **BREAKING**: `QueryFieldsManager` is now an abstract base class (ABC) with a single `get_fields()` abstract method
+- **BREAKING**: All 14 `*Fields` classes now inherit from `QueryFieldsManager` and expose a single `get_fields()` method (replaces `get_default_fields()`, `get_detailed_fields()`, `get_basic_fields()`)
+- **BREAKING**: `FieldSet` enum reduced to `DEFAULT` only — `BASIC`, `DETAILED`, and `WILDCARD` removed
+- **BREAKING**: `WILDCARD` class constant removed from all `*Fields` classes
+- **BREAKING**: `client.py` now imports individual `*Fields` classes instead of `QueryFieldsManager` facade
+- Default field lists now return all fields (content of former `get_detailed_fields()`), including member personal data for `OrganismeFields`
+
+### Migration
+- Replace `QueryFieldsManager.get_X_fields()` with `XFields.get_fields()`
+- Replace `FieldSet.BASIC` / `FieldSet.DETAILED` / `FieldSet.WILDCARD` with `FieldSet.DEFAULT` or remove
+- Remove any references to `*Fields.WILDCARD` constants
+
 ## [1.3.0] - 2026-02-10
 
 ### Added

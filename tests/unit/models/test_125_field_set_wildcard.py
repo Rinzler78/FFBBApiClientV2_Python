@@ -1,4 +1,4 @@
-"""Tests for WILDCARD constants on entity fields classes."""
+"""Tests for FieldSet enum and *Fields classes inheritance."""
 
 from __future__ import annotations
 
@@ -14,56 +14,59 @@ from ffbb_api_client_v2.directus_ffbb.models.query_fields_manager import (
 from ffbb_api_client_v2.directus_ffbb.models.saison_fields import SaisonFields
 
 
-class Test125FieldSetWildcard(unittest.TestCase):
-    """Tests for FieldSet.WILDCARD enum value and WILDCARD class constants."""
+class Test125FieldSetAndInheritance(unittest.TestCase):
+    """Tests for FieldSet enum and *Fields ABC inheritance."""
 
-    def test_000_field_set_wildcard_exists(self) -> None:
-        """Test that WILDCARD is a valid FieldSet value."""
-        self.assertEqual(FieldSet.WILDCARD.value, "wildcard")
+    def test_000_field_set_default_exists(self) -> None:
+        """Test that DEFAULT is a valid FieldSet value."""
+        self.assertEqual(FieldSet.DEFAULT.value, "default")
 
-    def test_001_competition_wildcard_constant(self) -> None:
-        """Test CompetitionFields.WILDCARD is a string with correct depth."""
-        self.assertIsInstance(CompetitionFields.WILDCARD, str)
-        self.assertEqual(CompetitionFields.WILDCARD, "*.*.*.*.*")
+    def test_001_field_set_has_only_default(self) -> None:
+        """Test that FieldSet has exactly one member."""
+        self.assertEqual(len(FieldSet), 1)
 
-    def test_004_organisme_wildcard_constant(self) -> None:
-        """Test OrganismeFields.WILDCARD is a string with correct depth."""
-        self.assertIsInstance(OrganismeFields.WILDCARD, str)
-        self.assertEqual(OrganismeFields.WILDCARD, "*.*.*.*")
+    def test_007_competition_fields_returns_explicit_list(self) -> None:
+        """Test CompetitionFields.get_fields() returns explicit fields."""
+        result = CompetitionFields.get_fields()
+        self.assertIsInstance(result, list)
+        self.assertIn("id", result)
+        self.assertIn("nom", result)
 
-    def test_005_poule_wildcard_constant(self) -> None:
-        """Test PouleFields.WILDCARD is a string with correct depth."""
-        self.assertIsInstance(PouleFields.WILDCARD, str)
-        self.assertEqual(PouleFields.WILDCARD, "*.*.*")
+    def test_008_organisme_fields_returns_explicit_list(self) -> None:
+        """Test OrganismeFields.get_fields() returns explicit fields."""
+        result = OrganismeFields.get_fields()
+        self.assertIsInstance(result, list)
+        self.assertIn("id", result)
+        self.assertIn("nom", result)
 
-    def test_006_saison_wildcard_constant(self) -> None:
-        """Test SaisonFields.WILDCARD is a string with correct depth."""
-        self.assertIsInstance(SaisonFields.WILDCARD, str)
-        self.assertEqual(SaisonFields.WILDCARD, "*")
+    def test_009_poule_fields_returns_explicit_list(self) -> None:
+        """Test PouleFields.get_fields() returns explicit fields."""
+        result = PouleFields.get_fields()
+        self.assertIsInstance(result, list)
+        self.assertIn("id", result)
+        self.assertIn("nom", result)
 
-    def test_007_query_fields_manager_competition_explicit(self) -> None:
-        """Test QueryFieldsManager returns explicit fields for competitions."""
-        result = QueryFieldsManager.get_competition_fields()
-        self.assertEqual(result, CompetitionFields.get_default_fields())
-        self.assertNotIn(CompetitionFields.WILDCARD, result)
+    def test_010_saison_fields_returns_explicit_list(self) -> None:
+        """Test SaisonFields.get_fields() returns explicit fields."""
+        result = SaisonFields.get_fields()
+        self.assertIsInstance(result, list)
+        self.assertIn("id", result)
 
-    def test_008_query_fields_manager_organisme_explicit(self) -> None:
-        """Test QueryFieldsManager returns explicit fields for organismes."""
-        result = QueryFieldsManager.get_organisme_fields()
-        self.assertEqual(result, OrganismeFields.get_default_fields())
-        self.assertNotIn(OrganismeFields.WILDCARD, result)
+    def test_011_competition_inherits_query_fields_manager(self) -> None:
+        """Test CompetitionFields inherits from QueryFieldsManager."""
+        self.assertTrue(issubclass(CompetitionFields, QueryFieldsManager))
 
-    def test_009_query_fields_manager_poule_explicit(self) -> None:
-        """Test QueryFieldsManager returns explicit fields for poules."""
-        result = QueryFieldsManager.get_poule_fields()
-        self.assertEqual(result, PouleFields.get_default_fields())
-        self.assertNotIn(PouleFields.WILDCARD, result)
+    def test_012_organisme_inherits_query_fields_manager(self) -> None:
+        """Test OrganismeFields inherits from QueryFieldsManager."""
+        self.assertTrue(issubclass(OrganismeFields, QueryFieldsManager))
 
-    def test_010_query_fields_manager_saison_explicit(self) -> None:
-        """Test QueryFieldsManager returns explicit fields for saisons."""
-        result = QueryFieldsManager.get_saison_fields()
-        self.assertEqual(result, SaisonFields.get_default_fields())
-        self.assertNotIn(SaisonFields.WILDCARD, result)
+    def test_013_poule_inherits_query_fields_manager(self) -> None:
+        """Test PouleFields inherits from QueryFieldsManager."""
+        self.assertTrue(issubclass(PouleFields, QueryFieldsManager))
+
+    def test_014_saison_inherits_query_fields_manager(self) -> None:
+        """Test SaisonFields inherits from QueryFieldsManager."""
+        self.assertTrue(issubclass(SaisonFields, QueryFieldsManager))
 
 
 if __name__ == "__main__":

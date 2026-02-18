@@ -1,5 +1,8 @@
-class TournoisFields:
-    """Default fields for tournois queries."""
+from .query_fields_manager import QueryFieldsManager
+
+
+class TournoisFields(QueryFieldsManager):
+    """Fields for tournois queries."""
 
     ID = "id"
     NOM = "nom"
@@ -30,8 +33,8 @@ class TournoisFields:
     DATE_UPDATED = "date_updated"
 
     @classmethod
-    def get_default_fields(cls) -> list[str]:
-        """Get default fields for tournois queries."""
+    def get_fields(cls) -> list[str]:
+        """Return the complete list of fields for tournois."""
         return [
             cls.ID,
             cls.NOM,
@@ -48,12 +51,6 @@ class TournoisFields:
             cls.COMMUNE_LIBELLE,
             cls.CARTOGRAPHIE_LATITUDE,
             cls.CARTOGRAPHIE_LONGITUDE,
-        ]
-
-    @classmethod
-    def get_detailed_fields(cls) -> list[str]:
-        """Get detailed fields for tournois queries."""
-        return cls.get_default_fields() + [
             cls.ADRESSE_COMPLEMENT,
             cls.URL_ORGANISATEUR,
             cls.SITE_CHOISI,
@@ -67,5 +64,3 @@ class TournoisFields:
             cls.DATE_CREATED,
             cls.DATE_UPDATED,
         ]
-
-    WILDCARD = "*.*"

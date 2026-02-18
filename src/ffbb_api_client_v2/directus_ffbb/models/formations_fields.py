@@ -1,5 +1,8 @@
-class FormationsFields:
-    """Default fields for formations queries."""
+from .query_fields_manager import QueryFieldsManager
+
+
+class FormationsFields(QueryFieldsManager):
+    """Fields for formations queries."""
 
     ID = "id"
     TITLE = "title"
@@ -25,8 +28,8 @@ class FormationsFields:
     DATE_UPDATED = "date_updated"
 
     @classmethod
-    def get_default_fields(cls) -> list[str]:
-        """Get default fields for formations queries."""
+    def get_fields(cls) -> list[str]:
+        """Return the complete list of fields for formations."""
         return [
             cls.ID,
             cls.TITLE,
@@ -39,12 +42,6 @@ class FormationsFields:
             cls.STATUS,
             cls.DOMAIN,
             cls.THEME,
-        ]
-
-    @classmethod
-    def get_detailed_fields(cls) -> list[str]:
-        """Get detailed fields for formations queries."""
-        return cls.get_default_fields() + [
             cls.SESSIONS,
             cls.PUBLIC,
             cls.GOALS,
@@ -57,5 +54,3 @@ class FormationsFields:
             cls.DATE_CREATED,
             cls.DATE_UPDATED,
         ]
-
-    WILDCARD = "*.*"

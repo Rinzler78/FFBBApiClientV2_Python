@@ -5,15 +5,17 @@ import time
 import unittest
 
 from ffbb_api_client_v2 import FFBBAPIClientV2
+from ffbb_api_client_v2.directus_ffbb.models.competition_fields import (
+    CompetitionFields,
+)
 from ffbb_api_client_v2.directus_ffbb.models.get_competition_response import (
     GetCompetitionResponse,
 )
 from ffbb_api_client_v2.directus_ffbb.models.get_organisme_response import (
     GetOrganismeResponse,
 )
-from ffbb_api_client_v2.directus_ffbb.models.query_fields_manager import (
-    QueryFieldsManager,
-)
+from ffbb_api_client_v2.directus_ffbb.models.organisme_fields import OrganismeFields
+from ffbb_api_client_v2.directus_ffbb.models.saison_fields import SaisonFields
 from ffbb_api_client_v2.directus_ffbb.models.saisons_models import GetSaisonsResponse
 
 
@@ -142,9 +144,9 @@ class Test011EnhancedIntegration(unittest.TestCase):
 
     def test_004_query_fields_manager(self):
         """Test centralized query fields management returns explicit field lists."""
-        organisme_fields = QueryFieldsManager.get_organisme_fields()
-        competition_fields = QueryFieldsManager.get_competition_fields()
-        saison_fields = QueryFieldsManager.get_saison_fields()
+        organisme_fields = OrganismeFields.get_fields()
+        competition_fields = CompetitionFields.get_fields()
+        saison_fields = SaisonFields.get_fields()
 
         self.assertIsInstance(organisme_fields, list)
         self.assertIsInstance(competition_fields, list)

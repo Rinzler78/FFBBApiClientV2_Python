@@ -1,5 +1,8 @@
-class PouleFields:
-    """Default fields for poule queries."""
+from .query_fields_manager import QueryFieldsManager
+
+
+class PouleFields(QueryFieldsManager):
+    """Fields for poule queries."""
 
     # Basic fields
     ID = "id"
@@ -56,7 +59,6 @@ class PouleFields:
     CLASSEMENTS_ID_ENGAGEMENT_NOM = "classements.idEngagement.nom"
     CLASSEMENTS_ID_ENGAGEMENT_NOM_USUEL = "classements.idEngagement.nomUsuel"
     CLASSEMENTS_ID_ENGAGEMENT_CODE_ABREGE = "classements.idEngagement.codeAbrege"
-    CLASSEMENTS_ID_ENGAGEMENT_NUMERO_EQU = "classements.idEngagement.numeroEqu"
     CLASSEMENTS_ID_ENGAGEMENT_LOGO_ID = "classements.idEngagement.logo.id"
     CLASSEMENTS_ID_ENGAGEMENT_LOGO_GRADIENT = (
         "classements.idEngagement.logo.gradient_color"
@@ -87,8 +89,8 @@ class PouleFields:
     CLASSEMENTS_HORS_CLASSEMENT = "classements.horsClassement"
 
     @classmethod
-    def get_default_fields(cls) -> list[str]:
-        """Get default fields for poule queries based on real API usage."""
+    def get_fields(cls) -> list[str]:
+        """Return the complete list of fields for poule queries."""
         return [
             # Basic fields
             cls.ID,
@@ -198,23 +200,6 @@ class PouleFields:
             cls.CLASSEMENTS_DIFFERENCE,
             cls.CLASSEMENTS_QUOTIENT,
             cls.CLASSEMENTS_HORS_CLASSEMENT,
-        ]
-
-    @classmethod
-    def get_detailed_fields(cls) -> list[str]:
-        """Get detailed fields including relation-level constants."""
-        return cls.get_default_fields() + [
+            # Extra fields
             cls.RENCONTRES_COMPETITION_ID,
-            cls.CLASSEMENTS_ID_ENGAGEMENT_NUMERO_EQU,
         ]
-
-    @classmethod
-    def get_basic_fields(cls) -> list[str]:
-        """Get basic fields for simple poule queries."""
-        return [
-            cls.ID,
-            cls.NOM,
-            cls.RENCONTRES_ID,
-        ]
-
-    WILDCARD = "*.*.*"

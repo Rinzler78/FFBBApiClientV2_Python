@@ -45,7 +45,7 @@ It provides a comprehensive interface to retrieve information about clubs, teams
 
 - **Complete API Coverage**: Access all FFBB services including competitions, organismes, seasons, lives, and search
 - **Type-Safe Models**: Strongly-typed data models with automatic validation and error handling
-- **Flexible Field Selection**: Customizable field queries (BASIC, DEFAULT, DETAILED) for optimized API calls
+- **Flexible Field Selection**: Comprehensive field queries with per-endpoint field definitions
 - **Modern Architecture**: Clean, modular design with organized package structure
 - **Request Caching**: Built-in caching support for improved performance
 - **Thoroughly Tested**: Comprehensive unit and integration tests ensuring reliability
@@ -144,22 +144,12 @@ Quick Start
 Advanced Usage
 ==============
 
-**Working with Field Sets (v1.3.0+)**
+**Working with Field Sets (v1.4.0+)**
 
 .. code-block:: python
 
-    from ffbb_api_client_v2.models.query_fields import FieldSet
-
-    # Get organization with basic fields only
-    organisme = client.get_organisme(
-        organisme_id=12345,
-        field_set=FieldSet.BASIC
-    )
-
-    # Get organization with detailed information (default)
-    organisme_full = client.get_organisme(
-        organisme_id=12345
-    )
+    # All queries use comprehensive DEFAULT field lists
+    organisme = client.get_organisme(organisme_id=12345)
 
 **Working with Competitions and Seasons**
 
@@ -221,7 +211,7 @@ The library is organized into the following packages:
     from ffbb_api_client_v2.models.saisons_models import GetSaisonsResponse
 
     # Import field management
-    from ffbb_api_client_v2.models.query_fields import QueryFieldsManager, FieldSet
+    from ffbb_api_client_v2 import FieldSet
 
 Environment Configuration
 =========================
@@ -286,21 +276,18 @@ API Reference
 
 - ``get_lives()`` - Get current live matches
 - ``get_saisons()`` - Get seasons with optional filtering
-- ``get_organisme(organisme_id, field_set=FieldSet.DETAILED)`` - Get detailed organization info
-- ``get_competition(competition_id, field_set=FieldSet.DETAILED)`` - Get competition details
-- ``get_poule(poule_id, field_set=FieldSet.DETAILED)`` - Get pool/group information
+- ``get_organisme(organisme_id)`` - Get detailed organization info
+- ``get_competition(competition_id)`` - Get competition details
+- ``get_poule(poule_id)`` - Get pool/group information
 - ``search_organismes(name)`` - Search organizations by name
 - ``search_competitions(name)`` - Search competitions by name
 - ``search_rencontres(name)`` - Search matches by name
 - ``search_salles(name)`` - Search venues by name
 - ``multi_search(name)`` - Search across all resource types
 
-**Field Selection Options:**
+**Field Selection:**
 
-- ``FieldSet.BASIC`` - Essential fields only
-- ``FieldSet.DEFAULT`` - Standard field set
-- ``FieldSet.DETAILED`` - Comprehensive field set with nested data (default)
-- ``FieldSet.WILDCARD`` - All available fields
+- ``FieldSet.DEFAULT`` - Comprehensive field set (the only level)
 
 Testing
 =======

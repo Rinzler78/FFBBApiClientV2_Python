@@ -1,5 +1,8 @@
-class OrganismeFields:
-    """Default fields for organisme queries."""
+from .query_fields_manager import QueryFieldsManager
+
+
+class OrganismeFields(QueryFieldsManager):
+    """Fields for organisme queries."""
 
     # Basic fields
     ID = "id"
@@ -128,10 +131,18 @@ class OrganismeFields:
     MEMBRES_ID = "membres.id"
     MEMBRES_NOM = "membres.nom"
     MEMBRES_PRENOM = "membres.prenom"
+    MEMBRES_MAIL = "membres.mail"
+    MEMBRES_TELEPHONE_PORTABLE = "membres.telephonePortable"
+    MEMBRES_ADRESSE1 = "membres.adresse1"
+    MEMBRES_ADRESSE2 = "membres.adresse2"
+    MEMBRES_CODE_POSTAL = "membres.codePostal"
+    MEMBRES_VILLE = "membres.ville"
+    MEMBRES_TELEPHONE_FIXE = "membres.telephoneFixe"
+    MEMBRES_CODE_FONCTION = "membres.codeFonction"
 
     @classmethod
-    def get_default_fields(cls) -> list[str]:
-        """Get default fields for organisme queries."""
+    def get_fields(cls) -> list[str]:
+        """Return the complete list of fields for organisme queries."""
         return [
             cls.ID,
             cls.NOM,
@@ -207,37 +218,16 @@ class OrganismeFields:
             cls.ENGAGEMENTS_ID_COMPETITION_CATEGORIE_ORDRE,
             cls.ENGAGEMENTS_ID_POULE_ID,
             cls.ENGAGEMENTS_ID_POULE_NOM,
-            # Membres (basic info)
+            # Membres (including personal data)
             cls.MEMBRES_ID,
             cls.MEMBRES_NOM,
             cls.MEMBRES_PRENOM,
+            cls.MEMBRES_MAIL,
+            cls.MEMBRES_TELEPHONE_PORTABLE,
+            cls.MEMBRES_ADRESSE1,
+            cls.MEMBRES_ADRESSE2,
+            cls.MEMBRES_CODE_POSTAL,
+            cls.MEMBRES_VILLE,
+            cls.MEMBRES_TELEPHONE_FIXE,
+            cls.MEMBRES_CODE_FONCTION,
         ]
-
-    @classmethod
-    def get_basic_fields(cls) -> list[str]:
-        """Get basic fields for simple organisme queries."""
-        return [
-            cls.ID,
-            cls.NOM,
-            cls.CODE,
-            cls.TELEPHONE,
-            cls.ADRESSE,
-            cls.MAIL,
-        ]
-
-    @classmethod
-    def get_detailed_fields(cls) -> list[str]:
-        """Get detailed fields including personal member data."""
-        return cls.get_default_fields() + [
-            # Additional member personal data (not in default)
-            "membres.mail",
-            "membres.telephonePortable",
-            "membres.adresse1",
-            "membres.adresse2",
-            "membres.codePostal",
-            "membres.ville",
-            "membres.telephoneFixe",
-            "membres.codeFonction",
-        ]
-
-    WILDCARD = "*.*.*.*"

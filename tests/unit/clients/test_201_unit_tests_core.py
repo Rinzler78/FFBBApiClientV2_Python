@@ -331,114 +331,81 @@ class Test001ApiFfbbAppCore(unittest.TestCase):
 
 
 class Test001QueryFieldsCounts(unittest.TestCase):
-    """Regression tests for query field counts after API discovery alignment."""
+    """Regression tests for query field counts after refactoring to get_fields()."""
 
     def test_025_organisme_field_counts(self):
-        """Verify OrganismeFields counts after API discovery alignment."""
+        """Verify OrganismeFields.get_fields() count."""
         from ffbb_api_client_v2.directus_ffbb.models.organisme_fields import (
             OrganismeFields,
         )
 
-        basic = OrganismeFields.get_basic_fields()
-        default = OrganismeFields.get_default_fields()
-        detailed = OrganismeFields.get_detailed_fields()
-
-        self.assertEqual(len(basic), 6)
-        self.assertEqual(len(default), 68)
-        self.assertEqual(len(detailed), 76)
-        self.assertGreater(len(default), len(basic))
-        self.assertGreater(len(detailed), len(default))
+        fields = OrganismeFields.get_fields()
+        self.assertEqual(len(fields), 76)
         # No duplicates
-        self.assertEqual(len(default), len(set(default)))
-        self.assertEqual(len(detailed), len(set(detailed)))
+        self.assertEqual(len(fields), len(set(fields)))
 
     def test_026_competition_field_counts(self):
-        """Verify CompetitionFields counts after API discovery alignment."""
+        """Verify CompetitionFields.get_fields() count."""
         from ffbb_api_client_v2.directus_ffbb.models.competition_fields import (
             CompetitionFields,
         )
 
-        basic = CompetitionFields.get_basic_fields()
-        default = CompetitionFields.get_default_fields()
-        detailed = CompetitionFields.get_detailed_fields()
-
-        self.assertEqual(len(basic), 5)
-        self.assertEqual(len(default), 80)
-        self.assertEqual(len(detailed), 80)
-        self.assertGreater(len(default), len(basic))
+        fields = CompetitionFields.get_fields()
+        self.assertEqual(len(fields), 80)
         # No duplicates
-        self.assertEqual(len(default), len(set(default)))
+        self.assertEqual(len(fields), len(set(fields)))
 
     def test_027_poule_field_counts(self):
-        """Verify PouleFields counts — no duplicates in detailed."""
+        """Verify PouleFields.get_fields() count — no duplicates."""
         from ffbb_api_client_v2.directus_ffbb.models.poule_fields import PouleFields
 
-        basic = PouleFields.get_basic_fields()
-        default = PouleFields.get_default_fields()
-        detailed = PouleFields.get_detailed_fields()
-
-        self.assertEqual(len(basic), 3)
-        self.assertEqual(len(default), 104)
-        self.assertEqual(len(detailed), 106)
+        fields = PouleFields.get_fields()
+        self.assertEqual(len(fields), 105)
         # No duplicates
-        self.assertEqual(len(default), len(set(default)))
+        self.assertEqual(len(fields), len(set(fields)))
 
     def test_028_saison_field_counts(self):
-        """Verify SaisonFields counts after API discovery alignment."""
+        """Verify SaisonFields.get_fields() count."""
         from ffbb_api_client_v2.directus_ffbb.models.saison_fields import SaisonFields
 
-        default = SaisonFields.get_default_fields()
-        detailed = SaisonFields.get_detailed_fields()
-
-        self.assertEqual(len(default), 7)
-        self.assertEqual(len(detailed), 9)
-        self.assertGreater(len(detailed), len(default))
+        fields = SaisonFields.get_fields()
+        self.assertEqual(len(fields), 9)
         # No duplicates
-        self.assertEqual(len(default), len(set(default)))
-        self.assertEqual(len(detailed), len(set(detailed)))
+        self.assertEqual(len(fields), len(set(fields)))
 
 
 class Test001QueryFieldsManagerExplicit(unittest.TestCase):
-    """Tests that QueryFieldsManager returns explicit fields for deep entities."""
+    """Tests that *Fields.get_fields() returns explicit fields for deep entities."""
 
     def test_033_organisme_query_returns_explicit_fields(self):
-        """Test get_organisme_fields returns explicit field list."""
+        """Test OrganismeFields.get_fields() returns explicit field list."""
         from ffbb_api_client_v2.directus_ffbb.models.organisme_fields import (
             OrganismeFields,
         )
-        from ffbb_api_client_v2.directus_ffbb.models.query_fields_manager import (
-            QueryFieldsManager,
-        )
 
-        fields = QueryFieldsManager.get_organisme_fields()
-        self.assertEqual(fields, OrganismeFields.get_default_fields())
+        fields = OrganismeFields.get_fields()
+        self.assertIsInstance(fields, list)
         self.assertIn("id", fields)
         self.assertIn("nom", fields)
 
     def test_034_competition_query_returns_explicit_fields(self):
-        """Test get_competition_fields returns explicit field list."""
+        """Test CompetitionFields.get_fields() returns explicit field list."""
         from ffbb_api_client_v2.directus_ffbb.models.competition_fields import (
             CompetitionFields,
         )
-        from ffbb_api_client_v2.directus_ffbb.models.query_fields_manager import (
-            QueryFieldsManager,
-        )
 
-        fields = QueryFieldsManager.get_competition_fields()
-        self.assertEqual(fields, CompetitionFields.get_default_fields())
+        fields = CompetitionFields.get_fields()
+        self.assertIsInstance(fields, list)
         self.assertIn("id", fields)
         self.assertIn("nom", fields)
 
     def test_035_saison_query_returns_explicit_fields(self):
-        """Test get_saison_fields returns explicit fields."""
-        from ffbb_api_client_v2.directus_ffbb.models.query_fields_manager import (
-            QueryFieldsManager,
-        )
+        """Test SaisonFields.get_fields() returns explicit fields."""
         from ffbb_api_client_v2.directus_ffbb.models.saison_fields import SaisonFields
 
-        fields = QueryFieldsManager.get_saison_fields()
-        self.assertEqual(fields, SaisonFields.get_default_fields())
-        self.assertNotIn(SaisonFields.WILDCARD, fields)
+        fields = SaisonFields.get_fields()
+        self.assertIsInstance(fields, list)
+        self.assertIn("id", fields)
 
 
 class Test001MeilisearchFfbbCore(unittest.TestCase):

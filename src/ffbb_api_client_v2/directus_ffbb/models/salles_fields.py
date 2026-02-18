@@ -1,5 +1,8 @@
-class SallesFields:
-    """Default fields for salles queries."""
+from .query_fields_manager import QueryFieldsManager
+
+
+class SallesFields(QueryFieldsManager):
+    """Fields for salles queries."""
 
     ID = "id"
     LIBELLE = "libelle"
@@ -20,8 +23,8 @@ class SallesFields:
     DATE_UPDATED = "date_updated"
 
     @classmethod
-    def get_default_fields(cls) -> list[str]:
-        """Get default fields for salles queries."""
+    def get_fields(cls) -> list[str]:
+        """Return the complete list of fields for salles."""
         return [
             cls.ID,
             cls.LIBELLE,
@@ -36,16 +39,8 @@ class SallesFields:
             cls.COMMUNE_LIBELLE,
             cls.CARTOGRAPHIE_LATITUDE,
             cls.CARTOGRAPHIE_LONGITUDE,
-        ]
-
-    @classmethod
-    def get_detailed_fields(cls) -> list[str]:
-        """Get detailed fields for salles queries."""
-        return cls.get_default_fields() + [
             cls.COMMUNE_ID,
             cls.COMMUNE_DEPARTEMENT,
             cls.DATE_CREATED,
             cls.DATE_UPDATED,
         ]
-
-    WILDCARD = "*.*"

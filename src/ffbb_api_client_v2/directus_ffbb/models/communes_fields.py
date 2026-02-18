@@ -1,5 +1,8 @@
-class CommunesFields:
-    """Default fields for communes queries."""
+from .query_fields_manager import QueryFieldsManager
+
+
+class CommunesFields(QueryFieldsManager):
+    """Fields for communes queries."""
 
     ID = "id"
     CODE_INSEE = "codeInsee"
@@ -10,22 +13,14 @@ class CommunesFields:
     DATE_UPDATED = "date_updated"
 
     @classmethod
-    def get_default_fields(cls) -> list[str]:
-        """Get default fields for communes queries."""
+    def get_fields(cls) -> list[str]:
+        """Return the complete list of fields for communes."""
         return [
             cls.ID,
             cls.CODE_INSEE,
             cls.CODE_POSTAL,
             cls.DEPARTEMENT,
             cls.LIBELLE,
-        ]
-
-    @classmethod
-    def get_detailed_fields(cls) -> list[str]:
-        """Get detailed fields for communes queries."""
-        return cls.get_default_fields() + [
             cls.DATE_CREATED,
             cls.DATE_UPDATED,
         ]
-
-    WILDCARD = "*"

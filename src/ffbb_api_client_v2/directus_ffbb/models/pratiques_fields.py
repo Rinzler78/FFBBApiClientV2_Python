@@ -1,5 +1,8 @@
-class PratiquesFields:
-    """Default fields for pratiques queries."""
+from .query_fields_manager import QueryFieldsManager
+
+
+class PratiquesFields(QueryFieldsManager):
+    """Fields for pratiques queries."""
 
     ID = "id"
     TITRE = "titre"
@@ -28,8 +31,8 @@ class PratiquesFields:
     DATE_UPDATED = "date_updated"
 
     @classmethod
-    def get_default_fields(cls) -> list[str]:
-        """Get default fields for pratiques queries."""
+    def get_fields(cls) -> list[str]:
+        """Return the complete list of fields for pratiques."""
         return [
             cls.ID,
             cls.TITRE,
@@ -44,12 +47,6 @@ class PratiquesFields:
             cls.DATE_FIN,
             cls.CARTOGRAPHIE_LATITUDE,
             cls.CARTOGRAPHIE_LONGITUDE,
-        ]
-
-    @classmethod
-    def get_detailed_fields(cls) -> list[str]:
-        """Get detailed fields for pratiques queries."""
-        return cls.get_default_fields() + [
             cls.HORAIRES_SEANCES,
             cls.JOURS,
             cls.NOM_STRUCTURE,
@@ -63,5 +60,3 @@ class PratiquesFields:
             cls.DATE_CREATED,
             cls.DATE_UPDATED,
         ]
-
-    WILDCARD = "*.*"

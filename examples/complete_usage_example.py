@@ -7,7 +7,7 @@ competition details, and advanced API usage patterns.
 Usage: python examples/complete_usage_example.py
 """
 
-from ffbb_api_client_v2 import FFBBAPIClientV2, FieldSet, TokenManager
+from ffbb_api_client_v2 import FFBBAPIClientV2, TokenManager
 
 
 def create_client() -> FFBBAPIClientV2:
@@ -60,22 +60,21 @@ def demo_multiple_search(client: FFBBAPIClientV2) -> None:
 
 
 def demo_field_sets(client: FFBBAPIClientV2, org_id: int) -> None:
-    """Compare different FieldSet levels on the same organisme."""
+    """Show that all queries use comprehensive DEFAULT fields."""
     print()
     print("=" * 60)
-    print("3. FieldSet Comparison (BASIC vs DEFAULT vs DETAILED)")
+    print("3. FieldSet (DEFAULT — single level)")
     print("=" * 60)
 
-    for fs in [FieldSet.BASIC, FieldSet.DEFAULT, FieldSet.DETAILED]:
-        org = client.get_organisme(org_id, field_set=fs)
-        if org:
-            members_count = len(org.membres)
-            engagements_count = len(org.engagements)
-            has_salle = org.salle is not None
-            print(
-                f"  {fs.name:10s}: members={members_count}, "
-                f"engagements={engagements_count}, has_salle={has_salle}"
-            )
+    org = client.get_organisme(org_id)
+    if org:
+        members_count = len(org.membres)
+        engagements_count = len(org.engagements)
+        has_salle = org.salle is not None
+        print(
+            f"  DEFAULT: members={members_count}, "
+            f"engagements={engagements_count}, has_salle={has_salle}"
+        )
 
 
 def demo_competition_details(client: FFBBAPIClientV2, org_id: int) -> None:

@@ -1,5 +1,8 @@
-class SaisonFields:
-    """Default fields for saison queries."""
+from .query_fields_manager import QueryFieldsManager
+
+
+class SaisonFields(QueryFieldsManager):
+    """Fields for saison queries."""
 
     # Basic fields
     ID = "id"
@@ -13,8 +16,8 @@ class SaisonFields:
     DATE_UPDATED = "date_updated"
 
     @classmethod
-    def get_default_fields(cls) -> list[str]:
-        """Get default fields for saison queries."""
+    def get_fields(cls) -> list[str]:
+        """Return the complete list of fields for saison."""
         return [
             cls.ID,
             cls.ACTIF,
@@ -23,14 +26,6 @@ class SaisonFields:
             cls.CODE,
             cls.LIBELLE,
             cls.EN_COURS,
-        ]
-
-    @classmethod
-    def get_detailed_fields(cls) -> list[str]:
-        """Get detailed fields for saison queries."""
-        return cls.get_default_fields() + [
             cls.DATE_CREATED,
             cls.DATE_UPDATED,
         ]
-
-    WILDCARD = "*"

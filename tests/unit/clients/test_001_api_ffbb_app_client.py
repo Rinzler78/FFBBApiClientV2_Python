@@ -55,6 +55,17 @@ class Test000ApiFfbbAppClient(unittest.TestCase):
         self.assertGreater(len(competitions), 0, "No competitions found")
         return int(competitions[0].id)
 
+    def _get_valid_poule_id(self) -> int:
+        """Helper method to get a valid poule ID dynamically from a competition."""
+        competition_id = self._get_valid_competition_id()
+        competition = self._skip_if_auth_error(
+            self.api_client.get_competition, competition_id
+        )
+        self.assertIsNotNone(competition)
+        self.assertIsNotNone(competition.poules, "Competition has no poules")
+        self.assertGreater(len(competition.poules), 0, "Competition poules list empty")
+        return int(competition.poules[0].id)
+
     def test_003_list_competitions(self):
         result = self._skip_if_auth_error(self.api_client.list_competitions, limit=5)
         self.assertIsNotNone(result)
@@ -71,7 +82,7 @@ class Test000ApiFfbbAppClient(unittest.TestCase):
         self.assertIsNotNone(result.phases)
 
     def test_005_get_poule(self):
-        poule_id = 200000002967008
+        poule_id = self._get_valid_poule_id()
         result = self._skip_if_auth_error(self.api_client.get_poule, poule_id)
         self.assertIsNotNone(result)
         self.assertEqual(result.id, str(poule_id))

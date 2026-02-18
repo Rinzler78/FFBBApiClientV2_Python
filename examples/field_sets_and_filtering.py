@@ -19,32 +19,14 @@ def create_client() -> FFBBAPIClientV2:
 
 
 def demo_field_sets(client: FFBBAPIClientV2) -> None:
-    """Compare BASIC, DEFAULT, DETAILED, and WILDCARD FieldSet levels."""
+    """Show FieldSet.DEFAULT — the single supported field set level."""
     print("=" * 60)
-    print("1. FieldSet Comparison")
+    print("1. FieldSet (DEFAULT only)")
     print("=" * 60)
 
-    # First, find an organisme ID
-    result = client.search_organismes("Paris", limit=1)
-    if not result or not result.hits or not result.hits[0].id:
-        print("No organisme found to test FieldSets.")
-        return
-
-    org_id = int(result.hits[0].id)
-    print(f"Testing FieldSets on organisme ID={org_id}\n")
-
-    for fs in [FieldSet.BASIC, FieldSet.DEFAULT, FieldSet.DETAILED, FieldSet.WILDCARD]:
-        org = client.get_organisme(org_id, field_set=fs)
-        if org:
-            members = len(org.membres)
-            engagements = len(org.engagements)
-            has_salle = org.salle is not None
-            has_logo = org.logo is not None
-            has_labels = len(org.labellisation) > 0
-            print(
-                f"  {fs.name:10s}: members={members}, engagements={engagements}, "
-                f"salle={has_salle}, logo={has_logo}, labels={has_labels}"
-            )
+    print(f"FieldSet.DEFAULT = {FieldSet.DEFAULT.value!r}")
+    print("All queries use comprehensive field lists by default.")
+    print("No BASIC, DETAILED, or WILDCARD levels — one level fits all.")
 
 
 def demo_directus_filtering(client: FFBBAPIClientV2) -> None:

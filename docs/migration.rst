@@ -228,3 +228,50 @@ Token Management Updates
     tokens = TokenManager.get_tokens(use_cache=False)
     from ffbb_api_client_v2.utils.cache_manager import CacheManager
     CacheManager().clear()
+
+Migration from v1.3.x to v1.4.0
+================================
+
+**Breaking Changes**: ``QueryFieldsManager`` is now an abstract base class. ``FieldSet``
+reduced to ``DEFAULT`` only. ``WILDCARD``, ``BASIC``, and ``DETAILED`` removed.
+
+Replacing ``QueryFieldsManager.get_X_fields()``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``QueryFieldsManager`` is now an ABC. Each ``*Fields`` class has a single ``get_fields()`` method.
+
+.. code-block:: python
+
+    # Before (v1.3.x)
+    from ffbb_api_client_v2.directus_ffbb.models.query_fields_manager import QueryFieldsManager
+    fields = QueryFieldsManager.get_organisme_fields()
+
+    # After (v1.4.0)
+    from ffbb_api_client_v2.directus_ffbb.models.organisme_fields import OrganismeFields
+    fields = OrganismeFields.get_fields()
+
+Replacing ``FieldSet.BASIC``, ``FieldSet.DETAILED``, ``FieldSet.WILDCARD``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Only ``FieldSet.DEFAULT`` remains. All queries return comprehensive field lists.
+
+.. code-block:: python
+
+    # Before (v1.3.x)
+    from ffbb_api_client_v2 import FieldSet
+    organisme = client.get_organisme(123, field_set=FieldSet.DETAILED)
+
+    # After (v1.4.0) — no field_set needed, DEFAULT is the only level
+    organisme = client.get_organisme(123)
+
+Removing ``WILDCARD`` constants
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``WILDCARD`` class attribute has been removed from all ``*Fields`` classes.
+
+**Migration Steps:**
+
+1. Replace ``QueryFieldsManager.get_X_fields()`` with ``XFields.get_fields()``
+2. Replace ``FieldSet.BASIC`` / ``FieldSet.DETAILED`` / ``FieldSet.WILDCARD`` with ``FieldSet.DEFAULT`` or remove altogether
+3. Remove any references to ``*Fields.WILDCARD`` constants
+4. Update imports: import individual ``*Fields`` classes instead of ``QueryFieldsManager``

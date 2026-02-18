@@ -2,9 +2,6 @@ from enum import Enum
 
 
 class FieldSet(Enum):
-    """Enum for different field sets."""
+    """Enum for field sets. Only DEFAULT is supported."""
 
-    BASIC = "basic"
     DEFAULT = "default"
-    DETAILED = "detailed"
-    WILDCARD = "wildcard"

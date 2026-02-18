@@ -1,5 +1,8 @@
-class RencontresFields:
-    """Default fields for rencontres queries."""
+from .query_fields_manager import QueryFieldsManager
+
+
+class RencontresFields(QueryFieldsManager):
+    """Fields for rencontres queries."""
 
     ID = "id"
     DATE = "date"
@@ -27,8 +30,8 @@ class RencontresFields:
     DATE_UPDATED = "date_updated"
 
     @classmethod
-    def get_default_fields(cls) -> list[str]:
-        """Get default fields for rencontres queries."""
+    def get_fields(cls) -> list[str]:
+        """Return the complete list of fields for rencontres."""
         return [
             cls.ID,
             cls.DATE,
@@ -44,25 +47,6 @@ class RencontresFields:
             cls.ETAT,
             cls.PRATIQUE,
             cls.STATUS,
-        ]
-
-    @classmethod
-    def get_basic_fields(cls) -> list[str]:
-        """Get basic fields for simple rencontres queries."""
-        return [
-            cls.ID,
-            cls.DATE_RENCONTRE,
-            cls.NOM_EQUIPE1,
-            cls.NOM_EQUIPE2,
-            cls.RESULTAT_EQUIPE1,
-            cls.RESULTAT_EQUIPE2,
-            cls.JOUE,
-        ]
-
-    @classmethod
-    def get_detailed_fields(cls) -> list[str]:
-        """Get detailed fields for rencontres queries."""
-        return cls.get_default_fields() + [
             cls.COMPETITION_ID,
             cls.ID_ORGANISME_EQUIPE1,
             cls.ID_ORGANISME_EQUIPE2,
@@ -74,5 +58,3 @@ class RencontresFields:
             cls.DATE_CREATED,
             cls.DATE_UPDATED,
         ]
-
-    WILDCARD = "*.*"

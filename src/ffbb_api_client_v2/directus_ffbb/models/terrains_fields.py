@@ -1,5 +1,8 @@
-class TerrainsFields:
-    """Default fields for terrains queries."""
+from .query_fields_manager import QueryFieldsManager
+
+
+class TerrainsFields(QueryFieldsManager):
+    """Fields for terrains queries."""
 
     ID = "id"
     NOM = "nom"
@@ -20,8 +23,8 @@ class TerrainsFields:
     DATE_UPDATED = "date_updated"
 
     @classmethod
-    def get_default_fields(cls) -> list[str]:
-        """Get default fields for terrains queries."""
+    def get_fields(cls) -> list[str]:
+        """Return the complete list of fields for terrains."""
         return [
             cls.ID,
             cls.NOM,
@@ -36,16 +39,8 @@ class TerrainsFields:
             cls.COMMUNE_LIBELLE,
             cls.CARTOGRAPHIE_LATITUDE,
             cls.CARTOGRAPHIE_LONGITUDE,
-        ]
-
-    @classmethod
-    def get_detailed_fields(cls) -> list[str]:
-        """Get detailed fields for terrains queries."""
-        return cls.get_default_fields() + [
             cls.COMMUNE_ID,
             cls.COMMUNE_DEPARTEMENT,
             cls.DATE_CREATED,
             cls.DATE_UPDATED,
         ]
-
-    WILDCARD = "*.*"

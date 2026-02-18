@@ -1,5 +1,8 @@
-class OfficielsFields:
-    """Default fields for officiels queries."""
+from .query_fields_manager import QueryFieldsManager
+
+
+class OfficielsFields(QueryFieldsManager):
+    """Fields for officiels queries."""
 
     NOM = "nom"
     PRENOM = "prenom"
@@ -8,20 +11,12 @@ class OfficielsFields:
     DATE_UPDATED = "date_updated"
 
     @classmethod
-    def get_default_fields(cls) -> list[str]:
-        """Get default fields for officiels queries."""
+    def get_fields(cls) -> list[str]:
+        """Return the complete list of fields for officiels."""
         return [
             cls.NOM,
             cls.PRENOM,
             cls.NUMERO_NATIONAL,
-        ]
-
-    @classmethod
-    def get_detailed_fields(cls) -> list[str]:
-        """Get detailed fields for officiels queries."""
-        return cls.get_default_fields() + [
             cls.DATE_CREATED,
             cls.DATE_UPDATED,
         ]
-
-    WILDCARD = "*"
