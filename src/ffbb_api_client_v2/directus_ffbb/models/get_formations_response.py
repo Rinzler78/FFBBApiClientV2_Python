@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any
 
 from ...models.document_flyer import DocumentFlyer
 from ...models.folder import Folder
 from ...utils.converter_utils import (
     from_datetime,
-    from_float,
+    from_duration,
     from_int,
     from_obj,
     from_str,
@@ -23,7 +23,7 @@ class GetFormationsResponse:
     mode: str | None = None
     level: str | None = None
     reference: str | None = None
-    duration_hours: float | None = None
+    duration_hours: timedelta | None = None
     certification: str | None = None
     status: str | None = None
     sort: int | None = None
@@ -62,7 +62,7 @@ class GetFormationsResponse:
             mode=from_str(data, "mode"),
             level=from_str(data, "level"),
             reference=from_str(data, "reference"),
-            duration_hours=from_float(data, "duration_hours"),
+            duration_hours=from_duration(data, "duration_hours"),
             certification=from_str(data, "certification"),
             status=from_str(data, "status"),
             sort=from_int(data, "sort"),

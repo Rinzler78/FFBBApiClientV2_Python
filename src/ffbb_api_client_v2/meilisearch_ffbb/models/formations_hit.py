@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from datetime import timedelta
 from typing import Any
 
 from ...meilisearch.models.hit import Hit
 from ...utils.converter_utils import (
-    from_int,
+    from_duration,
     from_list,
     from_str,
 )
@@ -31,7 +32,7 @@ class FormationsHit(Hit):
     level: str | None = None
     reference: str | None = None
     program_id_fbi: str | None = None
-    duration_hours: int | None = None
+    duration_hours: timedelta | None = None
     sessions: list[Any] | None = None
     files: list[Any] | None = None
     image: str | None = None
@@ -70,7 +71,7 @@ class FormationsHit(Hit):
         level = from_str(obj, "level")
         reference = from_str(obj, "reference")
         program_id_fbi = from_str(obj, "programIdFbi")
-        duration_hours = from_int(obj, "duration_hours")
+        duration_hours = from_duration(obj, "duration_hours")
         sessions = from_list(lambda x: x, obj, "sessions")
         files = from_list(lambda x: x, obj, "files")
         image = from_str(obj, "image")
@@ -148,7 +149,10 @@ class FormationsHit(Hit):
         if self.program_id_fbi is not None:
             result["programIdFbi"] = self.program_id_fbi
         if self.duration_hours is not None:
-            result["duration_hours"] = self.duration_hours
+            total_seconds = int(self.duration_hours.total_seconds())
+            hours, remainder = divmod(total_seconds, 3600)
+            minutes = remainder // 60
+            result["duration_hours"] = f"{hours}h{minutes:02d}"
         if self.sessions is not None:
             result["sessions"] = self.sessions
         if self.files is not None:

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import unittest
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any
 
 from ffbb_api_client_v2.directus_ffbb.models.get_formations_response import (
@@ -126,7 +126,7 @@ class TestGetFormationsResponse(unittest.TestCase):
     def test_013_field_duration_hours(self) -> None:
         result = GetFormationsResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertEqual(result.duration_hours, 40.0)
+        self.assertEqual(result.duration_hours, timedelta(hours=40))
 
     def test_014_field_certification(self) -> None:
         result = GetFormationsResponse.from_dict(SAMPLE_DATA)

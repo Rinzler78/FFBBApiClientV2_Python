@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import unittest
+from datetime import timedelta
 from typing import Any
 
 from ffbb_api_client_v2.meilisearch_ffbb.models.formations_facet_distribution import (
@@ -88,9 +89,29 @@ class TestFormationsHit(unittest.TestCase):
         self.assertTrue(hit.is_valid_for_query(""))
 
     def test_006_duration_hours_parsed(self) -> None:
-        data = {**SAMPLE_HIT, "duration_hours": 40}
+        data = {**SAMPLE_HIT, "duration_hours": "40h00"}
         hit = FormationsHit.from_dict(data)
-        self.assertEqual(hit.duration_hours, 40)
+        self.assertEqual(hit.duration_hours, timedelta(hours=40))
+
+    def test_007_duration_hours_with_minutes(self) -> None:
+        data = {**SAMPLE_HIT, "duration_hours": "6h55"}
+        hit = FormationsHit.from_dict(data)
+        self.assertEqual(hit.duration_hours, timedelta(hours=6, minutes=55))
+
+    def test_008_duration_hours_roundtrip(self) -> None:
+        data = {**SAMPLE_HIT, "duration_hours": "37h00"}
+        hit = FormationsHit.from_dict(data)
+        d = hit.to_dict()
+        self.assertEqual(d["duration_hours"], "37h00")
+
+    def test_011_duration_hours_numeric(self) -> None:
+        data = {**SAMPLE_HIT, "duration_hours": 12}
+        hit = FormationsHit.from_dict(data)
+        self.assertEqual(hit.duration_hours, timedelta(hours=12))
+
+    def test_012_duration_hours_none(self) -> None:
+        hit = FormationsHit.from_dict(SAMPLE_HIT)
+        self.assertIsNone(hit.duration_hours)
 
 
 class TestFormationsFacetDistribution(unittest.TestCase):
