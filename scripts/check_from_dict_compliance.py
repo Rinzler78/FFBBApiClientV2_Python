@@ -35,6 +35,7 @@ class FromDictComplianceChecker:
         "from_datetime",
         "from_time",
         "from_enum",
+        "from_categorie_code",
         "from_obj",
         "from_list",
         "from_uuid",
