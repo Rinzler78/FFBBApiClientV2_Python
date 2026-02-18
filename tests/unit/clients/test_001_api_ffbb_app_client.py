@@ -78,11 +78,7 @@ class Test000ApiFfbbAppClient(unittest.TestCase):
         self.assertIsNotNone(result.rencontres)
 
     def test_006_get_saisons_with_detailed_field_set(self):
-        from ffbb_api_client_v2.directus.models.field_set import FieldSet
-
-        result = self._skip_if_auth_error(
-            self.api_client.get_saisons, field_set=FieldSet.DETAILED
-        )
+        result = self._skip_if_auth_error(self.api_client.get_saisons)
         self.assertIsNotNone(result)
         self.assertIsInstance(result, list)
         if result:
@@ -90,11 +86,9 @@ class Test000ApiFfbbAppClient(unittest.TestCase):
             self.assertIsNotNone(first_item.id)
 
     def test_007_get_competition_with_basic_field_set(self):
-        from ffbb_api_client_v2.directus.models.field_set import FieldSet
-
         competition_id = self._get_valid_competition_id()
         result = self._skip_if_auth_error(
-            self.api_client.get_competition, competition_id, field_set=FieldSet.BASIC
+            self.api_client.get_competition, competition_id
         )
         self.assertIsNotNone(result)
         self.assertEqual(result.id, str(competition_id))

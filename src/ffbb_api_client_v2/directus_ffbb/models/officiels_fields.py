@@ -24,7 +24,4 @@ class OfficielsFields:
             cls.DATE_UPDATED,
         ]
 
-    @staticmethod
-    def get_wildcard(depth: int = 1) -> list[str]:
-        """Get wildcard fields at the specified depth."""
-        return [".".join(["*"] * min(depth, 5))]
+    WILDCARD = "*"

@@ -40,47 +40,20 @@ class Test045HttpHelpers(unittest.TestCase):
         with self.assertRaises(json.decoder.JSONDecodeError):
             catch_result(raise_json_error)
 
-    def test_003_catch_result_read_timeout_retry(self) -> None:
-        call_count = 0
-
-        def raise_then_succeed() -> str:
-            nonlocal call_count
-            call_count += 1
-            if call_count == 1:
-                raise ReadTimeout("timeout")
-            return "ok"
-
-        result = catch_result(raise_then_succeed)
-        self.assertEqual(result, "ok")
-        self.assertEqual(call_count, 2)
-
-    def test_004_catch_result_read_timeout_twice(self) -> None:
-        def always_timeout() -> None:
+    def test_003_catch_result_read_timeout_raises_network_error(self) -> None:
+        def raise_timeout() -> None:
             raise ReadTimeout("timeout")
 
         with self.assertRaises(FFBBNetworkError) as ctx:
-            catch_result(always_timeout)
+            catch_result(raise_timeout)
         self.assertIsInstance(ctx.exception.original_exception, ReadTimeout)
 
-    def test_005_catch_result_connection_error_retry(self) -> None:
-        call_count = 0
-
-        def raise_then_succeed() -> str:
-            nonlocal call_count
-            call_count += 1
-            if call_count == 1:
-                raise ConnectionError("connection failed")
-            return "ok"
-
-        result = catch_result(raise_then_succeed)
-        self.assertEqual(result, "ok")
-
-    def test_006_catch_result_connection_error_twice(self) -> None:
-        def always_fail() -> None:
+    def test_004_catch_result_connection_error_raises_network_error(self) -> None:
+        def raise_connection_error() -> None:
             raise ConnectionError("connection failed")
 
         with self.assertRaises(FFBBNetworkError) as ctx:
-            catch_result(always_fail)
+            catch_result(raise_connection_error)
         self.assertIsInstance(ctx.exception.original_exception, ConnectionError)
 
     # -- to_json_from_response tests --
@@ -167,12 +140,12 @@ class Test045HttpHelpers(unittest.TestCase):
         self.assertIn("limit=10", result)
 
     def test_016_url_with_params_empty(self) -> None:
-        result = url_with_params("https://api.ffbb.app/items", {})
-        self.assertEqual(result, "https://api.ffbb.app/items")
+        result = url_with_params("https://api.ffbb.com/items", {})
+        self.assertEqual(result, "https://api.ffbb.com/items")
 
     def test_017_url_with_params_none_values(self) -> None:
-        result = url_with_params("https://api.ffbb.app/items", {"key": None})
-        self.assertEqual(result, "https://api.ffbb.app/items")
+        result = url_with_params("https://api.ffbb.com/items", {"key": None})
+        self.assertEqual(result, "https://api.ffbb.com/items")
 
 
 if __name__ == "__main__":

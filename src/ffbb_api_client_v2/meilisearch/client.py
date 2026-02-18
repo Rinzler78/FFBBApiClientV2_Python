@@ -8,17 +8,14 @@ from requests_cache import CachedSession
 from .._http.client import HttpClient
 from .._http.helper import HttpHelper
 from ..config import (
+    DEFAULT_MEILISEARCH_RETRY_CONFIG,
+    DEFAULT_MEILISEARCH_TIMEOUT_CONFIG,
     MEILISEARCH_BASE_URL,
     MEILISEARCH_ENDPOINT_MULTI_SEARCH,
 )
 from ..directus.client import DEFAULT_USER_AGENT
 from ..utils.cache_manager import CacheManager
-from ..utils.retry_utils import (
-    RetryConfig,
-    TimeoutConfig,
-    get_default_retry_config,
-    get_default_timeout_config,
-)
+from ..utils.retry_utils import RetryConfig, TimeoutConfig
 from ..utils.secure_logging import get_secure_logger, mask_token
 from .models.federated_search_result import FederatedSearchResult
 from .models.meilisearch_index_settings import MeilisearchIndexSettings
@@ -65,12 +62,13 @@ class MeilisearchClient:
         self.headers = {
             "Authorization": f"Bearer {self._bearer_token}",
             "Content-Type": "application/json",
+            "Accept-Encoding": "gzip, deflate",
             "user-agent": DEFAULT_USER_AGENT,
         }
 
         # Configure retry and timeout settings
-        self.retry_config = retry_config or get_default_retry_config()
-        self.timeout_config = timeout_config or get_default_timeout_config()
+        self.retry_config = retry_config or DEFAULT_MEILISEARCH_RETRY_CONFIG
+        self.timeout_config = timeout_config or DEFAULT_MEILISEARCH_TIMEOUT_CONFIG
 
         # Initialize secure logger
         self.logger = get_secure_logger(f"{self.__class__.__name__}")

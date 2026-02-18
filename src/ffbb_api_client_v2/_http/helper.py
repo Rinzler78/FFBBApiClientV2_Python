@@ -22,9 +22,7 @@ class HttpHelper:
     """Helper class for HTTP request error handling and retries."""
 
     @staticmethod
-    def catch_result(
-        callback: Callable[[], T], is_retrieving: bool = False
-    ) -> T | None:
+    def catch_result(callback: Callable[[], T]) -> T | None:
         """
         Catch the result of a callback function.
 
@@ -34,14 +32,13 @@ class HttpHelper:
 
         Args:
             callback: The callback function.
-            is_retrieving: Whether this is a retry attempt.
 
         Returns:
             The result of the callback function or None if the response body is empty.
 
         Raises:
             FFBBApiError: Any structured API error (auth, not found, rate limit, etc.).
-            FFBBNetworkError: Wraps network-level failures after one retry.
+            FFBBNetworkError: Wraps network-level failures.
         """
         try:
             return callback()
@@ -52,10 +49,8 @@ class HttpHelper:
                 return None
             raise
         except (ReadTimeout, ConnectionError) as e:
-            if not is_retrieving:
-                return HttpHelper.catch_result(callback, True)
             raise FFBBNetworkError(
-                message=f"Network error after retry: {e}",
+                message=f"Network error: {e}",
                 original_exception=e,
             ) from e
 

@@ -179,7 +179,7 @@ class Test218CatchResultWithExceptions(unittest.TestCase):
         self.assertIsNone(result)
 
     def test_004_catch_result_wraps_network_error(self) -> None:
-        """ConnectionError should be wrapped in FFBBNetworkError after retry."""
+        """ConnectionError should be wrapped in FFBBNetworkError immediately."""
         call_count = 0
 
         def raise_connection_error():
@@ -191,8 +191,8 @@ class Test218CatchResultWithExceptions(unittest.TestCase):
             catch_result(raise_connection_error)
 
         self.assertIsInstance(ctx.exception.original_exception, ConnectionError)
-        # Should have tried twice (original + retry)
-        self.assertEqual(call_count, 2)
+        # No internal retry in catch_result — retry is handled by execute_with_retry
+        self.assertEqual(call_count, 1)
 
     def test_005_catch_result_returns_value_on_success(self) -> None:
         result = catch_result(lambda: {"data": [1, 2, 3]})

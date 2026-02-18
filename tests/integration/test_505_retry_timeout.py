@@ -28,7 +28,7 @@ class Test017RetryTimeoutIntegration(unittest.TestCase):
             connect_timeout=2.0, read_timeout=5.0
         )
 
-    @patch("ffbb_api_client_v2.directus_ffbb.client.get_secure_logger")
+    @patch("ffbb_api_client_v2.directus.client.get_secure_logger")
     def test_api_client_with_custom_retry_config(self, mock_logger):
         """Test ApiFFBBAppClient with custom retry configuration."""
         mock_logger.return_value = MagicMock()
@@ -73,18 +73,18 @@ class Test017RetryTimeoutIntegration(unittest.TestCase):
             "Retry config: 3 attempts, timeout: 7.0s"
         )
 
-    @patch("ffbb_api_client_v2.directus_ffbb.client.get_secure_logger")
+    @patch("ffbb_api_client_v2.directus.client.get_secure_logger")
     def test_api_client_default_configs(self, mock_logger):
-        """Test ApiFFBBAppClient uses default configurations."""
+        """Test ApiFFBBAppClient uses Directus-specific default configurations."""
         mock_logger.return_value = MagicMock()
 
         client = ApiFFBBAppClient(bearer_token=self.valid_token)
 
-        # Verify default configurations are used
-        self.assertEqual(client.retry_config.max_attempts, 3)
+        # Verify Directus-specific defaults: 1 attempt, 120s read timeout
+        self.assertEqual(client.retry_config.max_attempts, 1)
         self.assertEqual(client.timeout_config.connect_timeout, 10.0)
-        self.assertEqual(client.timeout_config.read_timeout, 30.0)
-        self.assertEqual(client.timeout_config.total_timeout, 40.0)
+        self.assertEqual(client.timeout_config.read_timeout, 120.0)
+        self.assertEqual(client.timeout_config.total_timeout, 130.0)
 
     @patch("ffbb_api_client_v2.meilisearch.client.get_secure_logger")
     def test_meilisearch_client_default_configs(self, mock_logger):
@@ -143,7 +143,7 @@ class Test017RetryTimeoutIntegration(unittest.TestCase):
 
         for retry_config, timeout_config in configs:
             with self.subTest():
-                with patch("ffbb_api_client_v2.directus_ffbb.client.get_secure_logger"):
+                with patch("ffbb_api_client_v2.directus.client.get_secure_logger"):
                     client = ApiFFBBAppClient(
                         bearer_token=self.valid_token,
                         retry_config=retry_config,
@@ -163,7 +163,7 @@ class Test017RetryTimeoutIntegration(unittest.TestCase):
         original_max_attempts = self.custom_retry_config.max_attempts
         original_connect_timeout = self.custom_timeout_config.connect_timeout
 
-        with patch("ffbb_api_client_v2.directus_ffbb.client.get_secure_logger"):
+        with patch("ffbb_api_client_v2.directus.client.get_secure_logger"):
             client = ApiFFBBAppClient(
                 bearer_token=self.valid_token,
                 retry_config=self.custom_retry_config,

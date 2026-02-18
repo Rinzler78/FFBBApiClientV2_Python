@@ -6,6 +6,7 @@ from collections.abc import Sequence
 from requests_cache import CachedSession
 
 from ..utils.cache_manager import CacheManager
+from ..utils.retry_utils import RetryConfig, TimeoutConfig
 from .client import MeilisearchClient
 from .models.multi_search_query import MultiSearchQuery
 from .models.multi_search_results_class import MultiSearchResults
@@ -24,10 +25,14 @@ class MeilisearchClientExtension(MeilisearchClient):
         url: str,
         debug: bool = False,
         cached_session: CachedSession | None = None,
+        retry_config: RetryConfig | None = None,
+        timeout_config: TimeoutConfig | None = None,
     ):
         if cached_session is None:
             cached_session = CacheManager().session
-        super().__init__(bearer_token, url, debug, cached_session)
+        super().__init__(
+            bearer_token, url, debug, cached_session, retry_config, timeout_config
+        )
 
     def smart_multi_search(
         self,

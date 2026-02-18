@@ -1,11 +1,14 @@
 import os
 import unittest
 
+from dotenv import load_dotenv
+
 from ffbb_api_client_v2 import MeilisearchClient, MultiSearchQuery, generate_queries
 
 
 class Test002MeilisearchClient(unittest.TestCase):
     def setUp(self):
+        load_dotenv()
         mls_token = os.getenv("MEILISEARCH_BEARER_TOKEN")
 
         if not mls_token:

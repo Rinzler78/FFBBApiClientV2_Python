@@ -8,6 +8,7 @@ from ..config import MEILISEARCH_BASE_URL
 from ..meilisearch.client_extension import MeilisearchClientExtension
 from ..meilisearch.models.federated_search_result import FederatedSearchResult
 from ..meilisearch.models.meilisearch_index_settings import MeilisearchIndexSettings
+from ..utils.retry_utils import RetryConfig, TimeoutConfig
 from .models.competitions_multi_search_query import CompetitionsMultiSearchQuery
 from .models.engagements_multi_search_query import EngagementsMultiSearchQuery
 from .models.formations_multi_search_query import FormationsMultiSearchQuery
@@ -35,8 +36,12 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
         url: str = MEILISEARCH_BASE_URL,
         debug: bool = False,
         cached_session: CachedSession | None = None,
+        retry_config: RetryConfig | None = None,
+        timeout_config: TimeoutConfig | None = None,
     ):
-        super().__init__(bearer_token, url, debug, cached_session)
+        super().__init__(
+            bearer_token, url, debug, cached_session, retry_config, timeout_config
+        )
 
     # --- Organismes ---
 

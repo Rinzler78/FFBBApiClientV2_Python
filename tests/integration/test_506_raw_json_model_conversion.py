@@ -15,16 +15,18 @@ from typing import Any
 import requests
 
 from ffbb_api_client_v2.config import (
+    MEILISEARCH_BASE_URL,
+    MEILISEARCH_ENDPOINT_MULTI_SEARCH,
+)
+from ffbb_api_client_v2.directus.client import DEFAULT_USER_AGENT
+from ffbb_api_client_v2.directus_ffbb.config import (
     API_FFBB_BASE_URL,
-    DEFAULT_USER_AGENT,
     ENDPOINT_COMPETITIONS,
     ENDPOINT_CONFIGURATION,
     ENDPOINT_LIVES,
     ENDPOINT_ORGANISMES,
     ENDPOINT_POULES,
     ENDPOINT_SAISONS,
-    MEILISEARCH_BASE_URL,
-    MEILISEARCH_ENDPOINT_MULTI_SEARCH,
 )
 from ffbb_api_client_v2.directus_ffbb.models.configuration_models import (
     GetConfigurationResponse,
@@ -82,7 +84,7 @@ from ffbb_api_client_v2.meilisearch_ffbb.models.salles_facet_distribution import
 from ffbb_api_client_v2.meilisearch_ffbb.models.terrains_facet_distribution import (
     TerrainsFacetDistribution,
 )
-from ffbb_api_client_v2.models.game_stats_models import GameStatsModel
+from ffbb_api_client_v2.models.game_stats_model import GameStatsModel
 from ffbb_api_client_v2.models.niveau_models import (
     CategorieType,
     NiveauExtractor,
@@ -91,7 +93,7 @@ from ffbb_api_client_v2.models.niveau_models import (
 )
 
 # ---------------------------------------------------------------------------
-# Section A: Integration tests - API REST (api.ffbb.app)
+# Section A: Integration tests - API REST (api.ffbb.com)
 # ---------------------------------------------------------------------------
 
 
@@ -100,7 +102,7 @@ from ffbb_api_client_v2.models.niveau_models import (
     "API_FFBB_APP_BEARER_TOKEN not set",
 )
 class Test021RawApiRestConversion(unittest.TestCase):
-    """Integration tests: raw HTTP calls to api.ffbb.app + from_dict conversion."""
+    """Integration tests: raw HTTP calls to api.ffbb.com + from_dict conversion."""
 
     @classmethod
     def setUpClass(cls) -> None:

@@ -36,15 +36,9 @@ class Test138CommunesFields(unittest.TestCase):
         for field in default:
             self.assertIn(field, detailed)
 
-    def test_052_get_wildcard_default(self):
-        """Test get_wildcard returns list with single '*' entry (depth=1)."""
-        wildcard = CommunesFields.get_wildcard()
-        self.assertEqual(wildcard, ["*"])
-
-    def test_053_get_wildcard_depth_3(self):
-        """Test get_wildcard(3) returns ['*.*.*']."""
-        wildcard = CommunesFields.get_wildcard(3)
-        self.assertEqual(wildcard, ["*.*.*"])
+    def test_052_wildcard_constant(self):
+        """Test WILDCARD constant is '*' (depth 1)."""
+        self.assertEqual(CommunesFields.WILDCARD, "*")
 
 
 class Test138OfficielsFields(unittest.TestCase):
@@ -69,15 +63,9 @@ class Test138OfficielsFields(unittest.TestCase):
         for field in default:
             self.assertIn(field, detailed)
 
-    def test_052_get_wildcard_default(self):
-        """Test get_wildcard returns list with single '*' entry (depth=1)."""
-        wildcard = OfficielsFields.get_wildcard()
-        self.assertEqual(wildcard, ["*"])
-
-    def test_053_get_wildcard_depth_3(self):
-        """Test get_wildcard(3) returns ['*.*.*']."""
-        wildcard = OfficielsFields.get_wildcard(3)
-        self.assertEqual(wildcard, ["*.*.*"])
+    def test_052_wildcard_constant(self):
+        """Test WILDCARD constant is '*' (depth 1)."""
+        self.assertEqual(OfficielsFields.WILDCARD, "*")
 
 
 class Test138EntraineursFields(unittest.TestCase):
@@ -102,15 +90,9 @@ class Test138EntraineursFields(unittest.TestCase):
         for field in default:
             self.assertIn(field, detailed)
 
-    def test_052_get_wildcard_default(self):
-        """Test get_wildcard returns list with single '*.*' entry (depth=2)."""
-        wildcard = EntraineursFields.get_wildcard()
-        self.assertEqual(wildcard, ["*.*"])
-
-    def test_053_get_wildcard_depth_3(self):
-        """Test get_wildcard(3) returns ['*.*.*']."""
-        wildcard = EntraineursFields.get_wildcard(3)
-        self.assertEqual(wildcard, ["*.*.*"])
+    def test_052_wildcard_constant(self):
+        """Test WILDCARD constant is '*.*' (depth 2)."""
+        self.assertEqual(EntraineursFields.WILDCARD, "*.*")
 
 
 class Test138RencontresFields(unittest.TestCase):
@@ -135,15 +117,9 @@ class Test138RencontresFields(unittest.TestCase):
         for field in default:
             self.assertIn(field, detailed)
 
-    def test_052_get_wildcard_default(self):
-        """Test get_wildcard returns list with single '*.*' entry (depth=2)."""
-        wildcard = RencontresFields.get_wildcard()
-        self.assertEqual(wildcard, ["*.*"])
-
-    def test_053_get_wildcard_depth_3(self):
-        """Test get_wildcard(3) returns ['*.*.*']."""
-        wildcard = RencontresFields.get_wildcard(3)
-        self.assertEqual(wildcard, ["*.*.*"])
+    def test_052_wildcard_constant(self):
+        """Test WILDCARD constant is '*.*' (depth 2)."""
+        self.assertEqual(RencontresFields.WILDCARD, "*.*")
 
     def test_042_get_basic_fields_non_empty(self):
         """Test get_basic_fields returns a non-empty list."""
@@ -181,15 +157,9 @@ class Test138SallesFields(unittest.TestCase):
         for field in default:
             self.assertIn(field, detailed)
 
-    def test_052_get_wildcard_default(self):
-        """Test get_wildcard returns list with single '*.*' entry (depth=2)."""
-        wildcard = SallesFields.get_wildcard()
-        self.assertEqual(wildcard, ["*.*"])
-
-    def test_053_get_wildcard_depth_3(self):
-        """Test get_wildcard(3) returns ['*.*.*']."""
-        wildcard = SallesFields.get_wildcard(3)
-        self.assertEqual(wildcard, ["*.*.*"])
+    def test_052_wildcard_constant(self):
+        """Test WILDCARD constant is '*.*' (depth 2)."""
+        self.assertEqual(SallesFields.WILDCARD, "*.*")
 
 
 class Test138TerrainsFields(unittest.TestCase):
@@ -214,15 +184,9 @@ class Test138TerrainsFields(unittest.TestCase):
         for field in default:
             self.assertIn(field, detailed)
 
-    def test_052_get_wildcard_default(self):
-        """Test get_wildcard returns list with single '*.*' entry (depth=2)."""
-        wildcard = TerrainsFields.get_wildcard()
-        self.assertEqual(wildcard, ["*.*"])
-
-    def test_053_get_wildcard_depth_3(self):
-        """Test get_wildcard(3) returns ['*.*.*']."""
-        wildcard = TerrainsFields.get_wildcard(3)
-        self.assertEqual(wildcard, ["*.*.*"])
+    def test_052_wildcard_constant(self):
+        """Test WILDCARD constant is '*.*' (depth 2)."""
+        self.assertEqual(TerrainsFields.WILDCARD, "*.*")
 
 
 class Test138TournoisFields(unittest.TestCase):
@@ -247,15 +211,9 @@ class Test138TournoisFields(unittest.TestCase):
         for field in default:
             self.assertIn(field, detailed)
 
-    def test_052_get_wildcard_default(self):
-        """Test get_wildcard returns list with single '*.*' entry (depth=2)."""
-        wildcard = TournoisFields.get_wildcard()
-        self.assertEqual(wildcard, ["*.*"])
-
-    def test_053_get_wildcard_depth_3(self):
-        """Test get_wildcard(3) returns ['*.*.*']."""
-        wildcard = TournoisFields.get_wildcard(3)
-        self.assertEqual(wildcard, ["*.*.*"])
+    def test_052_wildcard_constant(self):
+        """Test WILDCARD constant is '*.*' (depth 2)."""
+        self.assertEqual(TournoisFields.WILDCARD, "*.*")
 
 
 class Test138EngagementsFields(unittest.TestCase):
@@ -280,15 +238,9 @@ class Test138EngagementsFields(unittest.TestCase):
         for field in default:
             self.assertIn(field, detailed)
 
-    def test_052_get_wildcard_default(self):
-        """Test get_wildcard returns list with single '*.*' entry (depth=2)."""
-        wildcard = EngagementsFields.get_wildcard()
-        self.assertEqual(wildcard, ["*.*"])
-
-    def test_053_get_wildcard_depth_3(self):
-        """Test get_wildcard(3) returns ['*.*.*']."""
-        wildcard = EngagementsFields.get_wildcard(3)
-        self.assertEqual(wildcard, ["*.*.*"])
+    def test_052_wildcard_constant(self):
+        """Test WILDCARD constant is '*.*' (depth 2)."""
+        self.assertEqual(EngagementsFields.WILDCARD, "*.*")
 
     def test_042_get_basic_fields_non_empty(self):
         """Test get_basic_fields returns a non-empty list."""
@@ -326,15 +278,9 @@ class Test138FormationsFields(unittest.TestCase):
         for field in default:
             self.assertIn(field, detailed)
 
-    def test_052_get_wildcard_default(self):
-        """Test get_wildcard returns list with single '*.*' entry (depth=2)."""
-        wildcard = FormationsFields.get_wildcard()
-        self.assertEqual(wildcard, ["*.*"])
-
-    def test_053_get_wildcard_depth_3(self):
-        """Test get_wildcard(3) returns ['*.*.*']."""
-        wildcard = FormationsFields.get_wildcard(3)
-        self.assertEqual(wildcard, ["*.*.*"])
+    def test_052_wildcard_constant(self):
+        """Test WILDCARD constant is '*.*' (depth 2)."""
+        self.assertEqual(FormationsFields.WILDCARD, "*.*")
 
 
 class Test138PratiquesFields(unittest.TestCase):
@@ -359,15 +305,9 @@ class Test138PratiquesFields(unittest.TestCase):
         for field in default:
             self.assertIn(field, detailed)
 
-    def test_052_get_wildcard_default(self):
-        """Test get_wildcard returns list with single '*.*' entry (depth=2)."""
-        wildcard = PratiquesFields.get_wildcard()
-        self.assertEqual(wildcard, ["*.*"])
-
-    def test_053_get_wildcard_depth_3(self):
-        """Test get_wildcard(3) returns ['*.*.*']."""
-        wildcard = PratiquesFields.get_wildcard(3)
-        self.assertEqual(wildcard, ["*.*.*"])
+    def test_052_wildcard_constant(self):
+        """Test WILDCARD constant is '*.*' (depth 2)."""
+        self.assertEqual(PratiquesFields.WILDCARD, "*.*")
 
 
 if __name__ == "__main__":

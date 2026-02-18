@@ -202,8 +202,11 @@ class PouleFields:
 
     @classmethod
     def get_detailed_fields(cls) -> list[str]:
-        """Get detailed fields (all fields now included in default)."""
-        return cls.get_default_fields()
+        """Get detailed fields including relation-level constants."""
+        return cls.get_default_fields() + [
+            cls.RENCONTRES_COMPETITION_ID,
+            cls.CLASSEMENTS_ID_ENGAGEMENT_NUMERO_EQU,
+        ]
 
     @classmethod
     def get_basic_fields(cls) -> list[str]:
@@ -214,10 +217,4 @@ class PouleFields:
             cls.RENCONTRES_ID,
         ]
 
-    @staticmethod
-    def get_wildcard(depth: int = 1) -> list[str]:
-        """Get wildcard fields at the specified depth.
-
-        Max useful depth for poules is 1 (8 fields at *).
-        """
-        return [".".join(["*"] * min(depth, 5))]
+    WILDCARD = "*.*.*"

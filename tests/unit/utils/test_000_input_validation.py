@@ -74,7 +74,7 @@ class Test014InputValidation(unittest.TestCase):
         valid_urls = [
             "https://api.example.com",
             "http://localhost:8080",
-            "https://api.ffbb.app/items/test",
+            "https://api.ffbb.com/items/test",
         ]
 
         for url in valid_urls:

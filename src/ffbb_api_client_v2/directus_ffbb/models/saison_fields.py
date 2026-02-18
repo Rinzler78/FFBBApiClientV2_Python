@@ -3,7 +3,6 @@ class SaisonFields:
 
     # Basic fields
     ID = "id"
-    NOM = "nom"
     ACTIF = "actif"
     DEBUT = "debut"
     FIN = "fin"
@@ -18,7 +17,6 @@ class SaisonFields:
         """Get default fields for saison queries."""
         return [
             cls.ID,
-            cls.NOM,
             cls.ACTIF,
             cls.DEBUT,
             cls.FIN,
@@ -35,10 +33,4 @@ class SaisonFields:
             cls.DATE_UPDATED,
         ]
 
-    @staticmethod
-    def get_wildcard(depth: int = 1) -> list[str]:
-        """Get wildcard fields at the specified depth.
-
-        Max useful depth for saisons is 1 (9 fields at *).
-        """
-        return [".".join(["*"] * min(depth, 5))]
+    WILDCARD = "*"

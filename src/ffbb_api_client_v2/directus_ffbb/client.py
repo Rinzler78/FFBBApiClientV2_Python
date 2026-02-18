@@ -8,11 +8,12 @@ from requests_cache import CachedSession
 
 from .._http.helper import HttpHelper
 from ..directus.client import DirectusClient
-from ..directus.models.field_set import FieldSet
 from ..utils.cache_manager import CacheConfig
 from ..utils.retry_utils import RetryConfig, TimeoutConfig
 from .config import (
     API_FFBB_BASE_URL,
+    DEFAULT_DIRECTUS_RETRY_CONFIG,
+    DEFAULT_DIRECTUS_TIMEOUT_CONFIG,
     ENDPOINT_COMMUNES,
     ENDPOINT_COMPETITIONS,
     ENDPOINT_CONFIGURATION,
@@ -71,8 +72,8 @@ class ApiFFBBAppClient(DirectusClient):
             url=url,
             debug=debug,
             cached_session=cached_session,
-            retry_config=retry_config,
-            timeout_config=timeout_config,
+            retry_config=retry_config or DEFAULT_DIRECTUS_RETRY_CONFIG,
+            timeout_config=timeout_config or DEFAULT_DIRECTUS_TIMEOUT_CONFIG,
             cache_config=cache_config,
         )
 
@@ -91,7 +92,6 @@ class ApiFFBBAppClient(DirectusClient):
         self,
         competition_id: int,
         deep_rencontres_limit: int | None = 1000,
-        field_set: FieldSet = FieldSet.DETAILED,
         cached_session: CachedSession | None = None,
     ) -> GetCompetitionResponse | None:
         """Retrieves detailed information about a competition."""
@@ -102,7 +102,7 @@ class ApiFFBBAppClient(DirectusClient):
             )
         data = self._get_item(
             f"{ENDPOINT_COMPETITIONS}/{competition_id}",
-            fields=QueryFieldsManager.get_competition_fields(field_set),
+            fields=QueryFieldsManager.get_competition_fields(),
             params=params,
             cached_session=cached_session,
         )
@@ -115,7 +115,6 @@ class ApiFFBBAppClient(DirectusClient):
         deep_rencontres_filter_saison_actif: bool | None = True,
         deep_rencontres_sort: str | None = "date_rencontre",
         deep_classements_limit: int | None = 100000,
-        field_set: FieldSet = FieldSet.DETAILED,
         cached_session: CachedSession | None = None,
     ) -> GetPouleResponse | None:
         """Retrieves detailed information about a poule."""
@@ -130,7 +129,7 @@ class ApiFFBBAppClient(DirectusClient):
             params["deep[classements][_limit]"] = str(deep_classements_limit)
         data = self._get_item(
             f"{ENDPOINT_POULES}/{poule_id}",
-            fields=QueryFieldsManager.get_poule_fields(field_set),
+            fields=QueryFieldsManager.get_poule_fields(),
             params=params,
             cached_session=cached_session,
         )
@@ -139,7 +138,6 @@ class ApiFFBBAppClient(DirectusClient):
     def get_saisons(
         self,
         filter_criteria: str | None = '{"actif":{"_eq":true}}',
-        field_set: FieldSet = FieldSet.DETAILED,
         cached_session: CachedSession | None = None,
     ) -> list[GetSaisonsResponse]:
         """Retrieves list of seasons."""
@@ -148,7 +146,7 @@ class ApiFFBBAppClient(DirectusClient):
             params["filter"] = filter_criteria
         data = self._list_items(
             ENDPOINT_SAISONS,
-            fields=QueryFieldsManager.get_saison_fields(field_set),
+            fields=QueryFieldsManager.get_saison_fields(),
             params=params,
             limit=100,
             cached_session=cached_session,
@@ -158,13 +156,12 @@ class ApiFFBBAppClient(DirectusClient):
     def get_organisme(
         self,
         organisme_id: int,
-        field_set: FieldSet = FieldSet.DETAILED,
         cached_session: CachedSession | None = None,
     ) -> GetOrganismeResponse | None:
         """Retrieves detailed information about an organisme."""
         data = self._get_item(
             f"{ENDPOINT_ORGANISMES}/{organisme_id}",
-            fields=QueryFieldsManager.get_organisme_fields(field_set),
+            fields=QueryFieldsManager.get_organisme_fields(),
             cached_session=cached_session,
         )
         return GetOrganismeResponse.from_dict(data) if data else None
@@ -183,13 +180,12 @@ class ApiFFBBAppClient(DirectusClient):
     def get_rencontre(
         self,
         rencontre_id: int,
-        field_set: FieldSet = FieldSet.DETAILED,
         cached_session: CachedSession | None = None,
     ) -> GetRencontresResponse | None:
         """Retrieves a rencontre by ID."""
         data = self._get_item(
             f"{ENDPOINT_RENCONTRES}/{rencontre_id}",
-            fields=QueryFieldsManager.get_rencontres_fields(field_set),
+            fields=QueryFieldsManager.get_rencontres_fields(),
             cached_session=cached_session,
         )
         return GetRencontresResponse.from_dict(data) if data else None
@@ -197,13 +193,12 @@ class ApiFFBBAppClient(DirectusClient):
     def get_salle(
         self,
         salle_id: int,
-        field_set: FieldSet = FieldSet.DETAILED,
         cached_session: CachedSession | None = None,
     ) -> GetSallesResponse | None:
         """Retrieves a salle by ID."""
         data = self._get_item(
             f"{ENDPOINT_SALLES}/{salle_id}",
-            fields=QueryFieldsManager.get_salles_fields(field_set),
+            fields=QueryFieldsManager.get_salles_fields(),
             cached_session=cached_session,
         )
         return GetSallesResponse.from_dict(data) if data else None
@@ -211,13 +206,12 @@ class ApiFFBBAppClient(DirectusClient):
     def get_terrain(
         self,
         terrain_id: int,
-        field_set: FieldSet = FieldSet.DETAILED,
         cached_session: CachedSession | None = None,
     ) -> GetTerrainsResponse | None:
         """Retrieves a terrain by ID."""
         data = self._get_item(
             f"{ENDPOINT_TERRAINS}/{terrain_id}",
-            fields=QueryFieldsManager.get_terrains_fields(field_set),
+            fields=QueryFieldsManager.get_terrains_fields(),
             cached_session=cached_session,
         )
         return GetTerrainsResponse.from_dict(data) if data else None
@@ -225,13 +219,12 @@ class ApiFFBBAppClient(DirectusClient):
     def get_tournoi(
         self,
         tournoi_id: int,
-        field_set: FieldSet = FieldSet.DETAILED,
         cached_session: CachedSession | None = None,
     ) -> GetTournoisResponse | None:
         """Retrieves a tournoi by ID."""
         data = self._get_item(
             f"{ENDPOINT_TOURNOIS}/{tournoi_id}",
-            fields=QueryFieldsManager.get_tournois_fields(field_set),
+            fields=QueryFieldsManager.get_tournois_fields(),
             cached_session=cached_session,
         )
         return GetTournoisResponse.from_dict(data) if data else None
@@ -239,13 +232,12 @@ class ApiFFBBAppClient(DirectusClient):
     def get_engagement(
         self,
         engagement_id: int,
-        field_set: FieldSet = FieldSet.DETAILED,
         cached_session: CachedSession | None = None,
     ) -> GetEngagementsResponse | None:
         """Retrieves an engagement by ID."""
         data = self._get_item(
             f"{ENDPOINT_ENGAGEMENTS}/{engagement_id}",
-            fields=QueryFieldsManager.get_engagements_fields(field_set),
+            fields=QueryFieldsManager.get_engagements_fields(),
             cached_session=cached_session,
         )
         return GetEngagementsResponse.from_dict(data) if data else None
@@ -253,13 +245,12 @@ class ApiFFBBAppClient(DirectusClient):
     def get_formation(
         self,
         formation_id: str,
-        field_set: FieldSet = FieldSet.DETAILED,
         cached_session: CachedSession | None = None,
     ) -> GetFormationsResponse | None:
         """Retrieves a formation by ID."""
         data = self._get_item(
             f"{ENDPOINT_FORMATIONS}/{formation_id}",
-            fields=QueryFieldsManager.get_formations_fields(field_set),
+            fields=QueryFieldsManager.get_formations_fields(),
             cached_session=cached_session,
         )
         return GetFormationsResponse.from_dict(data) if data else None
@@ -267,13 +258,12 @@ class ApiFFBBAppClient(DirectusClient):
     def get_entraineur(
         self,
         entraineur_id: int,
-        field_set: FieldSet = FieldSet.DETAILED,
         cached_session: CachedSession | None = None,
     ) -> GetEntraineursResponse | None:
         """Retrieves an entraineur by ID."""
         data = self._get_item(
             f"{ENDPOINT_ENTRAINEURS}/{entraineur_id}",
-            fields=QueryFieldsManager.get_entraineurs_fields(field_set),
+            fields=QueryFieldsManager.get_entraineurs_fields(),
             cached_session=cached_session,
         )
         return GetEntraineursResponse.from_dict(data) if data else None
@@ -299,13 +289,12 @@ class ApiFFBBAppClient(DirectusClient):
     def list_competitions(
         self,
         limit: int = 10,
-        field_set: FieldSet = FieldSet.BASIC,
         cached_session: CachedSession | None = None,
     ) -> list[GetCompetitionResponse | None]:
         """Lists competitions."""
         data = self._list_items(
             ENDPOINT_COMPETITIONS,
-            fields=QueryFieldsManager.get_competition_fields(field_set),
+            fields=QueryFieldsManager.get_competition_fields(),
             limit=limit,
             cached_session=cached_session,
         )
@@ -314,7 +303,6 @@ class ApiFFBBAppClient(DirectusClient):
     def list_rencontres(
         self,
         limit: int = 10,
-        field_set: FieldSet = FieldSet.DEFAULT,
         filter_criteria: str | None = None,
         sort: list[str] | None = None,
         offset: int | None = None,
@@ -324,7 +312,7 @@ class ApiFFBBAppClient(DirectusClient):
         """Lists rencontres."""
         data = self._list_items(
             ENDPOINT_RENCONTRES,
-            fields=QueryFieldsManager.get_rencontres_fields(field_set),
+            fields=QueryFieldsManager.get_rencontres_fields(),
             params=self._build_list_params(filter_criteria, sort, search),
             limit=limit,
             offset=offset,
@@ -335,7 +323,6 @@ class ApiFFBBAppClient(DirectusClient):
     def list_salles(
         self,
         limit: int = 10,
-        field_set: FieldSet = FieldSet.DEFAULT,
         filter_criteria: str | None = None,
         sort: list[str] | None = None,
         offset: int | None = None,
@@ -345,7 +332,7 @@ class ApiFFBBAppClient(DirectusClient):
         """Lists salles."""
         data = self._list_items(
             ENDPOINT_SALLES,
-            fields=QueryFieldsManager.get_salles_fields(field_set),
+            fields=QueryFieldsManager.get_salles_fields(),
             params=self._build_list_params(filter_criteria, sort, search),
             limit=limit,
             offset=offset,
@@ -356,7 +343,6 @@ class ApiFFBBAppClient(DirectusClient):
     def list_terrains(
         self,
         limit: int = 10,
-        field_set: FieldSet = FieldSet.DEFAULT,
         filter_criteria: str | None = None,
         sort: list[str] | None = None,
         offset: int | None = None,
@@ -366,7 +352,7 @@ class ApiFFBBAppClient(DirectusClient):
         """Lists terrains."""
         data = self._list_items(
             ENDPOINT_TERRAINS,
-            fields=QueryFieldsManager.get_terrains_fields(field_set),
+            fields=QueryFieldsManager.get_terrains_fields(),
             params=self._build_list_params(filter_criteria, sort, search),
             limit=limit,
             offset=offset,
@@ -377,7 +363,6 @@ class ApiFFBBAppClient(DirectusClient):
     def list_tournois(
         self,
         limit: int = 10,
-        field_set: FieldSet = FieldSet.DEFAULT,
         filter_criteria: str | None = None,
         sort: list[str] | None = None,
         offset: int | None = None,
@@ -387,7 +372,7 @@ class ApiFFBBAppClient(DirectusClient):
         """Lists tournois."""
         data = self._list_items(
             ENDPOINT_TOURNOIS,
-            fields=QueryFieldsManager.get_tournois_fields(field_set),
+            fields=QueryFieldsManager.get_tournois_fields(),
             params=self._build_list_params(filter_criteria, sort, search),
             limit=limit,
             offset=offset,
@@ -398,7 +383,6 @@ class ApiFFBBAppClient(DirectusClient):
     def list_engagements(
         self,
         limit: int = 10,
-        field_set: FieldSet = FieldSet.DEFAULT,
         filter_criteria: str | None = None,
         sort: list[str] | None = None,
         offset: int | None = None,
@@ -408,7 +392,7 @@ class ApiFFBBAppClient(DirectusClient):
         """Lists engagements."""
         data = self._list_items(
             ENDPOINT_ENGAGEMENTS,
-            fields=QueryFieldsManager.get_engagements_fields(field_set),
+            fields=QueryFieldsManager.get_engagements_fields(),
             params=self._build_list_params(filter_criteria, sort, search),
             limit=limit,
             offset=offset,
@@ -419,7 +403,6 @@ class ApiFFBBAppClient(DirectusClient):
     def list_formations(
         self,
         limit: int = 10,
-        field_set: FieldSet = FieldSet.DEFAULT,
         filter_criteria: str | None = None,
         sort: list[str] | None = None,
         offset: int | None = None,
@@ -429,7 +412,7 @@ class ApiFFBBAppClient(DirectusClient):
         """Lists formations."""
         data = self._list_items(
             ENDPOINT_FORMATIONS,
-            fields=QueryFieldsManager.get_formations_fields(field_set),
+            fields=QueryFieldsManager.get_formations_fields(),
             params=self._build_list_params(filter_criteria, sort, search),
             limit=limit,
             offset=offset,
@@ -440,7 +423,6 @@ class ApiFFBBAppClient(DirectusClient):
     def list_entraineurs(
         self,
         limit: int = 10,
-        field_set: FieldSet = FieldSet.DEFAULT,
         filter_criteria: str | None = None,
         sort: list[str] | None = None,
         offset: int | None = None,
@@ -450,7 +432,7 @@ class ApiFFBBAppClient(DirectusClient):
         """Lists entraineurs."""
         data = self._list_items(
             ENDPOINT_ENTRAINEURS,
-            fields=QueryFieldsManager.get_entraineurs_fields(field_set),
+            fields=QueryFieldsManager.get_entraineurs_fields(),
             params=self._build_list_params(filter_criteria, sort, search),
             limit=limit,
             offset=offset,
@@ -461,7 +443,6 @@ class ApiFFBBAppClient(DirectusClient):
     def list_communes(
         self,
         limit: int = 10,
-        field_set: FieldSet = FieldSet.DEFAULT,
         filter_criteria: str | None = None,
         sort: list[str] | None = None,
         offset: int | None = None,
@@ -471,7 +452,7 @@ class ApiFFBBAppClient(DirectusClient):
         """Lists communes."""
         data = self._list_items(
             ENDPOINT_COMMUNES,
-            fields=QueryFieldsManager.get_communes_fields(field_set),
+            fields=QueryFieldsManager.get_communes_fields(),
             params=self._build_list_params(filter_criteria, sort, search),
             limit=limit,
             offset=offset,
@@ -482,7 +463,6 @@ class ApiFFBBAppClient(DirectusClient):
     def list_officiels(
         self,
         limit: int = 10,
-        field_set: FieldSet = FieldSet.DEFAULT,
         filter_criteria: str | None = None,
         sort: list[str] | None = None,
         offset: int | None = None,
@@ -492,7 +472,7 @@ class ApiFFBBAppClient(DirectusClient):
         """Lists officiels."""
         data = self._list_items(
             ENDPOINT_OFFICIELS,
-            fields=QueryFieldsManager.get_officiels_fields(field_set),
+            fields=QueryFieldsManager.get_officiels_fields(),
             params=self._build_list_params(filter_criteria, sort, search),
             limit=limit,
             offset=offset,
@@ -503,7 +483,6 @@ class ApiFFBBAppClient(DirectusClient):
     def list_pratiques(
         self,
         limit: int = 10,
-        field_set: FieldSet = FieldSet.DEFAULT,
         filter_criteria: str | None = None,
         sort: list[str] | None = None,
         offset: int | None = None,
@@ -513,7 +492,7 @@ class ApiFFBBAppClient(DirectusClient):
         """Lists pratiques."""
         data = self._list_items(
             ENDPOINT_PRATIQUES,
-            fields=QueryFieldsManager.get_pratiques_fields(field_set),
+            fields=QueryFieldsManager.get_pratiques_fields(),
             params=self._build_list_params(filter_criteria, sort, search),
             limit=limit,
             offset=offset,
@@ -525,7 +504,6 @@ class ApiFFBBAppClient(DirectusClient):
 
     def list_all_rencontres(
         self,
-        field_set: FieldSet = FieldSet.DEFAULT,
         filter_criteria: str | None = None,
         sort: list[str] | None = None,
         search: str | None = None,
@@ -536,7 +514,7 @@ class ApiFFBBAppClient(DirectusClient):
         """Retrieves all rencontres with automatic pagination."""
         return self._fetch_all_pages(
             endpoint=ENDPOINT_RENCONTRES,
-            fields=QueryFieldsManager.get_rencontres_fields(field_set),
+            fields=QueryFieldsManager.get_rencontres_fields(),
             from_list_fn=GetRencontresResponse.from_list,
             filter_criteria=filter_criteria,
             sort=sort,
@@ -548,7 +526,6 @@ class ApiFFBBAppClient(DirectusClient):
 
     def list_all_salles(
         self,
-        field_set: FieldSet = FieldSet.DEFAULT,
         filter_criteria: str | None = None,
         sort: list[str] | None = None,
         search: str | None = None,
@@ -559,7 +536,7 @@ class ApiFFBBAppClient(DirectusClient):
         """Retrieves all salles with automatic pagination."""
         return self._fetch_all_pages(
             endpoint=ENDPOINT_SALLES,
-            fields=QueryFieldsManager.get_salles_fields(field_set),
+            fields=QueryFieldsManager.get_salles_fields(),
             from_list_fn=GetSallesResponse.from_list,
             filter_criteria=filter_criteria,
             sort=sort,
@@ -571,7 +548,6 @@ class ApiFFBBAppClient(DirectusClient):
 
     def list_all_terrains(
         self,
-        field_set: FieldSet = FieldSet.DEFAULT,
         filter_criteria: str | None = None,
         sort: list[str] | None = None,
         search: str | None = None,
@@ -582,7 +558,7 @@ class ApiFFBBAppClient(DirectusClient):
         """Retrieves all terrains with automatic pagination."""
         return self._fetch_all_pages(
             endpoint=ENDPOINT_TERRAINS,
-            fields=QueryFieldsManager.get_terrains_fields(field_set),
+            fields=QueryFieldsManager.get_terrains_fields(),
             from_list_fn=GetTerrainsResponse.from_list,
             filter_criteria=filter_criteria,
             sort=sort,
@@ -594,7 +570,6 @@ class ApiFFBBAppClient(DirectusClient):
 
     def list_all_tournois(
         self,
-        field_set: FieldSet = FieldSet.DEFAULT,
         filter_criteria: str | None = None,
         sort: list[str] | None = None,
         search: str | None = None,
@@ -605,7 +580,7 @@ class ApiFFBBAppClient(DirectusClient):
         """Retrieves all tournois with automatic pagination."""
         return self._fetch_all_pages(
             endpoint=ENDPOINT_TOURNOIS,
-            fields=QueryFieldsManager.get_tournois_fields(field_set),
+            fields=QueryFieldsManager.get_tournois_fields(),
             from_list_fn=GetTournoisResponse.from_list,
             filter_criteria=filter_criteria,
             sort=sort,
@@ -617,7 +592,6 @@ class ApiFFBBAppClient(DirectusClient):
 
     def list_all_engagements(
         self,
-        field_set: FieldSet = FieldSet.DEFAULT,
         filter_criteria: str | None = None,
         sort: list[str] | None = None,
         search: str | None = None,
@@ -628,7 +602,7 @@ class ApiFFBBAppClient(DirectusClient):
         """Retrieves all engagements with automatic pagination."""
         return self._fetch_all_pages(
             endpoint=ENDPOINT_ENGAGEMENTS,
-            fields=QueryFieldsManager.get_engagements_fields(field_set),
+            fields=QueryFieldsManager.get_engagements_fields(),
             from_list_fn=GetEngagementsResponse.from_list,
             filter_criteria=filter_criteria,
             sort=sort,
@@ -640,7 +614,6 @@ class ApiFFBBAppClient(DirectusClient):
 
     def list_all_formations(
         self,
-        field_set: FieldSet = FieldSet.DEFAULT,
         filter_criteria: str | None = None,
         sort: list[str] | None = None,
         search: str | None = None,
@@ -651,7 +624,7 @@ class ApiFFBBAppClient(DirectusClient):
         """Retrieves all formations with automatic pagination."""
         return self._fetch_all_pages(
             endpoint=ENDPOINT_FORMATIONS,
-            fields=QueryFieldsManager.get_formations_fields(field_set),
+            fields=QueryFieldsManager.get_formations_fields(),
             from_list_fn=GetFormationsResponse.from_list,
             filter_criteria=filter_criteria,
             sort=sort,
@@ -663,7 +636,6 @@ class ApiFFBBAppClient(DirectusClient):
 
     def list_all_entraineurs(
         self,
-        field_set: FieldSet = FieldSet.DEFAULT,
         filter_criteria: str | None = None,
         sort: list[str] | None = None,
         search: str | None = None,
@@ -674,7 +646,7 @@ class ApiFFBBAppClient(DirectusClient):
         """Retrieves all entraineurs with automatic pagination."""
         return self._fetch_all_pages(
             endpoint=ENDPOINT_ENTRAINEURS,
-            fields=QueryFieldsManager.get_entraineurs_fields(field_set),
+            fields=QueryFieldsManager.get_entraineurs_fields(),
             from_list_fn=GetEntraineursResponse.from_list,
             filter_criteria=filter_criteria,
             sort=sort,
@@ -686,7 +658,6 @@ class ApiFFBBAppClient(DirectusClient):
 
     def list_all_communes(
         self,
-        field_set: FieldSet = FieldSet.DEFAULT,
         filter_criteria: str | None = None,
         sort: list[str] | None = None,
         search: str | None = None,
@@ -697,7 +668,7 @@ class ApiFFBBAppClient(DirectusClient):
         """Retrieves all communes with automatic pagination."""
         return self._fetch_all_pages(
             endpoint=ENDPOINT_COMMUNES,
-            fields=QueryFieldsManager.get_communes_fields(field_set),
+            fields=QueryFieldsManager.get_communes_fields(),
             from_list_fn=GetCommunesResponse.from_list,
             filter_criteria=filter_criteria,
             sort=sort,
@@ -709,7 +680,6 @@ class ApiFFBBAppClient(DirectusClient):
 
     def list_all_officiels(
         self,
-        field_set: FieldSet = FieldSet.DEFAULT,
         filter_criteria: str | None = None,
         sort: list[str] | None = None,
         search: str | None = None,
@@ -720,7 +690,7 @@ class ApiFFBBAppClient(DirectusClient):
         """Retrieves all officiels with automatic pagination."""
         return self._fetch_all_pages(
             endpoint=ENDPOINT_OFFICIELS,
-            fields=QueryFieldsManager.get_officiels_fields(field_set),
+            fields=QueryFieldsManager.get_officiels_fields(),
             from_list_fn=GetOfficielsResponse.from_list,
             filter_criteria=filter_criteria,
             sort=sort,
@@ -732,7 +702,6 @@ class ApiFFBBAppClient(DirectusClient):
 
     def list_all_pratiques(
         self,
-        field_set: FieldSet = FieldSet.DEFAULT,
         filter_criteria: str | None = None,
         sort: list[str] | None = None,
         search: str | None = None,
@@ -743,7 +712,7 @@ class ApiFFBBAppClient(DirectusClient):
         """Retrieves all pratiques with automatic pagination."""
         return self._fetch_all_pages(
             endpoint=ENDPOINT_PRATIQUES,
-            fields=QueryFieldsManager.get_pratiques_fields(field_set),
+            fields=QueryFieldsManager.get_pratiques_fields(),
             from_list_fn=GetPratiquesResponse.from_list,
             filter_criteria=filter_criteria,
             sort=sort,

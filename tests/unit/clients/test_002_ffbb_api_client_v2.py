@@ -2,6 +2,8 @@ import os
 import unittest
 from typing import Any
 
+from dotenv import load_dotenv
+
 from ffbb_api_client_v2 import (
     CompetitionsFacetDistribution,
     CompetitionsFacetStats,
@@ -49,6 +51,7 @@ class Test004FfbbApiClientV2(unittest.TestCase):
     ]
 
     def setUp(self):
+        load_dotenv()
         api_token = os.getenv("API_FFBB_APP_BEARER_TOKEN")
 
         if not api_token:

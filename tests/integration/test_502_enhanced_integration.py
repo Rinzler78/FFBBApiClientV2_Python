@@ -5,7 +5,6 @@ import time
 import unittest
 
 from ffbb_api_client_v2 import FFBBAPIClientV2
-from ffbb_api_client_v2.directus.models.field_set import FieldSet
 from ffbb_api_client_v2.directus_ffbb.models.get_competition_response import (
     GetCompetitionResponse,
 )
@@ -142,25 +141,29 @@ class Test011EnhancedIntegration(unittest.TestCase):
         print("  ✓ Organisme retrieved with default fields")
 
     def test_004_query_fields_manager(self):
-        """Test centralized query fields management."""
-        basic_fields = QueryFieldsManager.get_organisme_fields(FieldSet.BASIC)
-        default_fields = QueryFieldsManager.get_organisme_fields(FieldSet.DEFAULT)
-        detailed_fields = QueryFieldsManager.get_organisme_fields(FieldSet.DETAILED)
+        """Test centralized query fields management returns wildcard."""
+        organisme_fields = QueryFieldsManager.get_organisme_fields()
+        competition_fields = QueryFieldsManager.get_competition_fields()
+        saison_fields = QueryFieldsManager.get_saison_fields()
 
-        self.assertIsInstance(basic_fields, list)
-        self.assertIsInstance(default_fields, list)
-        self.assertIsInstance(detailed_fields, list)
+        self.assertIsInstance(organisme_fields, list)
+        self.assertIsInstance(competition_fields, list)
+        self.assertIsInstance(saison_fields, list)
 
-        self.assertIn("id", basic_fields)
-        self.assertIn("nom", basic_fields)
+        # All should return a single-element wildcard list
+        self.assertEqual(len(organisme_fields), 1)
+        self.assertEqual(len(competition_fields), 1)
+        self.assertEqual(len(saison_fields), 1)
 
-        self.assertTrue(len(default_fields) > len(basic_fields))
-        self.assertTrue(len(detailed_fields) > len(default_fields))
+        # Each element should be a wildcard pattern
+        self.assertTrue(organisme_fields[0].startswith("*"))
+        self.assertTrue(competition_fields[0].startswith("*"))
+        self.assertTrue(saison_fields[0].startswith("*"))
 
         print("✓ Query fields manager test passed")
-        print(f"  Basic fields: {len(basic_fields)}")
-        print(f"  Default fields: {len(default_fields)}")
-        print(f"  Detailed fields: {len(detailed_fields)}")
+        print(f"  Organisme wildcard: {organisme_fields[0]}")
+        print(f"  Competition wildcard: {competition_fields[0]}")
+        print(f"  Saison wildcard: {saison_fields[0]}")
 
     def test_005_complete_enhanced_user_journey(self):
         """Test complete user journey with enhanced model support."""
@@ -245,7 +248,7 @@ class Test011EnhancedIntegration(unittest.TestCase):
         organisme_id = int(paris_results.hits[0].id)
 
         organisme = self.api_client.api_ffbb_client.get_organisme(
-            organisme_id=organisme_id, field_set=FieldSet.BASIC
+            organisme_id=organisme_id
         )
 
         self.assertIsNotNone(organisme)

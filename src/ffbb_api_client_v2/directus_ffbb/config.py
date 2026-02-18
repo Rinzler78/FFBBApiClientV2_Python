@@ -1,5 +1,14 @@
 """Centralized configuration for FFBB Directus API client."""
 
+from ..utils.retry_utils import RetryConfig, TimeoutConfig
+
+# Directus needs longer read timeout for deep wildcard field queries (*.*.*.*.*)
+DEFAULT_DIRECTUS_TIMEOUT_CONFIG = TimeoutConfig(
+    connect_timeout=10.0, read_timeout=120.0
+)
+# Fewer retries since each attempt is expensive with deep queries
+DEFAULT_DIRECTUS_RETRY_CONFIG = RetryConfig(max_attempts=1)
+
 # API URL
 API_FFBB_BASE_URL = "https://api.ffbb.app/"
 
