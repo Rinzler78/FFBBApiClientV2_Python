@@ -9,3 +9,12 @@ class Jour(Enum):
     WEDNESDAY = "mercredi"
     SATURDAY = "samedi"
     FRIDAY = "vendredi"
+
+    @classmethod
+    def _missing_(cls, value: object) -> "Jour | None":
+        if isinstance(value, str):
+            lower = value.lower()
+            for member in cls:
+                if member.value == lower:
+                    return member
+        return None
