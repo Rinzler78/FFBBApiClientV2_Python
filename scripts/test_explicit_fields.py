@@ -19,12 +19,9 @@ import os
 import sys
 import time
 
-# Add src to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
-
-from ffbb_api_client_v2 import FFBBAPIClientV2  # noqa: E402
-from ffbb_api_client_v2.directus_ffbb.client import ApiFFBBAppClient  # noqa: E402
-from ffbb_api_client_v2.directus_ffbb.config import (  # noqa: E402
+from ffbb_api_client_v2 import FFBBAPIClientV2
+from ffbb_api_client_v2.directus_ffbb.client import ApiFFBBAppClient
+from ffbb_api_client_v2.directus_ffbb.config import (
     ENDPOINT_COMMUNES,
     ENDPOINT_COMPETITIONS,
     ENDPOINT_ENGAGEMENTS,
@@ -40,46 +37,46 @@ from ffbb_api_client_v2.directus_ffbb.config import (  # noqa: E402
     ENDPOINT_TERRAINS,
     ENDPOINT_TOURNOIS,
 )
-from ffbb_api_client_v2.directus_ffbb.models.communes_fields import (  # noqa: E402
+from ffbb_api_client_v2.directus_ffbb.models.communes_fields import (
     CommunesFields,
 )
-from ffbb_api_client_v2.directus_ffbb.models.competition_fields import (  # noqa: E402
+from ffbb_api_client_v2.directus_ffbb.models.competition_fields import (
     CompetitionFields,
 )
-from ffbb_api_client_v2.directus_ffbb.models.engagements_fields import (  # noqa: E402
+from ffbb_api_client_v2.directus_ffbb.models.engagements_fields import (
     EngagementsFields,
 )
-from ffbb_api_client_v2.directus_ffbb.models.entraineurs_fields import (  # noqa: E402
+from ffbb_api_client_v2.directus_ffbb.models.entraineurs_fields import (
     EntraineursFields,
 )
-from ffbb_api_client_v2.directus_ffbb.models.formations_fields import (  # noqa: E402
+from ffbb_api_client_v2.directus_ffbb.models.formations_fields import (
     FormationsFields,
 )
-from ffbb_api_client_v2.directus_ffbb.models.officiels_fields import (  # noqa: E402
+from ffbb_api_client_v2.directus_ffbb.models.officiels_fields import (
     OfficielsFields,
 )
-from ffbb_api_client_v2.directus_ffbb.models.organisme_fields import (  # noqa: E402
+from ffbb_api_client_v2.directus_ffbb.models.organisme_fields import (
     OrganismeFields,
 )
-from ffbb_api_client_v2.directus_ffbb.models.poule_fields import (  # noqa: E402
+from ffbb_api_client_v2.directus_ffbb.models.poule_fields import (
     PouleFields,
 )
-from ffbb_api_client_v2.directus_ffbb.models.pratiques_fields import (  # noqa: E402
+from ffbb_api_client_v2.directus_ffbb.models.pratiques_fields import (
     PratiquesFields,
 )
-from ffbb_api_client_v2.directus_ffbb.models.rencontres_fields import (  # noqa: E402
+from ffbb_api_client_v2.directus_ffbb.models.rencontres_fields import (
     RencontresFields,
 )
-from ffbb_api_client_v2.directus_ffbb.models.saison_fields import (  # noqa: E402
+from ffbb_api_client_v2.directus_ffbb.models.saison_fields import (
     SaisonFields,
 )
-from ffbb_api_client_v2.directus_ffbb.models.salles_fields import (  # noqa: E402
+from ffbb_api_client_v2.directus_ffbb.models.salles_fields import (
     SallesFields,
 )
-from ffbb_api_client_v2.directus_ffbb.models.terrains_fields import (  # noqa: E402
+from ffbb_api_client_v2.directus_ffbb.models.terrains_fields import (
     TerrainsFields,
 )
-from ffbb_api_client_v2.directus_ffbb.models.tournois_fields import (  # noqa: E402
+from ffbb_api_client_v2.directus_ffbb.models.tournois_fields import (
     TournoisFields,
 )
 

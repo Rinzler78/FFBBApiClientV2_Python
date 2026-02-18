@@ -15,9 +15,7 @@ import json
 import os
 import sys
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
-
-from ffbb_api_client_v2._http.client import http_post_json  # noqa: E402
+from ffbb_api_client_v2._http.client import http_post_json
 
 MEILISEARCH_URL = "https://meilisearch-prod.ffbb.app/"
 DEFAULT_USER_AGENT = "okhttp/4.12.0"

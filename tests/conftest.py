@@ -40,7 +40,7 @@ def worker_id(request: FixtureRequest) -> str:
 
 @pytest.fixture(scope="session", autouse=True)
 def configure_cache_for_worker(
-    worker_id: str,  # noqa: ARG001
+    worker_id: str,
 ) -> Generator[None]:
     """Configure CacheManager with memory backend for test isolation.
 
@@ -53,6 +53,7 @@ def configure_cache_for_worker(
     Yields:
         None - fixture runs setup, yields control, then runs teardown.
     """
+    _ = worker_id  # Used by pytest for fixture dependency ordering
     from ffbb_api_client_v2.utils.cache_manager import CacheConfig, CacheManager
 
     CacheManager.reset_instance()

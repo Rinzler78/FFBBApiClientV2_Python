@@ -29,30 +29,25 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-# ---------------------------------------------------------------------------
-# Ensure project root is on sys.path so we can import the client library
-# ---------------------------------------------------------------------------
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-SRC_ROOT = PROJECT_ROOT / "src"
-sys.path.insert(0, str(SRC_ROOT))
-
-# Import config modules for dynamic constant discovery
-import ffbb_api_client_v2.directus_ffbb.config as _directus_config  # noqa: E402
-import ffbb_api_client_v2.meilisearch_ffbb.config as _meili_config  # noqa: E402
-from ffbb_api_client_v2._http.client import (  # noqa: E402
+import ffbb_api_client_v2.directus_ffbb.config as _directus_config
+import ffbb_api_client_v2.meilisearch_ffbb.config as _meili_config
+from ffbb_api_client_v2._http.client import (
     http_get_json,
     http_post_json,
     url_with_params,
 )
-from ffbb_api_client_v2.config import (  # noqa: E402
+from ffbb_api_client_v2.config import (
     MEILISEARCH_BASE_URL,
     MEILISEARCH_ENDPOINT_MULTI_SEARCH,
 )
-from ffbb_api_client_v2.directus.client import DEFAULT_USER_AGENT  # noqa: E402
-from ffbb_api_client_v2.directus_ffbb.config import (  # noqa: E402
+from ffbb_api_client_v2.directus.client import DEFAULT_USER_AGENT
+from ffbb_api_client_v2.directus_ffbb.config import (
     API_FFBB_BASE_URL,
 )
-from ffbb_api_client_v2.facade.token_manager import TokenManager  # noqa: E402
+from ffbb_api_client_v2.facade.token_manager import TokenManager
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+SRC_ROOT = PROJECT_ROOT / "src"
 
 logging.basicConfig(
     level=logging.INFO,

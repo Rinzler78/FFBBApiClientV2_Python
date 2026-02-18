@@ -15,9 +15,7 @@ import json
 import os
 import sys
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
-
-from ffbb_api_client_v2._http.client import (  # noqa: E402
+from ffbb_api_client_v2._http.client import (
     http_get_json,
     url_with_params,
 )

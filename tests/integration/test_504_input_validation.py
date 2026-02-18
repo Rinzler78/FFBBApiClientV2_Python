@@ -81,7 +81,7 @@ class Test015InputValidationIntegration(unittest.TestCase):
             "ffbb_api_client_v2.facade.client.ApiFFBBAppClient"
         ) as mock_api_client_class, patch(
             "ffbb_api_client_v2.facade.client.MeilisearchFFBBClient"
-        ):  # noqa: F841
+        ):
 
             mock_api_client_instance = mock_api_client_class.return_value
             mock_api_client_instance.get_saisons.return_value = []

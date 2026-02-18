@@ -21,7 +21,6 @@ import inspect
 import json
 import logging
 import re
-import sys
 import textwrap
 import typing
 from dataclasses import fields as dc_fields
@@ -29,18 +28,12 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-# ---------------------------------------------------------------------------
-# Project setup
-# ---------------------------------------------------------------------------
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_ROOT / "src"))
-
-from ffbb_api_client_v2._http.client import (  # noqa: E402
+from ffbb_api_client_v2._http.client import (
     http_get_json,
     http_post_json,
     url_with_params,
 )
-from ffbb_api_client_v2.config import (  # noqa: E402
+from ffbb_api_client_v2.config import (
     API_FFBB_BASE_URL,
     DEFAULT_USER_AGENT,
     ENDPOINT_COMPETITIONS,
@@ -50,28 +43,30 @@ from ffbb_api_client_v2.config import (  # noqa: E402
     MEILISEARCH_BASE_URL,
     MEILISEARCH_ENDPOINT_MULTI_SEARCH,
 )
-from ffbb_api_client_v2.directus_ffbb.models.get_competition_response import (  # noqa: E402
+from ffbb_api_client_v2.directus_ffbb.models.get_competition_response import (
     GetCompetitionResponse,
 )
-from ffbb_api_client_v2.directus_ffbb.models.get_organisme_response import (  # noqa: E402
+from ffbb_api_client_v2.directus_ffbb.models.get_organisme_response import (
     GetOrganismeResponse,
 )
-from ffbb_api_client_v2.directus_ffbb.models.get_poule_response import (  # noqa: E402
+from ffbb_api_client_v2.directus_ffbb.models.get_poule_response import (
     GetPouleResponse,
 )
-from ffbb_api_client_v2.directus_ffbb.models.get_saisons_response import (  # noqa: E402
+from ffbb_api_client_v2.directus_ffbb.models.get_saisons_response import (
     GetSaisonsResponse,
 )
-from ffbb_api_client_v2.facade.token_manager import TokenManager  # noqa: E402
-from ffbb_api_client_v2.models.competitions_hit import CompetitionsHit  # noqa: E402
-from ffbb_api_client_v2.models.engagements_hit import EngagementsHit  # noqa: E402
-from ffbb_api_client_v2.models.formations_hit import FormationsHit  # noqa: E402
-from ffbb_api_client_v2.models.organismes_hit import OrganismesHit  # noqa: E402
-from ffbb_api_client_v2.models.pratiques_hit import PratiquesHit  # noqa: E402
-from ffbb_api_client_v2.models.rencontres_hit import RencontresHit  # noqa: E402
-from ffbb_api_client_v2.models.salles_hit import SallesHit  # noqa: E402
-from ffbb_api_client_v2.models.terrains_hit import TerrainsHit  # noqa: E402
-from ffbb_api_client_v2.models.tournois_hit import TournoisHit  # noqa: E402
+from ffbb_api_client_v2.facade.token_manager import TokenManager
+from ffbb_api_client_v2.models.competitions_hit import CompetitionsHit
+from ffbb_api_client_v2.models.engagements_hit import EngagementsHit
+from ffbb_api_client_v2.models.formations_hit import FormationsHit
+from ffbb_api_client_v2.models.organismes_hit import OrganismesHit
+from ffbb_api_client_v2.models.pratiques_hit import PratiquesHit
+from ffbb_api_client_v2.models.rencontres_hit import RencontresHit
+from ffbb_api_client_v2.models.salles_hit import SallesHit
+from ffbb_api_client_v2.models.terrains_hit import TerrainsHit
+from ffbb_api_client_v2.models.tournois_hit import TournoisHit
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 logging.basicConfig(
     level=logging.INFO,

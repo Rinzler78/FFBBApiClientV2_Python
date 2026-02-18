@@ -19,20 +19,19 @@ import sys
 from pathlib import Path
 from typing import Any
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_ROOT / "src"))
-
-from ffbb_api_client_v2._http.client import (  # noqa: E402
+from ffbb_api_client_v2._http.client import (
     http_get_json,
     http_post_json,
 )
-from ffbb_api_client_v2.config import (  # noqa: E402
+from ffbb_api_client_v2.config import (
     DEFAULT_USER_AGENT,
     MEILISEARCH_BASE_URL,
     MEILISEARCH_ENDPOINT_MULTI_SEARCH,
     MEILISEARCH_INDEX_UIDS,
 )
-from ffbb_api_client_v2.facade.token_manager import TokenManager  # noqa: E402
+from ffbb_api_client_v2.facade.token_manager import TokenManager
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger(__name__)
