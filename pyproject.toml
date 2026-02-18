@@ -28,8 +28,10 @@ pythonVersion = "3.10"
 typeCheckingMode = "standard"
 
 [tool.pylint.messages_control]
-# Disable warnings for API model patterns
+# Disable categories and warnings for API model patterns
 disable = [
+    "C",                      # Conventions (docstrings, naming) — too noisy on auto-generated models
+    "R",                      # Refactoring suggestions — not relevant for stable code
     "redefined-builtin",      # API models use 'id', 'type', 'filter' as field names
     "try-except-raise",       # Intentional re-raise in HttpHelper.catch_result
     "unused-argument",        # ABC stubs have unused params (e.g. FacetStats.from_dict)
