@@ -28,9 +28,12 @@ pythonVersion = "3.10"
 typeCheckingMode = "standard"
 
 [tool.pylint.messages_control]
-# Disable warnings for API field names that match Python built-ins
+# Disable warnings for API model patterns
 disable = [
-    "redefined-builtin",  # API models use 'id', 'type' as field names
+    "redefined-builtin",      # API models use 'id', 'type', 'filter' as field names
+    "try-except-raise",       # Intentional re-raise in HttpHelper.catch_result
+    "unused-argument",        # ABC stubs have unused params (e.g. FacetStats.from_dict)
+    "unnecessary-ellipsis",   # Standard pattern for abstract method bodies
 ]
 
 [tool.pylint.main]

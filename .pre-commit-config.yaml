@@ -60,6 +60,26 @@ repos:
   hooks:
   - id: flake8
 
+- repo: local
+  hooks:
+  - id: pylint
+    name: pylint
+    entry: pylint
+    language: system
+    types: [python]
+    args: [
+      --rcfile=pyproject.toml,
+      --disable=all,
+      --enable=E,
+      --enable=W,
+      --max-line-length=140,
+      --disable=redefined-builtin,
+      --disable=try-except-raise,
+      --disable=unused-argument,
+      --disable=unnecessary-ellipsis,
+    ]
+    exclude: ^(tests|scripts|examples)/
+
 # Check for misspells in documentation files:
 # - repo: https://github.com/codespell-project/codespell
 #   rev: v2.2.5
