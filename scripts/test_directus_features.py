@@ -2,7 +2,7 @@
 """Test advanced Directus features on the FFBB API.
 
 This script systematically probes which advanced Directus features
-are supported by the live FFBB API (api.ffbb.app).
+are supported by the live FFBB API (api.ffbb.com).
 
 Usage:
     export API_FFBB_BEARER_TOKEN="your-token"
@@ -22,7 +22,7 @@ from ffbb_api_client_v2._http.client import (  # noqa: E402
     url_with_params,
 )
 
-API_BASE_URL = "https://api.ffbb.app/"
+API_BASE_URL = "https://api.ffbb.com/"
 DEFAULT_USER_AGENT = "okhttp/4.12.0"
 
 

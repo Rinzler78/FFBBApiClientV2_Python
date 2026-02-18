@@ -64,14 +64,14 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
-MEILI_BATCH_SIZE = 1000
+MEILI_BATCH_SIZE = 5000  # MeiliSearch supports large batches
 MEILI_MAX_HITS = sys.maxsize  # no limit — collect ALL hits from every index
-REST_PAGE_SIZE = 100
+REST_PAGE_SIZE = 1000  # 10x fewer HTTP requests
 REST_MAX_ITEMS = sys.maxsize  # no limit — collect ALL items from every endpoint
-REST_DELAY = 0.05  # seconds between REST calls (throttle)
+REST_DELAY = 0.0  # no throttle — maximize speed
 REST_RETRY_MAX = 3  # retry 502/504 errors
 REST_RETRY_BACKOFF = 5.0  # seconds initial backoff for retries
-REST_PARALLEL_WORKERS = 4  # concurrent endpoint fetchers
+REST_PARALLEL_WORKERS = 8  # max parallel network I/O
 DATA_DIR = PROJECT_ROOT / "data"
 
 # Model source directories to scan
@@ -562,6 +562,27 @@ class PathStats:
                 ):
                     self.list_element_key_sets.append(frozenset(elem.keys()))
 
+    def merge(self, other: PathStats) -> None:
+        """Merge another PathStats into this one (for combining per-endpoint flatteners)."""
+        self.total += other.total
+        self.none_count += other.none_count
+        self.non_none_count += other.non_none_count
+        for tn, cnt in other.types.items():
+            self.types[tn] = self.types.get(tn, 0) + cnt
+        remaining = self.MAX_SAMPLES - len(self.samples)
+        if remaining > 0:
+            self.samples.extend(other.samples[:remaining])
+        remaining_ks = self.MAX_KEY_SETS - len(self.dict_key_sets)
+        if remaining_ks > 0:
+            self.dict_key_sets.extend(other.dict_key_sets[:remaining_ks])
+        for tn, cnt in other.list_element_types.items():
+            self.list_element_types[tn] = self.list_element_types.get(tn, 0) + cnt
+        remaining_lks = self.MAX_KEY_SETS - len(self.list_element_key_sets)
+        if remaining_lks > 0:
+            self.list_element_key_sets.extend(
+                other.list_element_key_sets[:remaining_lks]
+            )
+
     def to_dict(self) -> dict[str, Any]:
         safe_samples = []
         for s in self.samples:
@@ -989,71 +1010,62 @@ class RawDataCollector:
 
     # -- MeiliSearch --------------------------------------------------------
 
-    def collect_meilisearch_streaming(
-        self, index_uid: str, flattener: JsonFlattener
-    ) -> list[Any]:
-        """Paginate through MeiliSearch index, flatten hits on the fly.
-
-        Returns list of hit IDs for the REST phase.
-        """
-        ids: list[Any] = []
+    def collect_meili_to_jsonl(self, index_uid: str, output_path: Path) -> int:
+        """Paginate MeiliSearch index, write directly to JSONL (no temp files)."""
+        output_path.parent.mkdir(parents=True, exist_ok=True)
         offset = 0
         total_hits = 0
 
-        while offset < MEILI_MAX_HITS:
-            payload = {
-                "queries": [
-                    {
-                        "indexUid": index_uid,
-                        "limit": MEILI_BATCH_SIZE,
-                        "offset": offset,
-                    }
-                ]
-            }
-            try:
-                resp = http_post_json(
-                    self.meili_url,
-                    self.meili_headers,
-                    data=payload,
-                    timeout=30,
+        with open(output_path, "w", encoding="utf-8") as out:
+            while offset < MEILI_MAX_HITS:
+                payload = {
+                    "queries": [
+                        {
+                            "indexUid": index_uid,
+                            "limit": MEILI_BATCH_SIZE,
+                            "offset": offset,
+                        }
+                    ]
+                }
+                try:
+                    resp = http_post_json(
+                        self.meili_url,
+                        self.meili_headers,
+                        data=payload,
+                        timeout=30,
+                    )
+                except Exception as exc:
+                    logger.warning(
+                        "MeiliSearch %s offset=%d failed: %s", index_uid, offset, exc
+                    )
+                    break
+
+                results = resp.get("results", [])
+                if not results:
+                    break
+                hits = results[0].get("hits", [])
+                if not hits:
+                    break
+
+                for hit in hits:
+                    out.write(json.dumps(hit, default=str, ensure_ascii=False) + "\n")
+                total_hits += len(hits)
+
+                estimated_total = results[0].get("estimatedTotalHits", 0)
+                logger.info(
+                    "  %s: fetched %d hits (offset=%d, estimated=%d)",
+                    index_uid,
+                    total_hits,
+                    offset,
+                    estimated_total,
                 )
-            except Exception as exc:
-                logger.warning(
-                    "MeiliSearch %s offset=%d failed: %s", index_uid, offset, exc
-                )
-                break
 
-            results = resp.get("results", [])
-            if not results:
-                break
-            hits = results[0].get("hits", [])
-            if not hits:
-                break
-
-            # Flatten each hit immediately (streaming)
-            prefix = f"meilisearch/{index_uid}/hits[]"
-            for hit in hits:
-                flattener.flatten(hit, prefix)
-                hit_id = hit.get("id")
-                if hit_id is not None:
-                    ids.append(hit_id)
-            total_hits += len(hits)
-
-            estimated_total = results[0].get("estimatedTotalHits", 0)
-            logger.info(
-                "  %s: fetched %d hits (offset=%d, estimated=%d)",
-                index_uid,
-                total_hits,
-                offset,
-                estimated_total,
-            )
-
-            if len(hits) < MEILI_BATCH_SIZE:
-                break
-            offset += MEILI_BATCH_SIZE
+                if len(hits) < MEILI_BATCH_SIZE:
+                    break
+                offset += MEILI_BATCH_SIZE
 
         self.stats["hits_per_index"][index_uid] = total_hits
-        return ids
+        return total_hits
 
     # -- REST ---------------------------------------------------------------
 
@@ -1085,77 +1097,68 @@ class RawDataCollector:
                     return None
         return None
 
-    def collect_rest_list_paginated(
+    def collect_rest_to_jsonl(
         self,
         endpoint: str,
-        fields: list[str] | None = None,
-        max_items: int = REST_MAX_ITEMS,
-    ) -> list[dict[str, Any]]:
-        """Fetch items from a list endpoint with pagination, dedup, and cap."""
-        all_data: list[dict[str, Any]] = []
+        fields: list[str] | None,
+        output_path: Path,
+    ) -> int:
+        """Paginate endpoint, deduplicate, write directly to JSONL (no temp files)."""
+        output_path.parent.mkdir(parents=True, exist_ok=True)
         seen_ids: set[str] = set()
+        count = 0
         offset = 0
         page = 0
-        duplicates = 0
 
-        while len(all_data) < max_items:
-            params: dict[str, Any] = {"limit": REST_PAGE_SIZE, "offset": offset}
-            if fields:
-                params["fields[]"] = fields
-            base_url = f"{API_FFBB_BASE_URL}{endpoint}"
-            url = url_with_params(base_url, params)
+        with open(output_path, "w", encoding="utf-8") as out:
+            while True:
+                params: dict[str, Any] = {"limit": REST_PAGE_SIZE, "offset": offset}
+                if fields:
+                    params["fields[]"] = fields
+                base_url = f"{API_FFBB_BASE_URL}{endpoint}"
+                url = url_with_params(base_url, params)
 
-            resp = self._rest_get(url)
-            if not resp:
-                break
-
-            data = resp.get("data", resp)
-            if isinstance(data, list):
-                if not data:
+                resp = self._rest_get(url)
+                if not resp:
                     break
-                # Deduplicate by 'id' field
-                new_items: list[dict[str, Any]] = []
-                for item in data:
-                    item_id = str(item.get("id", ""))
-                    if item_id and item_id in seen_ids:
-                        duplicates += 1
-                        continue
-                    if item_id:
-                        seen_ids.add(item_id)
-                    new_items.append(item)
-                all_data.extend(new_items)
-                # Log every 10 pages or on first/last page
-                if page == 0 or (page + 1) % 10 == 0 or len(data) < REST_PAGE_SIZE:
-                    logger.info(
-                        "  %s: page %d — %d new (%d dup, total: %d)",
-                        endpoint,
-                        page + 1,
-                        len(new_items),
-                        duplicates,
-                        len(all_data),
-                    )
-                if len(data) < REST_PAGE_SIZE:
+
+                data = resp.get("data", resp)
+                if isinstance(data, list):
+                    if not data:
+                        break
+                    for item in data:
+                        item_id = str(item.get("id", ""))
+                        if item_id and item_id in seen_ids:
+                            continue
+                        if item_id:
+                            seen_ids.add(item_id)
+                        out.write(
+                            json.dumps(item, default=str, ensure_ascii=False) + "\n"
+                        )
+                        count += 1
+                    if page == 0 or (page + 1) % 10 == 0 or len(data) < REST_PAGE_SIZE:
+                        logger.info(
+                            "  %s: page %d — %d items (total: %d)",
+                            endpoint,
+                            page + 1,
+                            len(data),
+                            count,
+                        )
+                    if len(data) < REST_PAGE_SIZE:
+                        break
+                elif isinstance(data, dict):
+                    out.write(json.dumps(data, default=str, ensure_ascii=False) + "\n")
+                    count += 1
                     break
-            elif isinstance(data, dict):
-                all_data.append(data)
-                break
-            else:
-                break
+                else:
+                    break
 
-            offset += REST_PAGE_SIZE
-            page += 1
+                offset += REST_PAGE_SIZE
+                page += 1
 
-        self.stats["rest_calls"][endpoint] = {
-            "count": len(all_data),
-            "duplicates": duplicates,
-        }
-        logger.info(
-            "  REST %s: %d items (%d duplicates skipped)",
-            endpoint,
-            len(all_data),
-            duplicates,
-        )
-        return all_data
+        self.stats["rest_calls"][endpoint] = {"count": count}
+        logger.info("  REST %s: %d items → %s", endpoint, count, output_path.name)
+        return count
 
     def collect_rest_list(
         self, endpoint: str, fields: list[str] | None = None
@@ -1186,6 +1189,24 @@ class RawDataCollector:
         if resp:
             self.stats["rest_calls"]["lives"] = {"fetched": True}
         return resp
+
+
+# ---------------------------------------------------------------------------
+# Pipeline helpers — merge and flatten (parallelizable per endpoint)
+# ---------------------------------------------------------------------------
+
+
+def flatten_endpoint(
+    jsonl_path: Path, prefix: str, record_whole_keys: set[str]
+) -> JsonFlattener:
+    """Flatten a JSONL file into a per-endpoint flattener (no shared state)."""
+    flattener = JsonFlattener(record_whole_keys=record_whole_keys)
+    with open(jsonl_path, encoding="utf-8") as f:
+        for line in f:
+            if line.strip():
+                item = json.loads(line)
+                flattener.flatten(item, prefix)
+    return flattener
 
 
 # ---------------------------------------------------------------------------
@@ -1424,136 +1445,182 @@ def main() -> None:
     sig_registry = ModelSignatureRegistry.build_from_source(MODEL_DIRS)
 
     # -----------------------------------------------------------------------
-    # Phase 1: Fetch tokens
+    # Streaming pipeline: collect → merge → flatten per endpoint (no barrier)
     # -----------------------------------------------------------------------
-    logger.info("Phase 1: Fetching tokens...")
+    logger.info("Fetching tokens...")
     api_token, meili_token = TokenFetcher.fetch()
-
     collector = RawDataCollector(api_token, meili_token)
-    meili_flattener = JsonFlattener(record_whole_keys=record_whole_keys)
-    rest_flattener = JsonFlattener(record_whole_keys=record_whole_keys)
-
-    # -----------------------------------------------------------------------
-    # Phase 2: MeiliSearch collection (streaming)
-    # -----------------------------------------------------------------------
-    logger.info("Phase 2: MeiliSearch collection...")
-    meili_ids: dict[str, list[Any]] = {}
-
-    for index_uid in meili_index_uids:
-        logger.info("Collecting from %s...", index_uid)
-        ids = collector.collect_meilisearch_streaming(index_uid, meili_flattener)
-        meili_ids[index_uid] = ids
-
-    # -----------------------------------------------------------------------
-    # Phase 3: REST API collection (all paginated)
-    # -----------------------------------------------------------------------
-    logger.info("Phase 3: REST API collection...")
 
     responses_dir = DATA_DIR / "responses"
     responses_dir.mkdir(parents=True, exist_ok=True)
 
-    def _save_samples(endpoint_name: str, data: list[dict[str, Any]]) -> None:
-        samples = data[:10]
-        if samples:
-            out_path = responses_dir / f"{endpoint_name}.json"
-            with open(out_path, "w", encoding="utf-8") as f:
-                json.dump(samples, f, indent=2, default=str, ensure_ascii=False)
-            logger.info("  Saved %d samples to %s", len(samples), out_path)
+    t0 = time.monotonic()
 
-    # 3a. All paginated endpoints in parallel
-    def _fetch_endpoint(
-        ep_tuple: tuple[str, str],
-    ) -> tuple[str, list[dict[str, Any]]]:
-        endpoint, name = ep_tuple
-        logger.info("Fetching %s (paginated, fields=*.*) ...", name)
-        data = collector.collect_rest_list_paginated(endpoint, ["*.*"])
-        return name, data
+    def _pipeline_rest_paginated(
+        endpoint: str, name: str
+    ) -> tuple[str, str, JsonFlattener | None]:
+        """Collect+dedup → flatten for a REST paginated endpoint (no temp files)."""
+        jsonl_path = responses_dir / f"rest_{name}.jsonl"
+        prefix = f"rest/{name}"
+        count = collector.collect_rest_to_jsonl(endpoint, ["*.*"], jsonl_path)
+        if count == 0:
+            return name, "rest", None
+        flattener = flatten_endpoint(jsonl_path, prefix, record_whole_keys)
+        logger.info(
+            "  [done] %s: %d items, %d paths", name, count, len(flattener.paths)
+        )
+        return name, "rest", flattener
 
-    with ThreadPoolExecutor(max_workers=REST_PARALLEL_WORKERS) as executor:
-        futures = {
-            executor.submit(_fetch_endpoint, ep): ep[1] for ep in paginated_endpoints
-        }
+    def _pipeline_rest_special(
+        endpoint: str, name: str, fetch_fn: str
+    ) -> tuple[str, str, JsonFlattener | None]:
+        """Collect → flatten for special REST endpoints (single-page)."""
+        jsonl_path = responses_dir / f"rest_{name}.jsonl"
+        prefix = f"rest/{name}"
+        if fetch_fn == "list":
+            data = collector.collect_rest_list(endpoint, ["*.*"])
+        elif fetch_fn == "lives":
+            raw = collector.collect_lives(endpoint)
+            if raw is None:
+                data = []
+            elif isinstance(raw, list):
+                data = raw
+            else:
+                data = [raw]
+        else:
+            data = []
+        if not data:
+            return name, "rest", None
+        # Write directly to JSONL
+        jsonl_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(jsonl_path, "w", encoding="utf-8") as f:
+            for item in data:
+                f.write(json.dumps(item, default=str, ensure_ascii=False) + "\n")
+        logger.info("  [done] %s: %d items", name, len(data))
+        flattener = flatten_endpoint(jsonl_path, prefix, record_whole_keys)
+        return name, "rest", flattener
+
+    def _pipeline_meili(
+        index_uid: str,
+    ) -> tuple[str, str, JsonFlattener | None]:
+        """Collect → flatten for a MeiliSearch index (no temp files)."""
+        jsonl_path = responses_dir / f"meili_{index_uid}.jsonl"
+        prefix = f"meilisearch/{index_uid}/hits[]"
+        count = collector.collect_meili_to_jsonl(index_uid, jsonl_path)
+        if count == 0:
+            return index_uid, "meilisearch", None
+        flattener = flatten_endpoint(jsonl_path, prefix, record_whole_keys)
+        logger.info(
+            "  [done] %s: %d hits, %d paths", index_uid, count, len(flattener.paths)
+        )
+        return index_uid, "meilisearch", flattener
+
+    logger.info(
+        "Streaming pipeline: collect → merge → flatten (parallel per endpoint)..."
+    )
+
+    with ThreadPoolExecutor(max_workers=REST_PARALLEL_WORKERS) as ex:
+        futures: dict[Any, str] = {}
+
+        # REST paginated endpoints
+        for endpoint, name in paginated_endpoints:
+            futures[ex.submit(_pipeline_rest_paginated, endpoint, name)] = name
+
+        # MeiliSearch indexes
+        for uid in meili_index_uids:
+            futures[ex.submit(_pipeline_meili, uid)] = uid
+
+        # Special endpoints
+        saisons_ep = endpoint_map.get("saisons")
+        if saisons_ep:
+            futures[
+                ex.submit(_pipeline_rest_special, saisons_ep, "saisons", "list")
+            ] = "saisons"
+        config_ep = endpoint_map.get("configuration")
+        if config_ep:
+            futures[
+                ex.submit(_pipeline_rest_special, config_ep, "configuration", "list")
+            ] = "configuration"
+        lives_ep = endpoint_map.get("lives")
+        if lives_ep:
+            futures[ex.submit(_pipeline_rest_special, lives_ep, "lives", "lives")] = (
+                "lives"
+            )
+
+        # Collect results as they complete
+        per_endpoint_flatteners: list[tuple[JsonFlattener, str, str]] = []
         for future in as_completed(futures):
-            name = futures[future]
+            ep_name = futures[future]
             try:
-                name, data = future.result()
-                for item in data:
-                    rest_flattener.flatten(item, f"rest/{name}")
-                _save_samples(name, data)
+                name, source_type, flattener = future.result()
+                if flattener:
+                    per_endpoint_flatteners.append((flattener, name, source_type))
+                    logger.info(
+                        "  [done] %s (%.1fs elapsed)", name, time.monotonic() - t0
+                    )
+                else:
+                    logger.warning("  [skip] %s: no data", name)
             except Exception as exc:
-                logger.error("Failed to fetch %s: %s", name, exc)
+                logger.error("  [fail] %s: %s", ep_name, exc)
 
-    # 3b. Saisons
-    saisons_endpoint = endpoint_map.get("saisons")
-    if saisons_endpoint:
-        logger.info("Fetching saisons...")
-        saisons_data = collector.collect_rest_list(saisons_endpoint, ["*.*"])
-        for item in saisons_data:
-            rest_flattener.flatten(item, "rest/saisons")
-        _save_samples("saisons", saisons_data)
+    # Merge all per-endpoint flatteners into a combined flattener
+    combined_flattener = JsonFlattener()
+    for flattener, _, _ in per_endpoint_flatteners:
+        for path, stats in flattener.paths.items():
+            if path not in combined_flattener.paths:
+                combined_flattener.paths[path] = stats
+            else:
+                combined_flattener.paths[path].merge(stats)
 
-    # 3d. Lives
-    lives_endpoint = endpoint_map.get("lives")
-    if lives_endpoint:
-        logger.info("Fetching lives.json...")
-        lives_data = collector.collect_lives(lives_endpoint)
-        if lives_data:
-            rest_flattener.flatten(lives_data, "rest/lives")
-
-    # 3e. Configuration
-    config_endpoint = endpoint_map.get("configuration")
-    if config_endpoint:
-        logger.info("Fetching configuration...")
-        config_data = collector.collect_rest_list(config_endpoint, ["*.*"])
-        for item in config_data:
-            rest_flattener.flatten(item, "rest/configuration")
+    t_pipeline = time.monotonic() - t0
+    logger.info(
+        "Pipeline done in %.1fs — %d endpoints, %d total paths",
+        t_pipeline,
+        len(per_endpoint_flatteners),
+        len(combined_flattener.paths),
+    )
 
     # -----------------------------------------------------------------------
-    # Phase 4: Type inference
+    # Phase 4: INFERENCE — sequential type inference
     # -----------------------------------------------------------------------
     logger.info("Phase 4: Inferring types...")
     inferrer = TypeInferrer(sig_registry)
     inferences: list[TypeInference] = []
 
     for prop in incorrect_props:
-        # Determine which flattener(s) to search based on file location
         merged = PathStats()
 
         if prop.file.startswith("meilisearch_ffbb/"):
-            # Search MeiliSearch flattener with targeted prefix
             index_uid = meili_class_to_index.get(prop.class_name)
             if index_uid:
                 prefix = f"meilisearch/{index_uid}/hits[]"
-                paths = meili_flattener.find_paths_with_prefix(prefix, prop.json_key)
+                paths = combined_flattener.find_paths_with_prefix(prefix, prop.json_key)
             else:
-                paths = meili_flattener.find_matching_paths(prop.json_key)
+                paths = combined_flattener.find_matching_paths(prop.json_key)
             for mp in paths:
-                ps = meili_flattener.get_stats(mp)
+                ps = combined_flattener.get_stats(mp)
                 if ps:
-                    _merge_stats(merged, ps)
+                    merged.merge(ps)
 
         elif prop.file.startswith("directus_ffbb/"):
-            # Search REST flattener with targeted prefix
             rest_prefix = rest_class_to_prefix.get(prop.class_name)
             if rest_prefix:
-                paths = rest_flattener.find_paths_with_prefix(
+                paths = combined_flattener.find_paths_with_prefix(
                     rest_prefix, prop.json_key
                 )
             else:
-                paths = rest_flattener.find_matching_paths(prop.json_key)
+                paths = combined_flattener.find_matching_paths(prop.json_key)
             for mp in paths:
-                ps = rest_flattener.get_stats(mp)
+                ps = combined_flattener.get_stats(mp)
                 if ps:
-                    _merge_stats(merged, ps)
+                    merged.merge(ps)
 
         else:
-            # Core models — search both flatteners
-            for fl in [meili_flattener, rest_flattener]:
-                paths = fl.find_matching_paths(prop.json_key)
-                for mp in paths:
-                    ps = fl.get_stats(mp)
-                    if ps:
-                        _merge_stats(merged, ps)
+            paths = combined_flattener.find_matching_paths(prop.json_key)
+            for mp in paths:
+                ps = combined_flattener.get_stats(mp)
+                if ps:
+                    merged.merge(ps)
 
         inference = inferrer.infer(merged, prop)
         inferences.append(inference)
@@ -1563,17 +1630,11 @@ def main() -> None:
     # -----------------------------------------------------------------------
     logger.info("Phase 5: Generating reports...")
 
-    # Combined flattener for raw report
-    combined_flattener = JsonFlattener()
-    combined_flattener.paths.update(meili_flattener.paths)
-    combined_flattener.paths.update(rest_flattener.paths)
-
     raw_report = ReportGenerator.generate_raw_report(
         combined_flattener, collector.stats
     )
     corrections_report = ReportGenerator.generate_corrections(inferences)
 
-    # Write JSON files
     raw_path = DATA_DIR / "type_discovery_raw.json"
     corrections_path = DATA_DIR / "type_discovery_corrections.json"
 
@@ -1622,29 +1683,8 @@ def main() -> None:
     # Console summary
     ReportGenerator.print_console_summary(corrections_report)
 
-    logger.info("Done.")
-
-
-def _merge_stats(target: PathStats, source: PathStats) -> None:
-    """Merge source PathStats into target."""
-    target.total += source.total
-    target.none_count += source.none_count
-    target.non_none_count += source.non_none_count
-    for tn, cnt in source.types.items():
-        target.types[tn] = target.types.get(tn, 0) + cnt
-    remaining = PathStats.MAX_SAMPLES - len(target.samples)
-    if remaining > 0:
-        target.samples.extend(source.samples[:remaining])
-    remaining_ks = PathStats.MAX_KEY_SETS - len(target.dict_key_sets)
-    if remaining_ks > 0:
-        target.dict_key_sets.extend(source.dict_key_sets[:remaining_ks])
-    for tn, cnt in source.list_element_types.items():
-        target.list_element_types[tn] = target.list_element_types.get(tn, 0) + cnt
-    remaining_lks = PathStats.MAX_KEY_SETS - len(target.list_element_key_sets)
-    if remaining_lks > 0:
-        target.list_element_key_sets.extend(
-            source.list_element_key_sets[:remaining_lks]
-        )
+    total_time = time.monotonic() - t0
+    logger.info("Done in %.1fs total.", total_time)
 
 
 if __name__ == "__main__":
