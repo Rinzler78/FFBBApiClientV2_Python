@@ -4,8 +4,11 @@ import logging
 from collections.abc import Callable
 from datetime import datetime, time, timedelta
 from enum import Enum
-from typing import Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 from uuid import UUID
+
+if TYPE_CHECKING:
+    from ..models.categorie_code import CategorieCode
 
 import dateutil.parser
 
@@ -217,6 +220,17 @@ def from_duration(obj: dict, key: str) -> timedelta | None:
         type(x).__name__,
         x,
     )
+    return None
+
+
+def from_categorie_code(obj: dict, key: str) -> CategorieCode | None:
+    from ..models.categorie_code import CategorieCode
+
+    x = obj.get(key)
+    if x is None:
+        return None
+    if isinstance(x, str):
+        return CategorieCode(x)
     return None
 
 

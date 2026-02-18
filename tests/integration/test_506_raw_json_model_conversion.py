@@ -10,9 +10,11 @@ from __future__ import annotations
 import os
 import time
 import unittest
+from datetime import datetime
 from typing import Any
 
 import requests
+from dateutil.tz import tzutc
 
 from ffbb_api_client_v2.config import (
     MEILISEARCH_BASE_URL,
@@ -1097,8 +1099,14 @@ class Test021FromDictEdgeCases(unittest.TestCase):
         self.assertEqual(result.key_directus_competitions, "comp_key")
         self.assertEqual(result.ios_version, "3.0.1")
         self.assertEqual(result.android_version, "3.0.2")
-        self.assertEqual(result.date_created, "2024-01-01T00:00:00Z")
-        self.assertEqual(result.date_updated, "2025-06-01T12:00:00Z")
+        self.assertEqual(
+            result.date_created,
+            datetime(2024, 1, 1, 0, 0, tzinfo=tzutc()),
+        )
+        self.assertEqual(
+            result.date_updated,
+            datetime(2025, 6, 1, 12, 0, tzinfo=tzutc()),
+        )
         self.assertEqual(result.api_bearer_token, "api_token_val")
         self.assertEqual(result.meilisearch_token, "mls_token_val")
 

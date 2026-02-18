@@ -141,7 +141,7 @@ class Test011EnhancedIntegration(unittest.TestCase):
         print("  ✓ Organisme retrieved with default fields")
 
     def test_004_query_fields_manager(self):
-        """Test centralized query fields management returns wildcard."""
+        """Test centralized query fields management returns explicit field lists."""
         organisme_fields = QueryFieldsManager.get_organisme_fields()
         competition_fields = QueryFieldsManager.get_competition_fields()
         saison_fields = QueryFieldsManager.get_saison_fields()
@@ -150,20 +150,20 @@ class Test011EnhancedIntegration(unittest.TestCase):
         self.assertIsInstance(competition_fields, list)
         self.assertIsInstance(saison_fields, list)
 
-        # All should return a single-element wildcard list
-        self.assertEqual(len(organisme_fields), 1)
-        self.assertEqual(len(competition_fields), 1)
-        self.assertEqual(len(saison_fields), 1)
+        # All should return non-empty field lists
+        self.assertGreater(len(organisme_fields), 0)
+        self.assertGreater(len(competition_fields), 0)
+        self.assertGreater(len(saison_fields), 0)
 
-        # Each element should be a wildcard pattern
-        self.assertTrue(organisme_fields[0].startswith("*"))
-        self.assertTrue(competition_fields[0].startswith("*"))
-        self.assertTrue(saison_fields[0].startswith("*"))
+        # Each element should be a string field name
+        self.assertIsInstance(organisme_fields[0], str)
+        self.assertIsInstance(competition_fields[0], str)
+        self.assertIsInstance(saison_fields[0], str)
 
         print("✓ Query fields manager test passed")
-        print(f"  Organisme wildcard: {organisme_fields[0]}")
-        print(f"  Competition wildcard: {competition_fields[0]}")
-        print(f"  Saison wildcard: {saison_fields[0]}")
+        print(f"  Organisme fields: {len(organisme_fields)}")
+        print(f"  Competition fields: {len(competition_fields)}")
+        print(f"  Saison fields: {len(saison_fields)}")
 
     def test_005_complete_enhanced_user_journey(self):
         """Test complete user journey with enhanced model support."""
@@ -233,11 +233,25 @@ class Test011EnhancedIntegration(unittest.TestCase):
             self.assertIsInstance(saisons[0], GetSaisonsResponse)
 
     def test_006_error_handling_with_models(self):
-        """Test error handling when models cannot be created."""
-        result = self.api_client.api_ffbb_client.get_organisme(organisme_id=999999999)
+        """Test error handling when models cannot be created.
 
-        self.assertIsNone(result)
-        print("✓ Error handling test passed - returned None for non-existent resource")
+        The API may return None (caught internally) or raise DirectusError
+        (e.g. 403 for non-existent IDs). Both are acceptable outcomes.
+        """
+        from ffbb_api_client_v2.directus.exceptions import DirectusError
+
+        try:
+            result = self.api_client.api_ffbb_client.get_organisme(
+                organisme_id=999999999
+            )
+            self.assertIsNone(result)
+            print(
+                "✓ Error handling test passed - returned None for non-existent resource"
+            )
+        except DirectusError:
+            print(
+                "✓ Error handling test passed - raised DirectusError for non-existent resource"
+            )
 
     def test_007_field_customization(self):
         """Test custom field selection with models."""

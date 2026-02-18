@@ -1,163 +1,220 @@
-from enum import Enum
+"""CategorieCode — parsed str subclass for FFBB category codes.
+
+Category codes are structured concatenations of components:
+  age group + echelon + division + gender  (e.g. U13D1M)
+"""
+
+from __future__ import annotations
+
+import re
+
+from .age_group import AgeGroup
+from .echelon import Echelon
+from .gender import Gender
+
+# ---------------------------------------------------------------------------
+# Compiled regex patterns — tested in priority order
+# ---------------------------------------------------------------------------
+
+_YOUTH_ECHELON = re.compile(r"^(U\d{1,2})([DRF])(\d)([MF])$")
+_YOUTH_GENDER = re.compile(r"^(U\d{1,2})([MF])$")
+_YOUTH_GENERIC = re.compile(r"^(U\d{1,2})$")
+_SENIOR_STRUCTURED = re.compile(r"^SE([DRE])(\d)([MF])$")
+_NATIONAL = re.compile(r"^N([MF])(\d)$")
+_PRE = re.compile(r"^P([NR])([MF])$")
+_AREG = re.compile(r"^AREG([MF])$")
+_LF = re.compile(r"^LF(\d)$")
+_SENIOR_GENERIC = re.compile(r"^(?:SE|SEN|S|SENIOR)$")
+_VETERAN = re.compile(r"^VE$")
+_BASKET_FAUTEUIL = re.compile(r"^LBWL$")
+
+_AGE_GROUP_MAP: dict[str, AgeGroup] = {m.value: m for m in AgeGroup}
+_ECHELON_LETTER: dict[str, Echelon] = {
+    "D": Echelon.DEPARTEMENT,
+    "R": Echelon.REGION,
+    "F": Echelon.FEDERAL,
+}
+_SENIOR_ECHELON_LETTER: dict[str, Echelon] = {
+    "D": Echelon.DEPARTEMENT,
+    "R": Echelon.EXCELLENCE,
+    "E": Echelon.EXCELLENCE,
+}
+_GENDER_LETTER: dict[str, Gender] = {"M": Gender.MASCULIN, "F": Gender.FEMININ}
+_PRE_MAP: dict[str, Echelon] = {"N": Echelon.PRE_NATIONAL, "R": Echelon.PRE_REGIONAL}
+
+_ParseResult = tuple[
+    AgeGroup | None,
+    Echelon | None,
+    int | None,
+    Gender | None,
+    bool,
+]
 
 
-class CategorieCode(str, Enum):
-    """Codes de categorie d'age retournes par l'API FFBB dans categorie.code.
+def _resolve_age_group(code: str) -> AgeGroup | None:
+    """Resolve a U-prefix age group code (e.g. 'U13') to an AgeGroup."""
+    return _AGE_GROUP_MAP.get(code)
 
-    Extends str for backward compatibility with string comparisons.
-    Format: {AGE}{NIVEAU}{SEXE} where:
-      - AGE: U7, U9, U11, U13, U15, U17, U18, U21
-      - NIVEAU: D (Départemental), R (Régional), E (Excellence), S (Senior)
-      - SEXE: M (Masculin), F (Féminin)
+
+def _parse(value: str) -> _ParseResult:
+    """Parse a category code string into its components.
+
+    Returns (age_group, echelon, division, gender, parsed).
+    """
+    # Youth + echelon + division + gender: U13D1M, U15R2F, U18F1M
+    m = _YOUTH_ECHELON.match(value)
+    if m:
+        return (
+            _resolve_age_group(m.group(1)),
+            _ECHELON_LETTER[m.group(2)],
+            int(m.group(3)),
+            _GENDER_LETTER[m.group(4)],
+            True,
+        )
+
+    # Youth + gender: U7M, U9F
+    m = _YOUTH_GENDER.match(value)
+    if m:
+        return (
+            _resolve_age_group(m.group(1)),
+            None,
+            None,
+            _GENDER_LETTER[m.group(2)],
+            True,
+        )
+
+    # Youth generic: U11, U13
+    m = _YOUTH_GENERIC.match(value)
+    if m:
+        return (_resolve_age_group(m.group(1)), None, None, None, True)
+
+    # Senior structured: SED1M, SER2F, SEE1M
+    m = _SENIOR_STRUCTURED.match(value)
+    if m:
+        return (
+            AgeGroup.SENIOR,
+            _SENIOR_ECHELON_LETTER[m.group(1)],
+            int(m.group(2)),
+            _GENDER_LETTER[m.group(3)],
+            True,
+        )
+
+    # National: NM1, NF2
+    m = _NATIONAL.match(value)
+    if m:
+        return (
+            AgeGroup.SENIOR,
+            Echelon.NATIONAL,
+            int(m.group(2)),
+            _GENDER_LETTER[m.group(1)],
+            True,
+        )
+
+    # Pre-national / pre-regional: PNM, PNF, PRM, PRF
+    m = _PRE.match(value)
+    if m:
+        return (
+            AgeGroup.SENIOR,
+            _PRE_MAP[m.group(1)],
+            None,
+            _GENDER_LETTER[m.group(2)],
+            True,
+        )
+
+    # Association regionale: AREGM, AREGF
+    m = _AREG.match(value)
+    if m:
+        return (
+            None,
+            Echelon.ASSOCIATION_REGIONALE,
+            None,
+            _GENDER_LETTER[m.group(1)],
+            True,
+        )
+
+    # Ligue feminine: LF2
+    m = _LF.match(value)
+    if m:
+        return (
+            None,
+            Echelon.LIGUE_FEMININE,
+            int(m.group(1)),
+            Gender.FEMININ,
+            True,
+        )
+
+    # Senior generic: SE, SEN, S, SENIOR
+    if _SENIOR_GENERIC.match(value):
+        return (AgeGroup.SENIOR, None, None, None, True)
+
+    # Veteran: VE
+    if _VETERAN.match(value):
+        return (AgeGroup.VETERAN, None, None, None, True)
+
+    # Basket fauteuil: LBWL
+    if _BASKET_FAUTEUIL.match(value):
+        return (None, Echelon.BASKET_FAUTEUIL, None, None, True)
+
+    # Fallback — unrecognized code
+    return (None, None, None, None, False)
+
+
+class CategorieCode(str):
+    """Code categorie FFBB parse en composants.
+
+    Herite de str pour compatibilite (==, in, hash, json).
+    Accepte tout string. Parse les composants si le format est reconnu.
+
+    Examples:
+        >>> CategorieCode("U13D1M").age_group
+        <AgeGroup.U13: 'U13'>
+        >>> CategorieCode("U13D1M").echelon
+        <Echelon.DEPARTEMENT: 'D'>
+        >>> CategorieCode("U13D1M").division
+        1
+        >>> CategorieCode("U13D1M").gender
+        <Gender.MASCULIN: 'M'>
+        >>> CategorieCode("U13D1M") == "U13D1M"
+        True
     """
 
-    # ==================== JEUNES - DÉPARTEMENTAL (D) ====================
-    # U7
-    U7M = "U7M"
-    U7F = "U7F"
+    __slots__ = ("_age_group", "_echelon", "_division", "_gender", "_parsed")
 
-    # U9
-    U9M = "U9M"
-    U9F = "U9F"
+    _age_group: AgeGroup | None
+    _echelon: Echelon | None
+    _division: int | None
+    _gender: Gender | None
+    _parsed: bool
 
-    # U11 Départemental
-    U11D1M = "U11D1M"
-    U11D2M = "U11D2M"
-    U11D3M = "U11D3M"
-    U11D4M = "U11D4M"
-    U11D1F = "U11D1F"
-    U11D2F = "U11D2F"
-    U11D3F = "U11D3F"
+    def __new__(cls, value: str) -> CategorieCode:
+        instance = str.__new__(cls, value)
+        ag, ech, div, gen, parsed = _parse(value)
+        instance._age_group = ag
+        instance._echelon = ech
+        instance._division = div
+        instance._gender = gen
+        instance._parsed = parsed
+        return instance
 
-    # U13 Départemental
-    U13D1M = "U13D1M"
-    U13D2M = "U13D2M"
-    U13D3M = "U13D3M"
-    U13D4M = "U13D4M"
-    U13D1F = "U13D1F"
-    U13D2F = "U13D2F"
-    U13D3F = "U13D3F"
+    @property
+    def age_group(self) -> AgeGroup | None:
+        return self._age_group
 
-    # U15 Départemental
-    U15D1M = "U15D1M"
-    U15D2M = "U15D2M"
-    U15D3M = "U15D3M"
-    U15D1F = "U15D1F"
-    U15D2F = "U15D2F"
-    U15D3F = "U15D3F"
+    @property
+    def echelon(self) -> Echelon | None:
+        return self._echelon
 
-    # U17 Départemental
-    U17D1M = "U17D1M"
-    U17D1F = "U17D1F"
+    @property
+    def division(self) -> int | None:
+        return self._division
 
-    # U18 Départemental
-    U18D1M = "U18D1M"
-    U18D2M = "U18D2M"
-    U18D3M = "U18D3M"
-    U18D1F = "U18D1F"
-    U18D2F = "U18D2F"
-    U18D3F = "U18D3F"
+    @property
+    def gender(self) -> Gender | None:
+        return self._gender
 
-    # U21 Départemental
-    U21D1M = "U21D1M"
+    @property
+    def is_parsed(self) -> bool:
+        return self._parsed
 
-    # ==================== JEUNES - GÉNÉRIQUE (sans niveau) ====================
-    U11 = "U11"
-    U13 = "U13"
-    U15 = "U15"
-    U18 = "U18"
-
-    # ==================== JEUNES - RÉGIONAL (R) ====================
-    # U13 Régional
-    U13R1M = "U13R1M"
-    U13R2M = "U13R2M"
-    U13R3M = "U13R3M"
-    U13R1F = "U13R1F"
-    U13R2F = "U13R2F"
-    U13R3F = "U13R3F"
-
-    # U15 Régional
-    U15R1M = "U15R1M"
-    U15R2M = "U15R2M"
-    U15R3M = "U15R3M"
-    U15R1F = "U15R1F"
-    U15R2F = "U15R2F"
-    U15R3F = "U15R3F"
-
-    # U17 Régional
-    U17R1M = "U17R1M"
-    U17R2M = "U17R2M"
-    U17R1F = "U17R1F"
-    U17R2F = "U17R2F"
-
-    # U18 Régional
-    U18R1M = "U18R1M"
-    U18R2M = "U18R2M"
-    U18R3M = "U18R3M"
-    U18R1F = "U18R1F"
-    U18R2F = "U18R2F"
-
-    # U21 Régional
-    U21R1M = "U21R1M"
-    U21R2M = "U21R2M"
-
-    # ==================== JEUNES - FÉDÉRAL (F) ====================
-    U15F1M = "U15F1M"
-    U15F1F = "U15F1F"
-    U18F1M = "U18F1M"
-    U18F1F = "U18F1F"
-
-    # ==================== NATIONAL (N) ====================
-    NM1 = "NM1"  # National Masculin 1
-    NM2 = "NM2"  # National Masculin 2
-    NM3 = "NM3"  # National Masculin 3
-    NF2 = "NF2"  # National Féminin 2
-    NF3 = "NF3"  # National Féminin 3
-
-    # ==================== PRÉ-NATIONAL / PRÉ-RÉGIONAL ====================
-    PNM = "PNM"  # Pré-national Masculin
-    PNF = "PNF"  # Pré-national Féminin
-    PRM = "PRM"  # Pré-régional Masculin
-    PRF = "PRF"  # Pré-régional Féminin
-
-    # ==================== SENIOR EXCELLENCE RÉGIONAL (SER) ====================
-    SER1M = "SER1M"
-    SER2M = "SER2M"
-    SER3M = "SER3M"
-    SER1F = "SER1F"
-    SER2F = "SER2F"
-    SER3F = "SER3F"
-
-    # ==================== SENIOR DÉPARTEMENTAL (SED) ====================
-    SED1M = "SED1M"
-    SED2M = "SED2M"
-    SED3M = "SED3M"
-    SED4M = "SED4M"
-    SED1F = "SED1F"
-    SED2F = "SED2F"
-    SED3F = "SED3F"
-    SED4F = "SED4F"
-
-    # ==================== ASSOCIATION RÉGIONALE ====================
-    AREGM = "AREGM"  # Association Régionale Masculin
-    AREGF = "AREGF"  # Association Régionale Féminin
-
-    # ==================== BASKET FAUTEUIL ====================
-    LBWL = "LBWL"  # Ligue Basket Wheelchair
-
-    # ==================== JEUNES (codes génériques sans niveau/sexe) ====================
-    U7 = "U7"
-    U9 = "U9"
-    U17 = "U17"
-    U20 = "U20"
-    U21 = "U21"
-
-    # ==================== SÉNIORS (codes génériques) ====================
-    SE = "SE"
-    SEN = "SEN"
-    S = "S"
-    SENIOR = "SENIOR"
-    VE = "VE"  # Vétérans
-
-    # ==================== LIGUE FÉMININE ====================
-    LF2 = "LF2"  # Ligue Féminine 2
+    def __repr__(self) -> str:
+        return f"CategorieCode({str.__repr__(self)})"

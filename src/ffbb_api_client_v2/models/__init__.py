@@ -11,6 +11,7 @@ from ..meilisearch.models.multi_search_results_class import (
     multi_search_results_from_dict,
 )
 from .affiche import Affiche
+from .age_group import AgeGroup
 from .cartographie import Cartographie
 from .categorie import Categorie
 from .categorie_code import CategorieCode
@@ -38,12 +39,14 @@ from .coordonnees import Coordonnees
 from .coordonnees_type import CoordonneesType
 from .document_flyer import DocumentFlyer
 from .document_flyer_type import DocumentFlyerType
+from .echelon import Echelon
 from .engagement_equipe import EngagementEquipe
 from .etat import Etat
 from .external_competition_id import ExternalCompetitionID
 from .external_id import ExternalID
 from .folder import Folder
 from .fonction import Fonction
+from .gender import Gender
 from .geo import Geo
 from .id_engagement_equipe import IDEngagementEquipe
 from .id_organisme_equipe import IDOrganismeEquipe
@@ -94,6 +97,7 @@ from .type_league import TypeLeague
 
 __all__ = [
     # Shared domain models
+    "AgeGroup",
     "Affiche",
     "Cartographie",
     "Categorie",
@@ -119,11 +123,13 @@ __all__ = [
     "DocumentFlyer",
     "DocumentFlyerType",
     "EngagementEquipe",
+    "Echelon",
     "Etat",
     "ExternalCompetitionID",
     "ExternalID",
     "Folder",
     "Fonction",
+    "Gender",
     "Geo",
     "IDEngagementEquipe",
     "IDOrganismeEquipe",
