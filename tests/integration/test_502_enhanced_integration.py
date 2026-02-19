@@ -68,13 +68,14 @@ class Test011EnhancedIntegration(unittest.TestCase):
         self.assertIsInstance(organisme_details.code, str)
 
         if organisme_details.commune:
-            self.assertIsNotNone(organisme_details.commune.libelle)
-            self.assertIsNotNone(organisme_details.commune.code_postal)
+            # commune is now FK-only (int)
+            self.assertIsInstance(organisme_details.commune, int)
 
         if organisme_details.engagements:
             self.assertIsInstance(organisme_details.engagements, list)
             for engagement in organisme_details.engagements:
-                self.assertIsNotNone(engagement.id)
+                # engagements are now FK-only (int or raw value)
+                self.assertIsNotNone(engagement)
 
         print(f"✓ Enhanced organisme model test passed for: {organisme_details.nom}")
 
@@ -111,15 +112,12 @@ class Test011EnhancedIntegration(unittest.TestCase):
         if not organisme_with_details.engagements:
             self.skipTest("No engagements found for this organisme")
 
-        # Find an engagement with competition information
-        competition_id = None
-        for engagement in organisme_with_details.engagements:
-            if engagement.id_competition and engagement.id_competition.id:
-                competition_id = int(engagement.id_competition.id)
-                break
-
-        if not competition_id:
-            self.skipTest("No engagement with competition found for this organisme")
+        # Engagements are now FK-only (int IDs).
+        # We need to get a competition from a different source.
+        competitions = self.api_client.api_ffbb_client.list_competitions(limit=1)
+        if not competitions:
+            self.skipTest("No competitions found")
+        competition_id = int(competitions[0].id)
 
         # Now test getting competition WITHOUT specifying fields (uses defaults)
         competition = self.api_client.api_ffbb_client.get_competition(competition_id)

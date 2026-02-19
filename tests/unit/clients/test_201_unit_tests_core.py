@@ -340,7 +340,7 @@ class Test001QueryFieldsCounts(unittest.TestCase):
         )
 
         fields = OrganismeFields.get_fields()
-        self.assertEqual(len(fields), 76)
+        self.assertEqual(len(fields), 55)
         # No duplicates
         self.assertEqual(len(fields), len(set(fields)))
 
@@ -351,7 +351,7 @@ class Test001QueryFieldsCounts(unittest.TestCase):
         )
 
         fields = CompetitionFields.get_fields()
-        self.assertEqual(len(fields), 80)
+        self.assertEqual(len(fields), 38)
         # No duplicates
         self.assertEqual(len(fields), len(set(fields)))
 
@@ -360,7 +360,7 @@ class Test001QueryFieldsCounts(unittest.TestCase):
         from ffbb_api_client_v2.directus_ffbb.models.poule_fields import PouleFields
 
         fields = PouleFields.get_fields()
-        self.assertEqual(len(fields), 105)
+        self.assertEqual(len(fields), 30)
         # No duplicates
         self.assertEqual(len(fields), len(set(fields)))
 

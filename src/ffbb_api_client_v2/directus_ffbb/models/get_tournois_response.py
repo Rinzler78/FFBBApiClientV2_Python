@@ -5,7 +5,6 @@ from datetime import datetime
 from typing import Any
 
 from ...models.cartographie import Cartographie
-from ...models.commune import Commune
 from ...models.document_flyer import DocumentFlyer
 from ...utils.converter_utils import (
     from_datetime,
@@ -36,7 +35,7 @@ class GetTournoisResponse:
     ageMin: int | None = None
     ageMax: int | None = None
     tournoiType: dict[str, Any] | None = None
-    commune: Commune | None = None
+    commune: int | None = None
     cartographie: Cartographie | None = None
     tournoiTypes3x3: list[Any] = field(default_factory=list)
     document_flyer: DocumentFlyer | None = None
@@ -75,7 +74,7 @@ class GetTournoisResponse:
             ageMin=from_int(data, "ageMin"),
             ageMax=from_int(data, "ageMax"),
             tournoiType=data.get("tournoiType"),
-            commune=from_obj(Commune.from_dict, data, "commune"),
+            commune=from_int(data, "commune"),
             cartographie=from_obj(Cartographie.from_dict, data, "cartographie"),
             tournoiTypes3x3=data.get("tournoiTypes3x3", []) or [],
             document_flyer=from_obj(DocumentFlyer.from_dict, data, "document_flyer"),

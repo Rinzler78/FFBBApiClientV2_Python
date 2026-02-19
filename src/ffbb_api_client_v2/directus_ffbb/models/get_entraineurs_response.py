@@ -4,8 +4,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
-from ...models.commune import Commune
-from ...utils.converter_utils import from_datetime, from_obj, from_str
+from ...utils.converter_utils import from_datetime, from_int, from_str
 
 
 @dataclass
@@ -15,7 +14,7 @@ class GetEntraineursResponse:
     prenom: str | None = None
     adresse1: str | None = None
     adresse2: str | None = None
-    commune: Commune | None = None
+    commune: int | None = None
     email: str | None = None
     telephoneDomicile: str | None = None
     telephonePortable: str | None = None
@@ -39,7 +38,7 @@ class GetEntraineursResponse:
             prenom=from_str(data, "prenom"),
             adresse1=from_str(data, "adresse1"),
             adresse2=from_str(data, "adresse2"),
-            commune=from_obj(Commune.from_dict, data, "commune"),
+            commune=from_int(data, "commune"),
             email=from_str(data, "email"),
             telephoneDomicile=from_str(data, "telephoneDomicile"),
             telephonePortable=from_str(data, "telephonePortable"),

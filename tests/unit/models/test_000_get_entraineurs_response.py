@@ -16,11 +16,7 @@ SAMPLE_DATA: dict[str, Any] = {
     "prenom": "Marie",
     "adresse1": "12 Rue du Panier",
     "adresse2": "Batiment C",
-    "commune": {
-        "id": "c1d2e3f4-0000-1111-2222-333344445555",
-        "libelle": "MANTES-LA-JOLIE",
-        "codePostal": "78200",
-    },
+    "commune": 78200,
     "email": "m.lefevre@basket78.fr",
     "telephoneDomicile": "0134567890",
     "telephonePortable": "0612345678",
@@ -40,11 +36,7 @@ class TestGetEntraineursResponse(unittest.TestCase):
         self.assertEqual(result.prenom, "Marie")
         self.assertEqual(result.adresse1, "12 Rue du Panier")
         self.assertEqual(result.adresse2, "Batiment C")
-        from ffbb_api_client_v2.models.commune import Commune
-
-        self.assertIsInstance(result.commune, Commune)
-        assert isinstance(result.commune, Commune)
-        self.assertEqual(result.commune.libelle, "MANTES-LA-JOLIE")
+        self.assertEqual(result.commune, 78200)
         self.assertEqual(result.email, "m.lefevre@basket78.fr")
         self.assertEqual(result.telephoneDomicile, "0134567890")
         self.assertEqual(result.telephonePortable, "0612345678")

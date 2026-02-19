@@ -3,8 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import Any
+from uuid import UUID
 
-from ...models.document_flyer import DocumentFlyer
 from ...models.folder import Folder
 from ...utils.converter_utils import (
     from_datetime,
@@ -12,6 +12,7 @@ from ...utils.converter_utils import (
     from_int,
     from_obj,
     from_str,
+    from_uuid,
 )
 
 
@@ -37,8 +38,10 @@ class GetFormationsResponse:
     prerequisites: str | None = None
     results: str | None = None
     modalities: str | None = None
-    image: DocumentFlyer | None = None
+    image: UUID | None = None
     files: list[Any] = field(default_factory=list)
+    user_created: str | None = None
+    user_updated: str | None = None
     idOrigin: str | None = None
     idOriginHash: str | None = None
     programIdFbi: str | None = None
@@ -76,8 +79,10 @@ class GetFormationsResponse:
             prerequisites=from_str(data, "prerequisites"),
             results=from_str(data, "results"),
             modalities=from_str(data, "modalities"),
-            image=from_obj(DocumentFlyer.from_dict, data, "image"),
+            image=from_uuid(data, "image"),
             files=data.get("files", []) or [],
+            user_created=from_str(data, "user_created"),
+            user_updated=from_str(data, "user_updated"),
             idOrigin=from_str(data, "idOrigin"),
             idOriginHash=from_str(data, "idOriginHash"),
             programIdFbi=from_str(data, "programIdFbi"),

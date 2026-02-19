@@ -25,23 +25,16 @@ SAMPLE_DATA: dict[str, Any] = {
     "etat": "TERMINE",
     "pratique": "5x5",
     "status": "published",
-    "competitionId": "200000002800001",
-    "idOrganismeEquipe1": {
-        "id": "200000001100001",
-        "nom": "PARIS BASKET 13",
-        "code": "IDF0075001",
-    },
-    "idOrganismeEquipe2": {
-        "id": "200000001100002",
-        "nom": "AS VILLEURBANNE",
-        "code": "ARA0069001",
-    },
-    "idPoule": {"id": "200000003000001", "nom": "Poule unique"},
-    "saison": {"id": "200000000000010", "code": "25-26", "libelle": "2025-2026"},
-    "salle": {
-        "id": "200000004000001",
-        "libelle": "Gymnase Marie Curie",
-    },
+    # FK-only fields (int IDs)
+    "competitionId": 2800001,
+    "idOrganismeEquipe1": 1100001,
+    "idOrganismeEquipe2": 1100002,
+    "idPoule": 3000001,
+    "saison": 10,
+    "salle": 4000001,
+    "idEngagementEquipe1": 5001,
+    "idEngagementEquipe2": 5002,
+    # Embedded
     "gsId": None,
     "officiels": [
         {"nom": "DURAND", "prenom": "Luc", "role": "Arbitre 1"},
@@ -71,23 +64,13 @@ class TestGetRencontresResponse(unittest.TestCase):
         self.assertEqual(result.etat, "TERMINE")
         self.assertEqual(result.pratique, "5x5")
         self.assertEqual(result.status, "published")
-        self.assertEqual(result.competitionId, "200000002800001")
-        from ffbb_api_client_v2.directus_ffbb.models.get_poule_response import (
-            GetPouleResponse,
-        )
-        from ffbb_api_client_v2.directus_ffbb.models.get_saisons_response import (
-            GetSaisonsResponse,
-        )
-        from ffbb_api_client_v2.directus_ffbb.models.get_salles_response import (
-            GetSallesResponse,
-        )
-        from ffbb_api_client_v2.models.organisateur import Organisateur
-
-        self.assertIsInstance(result.idOrganismeEquipe1, Organisateur)
-        self.assertIsInstance(result.idOrganismeEquipe2, Organisateur)
-        self.assertIsInstance(result.idPoule, GetPouleResponse)
-        self.assertIsInstance(result.saison, GetSaisonsResponse)
-        self.assertIsInstance(result.salle, GetSallesResponse)
+        # FK-only fields
+        self.assertEqual(result.competitionId, 2800001)
+        self.assertEqual(result.idOrganismeEquipe1, 1100001)
+        self.assertEqual(result.idOrganismeEquipe2, 1100002)
+        self.assertEqual(result.idPoule, 3000001)
+        self.assertEqual(result.saison, 10)
+        self.assertEqual(result.salle, 4000001)
         self.assertIsNone(result.gsId)
         self.assertIsInstance(result.officiels, list)
         self.assertEqual(len(result.officiels), 2)
@@ -140,14 +123,16 @@ class TestGetRencontresResponse(unittest.TestCase):
         self.assertIsNone(result.date_created)
         self.assertIsNone(result.date_updated)
 
-    def test_006_from_dict_nested_fields_deserialized(self) -> None:
-        """Nested dict fields are deserialized to typed models."""
+    def test_006_from_dict_fk_fields_are_ints(self) -> None:
+        """FK-only fields are parsed as ints."""
         result = GetRencontresResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        assert result.idPoule is not None
-        self.assertEqual(result.idPoule.nom, "Poule unique")
-        assert result.saison is not None
-        self.assertEqual(result.saison.libelle, "2025-2026")
+        self.assertIsInstance(result.competitionId, int)
+        self.assertIsInstance(result.idOrganismeEquipe1, int)
+        self.assertIsInstance(result.idOrganismeEquipe2, int)
+        self.assertIsInstance(result.idPoule, int)
+        self.assertIsInstance(result.saison, int)
+        self.assertIsInstance(result.salle, int)
 
     def test_007_from_dict_officiels_empty_when_missing(self) -> None:
         """officiels defaults to empty list when key absent."""

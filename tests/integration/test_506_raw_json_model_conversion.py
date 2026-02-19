@@ -339,10 +339,11 @@ class Test021RawApiRestConversion(unittest.TestCase):
         self.assertIsInstance(result.rencontres, list)
 
         for r in result.rencontres[:3]:
-            self.assertIsInstance(r.id, str)
-            self.assertIsInstance(r.nomEquipe1, str)
-            self.assertIsInstance(r.nomEquipe2, str)
-            self.assertIsInstance(r.joue, int)
+            # rencontres are now raw dicts (FK-only, no model parsing)
+            self.assertIsInstance(r, dict)
+            self.assertIsInstance(r["id"], str)
+            self.assertIsInstance(r["nomEquipe1"], str)
+            self.assertIsInstance(r["nomEquipe2"], str)
 
         # Validate classements if present
         if result.classements:
@@ -1068,8 +1069,9 @@ class Test021FromDictEdgeCases(unittest.TestCase):
         self.assertIsNotNone(result)
         self.assertEqual(result.id, "poule-1")
         self.assertEqual(len(result.rencontres), 1)
-        self.assertEqual(result.rencontres[0].nomEquipe1, "Team A")
-        self.assertEqual(result.rencontres[0].joue, 1)
+        # rencontres are now raw dicts (FK-only, no model parsing)
+        self.assertEqual(result.rencontres[0]["nomEquipe1"], "Team A")
+        self.assertTrue(result.rencontres[0]["joue"])
 
         self.assertIsNotNone(result.classements)
         self.assertEqual(len(result.classements), 1)

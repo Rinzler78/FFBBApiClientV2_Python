@@ -13,10 +13,7 @@ class EntraineursFields(QueryFieldsManager):
     TELEPHONE_DOMICILE = "telephoneDomicile"
     TELEPHONE_PORTABLE = "telephonePortable"
     TELEPHONE_TRAVAIL = "telephoneTravail"
-    COMMUNE_ID = "commune.id"
-    COMMUNE_CODE_POSTAL = "commune.codePostal"
-    COMMUNE_LIBELLE = "commune.libelle"
-    COMMUNE_DEPARTEMENT = "commune.departement"
+    COMMUNE = "commune"
     DATE_CREATED = "date_created"
     DATE_UPDATED = "date_updated"
 
@@ -29,14 +26,11 @@ class EntraineursFields(QueryFieldsManager):
             cls.PRENOM,
             cls.EMAIL,
             cls.TELEPHONE_PORTABLE,
-            cls.COMMUNE_CODE_POSTAL,
-            cls.COMMUNE_LIBELLE,
             cls.ADRESSE1,
             cls.ADRESSE2,
             cls.TELEPHONE_DOMICILE,
             cls.TELEPHONE_TRAVAIL,
-            cls.COMMUNE_ID,
-            cls.COMMUNE_DEPARTEMENT,
+            cls.COMMUNE,
             cls.DATE_CREATED,
             cls.DATE_UPDATED,
         ]

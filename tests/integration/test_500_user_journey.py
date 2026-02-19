@@ -134,14 +134,14 @@ class Test005UserJourneyIntegration(unittest.TestCase):
                 len(engagements), 0, f"Club {first_club.nom} should have teams"
             )
 
-            # Validate the first team
+            # Validate the first team (FK-only: int or raw value)
             first_team = engagements[0]
-            self.assertIsNotNone(first_team.id, "Team should have an ID")
+            self.assertIsNotNone(first_team, "Team should have an ID")
 
             print(
                 f"✓ Successfully found {len(engagements)} teams for club: {first_club.nom}"
             )
-            print(f"  First team ID: {first_team.id}")
+            print(f"  First team ID: {first_team}")
         else:
             print(f"⚠ No teams found for club: {first_club.nom}")
 

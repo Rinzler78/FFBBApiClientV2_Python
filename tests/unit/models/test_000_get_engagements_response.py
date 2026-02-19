@@ -5,19 +5,12 @@ from __future__ import annotations
 import unittest
 from datetime import datetime
 from typing import Any
+from uuid import UUID
 
 from ffbb_api_client_v2.directus_ffbb.models.get_engagements_response import (
     GetEngagementsResponse,
 )
-from ffbb_api_client_v2.directus_ffbb.models.get_entraineurs_response import (
-    GetEntraineursResponse,
-)
-from ffbb_api_client_v2.directus_ffbb.models.get_poule_response import (
-    GetPouleResponse,
-)
 from ffbb_api_client_v2.models.categorie import Categorie
-from ffbb_api_client_v2.models.document_flyer import DocumentFlyer
-from ffbb_api_client_v2.models.organisateur import Organisateur
 
 SAMPLE_DATA: dict[str, Any] = {
     "id": "200000005137866",
@@ -29,22 +22,21 @@ SAMPLE_DATA: dict[str, Any] = {
     "codeAbrege": "MAN",
     "clubPro": False,
     "position": 3,
-    "logo": {
-        "id": "d4e5f6a7-b8c9-0123-4567-89abcdef0123",
-        "filename_download": "ca_mantes_logo.png",
-        "type": "image/png",
-    },
-    "idCompetition": {
-        "id": "200000002872432",
-        "nom": "Pre nationale feminine",
-        "code": "PNF",
-    },
-    "idOrganisme": {
-        "id": "200000000123456",
-        "nom": "CA MANTES LA VILLE",
-        "code": "IDF0078020",
-    },
-    "idPoule": {"id": "200000003017520", "nom": "Poule A"},
+    "positionVariation": -1,
+    "position_n1": 2,
+    "pouleId": "P-001",
+    # FK-only fields (int IDs)
+    "idCompetition": 2872432,
+    "idOrganisme": 123456,
+    "idOrganismeCtc": 789012,
+    "idPoule": 3017520,
+    "entraineur": 1001,
+    "entraineurAdjoint": 1002,
+    # FK-only: Directus file UUIDs
+    "logo": "d4e5f6a7-b8c9-0123-4567-89abcdef0123",
+    "logo_genius": "a1b2c3d4-e5f6-7890-abcd-ef0123456789",
+    "photo": "11223344-5566-7788-99aa-bbccddeeff00",
+    # Embedded objects
     "niveau": {"code": "SEN", "libelle": "Seniors"},
     "classement": {
         "victoires": 12,
@@ -52,29 +44,24 @@ SAMPLE_DATA: dict[str, Any] = {
         "nuls": 0,
         "points": 28,
     },
-    "entraineur": {
-        "idLicence": "ENT-001",
-        "nom": "Dupont",
-        "prenom": "Jean",
-    },
-    "entraineurAdjoint": {
-        "idLicence": "ENT-002",
-        "nom": "Martin",
-        "prenom": "Sophie",
-    },
-    "positionVariation": -1,
-    "position_n1": 2,
+    # Correspondant fields
+    "adresseCorrespondantEquipe": "12 Rue du Stade",
+    "emailCorrespondantEquipe": "contact@club.fr",
+    "nomCorrespondantEquipe": "Durand",
+    # CTC fields
+    "nomCtc": "CTC Yvelines",
+    "typeEntenteCtc": "Entente",
+    # Other
+    "toUpdate": False,
+    "url_competition": "https://example.com/competition",
     "positions": [
         {"journee": 1, "position": 1},
         {"journee": 2, "position": 2},
         {"journee": 3, "position": 3},
     ],
-    "rencontres_domiciles": [
-        {"id": "REN-001", "scoreEquipeDomicile": 72, "scoreEquipeVisiteur": 65},
-    ],
-    "rencontres_exterieur": [
-        {"id": "REN-002", "scoreEquipeDomicile": 80, "scoreEquipeVisiteur": 68},
-    ],
+    # FK-only: lists
+    "rencontres_domiciles": [101, 102, 103],
+    "rencontres_exterieur": [201, 202],
     "date_created": "2024-10-01T08:00:00.000Z",
     "date_updated": "2025-04-12T20:15:00.000Z",
 }
@@ -157,29 +144,23 @@ class TestGetEngagementsResponse(unittest.TestCase):
     def test_016_field_logo(self) -> None:
         result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertIsInstance(result.logo, DocumentFlyer)
-        assert isinstance(result.logo, DocumentFlyer)
-        self.assertEqual(result.logo.filename_download, "ca_mantes_logo.png")
+        self.assertIsInstance(result.logo, UUID)
+        self.assertEqual(str(result.logo), "d4e5f6a7-b8c9-0123-4567-89abcdef0123")
 
     def test_017_field_id_competition(self) -> None:
         result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertIsInstance(result.idCompetition, dict)
-        self.assertEqual(result.idCompetition["code"], "PNF")  # type: ignore[index]
+        self.assertEqual(result.idCompetition, 2872432)
 
     def test_018_field_id_organisme(self) -> None:
         result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertIsInstance(result.idOrganisme, Organisateur)
-        assert isinstance(result.idOrganisme, Organisateur)
-        self.assertEqual(result.idOrganisme.code, "IDF0078020")
+        self.assertEqual(result.idOrganisme, 123456)
 
     def test_019_field_id_poule(self) -> None:
         result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertIsInstance(result.idPoule, GetPouleResponse)
-        assert isinstance(result.idPoule, GetPouleResponse)
-        self.assertEqual(result.idPoule.nom, "Poule A")
+        self.assertEqual(result.idPoule, 3017520)
 
     def test_020_field_niveau(self) -> None:
         result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
@@ -197,16 +178,12 @@ class TestGetEngagementsResponse(unittest.TestCase):
     def test_022_field_entraineur(self) -> None:
         result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertIsInstance(result.entraineur, GetEntraineursResponse)
-        assert isinstance(result.entraineur, GetEntraineursResponse)
-        self.assertEqual(result.entraineur.nom, "Dupont")
+        self.assertEqual(result.entraineur, 1001)
 
     def test_023_field_entraineur_adjoint(self) -> None:
         result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertIsInstance(result.entraineurAdjoint, GetEntraineursResponse)
-        assert isinstance(result.entraineurAdjoint, GetEntraineursResponse)
-        self.assertEqual(result.entraineurAdjoint.nom, "Martin")
+        self.assertEqual(result.entraineurAdjoint, 1002)
 
     def test_024_field_positions(self) -> None:
         result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
@@ -218,13 +195,13 @@ class TestGetEngagementsResponse(unittest.TestCase):
         result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
         assert result is not None
         self.assertIsInstance(result.rencontres_domiciles, list)
-        self.assertEqual(len(result.rencontres_domiciles), 1)
+        self.assertEqual(len(result.rencontres_domiciles), 3)
 
     def test_026_field_rencontres_exterieur(self) -> None:
         result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
         assert result is not None
         self.assertIsInstance(result.rencontres_exterieur, list)
-        self.assertEqual(len(result.rencontres_exterieur), 1)
+        self.assertEqual(len(result.rencontres_exterieur), 2)
 
     def test_027_field_date_created(self) -> None:
         result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
@@ -248,7 +225,7 @@ class TestGetEngagementsResponse(unittest.TestCase):
         assert result is not None
         self.assertIsNone(result.position)
 
-    def test_031_nullable_dicts_none(self) -> None:
+    def test_031_nullable_fk_fields_none(self) -> None:
         data = {
             **SAMPLE_DATA,
             "logo": None,
@@ -287,6 +264,59 @@ class TestGetEngagementsResponse(unittest.TestCase):
     def test_033_from_list_filters_none_items(self) -> None:
         result = GetEngagementsResponse.from_list([SAMPLE_DATA, {}, SAMPLE_DATA])
         self.assertEqual(len(result), 2)
+
+    def test_034_field_poule_id(self) -> None:
+        result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
+        assert result is not None
+        self.assertEqual(result.pouleId, "P-001")
+
+    def test_035_field_correspondant(self) -> None:
+        result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
+        assert result is not None
+        self.assertEqual(result.adresseCorrespondantEquipe, "12 Rue du Stade")
+        self.assertEqual(result.emailCorrespondantEquipe, "contact@club.fr")
+        self.assertEqual(result.nomCorrespondantEquipe, "Durand")
+
+    def test_036_field_ctc(self) -> None:
+        result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
+        assert result is not None
+        self.assertEqual(result.nomCtc, "CTC Yvelines")
+        self.assertEqual(result.typeEntenteCtc, "Entente")
+
+    def test_037_field_to_update(self) -> None:
+        result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
+        assert result is not None
+        self.assertFalse(result.toUpdate)
+
+    def test_038_field_url_competition(self) -> None:
+        result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
+        assert result is not None
+        self.assertEqual(result.url_competition, "https://example.com/competition")
+
+    def test_039_field_logo_genius(self) -> None:
+        result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
+        assert result is not None
+        self.assertIsInstance(result.logo_genius, UUID)
+
+    def test_040_field_photo(self) -> None:
+        result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
+        assert result is not None
+        self.assertIsInstance(result.photo, UUID)
+
+    def test_041_field_id_organisme_ctc(self) -> None:
+        result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
+        assert result is not None
+        self.assertEqual(result.idOrganismeCtc, 789012)
+
+    def test_042_field_position_variation(self) -> None:
+        result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
+        assert result is not None
+        self.assertEqual(result.positionVariation, -1)
+
+    def test_043_field_position_n1(self) -> None:
+        result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
+        assert result is not None
+        self.assertEqual(result.position_n1, 2)
 
 
 if __name__ == "__main__":

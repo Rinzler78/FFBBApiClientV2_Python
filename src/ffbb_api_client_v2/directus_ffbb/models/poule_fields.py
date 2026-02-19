@@ -7,69 +7,16 @@ class PouleFields(QueryFieldsManager):
     # Basic fields
     ID = "id"
     NOM = "nom"
-    LOGO_ID = "logo.id"
 
-    # ID Competition fields
-    ID_COMPETITION_ORGANISATEUR_CODE = "id_competition.organisateur.code"
-    ID_COMPETITION_ORGANISATEUR_NOM = "id_competition.organisateur.nom"
-    ID_COMPETITION_ORGANISATEUR_SAISON = "id_competition.organisateur.saison"
-    ID_COMPETITION_ORGANISATEUR_COMMUNE_DEPARTEMENT_CODE = (
-        "id_competition.organisateur.commune.departement.code"
-    )
-    ID_COMPETITION_ORGANISATEUR_COMMUNE_DEPARTEMENT_CODE_INSEE = (
-        "id_competition.organisateur.commune.departement.codeInsee"
-    )
-    ID_COMPETITION_ORGANISATEUR_COMMUNE_DEPARTEMENT_LIBELLE = (
-        "id_competition.organisateur.commune.departement.libelle"
-    )
+    # FK-only fields
+    ID_COMPETITION = "id_competition"
 
-    # Rencontres fields
-    RENCONTRES_ID = "rencontres.id"
-    RENCONTRES_NUMERO = "rencontres.numero"
-    RENCONTRES_NUMERO_JOURNEE = "rencontres.numeroJournee"
-    RENCONTRES_ID_POULE = "rencontres.idPoule"
-    RENCONTRES_COMPETITION_ID = "rencontres.competitionId"
-    RENCONTRES_RESULTAT_EQUIPE1 = "rencontres.resultatEquipe1"
-    RENCONTRES_RESULTAT_EQUIPE2 = "rencontres.resultatEquipe2"
-    RENCONTRES_JOUE = "rencontres.joue"
-    RENCONTRES_NOM_EQUIPE1 = "rencontres.nomEquipe1"
-    RENCONTRES_NOM_EQUIPE2 = "rencontres.nomEquipe2"
-    RENCONTRES_DATE_RENCONTRE = "rencontres.date_rencontre"
+    # FK-only: lists
+    RENCONTRES = "rencontres"
+    ENGAGEMENTS = "engagements"
 
-    # GameStats fields (live match data)
-    RENCONTRES_GSID_MATCH_ID = "rencontres.gsId.matchId"
-    RENCONTRES_GSID_CURRENT_STATUS = "rencontres.gsId.currentStatus"
-    RENCONTRES_GSID_CURRENT_PERIOD = "rencontres.gsId.currentPeriod"
-    RENCONTRES_GSID_SCORE_Q1_HOME = "rencontres.gsId.score_q1_home"
-    RENCONTRES_GSID_SCORE_Q2_HOME = "rencontres.gsId.score_q2_home"
-    RENCONTRES_GSID_SCORE_Q3_HOME = "rencontres.gsId.score_q3_home"
-    RENCONTRES_GSID_SCORE_Q4_HOME = "rencontres.gsId.score_q4_home"
-    RENCONTRES_GSID_SCORE_OT1_HOME = "rencontres.gsId.score_ot1_home"
-    RENCONTRES_GSID_SCORE_OT2_HOME = "rencontres.gsId.score_ot2_home"
-    RENCONTRES_GSID_SCORE_Q1_OUT = "rencontres.gsId.score_q1_out"
-    RENCONTRES_GSID_SCORE_Q2_OUT = "rencontres.gsId.score_q2_out"
-    RENCONTRES_GSID_SCORE_Q3_OUT = "rencontres.gsId.score_q3_out"
-    RENCONTRES_GSID_SCORE_Q4_OUT = "rencontres.gsId.score_q4_out"
-    RENCONTRES_GSID_SCORE_OT1_OUT = "rencontres.gsId.score_ot1_out"
-    RENCONTRES_GSID_SCORE_OT2_OUT = "rencontres.gsId.score_ot2_out"
-
-    # Classements fields
+    # Embedded: classements (scalar fields)
     CLASSEMENTS_ID = "classements.id"
-    CLASSEMENTS_ID_ENGAGEMENT_ID = "classements.idEngagement.id"
-    CLASSEMENTS_ID_ENGAGEMENT_NOM = "classements.idEngagement.nom"
-    CLASSEMENTS_ID_ENGAGEMENT_NOM_USUEL = "classements.idEngagement.nomUsuel"
-    CLASSEMENTS_ID_ENGAGEMENT_CODE_ABREGE = "classements.idEngagement.codeAbrege"
-    CLASSEMENTS_ID_ENGAGEMENT_LOGO_ID = "classements.idEngagement.logo.id"
-    CLASSEMENTS_ID_ENGAGEMENT_LOGO_GRADIENT = (
-        "classements.idEngagement.logo.gradient_color"
-    )
-    CLASSEMENTS_ORGANISME_ID = "classements.organisme.id"
-    CLASSEMENTS_ORGANISME_NOM = "classements.organisme.nom"
-    CLASSEMENTS_ORGANISME_LOGO_ID = "classements.organisme.logo.id"
-    CLASSEMENTS_ORGANISME_NOM_SIMPLE = "classements.organisme_nom"
-    CLASSEMENTS_ID_COMPETITION = "classements.idCompetition"
-    CLASSEMENTS_ID_POULE = "classements.idPoule"
-    CLASSEMENTS_ID_POULE_ID = "classements.idPoule.id"
     CLASSEMENTS_POSITION = "classements.position"
     CLASSEMENTS_POINTS = "classements.points"
     CLASSEMENTS_MATCH_JOUES = "classements.matchJoues"
@@ -87,6 +34,15 @@ class PouleFields(QueryFieldsManager):
     CLASSEMENTS_PENALITES_ENTRAINEUR = "classements.penalitesEntraineur"
     CLASSEMENTS_PENALITES_DIVERSES = "classements.penalitesDiverses"
     CLASSEMENTS_HORS_CLASSEMENT = "classements.horsClassement"
+    CLASSEMENTS_ORGANISME_NOM = "classements.organisme_nom"
+    # Embedded: classements FK-only nested
+    CLASSEMENTS_ID_ENGAGEMENT = "classements.idEngagement"
+    CLASSEMENTS_ORGANISME = "classements.organisme"
+    CLASSEMENTS_ID_COMPETITION = "classements.idCompetition"
+    CLASSEMENTS_ID_POULE = "classements.idPoule"
+
+    DATE_CREATED = "date_created"
+    DATE_UPDATED = "date_updated"
 
     @classmethod
     def get_fields(cls) -> list[str]:
@@ -95,111 +51,36 @@ class PouleFields(QueryFieldsManager):
             # Basic fields
             cls.ID,
             cls.NOM,
-            cls.LOGO_ID,
-            # ID Competition fields
-            cls.ID_COMPETITION_ORGANISATEUR_CODE,
-            cls.ID_COMPETITION_ORGANISATEUR_NOM,
-            cls.ID_COMPETITION_ORGANISATEUR_SAISON,
-            cls.ID_COMPETITION_ORGANISATEUR_COMMUNE_DEPARTEMENT_CODE,
-            cls.ID_COMPETITION_ORGANISATEUR_COMMUNE_DEPARTEMENT_CODE_INSEE,
-            cls.ID_COMPETITION_ORGANISATEUR_COMMUNE_DEPARTEMENT_LIBELLE,
-            # Rencontres - champs essentiels
-            cls.RENCONTRES_ID,
-            cls.RENCONTRES_NUMERO,
-            cls.RENCONTRES_NUMERO_JOURNEE,
-            cls.RENCONTRES_ID_POULE,
-            "rencontres.competitionId.id",
-            "rencontres.competitionId.competition_origine",
-            "rencontres.idOrganismeEquipe1.logo.id",
-            "rencontres.idOrganismeEquipe1.id",
-            "rencontres.idOrganismeEquipe2.logo.id",
-            "rencontres.idOrganismeEquipe2.id",
-            cls.RENCONTRES_RESULTAT_EQUIPE1,
-            cls.RENCONTRES_RESULTAT_EQUIPE2,
-            cls.RENCONTRES_JOUE,
-            cls.RENCONTRES_NOM_EQUIPE1,
-            cls.RENCONTRES_NOM_EQUIPE2,
-            cls.RENCONTRES_GSID_MATCH_ID,
-            cls.RENCONTRES_GSID_CURRENT_STATUS,
-            cls.RENCONTRES_GSID_SCORE_Q1_HOME,
-            cls.RENCONTRES_GSID_SCORE_Q2_HOME,
-            cls.RENCONTRES_GSID_SCORE_Q3_HOME,
-            cls.RENCONTRES_GSID_SCORE_Q4_HOME,
-            cls.RENCONTRES_GSID_SCORE_OT1_HOME,
-            cls.RENCONTRES_GSID_SCORE_OT2_HOME,
-            cls.RENCONTRES_GSID_SCORE_Q1_OUT,
-            cls.RENCONTRES_GSID_SCORE_Q2_OUT,
-            cls.RENCONTRES_GSID_SCORE_Q3_OUT,
-            cls.RENCONTRES_GSID_SCORE_Q4_OUT,
-            cls.RENCONTRES_GSID_SCORE_OT1_OUT,
-            cls.RENCONTRES_GSID_SCORE_OT2_OUT,
-            cls.RENCONTRES_GSID_CURRENT_PERIOD,
-            "rencontres.idEngagementEquipe1.id",
-            "rencontres.idEngagementEquipe1.nom",
-            "rencontres.idEngagementEquipe1.nomOfficiel",
-            "rencontres.idEngagementEquipe1.nomUsuel",
-            "rencontres.idEngagementEquipe1.logo.id",
-            "rencontres.idEngagementEquipe1.logo.gradient_color",
-            "rencontres.idEngagementEquipe1.codeAbrege",
-            "rencontres.idEngagementEquipe1.idOrganisme.code",
-            "rencontres.idEngagementEquipe1.numeroEquipe",
-            "rencontres.idEngagementEquipe2.id",
-            "rencontres.idEngagementEquipe2.nom",
-            "rencontres.idEngagementEquipe2.nomOfficiel",
-            "rencontres.idEngagementEquipe2.nomUsuel",
-            "rencontres.idEngagementEquipe2.logo.id",
-            "rencontres.idEngagementEquipe2.logo.gradient_color",
-            "rencontres.idEngagementEquipe2.codeAbrege",
-            "rencontres.idEngagementEquipe2.idOrganisme.code",
-            "rencontres.idEngagementEquipe2.numeroEquipe",
-            "rencontres.salle.id",
-            "rencontres.salle.numero",
-            "rencontres.salle.libelle",
-            "rencontres.salle.libelle2",
-            "rencontres.salle.adresse",
-            "rencontres.salle.adresseComplement",
-            "rencontres.salle.commune.codePostal",
-            "rencontres.salle.commune.libelle",
-            "rencontres.salle.cartographie.latitude",
-            "rencontres.salle.cartographie.longitude",
-            cls.RENCONTRES_DATE_RENCONTRE,
-            "rencontres.officiels.ordre",
-            "rencontres.officiels.fonction.libelle",
-            "rencontres.officiels.officiel.nom",
-            "rencontres.officiels.officiel.prenom",
-            # Classements - tous les champs
+            # FK-only
+            cls.ID_COMPETITION,
+            cls.RENCONTRES,
+            cls.ENGAGEMENTS,
+            # Classements scalars
             cls.CLASSEMENTS_ID,
-            cls.CLASSEMENTS_ID_ENGAGEMENT_NOM,
-            cls.CLASSEMENTS_ID_ENGAGEMENT_NOM_USUEL,
-            cls.CLASSEMENTS_ID_ENGAGEMENT_ID,
-            cls.CLASSEMENTS_ID_ENGAGEMENT_LOGO_ID,
-            cls.CLASSEMENTS_ID_ENGAGEMENT_LOGO_GRADIENT,
-            cls.CLASSEMENTS_ID_ENGAGEMENT_CODE_ABREGE,
-            "classements.idEngagement.numeroEquipe",
-            cls.CLASSEMENTS_ORGANISME_ID,
-            cls.CLASSEMENTS_ORGANISME_NOM,
-            cls.CLASSEMENTS_ORGANISME_LOGO_ID,
-            cls.CLASSEMENTS_ORGANISME_NOM_SIMPLE,
-            cls.CLASSEMENTS_ID_COMPETITION,
-            cls.CLASSEMENTS_ID_POULE,
-            cls.CLASSEMENTS_ID_POULE_ID,
-            cls.CLASSEMENTS_MATCH_JOUES,
-            cls.CLASSEMENTS_POINTS,
             cls.CLASSEMENTS_POSITION,
+            cls.CLASSEMENTS_POINTS,
+            cls.CLASSEMENTS_MATCH_JOUES,
             cls.CLASSEMENTS_GAGNES,
             cls.CLASSEMENTS_PERDUS,
             cls.CLASSEMENTS_NULS,
-            cls.CLASSEMENTS_POINT_INITIAUX,
-            cls.CLASSEMENTS_PENALITES_ARBITRAGE,
-            cls.CLASSEMENTS_PENALITES_ENTRAINEUR,
-            cls.CLASSEMENTS_PENALITES_DIVERSES,
             cls.CLASSEMENTS_NOMBRE_FORFAITS,
             cls.CLASSEMENTS_NOMBRE_DEFAUTS,
             cls.CLASSEMENTS_PANIERS_MARQUES,
             cls.CLASSEMENTS_PANIERS_ENCAISSES,
             cls.CLASSEMENTS_DIFFERENCE,
             cls.CLASSEMENTS_QUOTIENT,
+            cls.CLASSEMENTS_POINT_INITIAUX,
+            cls.CLASSEMENTS_PENALITES_ARBITRAGE,
+            cls.CLASSEMENTS_PENALITES_ENTRAINEUR,
+            cls.CLASSEMENTS_PENALITES_DIVERSES,
             cls.CLASSEMENTS_HORS_CLASSEMENT,
-            # Extra fields
-            cls.RENCONTRES_COMPETITION_ID,
+            cls.CLASSEMENTS_ORGANISME_NOM,
+            # Classements FK-only nested
+            cls.CLASSEMENTS_ID_ENGAGEMENT,
+            cls.CLASSEMENTS_ORGANISME,
+            cls.CLASSEMENTS_ID_COMPETITION,
+            cls.CLASSEMENTS_ID_POULE,
+            # Timestamps
+            cls.DATE_CREATED,
+            cls.DATE_UPDATED,
         ]

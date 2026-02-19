@@ -15,96 +15,41 @@ class OrganismeFields(QueryFieldsManager):
     NOM_SIMPLE = "nom_simple"
     URL_SITE_WEB = "urlSiteWeb"
 
-    # Commune fields
-    COMMUNE_CODE_POSTAL = "commune.codePostal"
-    COMMUNE_LIBELLE = "commune.libelle"
-
-    # Competitions fields
-    COMPETITIONS_ID = "competitions.id"
-    COMPETITIONS_NOM = "competitions.nom"
-
-    # Engagements fields
-    ENGAGEMENTS_ID = "engagements.id"
-    ENGAGEMENTS_ID_COMPETITION_ID = "engagements.idCompetition.id"
-    ENGAGEMENTS_ID_COMPETITION_NOM = "engagements.idCompetition.nom"
-    ENGAGEMENTS_ID_COMPETITION_CODE = "engagements.idCompetition.code"
-    ENGAGEMENTS_ID_COMPETITION_SEXE = "engagements.idCompetition.sexe"
-    ENGAGEMENTS_ID_COMPETITION_COMPETITION_ORIGINE = (
-        "engagements.idCompetition.competition_origine"
-    )
-    ENGAGEMENTS_ID_COMPETITION_COMPETITION_ORIGINE_NOM = (
-        "engagements.idCompetition.competition_origine_nom"
-    )
-    ENGAGEMENTS_ID_COMPETITION_COMPETITION_ORIGINE_NIVEAU = (
-        "engagements.idCompetition.competition_origine_niveau"
-    )
-    ENGAGEMENTS_ID_COMPETITION_TYPE_COMPETITION = (
-        "engagements.idCompetition.typeCompetition"
-    )
-    ENGAGEMENTS_ID_COMPETITION_LOGO_ID = "engagements.idCompetition.logo.id"
-    ENGAGEMENTS_ID_COMPETITION_LOGO_GRADIENT_COLOR = (
-        "engagements.idCompetition.logo.gradient_color"
-    )
-    ENGAGEMENTS_ID_COMPETITION_SAISON_ID = "engagements.idCompetition.saison.id"
-    ENGAGEMENTS_ID_COMPETITION_SAISON_LIBELLE = (
-        "engagements.idCompetition.saison.libelle"
-    )
-    ENGAGEMENTS_ID_COMPETITION_ID_COMPETITION_PERE = (
-        "engagements.idCompetition.idCompetitionPere"
-    )
-    ENGAGEMENTS_ID_COMPETITION_ID_COMPETITION_PERE_ID = (
-        "engagements.idCompetition.idCompetitionPere.id"
-    )
-    ENGAGEMENTS_ID_COMPETITION_ID_COMPETITION_PERE_NOM = (
-        "engagements.idCompetition.idCompetitionPere.nom"
-    )
-    ENGAGEMENTS_ID_COMPETITION_ORGANISATEUR_TYPE = (
-        "engagements.idCompetition.organisateur.type"
-    )
-    ENGAGEMENTS_ID_COMPETITION_TYPE_COMPETITION_GENERIQUE_LOGO_ID = (
-        "engagements.idCompetition.typeCompetitionGenerique.logo.id"
-    )
-    ENGAGEMENTS_ID_COMPETITION_TYPE_COMPETITION_GENERIQUE_LOGO_GRADIENT_COLOR = (
-        "engagements.idCompetition.typeCompetitionGenerique.logo.gradient_color"
-    )
-    ENGAGEMENTS_ID_COMPETITION_CATEGORIE_CODE = (
-        "engagements.idCompetition.categorie.code"
-    )
-    ENGAGEMENTS_ID_COMPETITION_CATEGORIE_ORDRE = (
-        "engagements.idCompetition.categorie.ordre"
-    )
-    ENGAGEMENTS_ID_POULE_ID = "engagements.idPoule.id"
-    ENGAGEMENTS_ID_POULE_NOM = "engagements.idPoule.nom"
-
-    # Cartographie fields (model: CartographieModel)
-    CARTOGRAPHIE_LATITUDE = "cartographie.latitude"
-    CARTOGRAPHIE_LONGITUDE = "cartographie.longitude"
-
-    # Club Pro fields (model: direct attributes)
+    # Club Pro fields
     NOM_CLUB_PRO = "nomClubPro"
     ADRESSE_CLUB_PRO = "adresseClubPro"
     COMMUNE_CLUB_PRO = "communeClubPro"
 
-    # Logo fields (model: LogoModel)
-    LOGO_ID = "logo.id"
-    LOGO_GRADIENT_COLOR = "logo.gradient_color"
+    # FK-only fields (int IDs)
+    COMMUNE = "commune"
+    SALLE = "salle"
+    SAISON = "saison"
+    ORGANISME_ID_PERE = "organisme_id_pere"
 
-    # Salle fields (model: SalleModel)
-    SALLE_ID = "salle.id"
-    SALLE_NUMERO = "salle.numero"
-    SALLE_LIBELLE = "salle.libelle"
-    SALLE_LIBELLE2 = "salle.libelle2"
-    SALLE_ADRESSE = "salle.adresse"
-    SALLE_ADRESSE_COMPLEMENT = "salle.adresseComplement"
-    SALLE_COMMUNE_CODE_POSTAL = "salle.commune.codePostal"
-    SALLE_COMMUNE_LIBELLE = "salle.commune.libelle"
-    SALLE_CARTOGRAPHIE_LATITUDE = "salle.cartographie.latitude"
-    SALLE_CARTOGRAPHIE_LONGITUDE = "salle.cartographie.longitude"
+    # FK-only: logo (Directus file UUID)
+    LOGO = "logo"
 
-    # Organismes fils (model: list[Any])
+    # FK-only: lists
+    ENGAGEMENTS = "engagements"
+    COMPETITIONS = "competitions"
+
+    # Organismes fils (list of int IDs)
     ORGANISMES_FILS = "organismes_fils"
 
-    # Offres Pratiques fields (model: OffrespratiquesitemModel)
+    # Embedded: cartographie
+    CARTOGRAPHIE_ID = "cartographie.id"
+    CARTOGRAPHIE_LATITUDE = "cartographie.latitude"
+    CARTOGRAPHIE_LONGITUDE = "cartographie.longitude"
+    CARTOGRAPHIE_ADRESSE = "cartographie.adresse"
+    CARTOGRAPHIE_CODE_POSTAL = "cartographie.codePostal"
+    CARTOGRAPHIE_COORDONNEES = "cartographie.coordonnees"
+    CARTOGRAPHIE_COORDONNEES_COORDINATES = "cartographie.coordonnees.coordinates"
+    CARTOGRAPHIE_COORDONNEES_TYPE = "cartographie.coordonnees.type"
+    CARTOGRAPHIE_STATUS = "cartographie.status"
+    CARTOGRAPHIE_TITLE = "cartographie.title"
+    CARTOGRAPHIE_VILLE = "cartographie.ville"
+
+    # Embedded: offresPratiques (junction table)
     OFFRES_PRATIQUES_ID = "offresPratiques.ffbbserver_offres_pratiques_id.id"
     OFFRES_PRATIQUES_TITLE = "offresPratiques.ffbbserver_offres_pratiques_id.title"
     OFFRES_PRATIQUES_CATEGORIE = (
@@ -114,7 +59,7 @@ class OrganismeFields(QueryFieldsManager):
         "offresPratiques.ffbbserver_offres_pratiques_id.typePratique"
     )
 
-    # Labellisation fields (model: LabellisationitemModel)
+    # Embedded: labellisation
     LABELLISATION_ID = "labellisation.id"
     LABELLISATION_DEBUT = "labellisation.debut"
     LABELLISATION_FIN = "labellisation.fin"
@@ -127,7 +72,7 @@ class OrganismeFields(QueryFieldsManager):
         "labellisation.idLabellisationProgramme.logo_vertical"
     )
 
-    # Membres fields
+    # Embedded: membres
     MEMBRES_ID = "membres.id"
     MEMBRES_NOM = "membres.nom"
     MEMBRES_PRENOM = "membres.prenom"
@@ -140,44 +85,49 @@ class OrganismeFields(QueryFieldsManager):
     MEMBRES_TELEPHONE_FIXE = "membres.telephoneFixe"
     MEMBRES_CODE_FONCTION = "membres.codeFonction"
 
+    DATE_CREATED = "date_created"
+    DATE_UPDATED = "date_updated"
+
     @classmethod
     def get_fields(cls) -> list[str]:
         """Return the complete list of fields for organisme queries."""
         return [
+            # Basic fields
             cls.ID,
             cls.NOM,
             cls.CODE,
             cls.TELEPHONE,
             cls.ADRESSE,
-            cls.COMMUNE_CODE_POSTAL,
-            cls.COMMUNE_LIBELLE,
             cls.MAIL,
             cls.TYPE,
             cls.NOM_SIMPLE,
             cls.URL_SITE_WEB,
-            # Cartographie
-            cls.CARTOGRAPHIE_LATITUDE,
-            cls.CARTOGRAPHIE_LONGITUDE,
             # Club Pro
             cls.NOM_CLUB_PRO,
             cls.ADRESSE_CLUB_PRO,
             cls.COMMUNE_CLUB_PRO,
-            # Logo
-            cls.LOGO_ID,
-            cls.LOGO_GRADIENT_COLOR,
-            # Salle
-            cls.SALLE_ID,
-            cls.SALLE_NUMERO,
-            cls.SALLE_LIBELLE,
-            cls.SALLE_LIBELLE2,
-            cls.SALLE_ADRESSE,
-            cls.SALLE_ADRESSE_COMPLEMENT,
-            cls.SALLE_COMMUNE_CODE_POSTAL,
-            cls.SALLE_COMMUNE_LIBELLE,
-            cls.SALLE_CARTOGRAPHIE_LATITUDE,
-            cls.SALLE_CARTOGRAPHIE_LONGITUDE,
+            # FK-only
+            cls.COMMUNE,
+            cls.SALLE,
+            cls.SAISON,
+            cls.ORGANISME_ID_PERE,
+            cls.LOGO,
+            cls.ENGAGEMENTS,
+            cls.COMPETITIONS,
             # Organismes fils
             cls.ORGANISMES_FILS,
+            # Cartographie
+            cls.CARTOGRAPHIE_ID,
+            cls.CARTOGRAPHIE_LATITUDE,
+            cls.CARTOGRAPHIE_LONGITUDE,
+            cls.CARTOGRAPHIE_ADRESSE,
+            cls.CARTOGRAPHIE_CODE_POSTAL,
+            cls.CARTOGRAPHIE_COORDONNEES,
+            cls.CARTOGRAPHIE_COORDONNEES_COORDINATES,
+            cls.CARTOGRAPHIE_COORDONNEES_TYPE,
+            cls.CARTOGRAPHIE_STATUS,
+            cls.CARTOGRAPHIE_TITLE,
+            cls.CARTOGRAPHIE_VILLE,
             # Offres Pratiques
             cls.OFFRES_PRATIQUES_ID,
             cls.OFFRES_PRATIQUES_TITLE,
@@ -191,34 +141,7 @@ class OrganismeFields(QueryFieldsManager):
             cls.LABELLISATION_PROGRAMME_LIBELLE,
             cls.LABELLISATION_PROGRAMME_LABEL,
             cls.LABELLISATION_PROGRAMME_LOGO_VERTICAL,
-            # Competitions
-            cls.COMPETITIONS_ID,
-            cls.COMPETITIONS_NOM,
-            # Engagements
-            cls.ENGAGEMENTS_ID,
-            cls.ENGAGEMENTS_ID_COMPETITION_ID,
-            cls.ENGAGEMENTS_ID_COMPETITION_NOM,
-            cls.ENGAGEMENTS_ID_COMPETITION_CODE,
-            cls.ENGAGEMENTS_ID_COMPETITION_SEXE,
-            cls.ENGAGEMENTS_ID_COMPETITION_COMPETITION_ORIGINE,
-            cls.ENGAGEMENTS_ID_COMPETITION_COMPETITION_ORIGINE_NOM,
-            cls.ENGAGEMENTS_ID_COMPETITION_COMPETITION_ORIGINE_NIVEAU,
-            cls.ENGAGEMENTS_ID_COMPETITION_TYPE_COMPETITION,
-            cls.ENGAGEMENTS_ID_COMPETITION_LOGO_ID,
-            cls.ENGAGEMENTS_ID_COMPETITION_LOGO_GRADIENT_COLOR,
-            cls.ENGAGEMENTS_ID_COMPETITION_SAISON_ID,
-            cls.ENGAGEMENTS_ID_COMPETITION_SAISON_LIBELLE,
-            cls.ENGAGEMENTS_ID_COMPETITION_ID_COMPETITION_PERE,
-            cls.ENGAGEMENTS_ID_COMPETITION_ID_COMPETITION_PERE_ID,
-            cls.ENGAGEMENTS_ID_COMPETITION_ID_COMPETITION_PERE_NOM,
-            cls.ENGAGEMENTS_ID_COMPETITION_ORGANISATEUR_TYPE,
-            cls.ENGAGEMENTS_ID_COMPETITION_TYPE_COMPETITION_GENERIQUE_LOGO_ID,
-            cls.ENGAGEMENTS_ID_COMPETITION_TYPE_COMPETITION_GENERIQUE_LOGO_GRADIENT_COLOR,
-            cls.ENGAGEMENTS_ID_COMPETITION_CATEGORIE_CODE,
-            cls.ENGAGEMENTS_ID_COMPETITION_CATEGORIE_ORDRE,
-            cls.ENGAGEMENTS_ID_POULE_ID,
-            cls.ENGAGEMENTS_ID_POULE_NOM,
-            # Membres (including personal data)
+            # Membres
             cls.MEMBRES_ID,
             cls.MEMBRES_NOM,
             cls.MEMBRES_PRENOM,
@@ -230,4 +153,7 @@ class OrganismeFields(QueryFieldsManager):
             cls.MEMBRES_VILLE,
             cls.MEMBRES_TELEPHONE_FIXE,
             cls.MEMBRES_CODE_FONCTION,
+            # Timestamps
+            cls.DATE_CREATED,
+            cls.DATE_UPDATED,
         ]

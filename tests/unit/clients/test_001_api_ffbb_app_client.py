@@ -64,7 +64,7 @@ class Test000ApiFfbbAppClient(unittest.TestCase):
         self.assertIsNotNone(competition)
         self.assertIsNotNone(competition.poules, "Competition has no poules")
         self.assertGreater(len(competition.poules), 0, "Competition poules list empty")
-        return int(competition.poules[0].id)
+        return int(competition.poules[0])
 
     def test_003_list_competitions(self):
         result = self._skip_if_auth_error(self.api_client.list_competitions, limit=5)

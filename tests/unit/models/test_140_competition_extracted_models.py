@@ -424,7 +424,7 @@ class TestGetCompetitionResponseExtracted(unittest.TestCase):
         self.assertIsNotNone(resp)
         self.assertEqual(resp.id, "comp-001")
         self.assertEqual(len(resp.phases), 1)
-        self.assertIsInstance(resp.phases[0], CompetitionPhase)
+        self.assertIsInstance(resp.phases[0], dict)
 
     def test_037_from_dict_with_poules(self) -> None:
         data = {
@@ -442,7 +442,7 @@ class TestGetCompetitionResponseExtracted(unittest.TestCase):
             "typeCompetition": "Championnat",
             "liveStat": True,
             "publicationInternet": "O",
-            "competition_origine": "orig-001",
+            "competition_origine": 42,
             "competition_origine_nom": "Championnat Regional",
         }
         resp = GetCompetitionResponse.from_dict(data)
@@ -450,7 +450,7 @@ class TestGetCompetitionResponseExtracted(unittest.TestCase):
         self.assertEqual(resp.type_competition, "Championnat")
         self.assertEqual(resp.live_stat, True)
         self.assertEqual(resp.publication_internet, "O")
-        self.assertEqual(resp.competition_origine, "orig-001")
+        self.assertEqual(resp.competition_origine, 42)
         self.assertEqual(resp.competition_origine_nom, "Championnat Regional")
 
     def test_039_from_dict_with_categorie(self) -> None:

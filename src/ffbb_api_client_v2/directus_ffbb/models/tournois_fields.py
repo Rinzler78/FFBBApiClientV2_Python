@@ -24,11 +24,21 @@ class TournoisFields(QueryFieldsManager):
     AGE_MAX = "ageMax"
     TOURNOI_TYPE = "tournoiType"
     TOURNOI_TYPES_3X3 = "tournoiTypes3x3"
-    COMMUNE_CODE_POSTAL = "commune.codePostal"
-    COMMUNE_LIBELLE = "commune.libelle"
-    COMMUNE_DEPARTEMENT = "commune.departement"
+    COMMUNE = "commune"
+    CARTOGRAPHIE_ID = "cartographie.id"
     CARTOGRAPHIE_LATITUDE = "cartographie.latitude"
     CARTOGRAPHIE_LONGITUDE = "cartographie.longitude"
+    CARTOGRAPHIE_ADRESSE = "cartographie.adresse"
+    CARTOGRAPHIE_CODE_POSTAL = "cartographie.codePostal"
+    CARTOGRAPHIE_COORDONNEES = "cartographie.coordonnees"
+    CARTOGRAPHIE_COORDONNEES_COORDINATES = "cartographie.coordonnees.coordinates"
+    CARTOGRAPHIE_COORDONNEES_TYPE = "cartographie.coordonnees.type"
+    CARTOGRAPHIE_STATUS = "cartographie.status"
+    CARTOGRAPHIE_TITLE = "cartographie.title"
+    CARTOGRAPHIE_VILLE = "cartographie.ville"
+    DOCUMENT_FLYER = "document_flyer"
+    CATEGORIE_CHAMPIONNAT_3X3_ID = "categorieChampionnat3x3Id"
+    CATEGORIE_CHAMPIONNAT_3X3_LIBELLE = "categorieChampionnat3x3Libelle"
     DATE_CREATED = "date_created"
     DATE_UPDATED = "date_updated"
 
@@ -44,14 +54,10 @@ class TournoisFields(QueryFieldsManager):
             cls.FIN,
             cls.DESCRIPTION,
             cls.ADRESSE,
+            cls.ADRESSE_COMPLEMENT,
             cls.MAIL_ORGANISATEUR,
             cls.NOM_ORGANISATEUR,
             cls.TELEPHONE_ORGANISATEUR,
-            cls.COMMUNE_CODE_POSTAL,
-            cls.COMMUNE_LIBELLE,
-            cls.CARTOGRAPHIE_LATITUDE,
-            cls.CARTOGRAPHIE_LONGITUDE,
-            cls.ADRESSE_COMPLEMENT,
             cls.URL_ORGANISATEUR,
             cls.SITE_CHOISI,
             cls.NB_PARTICIPANT_PREVU,
@@ -60,7 +66,21 @@ class TournoisFields(QueryFieldsManager):
             cls.AGE_MAX,
             cls.TOURNOI_TYPE,
             cls.TOURNOI_TYPES_3X3,
-            cls.COMMUNE_DEPARTEMENT,
+            cls.COMMUNE,
+            cls.CARTOGRAPHIE_ID,
+            cls.CARTOGRAPHIE_LATITUDE,
+            cls.CARTOGRAPHIE_LONGITUDE,
+            cls.CARTOGRAPHIE_ADRESSE,
+            cls.CARTOGRAPHIE_CODE_POSTAL,
+            cls.CARTOGRAPHIE_COORDONNEES,
+            cls.CARTOGRAPHIE_COORDONNEES_COORDINATES,
+            cls.CARTOGRAPHIE_COORDONNEES_TYPE,
+            cls.CARTOGRAPHIE_STATUS,
+            cls.CARTOGRAPHIE_TITLE,
+            cls.CARTOGRAPHIE_VILLE,
+            cls.DOCUMENT_FLYER,
+            cls.CATEGORIE_CHAMPIONNAT_3X3_ID,
+            cls.CATEGORIE_CHAMPIONNAT_3X3_LIBELLE,
             cls.DATE_CREATED,
             cls.DATE_UPDATED,
         ]

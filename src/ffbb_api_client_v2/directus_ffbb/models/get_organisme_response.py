@@ -1,17 +1,22 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from datetime import datetime
 from typing import Any
+from uuid import UUID
 
 from ...models.cartographie import Cartographie
-from ...models.commune import Commune
 from ...models.labellisation_item import LabellisationItem
-from ...models.logo import Logo
 from ...models.membre import Membre
 from ...models.offre_pratique import OffrePratique
-from ...models.organisme_engagement import OrganismeEngagement
-from ...models.salle import Salle
-from ...utils.converter_utils import from_list, from_obj, from_str
+from ...utils.converter_utils import (
+    from_datetime,
+    from_int,
+    from_list,
+    from_obj,
+    from_str,
+    from_uuid,
+)
 
 
 @dataclass
@@ -27,17 +32,25 @@ class GetOrganismeResponse:
     url_site_web: str | None = None
     nom_club_pro: str | None = None
     adresse_club_pro: str | None = None
-    commune: Commune | None = None
+    commune_club_pro: str | None = None
+    # FK-only fields (int IDs)
+    commune: int | None = None
+    salle: int | None = None
+    saison: int | None = None
+    organisme_id_pere: int | None = None
+    # FK-only: logo (Directus file UUID)
+    logo: UUID | None = None
+    # FK-only: lists
+    engagements: list[int | Any] = field(default_factory=list)
+    competitions: list[int | Any] = field(default_factory=list)
+    organismes_fils: list[int | Any] = field(default_factory=list)
+    # Embedded
     cartographie: Cartographie | None = None
-    commune_club_pro: Commune | None = None
     membres: list[Membre] = field(default_factory=list)
-    competitions: list[str] = field(default_factory=list)
-    engagements: list[OrganismeEngagement] = field(default_factory=list)
-    organismes_fils: list[str] = field(default_factory=list)
     offres_pratiques: list[OffrePratique] = field(default_factory=list)
     labellisation: list[LabellisationItem] = field(default_factory=list)
-    salle: Salle | None = None
-    logo: Logo | None = None
+    date_created: datetime | None = None
+    date_updated: datetime | None = None
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> GetOrganismeResponse | None:
@@ -50,11 +63,13 @@ class GetOrganismeResponse:
             return None
 
         membres_raw = from_list(Membre.from_dict, data, "membres")
-        engagements_raw = from_list(OrganismeEngagement.from_dict, data, "engagements")
         offres_raw = from_list(OffrePratique.from_dict, data, "offresPratiques")
         labellisation_raw = from_list(
             LabellisationItem.from_dict, data, "labellisation"
         )
+        engagements_raw = data.get("engagements", []) or []
+        competitions_raw = data.get("competitions", []) or []
+        organismes_fils_raw = data.get("organismes_fils", []) or []
 
         return cls(
             id=from_str(data, "id"),
@@ -68,15 +83,21 @@ class GetOrganismeResponse:
             url_site_web=from_str(data, "urlSiteWeb"),
             nom_club_pro=from_str(data, "nomClubPro"),
             adresse_club_pro=from_str(data, "adresseClubPro"),
-            commune=from_obj(Commune.from_dict, data, "commune"),
+            commune_club_pro=from_str(data, "communeClubPro"),
+            commune=from_int(data, "commune"),
+            salle=from_int(data, "salle"),
+            saison=from_int(data, "saison"),
+            organisme_id_pere=from_int(data, "organisme_id_pere"),
+            logo=from_uuid(data, "logo"),
+            engagements=engagements_raw if isinstance(engagements_raw, list) else [],
+            competitions=competitions_raw if isinstance(competitions_raw, list) else [],
+            organismes_fils=(
+                organismes_fils_raw if isinstance(organismes_fils_raw, list) else []
+            ),
             cartographie=from_obj(Cartographie.from_dict, data, "cartographie"),
-            commune_club_pro=from_obj(Commune.from_dict, data, "communeClubPro"),
             membres=membres_raw if membres_raw is not None else [],
-            competitions=data.get("competitions", []),
-            engagements=engagements_raw if engagements_raw is not None else [],
-            organismes_fils=data.get("organismes_fils", []),
             offres_pratiques=offres_raw if offres_raw is not None else [],
             labellisation=labellisation_raw if labellisation_raw is not None else [],
-            salle=from_obj(Salle.from_dict, data, "salle"),
-            logo=from_obj(Logo.from_dict, data, "logo"),
+            date_created=from_datetime(data, "date_created"),
+            date_updated=from_datetime(data, "date_updated"),
         )

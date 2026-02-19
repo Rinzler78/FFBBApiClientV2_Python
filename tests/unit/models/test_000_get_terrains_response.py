@@ -19,11 +19,7 @@ SAMPLE_DATA: dict[str, Any] = {
     "longueur": 28.0,
     "accesLibre": True,
     "natureSol": {"id": "1", "libelle": "Parquet"},
-    "commune": {
-        "id": "75113",
-        "libelle": "PARIS 13EME ARRONDISSEMENT",
-        "codePostal": "75013",
-    },
+    "commune": 75013,
     "cartographie": {"latitude": 48.8322, "longitude": 2.3561},
     "date_created": "2024-09-15T10:30:00.000Z",
     "date_updated": "2025-01-20T14:45:00.000Z",
@@ -106,11 +102,7 @@ class TestGetTerrainsResponse(unittest.TestCase):
     def test_015_field_commune(self) -> None:
         result = GetTerrainsResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        from ffbb_api_client_v2.models.commune import Commune
-
-        self.assertIsInstance(result.commune, Commune)
-        assert isinstance(result.commune, Commune)
-        self.assertEqual(result.commune.libelle, "PARIS 13EME ARRONDISSEMENT")
+        self.assertEqual(result.commune, 75013)
 
     def test_016_field_cartographie(self) -> None:
         result = GetTerrainsResponse.from_dict(SAMPLE_DATA)

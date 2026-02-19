@@ -5,7 +5,6 @@ from datetime import datetime
 from typing import Any
 
 from ...models.cartographie import Cartographie
-from ...models.commune import Commune
 from ...utils.converter_utils import from_datetime, from_int, from_obj, from_str
 
 
@@ -20,7 +19,7 @@ class GetSallesResponse:
     telephone: str | None = None
     mail: str | None = None
     capaciteSpectateur: int | None = None
-    commune: Commune | None = None
+    commune: int | None = None
     cartographie: Cartographie | None = None
     date_created: datetime | None = None
     date_updated: datetime | None = None
@@ -45,7 +44,7 @@ class GetSallesResponse:
             telephone=from_str(data, "telephone"),
             mail=from_str(data, "mail"),
             capaciteSpectateur=from_int(data, "capaciteSpectateur"),
-            commune=from_obj(Commune.from_dict, data, "commune"),
+            commune=from_int(data, "commune"),
             cartographie=from_obj(Cartographie.from_dict, data, "cartographie"),
             date_created=from_datetime(data, "date_created"),
             date_updated=from_datetime(data, "date_updated"),

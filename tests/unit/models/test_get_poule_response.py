@@ -42,7 +42,7 @@ class TestGetPouleResponse(unittest.TestCase):
         self.assertEqual(result.rencontres, [])
         self.assertIsNone(result.classements)
         self.assertIsNone(result.nom)
-        self.assertIsNone(result.engagements)
+        self.assertEqual(result.engagements, [])
         self.assertIsNone(result.id_competition)
         self.assertIsNone(result.date_created)
         self.assertIsNone(result.date_updated)
@@ -62,18 +62,18 @@ class TestGetPouleResponse(unittest.TestCase):
         self.assertEqual(result.nom, "")
 
     def test_008_from_dict_with_id_competition(self):
-        """Test from_dict avec id_competition"""
-        data = {"id": "poule-004", "id_competition": "comp-123"}
+        """Test from_dict avec id_competition (FK int)"""
+        data = {"id": "poule-004", "id_competition": 2800001}
         result = GetPouleResponse.from_dict(data)
         self.assertIsNotNone(result)
-        self.assertEqual(result.id_competition, "comp-123")
+        self.assertEqual(result.id_competition, 2800001)
 
-    def test_009_from_dict_with_empty_id_competition(self):
-        """Test from_dict avec id_competition vide — from_str preserves empty string"""
-        data = {"id": "poule-005", "id_competition": ""}
+    def test_009_from_dict_with_none_id_competition(self):
+        """Test from_dict avec id_competition None"""
+        data = {"id": "poule-005", "id_competition": None}
         result = GetPouleResponse.from_dict(data)
         self.assertIsNotNone(result)
-        self.assertEqual(result.id_competition, "")
+        self.assertIsNone(result.id_competition)
 
     def test_010_from_dict_with_date_created(self):
         """Test from_dict avec date_created"""
@@ -97,15 +97,15 @@ class TestGetPouleResponse(unittest.TestCase):
         self.assertIsInstance(result.date_updated, datetime)
 
     def test_013_from_dict_with_engagements(self):
-        """Test from_dict avec engagements"""
-        engagements = [{"id": "eng-1"}, {"id": "eng-2"}]
+        """Test from_dict avec engagements (FK-only ints)"""
+        engagements = [5001, 5002, 5003]
         data = {"id": "poule-009", "engagements": engagements}
         result = GetPouleResponse.from_dict(data)
         self.assertIsNotNone(result)
         self.assertEqual(result.engagements, engagements)
 
     def test_014_from_dict_with_empty_engagements(self):
-        """Test from_dict avec engagements vide — data.get returns [] as-is"""
+        """Test from_dict avec engagements vide"""
         data = {"id": "poule-010", "engagements": []}
         result = GetPouleResponse.from_dict(data)
         self.assertIsNotNone(result)
@@ -118,140 +118,58 @@ class TestGetPouleResponse(unittest.TestCase):
         self.assertIsNotNone(result)
         self.assertEqual(result.rencontres, [])
 
-    def test_016_from_dict_with_rencontre_minimal(self):
-        """Test from_dict avec une rencontre minimale"""
+    def test_016_from_dict_with_rencontres_fk_ints(self):
+        """Test from_dict avec rencontres FK-only (list of ints)"""
         data = {
             "id": "poule-012",
-            "rencontres": [
-                {
-                    "id": "ren-001",
-                    "numero": "1",
-                    "numeroJournee": "1",
-                    "idPoule": "poule-012",
-                    "competitionId": "comp-123",
-                    "resultatEquipe1": "0",
-                    "resultatEquipe2": "0",
-                    "joue": False,
-                    "nomEquipe1": "Team A",
-                    "nomEquipe2": "Team B",
-                    "date_rencontre": "2023-01-01T10:00:00",
-                }
-            ],
-        }
-        result = GetPouleResponse.from_dict(data)
-        self.assertIsNotNone(result)
-        self.assertEqual(len(result.rencontres), 1)
-        rencontre = result.rencontres[0]
-        self.assertEqual(rencontre.id, "ren-001")
-        self.assertEqual(rencontre.numero, 1)
-        self.assertEqual(rencontre.numeroJournee, 1)
-        self.assertEqual(rencontre.idPoule, "poule-012")
-        self.assertEqual(rencontre.competitionId, "comp-123")
-        self.assertEqual(rencontre.resultatEquipe1, 0)
-        self.assertEqual(rencontre.resultatEquipe2, 0)
-        self.assertFalse(rencontre.joue)
-        self.assertEqual(rencontre.nomEquipe1, "Team A")
-        self.assertEqual(rencontre.nomEquipe2, "Team B")
-        self.assertEqual(rencontre.date_rencontre, datetime(2023, 1, 1, 10, 0, 0))
-
-    def test_017_from_dict_with_rencontre_missing_fields(self):
-        """Test from_dict avec rencontre ayant des champs manquants"""
-        data = {
-            "id": "poule-013",
-            "rencontres": [
-                {
-                    "id": "ren-002",
-                    # numero, numeroJournee, etc. manquants
-                }
-            ],
-        }
-        result = GetPouleResponse.from_dict(data)
-        self.assertIsNotNone(result)
-        self.assertEqual(len(result.rencontres), 1)
-        rencontre = result.rencontres[0]
-        self.assertEqual(rencontre.id, "ren-002")
-        self.assertEqual(rencontre.numero, 0)
-        self.assertEqual(rencontre.numeroJournee, 0)
-        self.assertEqual(rencontre.idPoule, "")
-        self.assertEqual(rencontre.competitionId, "")
-        self.assertEqual(rencontre.resultatEquipe1, 0)
-        self.assertEqual(rencontre.resultatEquipe2, 0)
-        self.assertFalse(rencontre.joue)
-        self.assertEqual(rencontre.nomEquipe1, "")
-        self.assertEqual(rencontre.nomEquipe2, "")
-        self.assertEqual(rencontre.date_rencontre, datetime(1970, 1, 1))
-
-    def test_018_from_dict_with_rencontre_invalid_date(self):
-        """Test from_dict avec rencontre ayant une date invalide"""
-        data = {
-            "id": "poule-014",
-            "rencontres": [
-                {
-                    "id": "ren-003",
-                    "numero": "1",
-                    "numeroJournee": "1",
-                    "idPoule": "poule-014",
-                    "competitionId": "comp-123",
-                    "resultatEquipe1": "0",
-                    "resultatEquipe2": "0",
-                    "joue": False,
-                    "nomEquipe1": "Team A",
-                    "nomEquipe2": "Team B",
-                    "date_rencontre": "invalid-date",
-                }
-            ],
-        }
-        result = GetPouleResponse.from_dict(data)
-        self.assertIsNotNone(result)
-        self.assertEqual(len(result.rencontres), 1)
-        rencontre = result.rencontres[0]
-        self.assertEqual(rencontre.date_rencontre, datetime(1970, 1, 1))
-
-    def test_019_from_dict_with_multiple_rencontres(self):
-        """Test from_dict avec plusieurs rencontres"""
-        data = {
-            "id": "poule-015",
-            "rencontres": [
-                {
-                    "id": "ren-004",
-                    "numero": "1",
-                    "numeroJournee": "1",
-                    "idPoule": "poule-015",
-                    "competitionId": "comp-123",
-                    "resultatEquipe1": "10",
-                    "resultatEquipe2": "8",
-                    "joue": True,
-                    "nomEquipe1": "Team A",
-                    "nomEquipe2": "Team B",
-                    "date_rencontre": "2023-01-01T10:00:00",
-                },
-                {
-                    "id": "ren-005",
-                    "numero": "2",
-                    "numeroJournee": "2",
-                    "idPoule": "poule-015",
-                    "competitionId": "comp-123",
-                    "resultatEquipe1": "0",
-                    "resultatEquipe2": "0",
-                    "joue": False,
-                    "nomEquipe1": "Team C",
-                    "nomEquipe2": "Team D",
-                    "date_rencontre": "2023-01-08T10:00:00",
-                },
-            ],
+            "rencontres": [200000012345678, 200000012345679],
         }
         result = GetPouleResponse.from_dict(data)
         self.assertIsNotNone(result)
         self.assertEqual(len(result.rencontres), 2)
+        self.assertEqual(result.rencontres[0], 200000012345678)
+        self.assertEqual(result.rencontres[1], 200000012345679)
 
-    def test_020_from_dict_with_empty_rencontre(self):
-        """Test from_dict avec rencontre None dans la liste — causes AssertionError in from_dict"""
+    def test_017_from_dict_with_rencontres_raw_dicts(self):
+        """Test from_dict avec rencontres as raw dicts (not parsed into models)"""
+        data = {
+            "id": "poule-013",
+            "rencontres": [
+                {"id": "ren-002", "joue": True},
+            ],
+        }
+        result = GetPouleResponse.from_dict(data)
+        self.assertIsNotNone(result)
+        self.assertEqual(len(result.rencontres), 1)
+        self.assertIsInstance(result.rencontres[0], dict)
+        self.assertEqual(result.rencontres[0]["id"], "ren-002")
+
+    def test_018_from_dict_with_rencontres_none_defaults_empty(self):
+        """Test from_dict avec rencontres None defaults to []"""
+        data = {"id": "poule-014", "rencontres": None}
+        result = GetPouleResponse.from_dict(data)
+        self.assertIsNotNone(result)
+        self.assertEqual(result.rencontres, [])
+
+    def test_019_from_dict_with_multiple_rencontres(self):
+        """Test from_dict avec plusieurs rencontres FK ints"""
+        data = {
+            "id": "poule-015",
+            "rencontres": [100001, 100002, 100003],
+        }
+        result = GetPouleResponse.from_dict(data)
+        self.assertIsNotNone(result)
+        self.assertEqual(len(result.rencontres), 3)
+
+    def test_020_from_dict_with_rencontres_containing_none(self):
+        """Test from_dict avec rencontre None dans la liste — kept as-is"""
         data = {
             "id": "poule-016",
             "rencontres": [None],
         }
-        with self.assertRaises(AssertionError):
-            GetPouleResponse.from_dict(data)
+        result = GetPouleResponse.from_dict(data)
+        self.assertIsNotNone(result)
+        self.assertEqual(result.rencontres, [None])
 
     @patch("ffbb_api_client_v2.models.team_ranking.TeamRanking.from_dict")
     def test_021_from_dict_with_classements(self, mock_team_ranking_from_dict):
@@ -328,60 +246,12 @@ class TestGetPouleResponse(unittest.TestCase):
         self.assertEqual(len(result.classements), 2)  # Only valid ones
         self.assertEqual(mock_team_ranking_from_dict.call_count, 3)
 
-    def test_027_from_dict_with_rencontre_partial_data(self):
-        """Test from_dict avec rencontre ayant des données partielles"""
-        data = {
-            "id": "poule-027",
-            "rencontres": [
-                {
-                    "id": "ren-007",
-                    "joue": True,
-                    "nomEquipe1": "Team A",
-                    # Missing other fields
-                }
-            ],
-        }
-        result = GetPouleResponse.from_dict(data)
-        self.assertIsNotNone(result)
-        self.assertEqual(len(result.rencontres), 1)
-        rencontre = result.rencontres[0]
-        self.assertEqual(rencontre.id, "ren-007")
-        self.assertEqual(rencontre.numero, 0)
-        self.assertTrue(rencontre.joue)
-        self.assertEqual(rencontre.nomEquipe1, "Team A")
-        self.assertEqual(rencontre.nomEquipe2, "")
-
-    def test_028_from_dict_with_rencontre_bool_conversion(self):
-        """Test conversion des booléens dans rencontre"""
-        data = {
-            "id": "poule-028",
-            "rencontres": [
-                {
-                    "id": "ren-008",
-                    "numero": "1",
-                    "numeroJournee": "1",
-                    "idPoule": "poule-028",
-                    "competitionId": "comp-123",
-                    "resultatEquipe1": "10",
-                    "resultatEquipe2": "8",
-                    "joue": "true",  # String instead of bool
-                    "nomEquipe1": "Team A",
-                    "nomEquipe2": "Team B",
-                    "date_rencontre": "2023-01-01T10:00:00",
-                }
-            ],
-        }
-        result = GetPouleResponse.from_dict(data)
-        self.assertIsNotNone(result)
-        rencontre = result.rencontres[0]
-        self.assertTrue(rencontre.joue)  # Should be converted to bool
-
-    def test_029_from_dict_minimal_with_all_optional_fields_none(self):
+    def test_027_from_dict_minimal_with_all_optional_fields_none(self):
         """Test from_dict avec tous les champs optionnels à None/vide"""
         data = {
             "id": "poule-029",
             "nom": "",
-            "id_competition": "",
+            "id_competition": None,
             "date_created": "",
             "date_updated": "",
             "engagements": [],
@@ -392,7 +262,7 @@ class TestGetPouleResponse(unittest.TestCase):
         self.assertIsNotNone(result)
         self.assertEqual(result.id, "poule-029")
         self.assertEqual(result.nom, "")
-        self.assertEqual(result.id_competition, "")
+        self.assertIsNone(result.id_competition)
         self.assertIsNone(result.date_created)
         self.assertIsNone(result.date_updated)
         self.assertEqual(result.engagements, [])

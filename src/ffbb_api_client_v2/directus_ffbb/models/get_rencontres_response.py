@@ -4,17 +4,12 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
-from ...models.organisateur import Organisateur
 from ...utils.converter_utils import (
     from_bool,
     from_datetime,
     from_int,
-    from_obj,
     from_str,
 )
-from .get_poule_response import GetPouleResponse
-from .get_saisons_response import GetSaisonsResponse
-from .get_salles_response import GetSallesResponse
 
 
 @dataclass
@@ -33,18 +28,6 @@ class GetRencontresResponse:
     etat: str | None = None
     pratique: str | None = None
     status: str | None = None
-    competitionId: str | None = None
-    idOrganismeEquipe1: Organisateur | None = None
-    idOrganismeEquipe2: Organisateur | None = None
-    idPoule: GetPouleResponse | None = None
-    saison: GetSaisonsResponse | None = None
-    salle: GetSallesResponse | None = None
-    gsId: str | None = None
-    officiels: list[Any] = field(default_factory=list)
-    idEngagementEquipe1: str | None = None
-    idEngagementEquipe2: str | None = None
-    creation: str | None = None
-    modification: str | None = None
     validee: bool | None = None
     forfaitEquipe1: bool | None = None
     forfaitEquipe2: bool | None = None
@@ -56,6 +39,24 @@ class GetRencontresResponse:
     handicap2: int | None = None
     remise: bool | None = None
     dateSaisieResultat: str | None = None
+    creation: str | None = None
+    modification: str | None = None
+    toUpdate: bool | None = None
+    uniqueKey: str | None = None
+    url_competition: str | None = None
+    rematch_videos: str | None = None
+    # FK-only fields (int IDs)
+    competitionId: int | None = None
+    idEngagementEquipe1: int | None = None
+    idEngagementEquipe2: int | None = None
+    idOrganismeEquipe1: int | None = None
+    idOrganismeEquipe2: int | None = None
+    idPoule: int | None = None
+    saison: int | None = None
+    salle: int | None = None
+    # Embedded objects
+    officiels: list[Any] = field(default_factory=list)
+    gsId: dict[str, Any] | None = None
     date_created: datetime | None = None
     date_updated: datetime | None = None
 
@@ -84,22 +85,6 @@ class GetRencontresResponse:
             etat=from_str(data, "etat"),
             pratique=from_str(data, "pratique"),
             status=from_str(data, "status"),
-            competitionId=from_str(data, "competitionId"),
-            idOrganismeEquipe1=from_obj(
-                Organisateur.from_dict, data, "idOrganismeEquipe1"
-            ),
-            idOrganismeEquipe2=from_obj(
-                Organisateur.from_dict, data, "idOrganismeEquipe2"
-            ),
-            idPoule=from_obj(GetPouleResponse.from_dict, data, "idPoule"),
-            saison=from_obj(GetSaisonsResponse.from_dict, data, "saison"),
-            salle=from_obj(GetSallesResponse.from_dict, data, "salle"),
-            gsId=from_str(data, "gsId"),
-            officiels=data.get("officiels", []) or [],
-            idEngagementEquipe1=from_str(data, "idEngagementEquipe1"),
-            idEngagementEquipe2=from_str(data, "idEngagementEquipe2"),
-            creation=from_str(data, "creation"),
-            modification=from_str(data, "modification"),
             validee=from_bool(data, "validee"),
             forfaitEquipe1=from_bool(data, "forfaitEquipe1"),
             forfaitEquipe2=from_bool(data, "forfaitEquipe2"),
@@ -111,6 +96,22 @@ class GetRencontresResponse:
             handicap2=from_int(data, "handicap2"),
             remise=from_bool(data, "remise"),
             dateSaisieResultat=from_str(data, "dateSaisieResultat"),
+            creation=from_str(data, "creation"),
+            modification=from_str(data, "modification"),
+            toUpdate=from_bool(data, "toUpdate"),
+            uniqueKey=from_str(data, "uniqueKey"),
+            url_competition=from_str(data, "url_competition"),
+            rematch_videos=from_str(data, "rematch_videos"),
+            competitionId=from_int(data, "competitionId"),
+            idEngagementEquipe1=from_int(data, "idEngagementEquipe1"),
+            idEngagementEquipe2=from_int(data, "idEngagementEquipe2"),
+            idOrganismeEquipe1=from_int(data, "idOrganismeEquipe1"),
+            idOrganismeEquipe2=from_int(data, "idOrganismeEquipe2"),
+            idPoule=from_int(data, "idPoule"),
+            saison=from_int(data, "saison"),
+            salle=from_int(data, "salle"),
+            officiels=data.get("officiels", []) or [],
+            gsId=data.get("gsId") if isinstance(data.get("gsId"), dict) else None,
             date_created=from_datetime(data, "date_created"),
             date_updated=from_datetime(data, "date_updated"),
         )

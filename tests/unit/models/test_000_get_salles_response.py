@@ -10,7 +10,6 @@ from ffbb_api_client_v2.directus_ffbb.models.get_salles_response import (
     GetSallesResponse,
 )
 from ffbb_api_client_v2.models.cartographie import Cartographie
-from ffbb_api_client_v2.models.commune import Commune
 
 SAMPLE_DATA: dict[str, Any] = {
     "id": "200000004500123",
@@ -22,11 +21,7 @@ SAMPLE_DATA: dict[str, Any] = {
     "telephone": "0134567899",
     "mail": "gymnase.coubertin@mairie-mantes.fr",
     "capaciteSpectateur": 1200,
-    "commune": {
-        "id": "c1d2e3f4-0000-1111-2222-333344445555",
-        "libelle": "MANTES-LA-JOLIE",
-        "codePostal": "78200",
-    },
+    "commune": 78200,
     "cartographie": {
         "latitude": 48.9906,
         "longitude": 1.7169,
@@ -50,9 +45,7 @@ class TestGetSallesResponse(unittest.TestCase):
         self.assertEqual(result.telephone, "0134567899")
         self.assertEqual(result.mail, "gymnase.coubertin@mairie-mantes.fr")
         self.assertEqual(result.capaciteSpectateur, 1200)
-        self.assertIsInstance(result.commune, Commune)
-        assert isinstance(result.commune, Commune)
-        self.assertEqual(result.commune.libelle, "MANTES-LA-JOLIE")
+        self.assertEqual(result.commune, 78200)
         self.assertIsInstance(result.cartographie, Cartographie)
         assert isinstance(result.cartographie, Cartographie)
         self.assertIsNotNone(result.cartographie.latitude)

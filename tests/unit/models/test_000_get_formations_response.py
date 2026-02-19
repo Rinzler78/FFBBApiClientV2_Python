@@ -47,11 +47,7 @@ SAMPLE_DATA: dict[str, Any] = {
     "prerequisites": "BPJEPS Basketball ou equivalent",
     "results": "Attestation de reussite delivree par la FFBB",
     "modalities": "Presentielle - 2 sessions de 5 jours",
-    "image": {
-        "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-        "filename_download": "formation_prep_physique.jpg",
-        "type": "image/jpeg",
-    },
+    "image": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
     "files": [
         {"id": "file-001", "filename": "programme_detaille.pdf"},
         {"id": "file-002", "filename": "bulletin_inscription.pdf"},
@@ -208,11 +204,10 @@ class TestGetFormationsResponse(unittest.TestCase):
     def test_027_field_image(self) -> None:
         result = GetFormationsResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        from ffbb_api_client_v2.models.document_flyer import DocumentFlyer
+        from uuid import UUID
 
-        self.assertIsInstance(result.image, DocumentFlyer)
-        assert isinstance(result.image, DocumentFlyer)
-        self.assertEqual(result.image.filename_download, "formation_prep_physique.jpg")
+        self.assertIsInstance(result.image, UUID)
+        self.assertEqual(str(result.image), "a1b2c3d4-e5f6-7890-abcd-ef1234567890")
 
     def test_028_field_files(self) -> None:
         result = GetFormationsResponse.from_dict(SAMPLE_DATA)

@@ -30,11 +30,7 @@ SAMPLE_DATA: dict[str, Any] = {
     "ageMin": 12,
     "ageMax": 18,
     "tournoiType": {"id": "3", "libelle": "3x3"},
-    "commune": {
-        "id": "92044",
-        "libelle": "LEVALLOIS-PERRET",
-        "codePostal": "92300",
-    },
+    "commune": 92300,
     "cartographie": {"latitude": 48.8938, "longitude": 2.2882},
     "tournoiTypes3x3": [
         {"id": "1", "libelle": "U13"},
@@ -155,11 +151,7 @@ class TestGetTournoisResponse(unittest.TestCase):
     def test_020_field_commune(self) -> None:
         result = GetTournoisResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        from ffbb_api_client_v2.models.commune import Commune
-
-        self.assertIsInstance(result.commune, Commune)
-        assert isinstance(result.commune, Commune)
-        self.assertEqual(result.commune.libelle, "LEVALLOIS-PERRET")
+        self.assertEqual(result.commune, 92300)
 
     def test_021_field_cartographie(self) -> None:
         result = GetTournoisResponse.from_dict(SAMPLE_DATA)

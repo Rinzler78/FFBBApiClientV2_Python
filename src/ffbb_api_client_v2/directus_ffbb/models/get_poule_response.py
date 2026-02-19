@@ -1,61 +1,51 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
 from ...models.team_ranking import TeamRanking
-from ...utils.converter_utils import from_datetime, from_list, from_str
-from .poule_rencontre_item_model import PouleRencontreItemModel
+from ...utils.converter_utils import from_datetime, from_int, from_list, from_str
 
 
 @dataclass
 class GetPouleResponse:
     id: str
-
-    # Keep nested alias for backward compatibility
-    RencontresitemModel = PouleRencontreItemModel
-
-    rencontres: list[PouleRencontreItemModel]
-    classements: list[TeamRanking] | None = None
     nom: str | None = None
-    engagements: list[dict[str, Any]] | None = None
-    id_competition: str | None = None
+    # FK-only fields
+    id_competition: int | None = None
+    # FK-only: lists
+    rencontres: list[int | Any] = field(default_factory=list)
+    engagements: list[int | Any] = field(default_factory=list)
+    # Embedded
+    classements: list[TeamRanking] | None = None
     date_created: datetime | None = None
     date_updated: datetime | None = None
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> GetPouleResponse | None:
-        """Convert dictionary to PoulesModel instance."""
+        """Convert dictionary to GetPouleResponse instance."""
         if not data:
             return None
-
-        # Handle case where data is not a dictionary
         if not isinstance(data, dict):
             return None
-
-        # Handle API error responses
         if "errors" in data:
             return None
 
-        # Process rencontres
-        rencontres = (
-            from_list(PouleRencontreItemModel.from_dict, data, "rencontres") or []
-        )
-
-        # Process classements
         classements_raw = from_list(TeamRanking.from_dict, data, "classements")
         classements = (
             [c for c in classements_raw if c is not None] if classements_raw else None
         )
+        rencontres_raw = data.get("rencontres", []) or []
+        engagements_raw = data.get("engagements", []) or []
 
         return cls(
             id=from_str(data, "id") or "",
-            rencontres=rencontres,
-            classements=classements,
             nom=from_str(data, "nom"),
-            engagements=data.get("engagements"),  # Keep as is, it's a raw list
-            id_competition=from_str(data, "id_competition"),
+            id_competition=from_int(data, "id_competition"),
+            rencontres=rencontres_raw if isinstance(rencontres_raw, list) else [],
+            engagements=engagements_raw if isinstance(engagements_raw, list) else [],
+            classements=classements,
             date_created=from_datetime(data, "date_created"),
             date_updated=from_datetime(data, "date_updated"),
         )

@@ -18,7 +18,26 @@ class RencontresFields(QueryFieldsManager):
     ETAT = "etat"
     PRATIQUE = "pratique"
     STATUS = "status"
+    VALIDEE = "validee"
+    FORFAIT_EQUIPE1 = "forfaitEquipe1"
+    FORFAIT_EQUIPE2 = "forfaitEquipe2"
+    DEFAUT_EQUIPE1 = "defautEquipe1"
+    DEFAUT_EQUIPE2 = "defautEquipe2"
+    PENALITE_EQUIPE1 = "penaliteEquipe1"
+    PENALITE_EQUIPE2 = "penaliteEquipe2"
+    HANDICAP1 = "handicap1"
+    HANDICAP2 = "handicap2"
+    REMISE = "remise"
+    DATE_SAISIE_RESULTAT = "dateSaisieResultat"
+    CREATION = "creation"
+    MODIFICATION = "modification"
+    TO_UPDATE = "toUpdate"
+    UNIQUE_KEY = "uniqueKey"
+    URL_COMPETITION = "url_competition"
+    REMATCH_VIDEOS = "rematch_videos"
     COMPETITION_ID = "competitionId"
+    ID_ENGAGEMENT_EQUIPE1 = "idEngagementEquipe1"
+    ID_ENGAGEMENT_EQUIPE2 = "idEngagementEquipe2"
     ID_ORGANISME_EQUIPE1 = "idOrganismeEquipe1"
     ID_ORGANISME_EQUIPE2 = "idOrganismeEquipe2"
     ID_POULE = "idPoule"
@@ -47,7 +66,26 @@ class RencontresFields(QueryFieldsManager):
             cls.ETAT,
             cls.PRATIQUE,
             cls.STATUS,
+            cls.VALIDEE,
+            cls.FORFAIT_EQUIPE1,
+            cls.FORFAIT_EQUIPE2,
+            cls.DEFAUT_EQUIPE1,
+            cls.DEFAUT_EQUIPE2,
+            cls.PENALITE_EQUIPE1,
+            cls.PENALITE_EQUIPE2,
+            cls.HANDICAP1,
+            cls.HANDICAP2,
+            cls.REMISE,
+            cls.DATE_SAISIE_RESULTAT,
+            cls.CREATION,
+            cls.MODIFICATION,
+            cls.TO_UPDATE,
+            cls.UNIQUE_KEY,
+            cls.URL_COMPETITION,
+            cls.REMATCH_VIDEOS,
             cls.COMPETITION_ID,
+            cls.ID_ENGAGEMENT_EQUIPE1,
+            cls.ID_ENGAGEMENT_EQUIPE2,
             cls.ID_ORGANISME_EQUIPE1,
             cls.ID_ORGANISME_EQUIPE2,
             cls.ID_POULE,

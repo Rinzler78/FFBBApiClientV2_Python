@@ -413,18 +413,12 @@ class TestGetOrganismeResponseExtracted(unittest.TestCase):
         data = {
             "id": "org-001",
             "nom": "Club Test",
-            "engagements": [
-                {
-                    "id": "eng-001",
-                    "idPoule": {"id": "poule-001"},
-                    "idCompetition": {"id": "comp-001", "nom": "R2"},
-                }
-            ],
+            "engagements": [101, 102, 103],
         }
         resp = GetOrganismeResponse.from_dict(data)
         self.assertIsNotNone(resp)
-        self.assertEqual(len(resp.engagements), 1)
-        self.assertIsInstance(resp.engagements[0], OrganismeEngagement)
+        self.assertEqual(len(resp.engagements), 3)
+        self.assertEqual(resp.engagements[0], 101)
 
     def test_034_from_dict_with_offres_pratiques(self) -> None:
         data = {

@@ -5,12 +5,12 @@ from datetime import datetime
 from typing import Any
 
 from ...models.cartographie import Cartographie
-from ...models.commune import Commune
 from ...models.nature_sol import NatureSol
 from ...utils.converter_utils import (
     from_bool,
     from_datetime,
     from_float,
+    from_int,
     from_obj,
     from_str,
 )
@@ -26,7 +26,7 @@ class GetTerrainsResponse:
     longueur: float | None = None
     accesLibre: bool | None = None
     natureSol: NatureSol | None = None
-    commune: Commune | None = None
+    commune: int | None = None
     cartographie: Cartographie | None = None
     date_created: datetime | None = None
     date_updated: datetime | None = None
@@ -50,7 +50,7 @@ class GetTerrainsResponse:
             longueur=from_float(data, "longueur"),
             accesLibre=from_bool(data, "accesLibre"),
             natureSol=from_obj(NatureSol.from_dict, data, "natureSol"),
-            commune=from_obj(Commune.from_dict, data, "commune"),
+            commune=from_int(data, "commune"),
             cartographie=from_obj(Cartographie.from_dict, data, "cartographie"),
             date_created=from_datetime(data, "date_created"),
             date_updated=from_datetime(data, "date_updated"),
