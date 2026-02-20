@@ -24,12 +24,12 @@ from typing import Any
 
 from ffbb_api_client_v2._http.client import http_post_json
 from ffbb_api_client_v2.config import (
-    DEFAULT_USER_AGENT,
     MEILISEARCH_BASE_URL,
     MEILISEARCH_ENDPOINT_MULTI_SEARCH,
-    MEILISEARCH_INDEX_UIDS,
 )
+from ffbb_api_client_v2.directus.client import DEFAULT_USER_AGENT
 from ffbb_api_client_v2.facade.token_manager import TokenManager
+from ffbb_api_client_v2.meilisearch_ffbb.config import MEILISEARCH_INDEX_UIDS
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 

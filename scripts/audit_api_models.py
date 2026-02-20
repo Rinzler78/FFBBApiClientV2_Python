@@ -34,14 +34,16 @@ from ffbb_api_client_v2._http.client import (
     url_with_params,
 )
 from ffbb_api_client_v2.config import (
+    MEILISEARCH_BASE_URL,
+    MEILISEARCH_ENDPOINT_MULTI_SEARCH,
+)
+from ffbb_api_client_v2.directus.client import DEFAULT_USER_AGENT
+from ffbb_api_client_v2.directus_ffbb.config import (
     API_FFBB_BASE_URL,
-    DEFAULT_USER_AGENT,
     ENDPOINT_COMPETITIONS,
     ENDPOINT_ORGANISMES,
     ENDPOINT_POULES,
     ENDPOINT_SAISONS,
-    MEILISEARCH_BASE_URL,
-    MEILISEARCH_ENDPOINT_MULTI_SEARCH,
 )
 from ffbb_api_client_v2.directus_ffbb.models.get_competition_response import (
     GetCompetitionResponse,
