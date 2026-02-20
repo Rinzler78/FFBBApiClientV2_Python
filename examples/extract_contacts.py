@@ -784,9 +784,7 @@ class ContactReport:
                 "<meta name='viewport'"
                 " content='width=device-width, initial-scale=1'>\n"
             )
-            f.write(
-                f"<title>Contacts Basketball Senior" f" — {h(self.city_name)}</title>\n"
-            )
+            f.write(f"<title>Liste de contacts" f" — {h(self.city_name)}</title>\n")
             # Leaflet CSS + MarkerCluster CSS
             f.write(
                 "<link rel='stylesheet'"
@@ -840,9 +838,7 @@ class ContactReport:
             f.write("<div class='hero-main'>\n")
             f.write("<div>\n")
             f.write("<p class='hero-kicker'>Recherche FFBB</p>\n")
-            f.write(
-                f"<h1>Contacts Basketball Senior" f" &mdash; {h(self.city_name)}</h1>\n"
-            )
+            f.write("<h1>Liste de contacts</h1>\n")
             f.write(
                 "<div class='hero-actions'>"
                 "<a class='hero-action hero-action--primary' href='#map-section'>Voir la carte</a>"
