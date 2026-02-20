@@ -658,12 +658,18 @@ class ContactReport:
             f.write(
                 f"<title>Contacts Basketball Senior" f" — {h(self.city_name)}</title>\n"
             )
-            # Leaflet CSS
+            # Leaflet CSS + MarkerCluster CSS
             f.write(
                 "<link rel='stylesheet'"
                 " href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'"
                 " integrity='sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY='"
                 " crossorigin=''/>\n"
+                "<link rel='stylesheet'"
+                " href='https://unpkg.com/leaflet.markercluster@1.5.3"
+                "/dist/MarkerCluster.css' crossorigin=''/>\n"
+                "<link rel='stylesheet'"
+                " href='https://unpkg.com/leaflet.markercluster@1.5.3"
+                "/dist/MarkerCluster.Default.css' crossorigin=''/>\n"
             )
             f.write("<style>\n")
             f.write(_HTML_CSS)
@@ -798,11 +804,15 @@ class ContactReport:
             )
             f.write("</main>\n\n")
 
-            # --- Leaflet JS ---
+            # --- Leaflet JS + MarkerCluster JS ---
             f.write(
                 "<script"
                 " src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'"
                 " integrity='sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo='"
+                " crossorigin=''></script>\n"
+                "<script"
+                " src='https://unpkg.com/leaflet.markercluster@1.5.3"
+                "/dist/leaflet.markercluster.js'"
                 " crossorigin=''></script>\n"
             )
             f.write("<script>\n")
@@ -990,13 +1000,14 @@ class ContactReport:
 
         f.write(f"""\
 (function() {{
-  var map = L.map('map').setView([{self.lat}, {self.lng}], 8);
+  var center = [{self.lat}, {self.lng}];
+  var map = L.map('map').setView(center, 8);
   L.tileLayer('https://{{s}}.tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png', {{
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     maxZoom: 18
   }}).addTo(map);
 
-  // Center marker
+  // Center marker (not in cluster)
   var centerIcon = L.divIcon({{
     className: 'center-marker',
     html: '<div style="background:#DC2626;width:16px;height:16px;'
@@ -1005,12 +1016,12 @@ class ContactReport:
     iconSize: [16, 16],
     iconAnchor: [8, 8]
   }});
-  L.marker([{self.lat}, {self.lng}], {{icon: centerIcon}})
+  L.marker(center, {{icon: centerIcon, zIndexOffset: 1000}})
     .bindPopup('<strong>Centre de recherche</strong><br>{h(self.city_name)}')
     .addTo(map);
 
   // Radius circle
-  L.circle([{self.lat}, {self.lng}], {{
+  L.circle(center, {{
     radius: {self.radius * 1000},
     color: '#F26522',
     fillColor: '#F26522',
@@ -1019,7 +1030,7 @@ class ContactReport:
     dashArray: '8 4'
   }}).addTo(map);
 
-  // Club markers
+  // Club markers inside a cluster group
   var clubIcon = L.divIcon({{
     className: 'club-marker',
     html: '<div style="background:#F26522;width:12px;height:12px;'
@@ -1029,16 +1040,36 @@ class ContactReport:
     iconAnchor: [6, 6]
   }});
 
-  var markers = {markers_json};
-  var bounds = [[{self.lat}, {self.lng}]];
-  markers.forEach(function(m) {{
-    L.marker([m.lat, m.lng], {{icon: clubIcon}})
-      .bindPopup(m.popup)
-      .addTo(map);
-    bounds.push([m.lat, m.lng]);
+  var clusters = L.markerClusterGroup({{
+    maxClusterRadius: 40,
+    spiderfyOnMaxZoom: true,
+    showCoverageOnHover: false,
+    iconCreateFunction: function(cluster) {{
+      var n = cluster.getChildCount();
+      return L.divIcon({{
+        html: '<div style="background:#F26522;color:#fff;'
+          + 'border-radius:50%;width:32px;height:32px;'
+          + 'display:flex;align-items:center;justify-content:center;'
+          + 'font-weight:700;font-size:13px;border:2px solid #fff;'
+          + 'box-shadow:0 0 6px rgba(0,0,0,0.3)">' + n + '</div>',
+        className: 'club-cluster',
+        iconSize: [32, 32],
+        iconAnchor: [16, 16]
+      }});
+    }}
   }});
 
-  if (bounds.length > 1) {{
+  var data = {markers_json};
+  var bounds = L.latLngBounds([center]);
+  data.forEach(function(m) {{
+    var marker = L.marker([m.lat, m.lng], {{icon: clubIcon}})
+      .bindPopup(m.popup);
+    clusters.addLayer(marker);
+    bounds.extend([m.lat, m.lng]);
+  }});
+  map.addLayer(clusters);
+
+  if (data.length > 0) {{
     map.fitBounds(bounds, {{padding: [30, 30]}});
   }}
 }})();
