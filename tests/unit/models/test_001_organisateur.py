@@ -44,7 +44,7 @@ class Test043Organisateur(unittest.TestCase):
                 "handibasket": False,
                 "omnisport": False,
                 "horsAssociation": False,
-                "offresPratiques": ["Basket Santé", "Micro Basket"],
+                "offresPratiques": [10821935, 10821936],
                 "engagements": [
                     {"id": "eng-1", "nom": "Equipe 1"},
                     {"id": "eng-2", "nom": "Equipe 2"},

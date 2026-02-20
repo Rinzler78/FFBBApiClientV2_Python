@@ -599,7 +599,7 @@ class TestOrganismeIdPereToDictCoverage(unittest.TestCase):
             "handibasket": "true",
             "omnisport": "false",
             "horsAssociation": "false",
-            "offresPratiques": ["basket"],
+            "offresPratiques": [10821935],
             "engagements": [{"id": "eng1", "nom": "Equipe 1"}],
             "labellisation": [
                 {
@@ -629,7 +629,7 @@ class TestOrganismeIdPereToDictCoverage(unittest.TestCase):
         self.assertIs(d["handibasket"], True)
         self.assertIs(d["omnisport"], False)
         self.assertIs(d["horsAssociation"], False)
-        self.assertEqual(d["offresPratiques"], ["basket"])
+        self.assertEqual(d["offresPratiques"], [10821935])
         self.assertEqual(d["engagements"], [{"id": "eng1", "nom": "Equipe 1"}])
         self.assertEqual(
             d["labellisation"],

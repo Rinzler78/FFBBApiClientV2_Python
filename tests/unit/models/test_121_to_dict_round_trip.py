@@ -428,7 +428,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
                 "nom_simple": None,
                 "dateAffiliation": None,
                 "saison_en_cours": True,
-                "offresPratiques": ["Basket Santé", "Micro Basket"],
+                "offresPratiques": [10821935, 10821936],
                 "labellisation": ["Label Or"],
                 "cartographie": {
                     "adresse": "12 rue du Sport",
