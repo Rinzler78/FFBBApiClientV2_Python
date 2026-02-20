@@ -156,6 +156,9 @@ class ReportTeam:
     ranking_total: int | None
     next_match_date: str
     next_match_opponent: str
+    next_match_salle_name: str
+    next_match_salle_address: str
+    next_match_salle_map_url: str
     contacts: list[ReportContact]
 
     @property
@@ -180,6 +183,9 @@ class ReportClub:
     logo_url: str
     telephone: str
     mail: str
+    salle_nom: str
+    salle_adresse: str
+    salle_map_url: str
     teams: list[ReportTeam]
     club_contacts: list[ReportContact]
 
@@ -268,6 +274,71 @@ class ContactReport:
                         result[team.niveau].append(label)
         return dict(result)
 
+    @staticmethod
+    def _salle_signature(
+        name: str,
+        address: str,
+        map_url: str,
+    ) -> tuple[str, str, str]:
+        return (name.strip(), address.strip(), map_url.strip())
+
+    @staticmethod
+    def _salle_label(name: str, address: str) -> str:
+        cleaned_name = (name or "").strip()
+        if cleaned_name:
+            return cleaned_name
+        cleaned_address = (address or "").strip()
+        if not cleaned_address:
+            return ""
+        first_part = cleaned_address.split(",", 1)[0].strip()
+        return first_part or cleaned_address
+
+    def _collect_salles(
+        self,
+    ) -> tuple[list[dict[str, str]], dict[tuple[str, str, str], str]]:
+        """Collect unique salles and map each salle signature to an anchor id."""
+        entries: list[dict[str, str]] = []
+        signature_to_anchor: dict[tuple[str, str, str], str] = {}
+        dedupe_key_to_anchor: dict[str, str] = {}
+
+        def register(name: str, address: str, map_url: str) -> None:
+            signature = self._salle_signature(name, address, map_url)
+            label = self._salle_label(signature[0], signature[1])
+            if not label and not signature[1] and not signature[2]:
+                return
+
+            dedupe_key = (
+                signature[2].lower()
+                if signature[2]
+                else f"{slugify(signature[0])}:{slugify(signature[1])}"
+            )
+            anchor = dedupe_key_to_anchor.get(dedupe_key)
+            if anchor is None:
+                idx = len(entries) + 1
+                anchor = f"salle-{idx}-{(slugify(label) or 'salle')[:40]}"
+                dedupe_key_to_anchor[dedupe_key] = anchor
+                entries.append(
+                    {
+                        "anchor": anchor,
+                        "label": label or f"Salle {idx}",
+                        "address": signature[1],
+                        "map_url": signature[2],
+                    }
+                )
+            signature_to_anchor[signature] = anchor
+
+        for city in self.cities:
+            for club in city.clubs:
+                register(club.salle_nom, club.salle_adresse, club.salle_map_url)
+                for team in club.teams:
+                    register(
+                        team.next_match_salle_name,
+                        team.next_match_salle_address,
+                        team.next_match_salle_map_url,
+                    )
+
+        return entries, signature_to_anchor
+
     # ------------------------------------------------------------------
     # Build from flat rows
     # ------------------------------------------------------------------
@@ -346,6 +417,9 @@ class ContactReport:
                     ranking_total: int | None = None
                     next_match_date = ""
                     next_match_opponent = ""
+                    next_match_salle_name = ""
+                    next_match_salle_address = ""
+                    next_match_salle_map_url = ""
                     for r in effective_rows:
                         if not ranking_url and r.ranking_url:
                             ranking_url = r.ranking_url
@@ -359,6 +433,12 @@ class ContactReport:
                             next_match_date = r.next_match_date
                         if not next_match_opponent and r.next_match_opponent:
                             next_match_opponent = r.next_match_opponent
+                        if not next_match_salle_name and r.next_match_salle_name:
+                            next_match_salle_name = r.next_match_salle_name
+                        if not next_match_salle_address and r.next_match_salle_address:
+                            next_match_salle_address = r.next_match_salle_address
+                        if not next_match_salle_map_url and r.next_match_salle_map_url:
+                            next_match_salle_map_url = r.next_match_salle_map_url
                     contacts = [
                         ReportContact(
                             role=r.titre,
@@ -382,6 +462,9 @@ class ContactReport:
                             ranking_total=ranking_total,
                             next_match_date=next_match_date,
                             next_match_opponent=next_match_opponent,
+                            next_match_salle_name=next_match_salle_name,
+                            next_match_salle_address=next_match_salle_address,
+                            next_match_salle_map_url=next_match_salle_map_url,
                             contacts=contacts,
                         )
                     )
@@ -409,6 +492,9 @@ class ContactReport:
                         logo_url=ci.logo_url if ci else "",
                         telephone=ci.telephone if ci else "",
                         mail=ci.mail if ci else "",
+                        salle_nom=ci.salle_nom if ci else "",
+                        salle_adresse=ci.salle_adresse if ci else "",
+                        salle_map_url=ci.salle_map_url if ci else "",
                         teams=report_teams,
                         club_contacts=club_contacts,
                     )
@@ -689,6 +775,7 @@ class ContactReport:
             5,
             int(math.ceil(max(max_city_distance, self.radius))),
         )
+        salle_entries, salle_anchor_by_signature = self._collect_salles()
 
         with path.open("w", encoding="utf-8") as f:
             f.write("<!DOCTYPE html>\n<html lang='fr'>\n<head>\n")
@@ -738,6 +825,11 @@ class ContactReport:
                 "<li class='sidebar-annuaire'>"
                 "<a href='#annuaire'>&#x1F4D6; Annuaire</a></li>\n"
             )
+            if salle_entries:
+                f.write(
+                    "<li class='sidebar-annuaire'>"
+                    "<a href='#salles'>&#x1F4CD; Salles</a></li>\n"
+                )
             f.write("</ul>\n</nav>\n\n")
 
             # --- Main content ---
@@ -898,6 +990,8 @@ class ContactReport:
             f.write(
                 "<li><a href='#annuaire'>" "&#x1F4D6; Annuaire des contacts</a></li>\n"
             )
+            if salle_entries:
+                f.write("<li><a href='#salles'>&#x1F4CD; Salles</a></li>\n")
             f.write("</ul>\n</details>\n\n")
 
             # Contacts detail by city
@@ -947,6 +1041,7 @@ class ContactReport:
                             card_id=card_id,
                             city_name=city.ville,
                             city_distance_km=city_distance,
+                            salle_anchor_by_signature=salle_anchor_by_signature,
                         )
                     f.write("</div>\n")
                 elif is_target:
@@ -964,6 +1059,7 @@ class ContactReport:
 
             # Annuaire — all contacts, deduplicated
             self._write_html_annuaire(f)
+            self._write_html_salles(f, salle_entries)
 
             # Footer
             f.write(
@@ -997,12 +1093,21 @@ class ContactReport:
         card_id: str,
         city_name: str,
         city_distance_km: float,
+        salle_anchor_by_signature: dict[tuple[str, str, str], str],
     ) -> None:
         """Write a single club card with logo, links, teams, contacts."""
         h = _html_escape
         level_tokens = sorted({slugify(t.niveau) for t in club.teams if t.niveau})
         role_tokens: set[str] = set()
-        search_tokens = [city_name, club.nom, club.adresse, club.mail, club.telephone]
+        search_tokens = [
+            city_name,
+            club.nom,
+            club.adresse,
+            club.mail,
+            club.telephone,
+            club.salle_nom,
+            club.salle_adresse,
+        ]
         for contact in club.club_contacts:
             if contact.role:
                 role_tokens.add(slugify(contact.role))
@@ -1015,6 +1120,12 @@ class ContactReport:
                 search_tokens.append(team.niveau)
             if team.division:
                 search_tokens.append(team.division)
+            if team.next_match_opponent:
+                search_tokens.append(team.next_match_opponent)
+            if team.next_match_salle_name:
+                search_tokens.append(team.next_match_salle_name)
+            if team.next_match_salle_address:
+                search_tokens.append(team.next_match_salle_address)
             for contact in team.contacts:
                 if contact.role:
                     role_tokens.add(slugify(contact.role))
@@ -1026,6 +1137,11 @@ class ContactReport:
         total_contacts = len(club.club_contacts) + sum(
             len(t.contacts) for t in club.teams
         )
+
+        def salle_anchor(name: str, address: str, map_url: str) -> str:
+            signature = self._salle_signature(name, address, map_url)
+            return salle_anchor_by_signature.get(signature, "")
+
         f.write(
             f"<article class='club-card' id='{h(card_id)}' "
             f"data-card-id='{h(card_id)}' data-city='{h(slugify(city_name))}' "
@@ -1050,7 +1166,34 @@ class ContactReport:
         f.write("<div class='club-info'>\n")
         f.write(f"<h3 class='club-name'>{h(club.nom)}</h3>\n")
         if club.adresse:
-            f.write(f"<p class='address'>{h(club.adresse)}</p>\n")
+            map_url = _directions_url(club.lat, club.lng, club.adresse)
+            if map_url:
+                f.write(
+                    f"<p class='address'><a href='{h(map_url)}' target='_blank' "
+                    "rel='noopener noreferrer' class='address-link' "
+                    "title='Voir sur la carte'>"
+                    f"{h(club.adresse)}</a></p>\n"
+                )
+            else:
+                f.write(f"<p class='address'>{h(club.adresse)}</p>\n")
+        if club.salle_nom or club.salle_adresse or club.salle_map_url:
+            salle_label = self._salle_label(club.salle_nom, club.salle_adresse)
+            salle_id = salle_anchor(
+                club.salle_nom,
+                club.salle_adresse,
+                club.salle_map_url,
+            )
+            if salle_id and salle_label:
+                f.write(
+                    "<p class='address address--secondary'>Salle club: "
+                    f"<a href='#{h(salle_id)}' class='salle-ref-link'>"
+                    f"{h(salle_label)}</a></p>\n"
+                )
+            elif salle_label:
+                f.write(
+                    "<p class='address address--secondary'>Salle club: "
+                    f"{h(salle_label)}</p>\n"
+                )
         f.write(
             f"<p class='club-meta'>{h(city_name)} · {city_distance_km:.1f} km · "
             f"{len(club.teams)} equipe(s) · {total_contacts} contact(s)</p>\n"
@@ -1172,21 +1315,103 @@ class ContactReport:
                     f"{team.ranking_position} / {team.ranking_total}</span>"
                     "</span>"
                 )
+            if club.salle_nom or club.salle_adresse or club.salle_map_url:
+                salle_club_label = self._salle_label(
+                    club.salle_nom,
+                    club.salle_adresse,
+                )
+                salle_club_id = salle_anchor(
+                    club.salle_nom,
+                    club.salle_adresse,
+                    club.salle_map_url,
+                )
+                if salle_club_label:
+                    if salle_club_id:
+                        salle_club_value = (
+                            f"<a href='#{h(salle_club_id)}' class='team-chip__hall-link'>"
+                            f"{h(salle_club_label)}</a>"
+                        )
+                    else:
+                        salle_club_value = h(salle_club_label)
+                    team_meta_items.append(
+                        "<span class='team-chip team-chip--home'>"
+                        "<span class='team-chip__label'>Salle club</span>"
+                        f"<span class='team-chip__value'>{salle_club_value}</span>"
+                        "</span>"
+                    )
             if team.next_match_date and team.next_match_opponent:
+                salle_line = ""
+                if (
+                    team.next_match_salle_name
+                    or team.next_match_salle_address
+                    or team.next_match_salle_map_url
+                ):
+                    salle_label = self._salle_label(
+                        team.next_match_salle_name,
+                        team.next_match_salle_address,
+                    )
+                    salle_id = salle_anchor(
+                        team.next_match_salle_name,
+                        team.next_match_salle_address,
+                        team.next_match_salle_map_url,
+                    )
+                    if salle_id and salle_label:
+                        salle_line = (
+                            "<span class='team-chip__hall'>Lieu match: "
+                            f"<a href='#{h(salle_id)}' class='team-chip__hall-link'>"
+                            f"{h(salle_label)}</a></span>"
+                        )
+                    elif salle_label:
+                        salle_line = (
+                            "<span class='team-chip__hall'>Lieu match: "
+                            f"{h(salle_label)}</span>"
+                        )
                 team_meta_items.append(
                     "<span class='team-chip team-chip--next'>"
                     "<span class='team-chip__label'>Prochain</span>"
+                    "<span class='team-chip__next-main'>"
                     f"<span class='team-chip__when'>{h(team.next_match_date)}</span>"
                     "<span class='team-chip__vs'>contre</span>"
                     f"<span class='team-chip__opponent' title='{h(team.next_match_opponent)}'>"
                     f"{h(team.next_match_opponent)}</span>"
                     "</span>"
+                    f"{salle_line}"
+                    "</span>"
                 )
             elif team.next_match_date:
+                salle_line = ""
+                if (
+                    team.next_match_salle_name
+                    or team.next_match_salle_address
+                    or team.next_match_salle_map_url
+                ):
+                    salle_label = self._salle_label(
+                        team.next_match_salle_name,
+                        team.next_match_salle_address,
+                    )
+                    salle_id = salle_anchor(
+                        team.next_match_salle_name,
+                        team.next_match_salle_address,
+                        team.next_match_salle_map_url,
+                    )
+                    if salle_id and salle_label:
+                        salle_line = (
+                            "<span class='team-chip__hall'>Lieu match: "
+                            f"<a href='#{h(salle_id)}' class='team-chip__hall-link'>"
+                            f"{h(salle_label)}</a></span>"
+                        )
+                    elif salle_label:
+                        salle_line = (
+                            "<span class='team-chip__hall'>Lieu match: "
+                            f"{h(salle_label)}</span>"
+                        )
                 team_meta_items.append(
                     "<span class='team-chip team-chip--next'>"
                     "<span class='team-chip__label'>Prochain</span>"
+                    "<span class='team-chip__next-main'>"
                     f"<span class='team-chip__when'>{h(team.next_match_date)}</span>"
+                    "</span>"
+                    f"{salle_line}"
                     "</span>"
                 )
             if team_meta_items or team.ranking_url:
@@ -1919,6 +2144,40 @@ class ContactReport:
         f.write("<p class='nav'>" "<a href='#map-section'>&#x2191; Carte</a>" "</p>\n")
         f.write("</section>\n\n")
 
+    def _write_html_salles(self, f, salles: list[dict[str, str]]) -> None:
+        """Write a deduplicated hall index section at the end of the report."""
+        if not salles:
+            return
+        h = _html_escape
+        f.write("<section class='salles-section' id='salles'>\n")
+        f.write(f"<h2>Salles referees ({len(salles)})</h2>\n")
+        f.write(
+            "<p class='annuaire-desc'>"
+            "Reference des salles mentionnees dans les clubs et prochains matchs."
+            "</p>\n"
+        )
+        f.write("<ol class='salles-list'>\n")
+        for salle in salles:
+            f.write(f"<li class='salle-item' id='{h(salle['anchor'])}'>\n")
+            f.write("<p class='salle-item__title'>" f"{h(salle['label'])}</p>\n")
+            if salle["address"]:
+                f.write(f"<p class='salle-item__meta'>{h(salle['address'])}</p>\n")
+            if salle["map_url"]:
+                f.write(
+                    "<p class='salle-item__actions'>"
+                    f"<a href='{h(salle['map_url'])}' target='_blank' "
+                    "rel='noopener noreferrer'>Ouvrir sur la carte &#x2197;</a>"
+                    "</p>\n"
+                )
+            f.write("</li>\n")
+        f.write("</ol>\n")
+        f.write(
+            "<p class='nav'>"
+            "<a href='#main-content'>&#x2191; Haut de page</a>"
+            "</p>\n"
+        )
+        f.write("</section>\n\n")
+
 
 def _html_escape(text: str) -> str:
     """Escape HTML special characters."""
@@ -2168,7 +2427,7 @@ h2 {
 
 /* Controls */
 .controls {
-  margin: 0.8rem 0 1rem;
+  margin: 0.65rem 0 0.85rem;
   padding: 0.55rem 0.7rem;
   border-radius: var(--radius);
   border: 1px solid var(--border);
@@ -2239,7 +2498,7 @@ h2 {
   font-size: 0.76rem;
   color: var(--muted);
   margin: 0;
-  white-space: nowrap;
+  white-space: normal;
 }
 .control-reset {
   border: 1px solid var(--border);
@@ -2409,6 +2668,27 @@ p.address {
   font-style: italic;
   margin: 0;
 }
+.address--secondary {
+  margin-top: 0.12rem;
+  font-style: normal;
+  color: #556170;
+}
+.address-link {
+  color: inherit;
+  text-decoration: underline dotted;
+  text-underline-offset: 2px;
+}
+.address-link:hover {
+  color: var(--accent-dark);
+}
+.salle-ref-link {
+  color: var(--accent-dark);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.salle-ref-link:hover {
+  color: var(--accent);
+}
 .club-meta {
   margin-top: 0.2rem;
   color: var(--muted);
@@ -2518,9 +2798,19 @@ p.address {
   background: #FFF7ED;
   border-color: #FED7AA;
 }
+.team-chip--home {
+  background: #F8FAFC;
+  border-color: #CBD5E1;
+}
 .team-chip--next {
   background: #EFF6FF;
   border-color: #BFDBFE;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.16rem 0.42rem;
+  align-items: start;
+  border-radius: 10px;
+  padding: 0.32rem 0.56rem;
 }
 .team-chip__label {
   font-size: 0.64rem;
@@ -2538,13 +2828,32 @@ p.address {
   color: #64748B;
   font-size: 0.72rem;
 }
+.team-chip__next-main {
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.24rem;
+}
 .team-chip__opponent {
   font-weight: 600;
   color: #0F172A;
-  max-width: min(44vw, 360px);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  max-width: none;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  line-height: 1.3;
+}
+.team-chip__hall {
+  grid-column: 1 / -1;
+  font-size: 0.7rem;
+  color: #475569;
+  line-height: 1.32;
+}
+.team-chip__hall-link {
+  color: var(--accent-dark);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 .team-meta-link {
   margin-left: auto;
@@ -2685,6 +2994,39 @@ a.contact-ref:hover {
   background: var(--accent-light) !important;
   animation: highlight-fade 2s ease-out;
 }
+.salles-section {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+.salles-list {
+  margin: 0.75rem 0 0;
+  padding-left: 1.15rem;
+}
+.salle-item {
+  margin: 0 0 0.65rem;
+  padding: 0.35rem 0.45rem;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  background: #fff;
+}
+.salle-item__title {
+  margin: 0;
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+.salle-item__meta {
+  margin: 0.15rem 0 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.salle-item__actions {
+  margin: 0.18rem 0 0;
+  font-size: 0.78rem;
+}
+.salle-item__actions a {
+  color: var(--accent-dark);
+}
 @keyframes highlight-fade {
   0% { background: #FFD6A5; }
   100% { background: var(--accent-light); }
@@ -2738,20 +3080,49 @@ footer {
   }
   .hero-facts { grid-template-columns: 1fr; }
   .controls {
-    padding: 0.5rem 0.55rem;
+    margin: 0.45rem 0 0.65rem;
+    padding: 0.42rem 0.48rem;
   }
   .controls-bar {
     flex-direction: column;
     align-items: stretch;
+    gap: 0.38rem;
   }
   .control-field--search {
     min-width: 0;
   }
   .controls-actions {
     margin-left: 0;
-    justify-content: space-between;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.34rem;
   }
-  .controls-grid { grid-template-columns: 1fr; }
+  .controls-advanced {
+    margin-top: 0.35rem;
+  }
+  .controls-advanced > summary {
+    font-size: 0.76rem;
+  }
+  .controls-grid {
+    grid-template-columns: 1fr;
+    gap: 0.36rem;
+  }
+  .control-field > span {
+    font-size: 0.62rem;
+  }
+  .control-field input,
+  .control-field select {
+    font-size: 0.82rem;
+    padding: 0.28rem 0.4rem;
+  }
+  .controls-result {
+    font-size: 0.72rem;
+  }
+  .control-reset {
+    font-size: 0.74rem;
+    padding: 0.23rem 0.48rem;
+  }
   .stat-grid { grid-template-columns: repeat(2, 1fr); }
   #map { height: clamp(240px, 44vh, 320px); }
   .club-card { padding: 0.85rem; }
@@ -2766,6 +3137,23 @@ footer {
   }
   .team-label {
     width: 100%;
+  }
+  .team-meta {
+    align-items: stretch;
+    gap: 0.3rem;
+  }
+  .team-chip {
+    width: 100%;
+    border-radius: 9px;
+    padding: 0.3rem 0.45rem;
+  }
+  .team-chip--next {
+    padding: 0.34rem 0.48rem;
+  }
+  .team-meta-link {
+    margin-left: 0;
+    width: 100%;
+    text-align: center;
   }
   .contacts-block table.contacts { display: none; }
   .contacts-block .contacts-cards { display: block; }
@@ -2802,6 +3190,9 @@ class _ClubInfo:
     logo_url: str
     telephone: str
     mail: str
+    salle_nom: str
+    salle_adresse: str
+    salle_map_url: str
 
 
 @dataclass
@@ -2829,6 +3220,9 @@ class _CollectedRow:
     next_match_at: datetime | None
     next_match_date: str
     next_match_opponent: str
+    next_match_salle_name: str
+    next_match_salle_address: str
+    next_match_salle_map_url: str
 
 
 @dataclass
@@ -2837,6 +3231,9 @@ class _TeamCompetitionSnapshot:
     ranking_total: int | None = None
     next_match_date: datetime | None = None
     next_match_opponent: str = ""
+    next_match_salle_name: str = ""
+    next_match_salle_address: str = ""
+    next_match_salle_map_url: str = ""
 
 
 # ---------------------------------------------------------------------------
@@ -2949,12 +3346,121 @@ def _extract_engagement_id(value: object) -> str:
 
 
 def _format_next_match_date(value: datetime | None) -> str:
-    """Format match date for the report UI."""
+    """Format next-match date using a compact, context-aware style."""
     if value is None:
         return ""
-    if value.hour == 0 and value.minute == 0:
-        return value.strftime("%d/%m/%Y")
-    return value.strftime("%d/%m/%Y %H:%M")
+    local_value = _as_local_naive(value)
+    if local_value is None:
+        return ""
+
+    now = datetime.now()
+    today = now.date()
+    target = local_value.date()
+    delta_days = (target - today).days
+
+    show_time = not (local_value.hour == 0 and local_value.minute == 0)
+
+    def time_part() -> str:
+        if not show_time:
+            return ""
+        if local_value.minute == 0:
+            return f"{local_value:%H}h"
+        return f"{local_value:%Hh%M}"
+
+    weekday_fr = [
+        "lundi",
+        "mardi",
+        "mercredi",
+        "jeudi",
+        "vendredi",
+        "samedi",
+        "dimanche",
+    ]
+    month_fr = [
+        "janv",
+        "fev",
+        "mars",
+        "avr",
+        "mai",
+        "juin",
+        "juil",
+        "aout",
+        "sept",
+        "oct",
+        "nov",
+        "dec",
+    ]
+
+    if delta_days == 0:
+        base = "Aujourd'hui"
+    elif delta_days == 1:
+        base = "Demain"
+    elif delta_days == 2:
+        base = "Apres-demain"
+    elif 0 < delta_days <= 6:
+        base = weekday_fr[target.weekday()]
+    elif -6 <= delta_days < 0:
+        base = f"{weekday_fr[target.weekday()]} {target.day}"
+    elif target.year == today.year:
+        base = f"{target.day} {month_fr[target.month - 1]}"
+    else:
+        base = f"{target.day} {month_fr[target.month - 1]} {target.year}"
+
+    match_time = time_part()
+    if match_time:
+        return f"{base} {match_time}"
+    return base
+
+
+def _compose_salle_address(
+    *,
+    adresse: str,
+    complement: str,
+    code_postal: str,
+    ville: str,
+) -> str:
+    parts = [p for p in [adresse, complement, code_postal, ville] if p]
+    return ", ".join(parts)
+
+
+def _extract_salle_details(salle) -> tuple[str, str, str]:
+    """Return salle label/address/map link from a salle payload."""
+    if salle is None:
+        return "", "", ""
+
+    label = (salle.libelle or salle.libelle2 or "").strip()
+    carto = salle.cartographie
+    carto_address = (carto.adresse if carto else "") or ""
+    carto_cp = (carto.code_postal if carto else "") or ""
+    carto_city = (carto.ville if carto else "") or ""
+    address = _compose_salle_address(
+        adresse=(salle.adresse or carto_address or "").strip(),
+        complement=(salle.adresseComplement or "").strip(),
+        code_postal=carto_cp.strip(),
+        ville=carto_city.strip(),
+    )
+    map_url = _directions_url(
+        carto.latitude if carto else None,
+        carto.longitude if carto else None,
+        address,
+    )
+    return label, address, map_url
+
+
+def _resolve_salle_details(
+    client: FFBBAPIClientV2,
+    salle_id: int,
+    cache: dict[int, tuple[str, str, str]],
+) -> tuple[str, str, str]:
+    """Fetch salle details once and reuse through local cache."""
+    if salle_id in cache:
+        return cache[salle_id]
+    try:
+        details = _extract_salle_details(client.get_salle(salle_id))
+    except FFBBApiError:
+        details = ("", "", "")
+    cache[salle_id] = details
+    return details
 
 
 def _team_name_key(value: str) -> str:
@@ -3050,9 +3556,12 @@ def _select_effective_team_rows(rows: list[_CollectedRow]) -> list[_CollectedRow
 def _load_poule_snapshots(
     client: FFBBAPIClientV2,
     poule_id: int,
+    salle_cache: dict[int, tuple[str, str, str]] | None = None,
 ) -> dict[str, _TeamCompetitionSnapshot]:
     """Load ranking + next match info for all teams in one poule."""
     snapshots: dict[str, _TeamCompetitionSnapshot] = {}
+    if salle_cache is None:
+        salle_cache = {}
 
     engagements = client.list_engagements(
         limit=250,
@@ -3095,6 +3604,15 @@ def _load_poule_snapshots(
             if _is_better_match_candidate(date_value, current.next_match_date):
                 current.next_match_date = date_value
                 current.next_match_opponent = nom2
+                current.next_match_salle_name = ""
+                current.next_match_salle_address = ""
+                current.next_match_salle_map_url = ""
+                if match.salle:
+                    (
+                        current.next_match_salle_name,
+                        current.next_match_salle_address,
+                        current.next_match_salle_map_url,
+                    ) = _resolve_salle_details(client, match.salle, salle_cache)
             snapshots[key1] = current
             if id1:
                 snapshots[id1] = current
@@ -3105,6 +3623,15 @@ def _load_poule_snapshots(
             if _is_better_match_candidate(date_value, current.next_match_date):
                 current.next_match_date = date_value
                 current.next_match_opponent = nom1
+                current.next_match_salle_name = ""
+                current.next_match_salle_address = ""
+                current.next_match_salle_map_url = ""
+                if match.salle:
+                    (
+                        current.next_match_salle_name,
+                        current.next_match_salle_address,
+                        current.next_match_salle_map_url,
+                    ) = _resolve_salle_details(client, match.salle, salle_cache)
             snapshots[key2] = current
             if id2:
                 snapshots[id2] = current
@@ -3171,6 +3698,9 @@ def _extract_club_info(
     organisme: GetOrganismeResponse,
     hit_logo_fallback: str = "",
     hit_club_url_fallback: str = "",
+    salle_nom: str = "",
+    salle_adresse: str = "",
+    salle_map_url: str = "",
 ) -> _ClubInfo:
     nom = organisme.nom or ""
     ville = ""
@@ -3209,6 +3739,9 @@ def _extract_club_info(
         logo_url=logo_url,
         telephone=telephone,
         mail=mail,
+        salle_nom=salle_nom,
+        salle_adresse=salle_adresse,
+        salle_map_url=salle_map_url,
     )
 
 
@@ -3231,6 +3764,9 @@ def _contact_to_row(
     next_match_at: datetime | None,
     next_match_date: str,
     next_match_opponent: str,
+    next_match_salle_name: str,
+    next_match_salle_address: str,
+    next_match_salle_map_url: str,
 ) -> _CollectedRow:
     return _CollectedRow(
         ville=ville,
@@ -3256,6 +3792,9 @@ def _contact_to_row(
         next_match_at=next_match_at,
         next_match_date=next_match_date,
         next_match_opponent=next_match_opponent,
+        next_match_salle_name=next_match_salle_name,
+        next_match_salle_address=next_match_salle_address,
+        next_match_salle_map_url=next_match_salle_map_url,
     )
 
 
@@ -3352,6 +3891,7 @@ def main() -> None:
     # Step 3: Enrich via facade contact methods
     club_cache: dict[int, _ClubInfo | None] = {}
     poule_cache: dict[int, dict[str, _TeamCompetitionSnapshot]] = {}
+    salle_cache: dict[int, tuple[str, str, str]] = {}
     rows_by_key: dict[tuple[object, ...], _CollectedRow] = {}
     city_geo: dict[str, _CityGeo] = {}
     api_calls = 0
@@ -3375,6 +3915,9 @@ def main() -> None:
         next_match_at: datetime | None = None
         next_match_date = ""
         next_match_opponent = ""
+        next_match_salle_name = ""
+        next_match_salle_address = ""
+        next_match_salle_map_url = ""
         team_lookup_name = hit.nom or hit.nom_equipe or ""
 
         # Logo fallback from Meilisearch hit
@@ -3438,12 +3981,28 @@ def main() -> None:
                                 api_calls += 1
                                 club_contacts = client.get_club_contacts(org_id)
                                 if club_contacts:
+                                    salle_nom = ""
+                                    salle_adresse = ""
+                                    salle_map_url = ""
+                                    if club_contacts.organisme.salle is not None:
+                                        (
+                                            salle_nom,
+                                            salle_adresse,
+                                            salle_map_url,
+                                        ) = _resolve_salle_details(
+                                            client,
+                                            club_contacts.organisme.salle,
+                                            salle_cache,
+                                        )
                                     info = _extract_club_info(
                                         club_contacts.organisme,
                                         hit_logo_fallback=hit_logo,
                                         hit_club_url_fallback=_extract_club_page_url(
                                             hit
                                         ),
+                                        salle_nom=salle_nom,
+                                        salle_adresse=salle_adresse,
+                                        salle_map_url=salle_map_url,
                                     )
                                     club_cache[org_id] = info
                                     if club_contacts.club_contact:
@@ -3491,7 +4050,11 @@ def main() -> None:
                 if poule_id not in poule_cache:
                     try:
                         api_calls += 1
-                        poule_cache[poule_id] = _load_poule_snapshots(client, poule_id)
+                        poule_cache[poule_id] = _load_poule_snapshots(
+                            client,
+                            poule_id,
+                            salle_cache=salle_cache,
+                        )
                     except FFBBApiError as e:
                         errors += 1
                         logger.debug("Erreur poule id=%s: %s", poule_id, e)
@@ -3507,6 +4070,9 @@ def main() -> None:
                     next_match_at = snapshot.next_match_date
                     next_match_date = _format_next_match_date(snapshot.next_match_date)
                     next_match_opponent = snapshot.next_match_opponent
+                    next_match_salle_name = snapshot.next_match_salle_name
+                    next_match_salle_address = snapshot.next_match_salle_address
+                    next_match_salle_map_url = snapshot.next_match_salle_map_url
 
         if i % 10 == 0 or i == len(qualified):
             logger.info(
@@ -3561,6 +4127,12 @@ def main() -> None:
                     row.next_match_date = next_match_date
                 if not row.next_match_opponent and next_match_opponent:
                     row.next_match_opponent = next_match_opponent
+                if not row.next_match_salle_name and next_match_salle_name:
+                    row.next_match_salle_name = next_match_salle_name
+                if not row.next_match_salle_address and next_match_salle_address:
+                    row.next_match_salle_address = next_match_salle_address
+                if not row.next_match_salle_map_url and next_match_salle_map_url:
+                    row.next_match_salle_map_url = next_match_salle_map_url
             else:
                 rows_by_key[key] = _contact_to_row(
                     contact,
@@ -3581,6 +4153,9 @@ def main() -> None:
                     next_match_at,
                     next_match_date,
                     next_match_opponent,
+                    next_match_salle_name,
+                    next_match_salle_address,
+                    next_match_salle_map_url,
                 )
 
     all_rows = list(rows_by_key.values())
