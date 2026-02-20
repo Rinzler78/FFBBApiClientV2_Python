@@ -108,6 +108,17 @@ Four real-world end-to-end workflows combining Meilisearch + Directus:
 python examples/cross_api_workflows.py
 ```
 
+### `extract_contacts.py`
+Extract senior basketball contacts near any geographic point:
+- Geo-search engagements via Meilisearch (Pro, National, Ligue Feminine)
+- Hierarchical Markdown report with ToC and cities sorted by distance
+- CSV export
+
+```bash
+python examples/extract_contacts.py --lat 50.629 --lng 3.057 --city-name Lille
+python examples/extract_contacts.py --lat 48.856 --lng 2.352 --city-name Paris --radius 50
+```
+
 ## Prerequisites
 
 1. **Install the package:**
