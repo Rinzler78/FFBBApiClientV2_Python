@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import Any
+from uuid import UUID
 
 from requests_cache import CachedSession
 
@@ -14,6 +15,7 @@ from .config import (
     API_FFBB_BASE_URL,
     DEFAULT_DIRECTUS_RETRY_CONFIG,
     DEFAULT_DIRECTUS_TIMEOUT_CONFIG,
+    ENDPOINT_ASSETS,
     ENDPOINT_COMMUNES,
     ENDPOINT_COMPETITIONS,
     ENDPOINT_CONFIGURATION,
@@ -89,6 +91,12 @@ class ApiFFBBAppClient(DirectusClient):
             timeout_config=timeout_config or DEFAULT_DIRECTUS_TIMEOUT_CONFIG,
             cache_config=cache_config,
         )
+
+    # --- Asset URLs ---
+
+    def get_asset_url(self, file_id: str | UUID) -> str:
+        """Build the URL for a Directus file asset."""
+        return f"{self.url}{ENDPOINT_ASSETS}{file_id}"
 
     # --- Single-item endpoints ---
 

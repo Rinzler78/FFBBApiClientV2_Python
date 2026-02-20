@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import cast
+from uuid import UUID
 
 from requests_cache import CachedSession
 
@@ -170,6 +171,12 @@ class FFBBAPIClientV2:
         )
 
         return FFBBAPIClientV2(api_ffbb_client, meilisearch_ffbb_client)
+
+    # --- Asset URLs ---
+
+    def get_asset_url(self, file_id: str | UUID) -> str:
+        """Build the download URL for a Directus file asset."""
+        return self.api_ffbb_client.get_asset_url(file_id)
 
     # --- Directus REST API ---
 
