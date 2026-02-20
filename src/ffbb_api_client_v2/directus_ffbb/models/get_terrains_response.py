@@ -21,7 +21,7 @@ class GetTerrainsResponse:
     id: str
     nom: str | None = None
     rue: str | None = None
-    numero: str | None = None
+    numero: int | None = None
     largeur: float | None = None
     longueur: float | None = None
     accesLibre: bool | None = None
@@ -45,7 +45,7 @@ class GetTerrainsResponse:
             id=from_str(data, "id") or "",
             nom=from_str(data, "nom"),
             rue=from_str(data, "rue"),
-            numero=from_str(data, "numero"),
+            numero=from_int(data, "numero"),
             largeur=from_float(data, "largeur"),
             longueur=from_float(data, "longueur"),
             accesLibre=from_bool(data, "accesLibre"),

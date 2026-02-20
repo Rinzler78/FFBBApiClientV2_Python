@@ -4,14 +4,14 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
-from ...utils.converter_utils import from_datetime, from_str
+from ...utils.converter_utils import from_datetime, from_int, from_str
 
 
 @dataclass
 class GetOfficielsResponse:
     nom: str
     prenom: str | None = None
-    numeroNational: str | None = None
+    numeroNational: int | None = None
     date_created: datetime | None = None
     date_updated: datetime | None = None
 
@@ -28,7 +28,7 @@ class GetOfficielsResponse:
         return cls(
             nom=from_str(data, "nom") or "",
             prenom=from_str(data, "prenom"),
-            numeroNational=from_str(data, "numeroNational"),
+            numeroNational=from_int(data, "numeroNational"),
             date_created=from_datetime(data, "date_created"),
             date_updated=from_datetime(data, "date_updated"),
         )

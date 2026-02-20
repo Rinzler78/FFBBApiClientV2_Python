@@ -20,8 +20,8 @@ class GetTournoisResponse:
     nom: str | None = None
     code: str | None = None
     sexe: str | None = None
-    debut: str | None = None
-    fin: str | None = None
+    debut: datetime | None = None
+    fin: datetime | None = None
     description: str | None = None
     adresse: str | None = None
     adresseComplement: str | None = None
@@ -31,13 +31,13 @@ class GetTournoisResponse:
     urlOrganisateur: str | None = None
     siteChoisi: str | None = None
     nbParticipantPrevu: int | None = None
-    tarifOrganisateur: str | None = None
+    tarifOrganisateur: int | None = None
     ageMin: int | None = None
     ageMax: int | None = None
-    tournoiType: dict[str, Any] | None = None
+    tournoiType: str | None = None
     commune: int | None = None
     cartographie: Cartographie | None = None
-    tournoiTypes3x3: list[Any] = field(default_factory=list)
+    tournoiTypes3x3: list[int] = field(default_factory=list)
     document_flyer: DocumentFlyer | None = None
     categorieChampionnat3x3Id: str | None = None
     categorieChampionnat3x3Libelle: str | None = None
@@ -59,8 +59,8 @@ class GetTournoisResponse:
             nom=from_str(data, "nom"),
             code=from_str(data, "code"),
             sexe=from_str(data, "sexe"),
-            debut=from_str(data, "debut"),
-            fin=from_str(data, "fin"),
+            debut=from_datetime(data, "debut"),
+            fin=from_datetime(data, "fin"),
             description=data.get("description"),  # Keep as raw
             adresse=from_str(data, "adresse"),
             adresseComplement=data.get("adresseComplement"),  # Keep as raw
@@ -70,13 +70,15 @@ class GetTournoisResponse:
             urlOrganisateur=data.get("urlOrganisateur"),  # Keep as raw
             siteChoisi=data.get("siteChoisi"),  # Keep as raw
             nbParticipantPrevu=from_int(data, "nbParticipantPrevu"),
-            tarifOrganisateur=data.get("tarifOrganisateur"),  # Keep as raw
+            tarifOrganisateur=from_int(data, "tarifOrganisateur"),
             ageMin=from_int(data, "ageMin"),
             ageMax=from_int(data, "ageMax"),
-            tournoiType=data.get("tournoiType"),
+            tournoiType=from_str(data, "tournoiType"),
             commune=from_int(data, "commune"),
             cartographie=from_obj(Cartographie.from_dict, data, "cartographie"),
-            tournoiTypes3x3=data.get("tournoiTypes3x3", []) or [],
+            tournoiTypes3x3=[
+                int(x) for x in (data.get("tournoiTypes3x3") or []) if x is not None
+            ],
             document_flyer=from_obj(DocumentFlyer.from_dict, data, "document_flyer"),
             categorieChampionnat3x3Id=data.get(
                 "categorieChampionnat3x3Id"

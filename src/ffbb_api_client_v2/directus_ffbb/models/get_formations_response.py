@@ -30,7 +30,7 @@ class GetFormationsResponse:
     sort: int | None = None
     domain: Folder | None = None
     theme: Folder | None = None
-    sessions: list[Any] = field(default_factory=list)
+    sessions: list[str] = field(default_factory=list)
     public: str | None = None
     goals: str | None = None
     content: str | None = None
@@ -71,7 +71,7 @@ class GetFormationsResponse:
             sort=from_int(data, "sort"),
             domain=from_obj(Folder.from_dict, data, "domain"),
             theme=from_obj(Folder.from_dict, data, "theme"),
-            sessions=data.get("sessions", []) or [],
+            sessions=[str(x) for x in (data.get("sessions") or []) if x is not None],
             public=from_str(data, "public"),
             goals=from_str(data, "goals"),
             content=from_str(data, "content"),

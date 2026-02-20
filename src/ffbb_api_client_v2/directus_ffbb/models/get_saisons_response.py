@@ -11,8 +11,8 @@ from ...utils.converter_utils import from_bool, from_datetime, from_str
 class GetSaisonsResponse:
     id: str
     actif: bool | None = None
-    debut: str | None = None
-    fin: str | None = None
+    debut: datetime | None = None
+    fin: datetime | None = None
     code: str | None = None
     libelle: str | None = None
     enCours: bool | None = None
@@ -36,8 +36,8 @@ class GetSaisonsResponse:
         return cls(
             id=from_str(data, "id") or "",
             actif=from_bool(data, "actif"),
-            debut=from_str(data, "debut"),
-            fin=from_str(data, "fin"),
+            debut=from_datetime(data, "debut"),
+            fin=from_datetime(data, "fin"),
             code=from_str(data, "code"),
             libelle=from_str(data, "libelle"),
             enCours=from_bool(data, "enCours"),

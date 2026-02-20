@@ -5,8 +5,16 @@ from typing import Any
 from uuid import UUID
 
 from ...models.categorie import Categorie
+from ...models.competition_phase import CompetitionPhase
 from ...models.type_competition_generique import TypeCompetitionGenerique
-from ...utils.converter_utils import from_bool, from_int, from_obj, from_str, from_uuid
+from ...utils.converter_utils import (
+    from_bool,
+    from_int,
+    from_list,
+    from_obj,
+    from_str,
+    from_uuid,
+)
 
 
 @dataclass
@@ -40,7 +48,7 @@ class GetCompetitionResponse:
     # Embedded
     categorie: Categorie | None = None
     type_competition_generique: TypeCompetitionGenerique | None = None
-    phases: list[dict[str, Any]] = field(default_factory=list)
+    phases: list[CompetitionPhase] = field(default_factory=list)
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> GetCompetitionResponse | None:
@@ -53,7 +61,6 @@ class GetCompetitionResponse:
             return None
 
         poules_raw = data.get("poules", []) or []
-        phases_raw = data.get("phases", []) or []
 
         return cls(
             id=from_str(data, "id"),
@@ -84,5 +91,5 @@ class GetCompetitionResponse:
             type_competition_generique=from_obj(
                 TypeCompetitionGenerique.from_dict, data, "typeCompetitionGenerique"
             ),
-            phases=phases_raw if isinstance(phases_raw, list) else [],
+            phases=from_list(CompetitionPhase.from_dict, data, "phases") or [],
         )

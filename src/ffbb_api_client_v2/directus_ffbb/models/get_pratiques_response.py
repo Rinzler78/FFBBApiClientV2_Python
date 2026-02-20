@@ -11,6 +11,7 @@ from ...utils.converter_utils import (
     from_int,
     from_obj,
     from_str,
+    from_timestamp,
 )
 
 
@@ -25,8 +26,8 @@ class GetPratiquesResponse:
     adresse: str | None = None
     email: str | None = None
     telephone: str | None = None
-    date_debut: str | None = None
-    date_fin: str | None = None
+    date_debut: datetime | None = None
+    date_fin: datetime | None = None
     horaires_seances: str | None = None
     jours: str | None = None
     nom_structure: str | None = None
@@ -40,8 +41,8 @@ class GetPratiquesResponse:
     affiche: str | None = None
     affiche_externe: str | None = None
     assurance: str | None = None
-    date_demande: str | None = None
-    date_inscription: str | None = None
+    date_demande: datetime | None = None
+    date_inscription: datetime | None = None
     engagement: str | None = None
     inscriptions: str | None = None
     mail_demandeur: str | None = None
@@ -80,8 +81,8 @@ class GetPratiquesResponse:
             adresse=data.get("adresse"),  # Keep as raw
             email=data.get("email"),  # Keep as raw
             telephone=data.get("telephone"),  # Keep as raw
-            date_debut=from_str(data, "date_debut"),
-            date_fin=from_str(data, "date_fin"),
+            date_debut=from_datetime(data, "date_debut"),
+            date_fin=from_datetime(data, "date_fin"),
             horaires_seances=data.get("horaires_seances"),  # Keep as raw
             jours=data.get("jours"),  # Keep as raw
             nom_structure=data.get("nom_structure"),  # Keep as raw
@@ -95,8 +96,8 @@ class GetPratiquesResponse:
             affiche=data.get("affiche"),
             affiche_externe=data.get("affiche_externe"),
             assurance=data.get("assurance"),
-            date_demande=from_str(data, "date_demande"),
-            date_inscription=from_str(data, "date_inscription"),
+            date_demande=from_timestamp(data, "date_demande"),
+            date_inscription=from_timestamp(data, "date_inscription"),
             engagement=data.get("engagement"),
             inscriptions=data.get("inscriptions"),
             mail_demandeur=data.get("mail_demandeur"),

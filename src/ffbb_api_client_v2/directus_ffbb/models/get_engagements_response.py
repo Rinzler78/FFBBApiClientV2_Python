@@ -6,10 +6,12 @@ from typing import Any
 from uuid import UUID
 
 from ...models.categorie import Categorie
+from ...models.engagement_position import EngagementPosition
 from ...utils.converter_utils import (
     from_bool,
     from_datetime,
     from_int,
+    from_list,
     from_obj,
     from_str,
     from_uuid,
@@ -23,7 +25,7 @@ class GetEngagementsResponse:
     nomEquipe: str | None = None
     nomUsuel: str | None = None
     nomOfficiel: str | None = None
-    numeroEquipe: str | None = None
+    numeroEquipe: int | None = None
     codeAbrege: str | None = None
     clubPro: bool | None = None
     position: int | None = None
@@ -61,8 +63,8 @@ class GetEngagementsResponse:
     url_competition: str | None = None
     # Embedded objects
     niveau: Categorie | None = None
-    classement: dict[str, Any] | None = None
-    positions: list[Any] = field(default_factory=list)
+    classement: list[dict[str, Any]] | None = None
+    positions: list[EngagementPosition] = field(default_factory=list)
     date_created: datetime | None = None
     date_updated: datetime | None = None
 
@@ -85,7 +87,7 @@ class GetEngagementsResponse:
             nomEquipe=from_str(data, "nomEquipe"),
             nomUsuel=from_str(data, "nomUsuel"),
             nomOfficiel=from_str(data, "nomOfficiel"),
-            numeroEquipe=from_str(data, "numeroEquipe"),
+            numeroEquipe=from_int(data, "numeroEquipe"),
             codeAbrege=from_str(data, "codeAbrege"),
             clubPro=from_bool(data, "clubPro"),
             position=from_int(data, "position"),
@@ -128,8 +130,12 @@ class GetEngagementsResponse:
             toUpdate=from_bool(data, "toUpdate"),
             url_competition=from_str(data, "url_competition"),
             niveau=from_obj(Categorie.from_dict, data, "niveau"),
-            classement=data.get("classement"),
-            positions=data.get("positions", []) or [],
+            classement=(
+                data.get("classement")
+                if isinstance(data.get("classement"), list)
+                else None
+            ),
+            positions=from_list(EngagementPosition.from_dict, data, "positions") or [],
             date_created=from_datetime(data, "date_created"),
             date_updated=from_datetime(data, "date_updated"),
         )

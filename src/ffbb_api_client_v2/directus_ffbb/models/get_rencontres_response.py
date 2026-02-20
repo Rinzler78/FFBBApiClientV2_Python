@@ -15,8 +15,8 @@ from ...utils.converter_utils import (
 @dataclass
 class GetRencontresResponse:
     id: str
-    date: str | None = None
-    date_rencontre: str | None = None
+    date: datetime | None = None
+    date_rencontre: datetime | None = None
     horaire: str | None = None
     numero: str | None = None
     numeroJournee: str | None = None
@@ -55,8 +55,7 @@ class GetRencontresResponse:
     saison: int | None = None
     salle: int | None = None
     # Embedded objects
-    officiels: list[Any] = field(default_factory=list)
-    gsId: dict[str, Any] | None = None
+    officiels: list[str] = field(default_factory=list)
     date_created: datetime | None = None
     date_updated: datetime | None = None
 
@@ -72,8 +71,8 @@ class GetRencontresResponse:
 
         return cls(
             id=from_str(data, "id") or "",
-            date=from_str(data, "date"),
-            date_rencontre=from_str(data, "date_rencontre"),
+            date=from_datetime(data, "date"),
+            date_rencontre=from_datetime(data, "date_rencontre"),
             horaire=from_str(data, "horaire"),
             numero=from_str(data, "numero"),
             numeroJournee=from_str(data, "numeroJournee"),
@@ -110,8 +109,7 @@ class GetRencontresResponse:
             idPoule=from_int(data, "idPoule"),
             saison=from_int(data, "saison"),
             salle=from_int(data, "salle"),
-            officiels=data.get("officiels", []) or [],
-            gsId=data.get("gsId") if isinstance(data.get("gsId"), dict) else None,
+            officiels=[str(x) for x in (data.get("officiels") or []) if x is not None],
             date_created=from_datetime(data, "date_created"),
             date_updated=from_datetime(data, "date_updated"),
         )
