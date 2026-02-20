@@ -27,11 +27,11 @@ from pathlib import Path
 
 from ffbb_api_client_v2 import FFBBAPIClientV2, TokenManager
 from ffbb_api_client_v2.directus_ffbb.config import API_FFBB_BASE_URL, ENDPOINT_ASSETS
-from ffbb_api_client_v2.directus_ffbb.models.get_organisme_response import (
-    GetOrganismeResponse,
-)
 from ffbb_api_client_v2.directus_ffbb.models.get_engagements_response import (
     GetEngagementsResponse,
+)
+from ffbb_api_client_v2.directus_ffbb.models.get_organisme_response import (
+    GetOrganismeResponse,
 )
 from ffbb_api_client_v2.exceptions import FFBBApiError
 from ffbb_api_client_v2.meilisearch_ffbb.models.engagements_hit import EngagementsHit
@@ -338,14 +338,15 @@ class ContactReport:
                         item[0][0],
                     ),
                 ):
-                    poules = sorted({p for r in t_rows for p in r.poules if p})
+                    effective_rows = _select_effective_team_rows(t_rows)
+                    poules = sorted({p for r in effective_rows for p in r.poules if p})
                     ranking_url = ""
                     competition_logo_url = ""
                     ranking_position: int | None = None
                     ranking_total: int | None = None
                     next_match_date = ""
                     next_match_opponent = ""
-                    for r in t_rows:
+                    for r in effective_rows:
                         if not ranking_url and r.ranking_url:
                             ranking_url = r.ranking_url
                         if not competition_logo_url and r.competition_logo_url:
@@ -367,7 +368,7 @@ class ContactReport:
                             email=r.email,
                             source=r.source,
                         )
-                        for r in sorted(t_rows, key=lambda x: (x.nom, x.prenom))
+                        for r in sorted(effective_rows, key=lambda x: (x.nom, x.prenom))
                     ]
                     report_teams.append(
                         ReportTeam(
@@ -1346,16 +1347,16 @@ class ContactReport:
 
         f.write(f"""\
 (function() {{
-	  var center = [{self.lat}, {self.lng}];
-	  var mapEl = document.getElementById('map');
-	  if (!mapEl || typeof L === 'undefined') {{
-	    return;
-	  }}
-	  var map = L.map('map').setView(center, 8);
-	  L.tileLayer('https://{{s}}.tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png', {{
-	    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-	    maxZoom: 18
-	  }}).addTo(map);
+      var center = [{self.lat}, {self.lng}];
+      var mapEl = document.getElementById('map');
+      if (!mapEl || typeof L === 'undefined') {{
+        return;
+      }}
+      var map = L.map('map').setView(center, 8);
+      L.tileLayer('https://{{s}}.tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png', {{
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 18
+      }}).addTo(map);
 
   // Radius circle
   L.circle(center, {{
@@ -1405,10 +1406,10 @@ class ContactReport:
     }});
   }}
 
-	  var clusters = L.markerClusterGroup({{
-	    maxClusterRadius: 40,
-	    spiderfyOnMaxZoom: true,
-	    showCoverageOnHover: false,
+      var clusters = L.markerClusterGroup({{
+        maxClusterRadius: 40,
+        spiderfyOnMaxZoom: true,
+        showCoverageOnHover: false,
     iconCreateFunction: function(cluster) {{
       var n = cluster.getChildCount();
       return L.divIcon({{
@@ -1422,418 +1423,418 @@ class ContactReport:
         iconAnchor: [16, 16]
       }});
     }}
-	  }});
+      }});
 
-	  var data = {markers_json};
-	  var markerEntries = [];
-	  var markerByCardId = Object.create(null);
-	  data.forEach(function(m) {{
-	    var marker = L.marker([m.lat, m.lng], {{icon: buildClubIcon(m)}})
-	      .bindPopup(m.popup);
-	    if (m.name) {{
+      var data = {markers_json};
+      var markerEntries = [];
+      var markerByCardId = Object.create(null);
+      data.forEach(function(m) {{
+        var marker = L.marker([m.lat, m.lng], {{icon: buildClubIcon(m)}})
+          .bindPopup(m.popup);
+        if (m.name) {{
       marker.bindTooltip(escapeHtml(m.name), {{
         direction: 'top',
         offset: [0, -18],
         sticky: true,
-	        opacity: 0.95
-	      }});
-	    }}
-	    markerEntries.push({{cardId: m.card_id || '', marker: marker}});
-	    if (m.card_id) {{
-	      markerByCardId[m.card_id] = marker;
-	      marker.on('click', function() {{
-	        document.dispatchEvent(
-	          new CustomEvent('ffbb:marker-selected', {{
-	            detail: {{cardId: m.card_id}}
-	          }})
-	        );
-	      }});
-	    }}
-	  }});
+            opacity: 0.95
+          }});
+        }}
+        markerEntries.push({{cardId: m.card_id || '', marker: marker}});
+        if (m.card_id) {{
+          markerByCardId[m.card_id] = marker;
+          marker.on('click', function() {{
+            document.dispatchEvent(
+              new CustomEvent('ffbb:marker-selected', {{
+                detail: {{cardId: m.card_id}}
+              }})
+            );
+          }});
+        }}
+      }});
 
-	  function updateClusters(visibleCardIds, preserveView) {{
-	    var hasFilter = Array.isArray(visibleCardIds);
-	    var visibleSet = Object.create(null);
-	    if (hasFilter) {{
-	      visibleCardIds.forEach(function(cardId) {{
-	        visibleSet[cardId] = true;
-	      }});
-	    }}
-	    clusters.clearLayers();
-	    var bounds = L.latLngBounds([center]);
-	    var visibleCount = 0;
-	    markerEntries.forEach(function(entry) {{
-	      var include = !hasFilter || !!visibleSet[entry.cardId];
-	      if (!include) {{
-	        return;
-	      }}
-	      clusters.addLayer(entry.marker);
-	      bounds.extend(entry.marker.getLatLng());
-	      visibleCount += 1;
-	    }});
-	    if (!map.hasLayer(clusters)) {{
-	      map.addLayer(clusters);
-	    }}
-	    if (!preserveView && visibleCount > 0) {{
-	      map.fitBounds(bounds, {{padding: [30, 30], maxZoom: 11}});
-	    }}
-	  }}
+      function updateClusters(visibleCardIds, preserveView) {{
+        var hasFilter = Array.isArray(visibleCardIds);
+        var visibleSet = Object.create(null);
+        if (hasFilter) {{
+          visibleCardIds.forEach(function(cardId) {{
+            visibleSet[cardId] = true;
+          }});
+        }}
+        clusters.clearLayers();
+        var bounds = L.latLngBounds([center]);
+        var visibleCount = 0;
+        markerEntries.forEach(function(entry) {{
+          var include = !hasFilter || !!visibleSet[entry.cardId];
+          if (!include) {{
+            return;
+          }}
+          clusters.addLayer(entry.marker);
+          bounds.extend(entry.marker.getLatLng());
+          visibleCount += 1;
+        }});
+        if (!map.hasLayer(clusters)) {{
+          map.addLayer(clusters);
+        }}
+        if (!preserveView && visibleCount > 0) {{
+          map.fitBounds(bounds, {{padding: [30, 30], maxZoom: 11}});
+        }}
+      }}
 
-	  updateClusters(null, false);
+      updateClusters(null, false);
 
-	  window.__ffbbMapBridge = {{
-	    setVisibleCards: function(cardIds, preserveView) {{
-	      updateClusters(cardIds, !!preserveView);
-	    }},
-	    focusCard: function(cardId, openPopup) {{
-	      var marker = markerByCardId[cardId];
-	      if (!marker) {{
-	        return;
-	      }}
-	      map.panTo(marker.getLatLng(), {{animate: true, duration: 0.35}});
-	      if (openPopup !== false) {{
-	        marker.openPopup();
-	      }}
-	    }}
-	  }};
-	}})();
-	""")
+      window.__ffbbMapBridge = {{
+        setVisibleCards: function(cardIds, preserveView) {{
+          updateClusters(cardIds, !!preserveView);
+        }},
+        focusCard: function(cardId, openPopup) {{
+          var marker = markerByCardId[cardId];
+          if (!marker) {{
+            return;
+          }}
+          map.panTo(marker.getLatLng(), {{animate: true, duration: 0.35}});
+          if (openPopup !== false) {{
+            marker.openPopup();
+          }}
+        }}
+      }};
+    }})();
+    """)
 
     @staticmethod
     def _write_report_ui_js(f) -> None:
         """Write client-side UI interactions (filters, sorting, copy, sync)."""
         f.write("""\
-	(function() {
-	  var searchInput = document.getElementById('ui-search');
-	  var cityInput = document.getElementById('ui-city');
-	  var levelInput = document.getElementById('ui-level');
-	  var roleInput = document.getElementById('ui-role');
-	  var distanceInput = document.getElementById('ui-distance');
-	  var distanceValue = document.getElementById('ui-distance-value');
-	  var sortInput = document.getElementById('ui-sort');
-	  var resultNode = document.getElementById('ui-results');
-	  var resetButton = document.getElementById('ui-reset');
-	  var citiesContainer = document.getElementById('cities-container');
-	  if (!searchInput || !cityInput || !levelInput || !roleInput || !distanceInput || !citiesContainer) {
-	    return;
-	  }
+    (function() {
+      var searchInput = document.getElementById('ui-search');
+      var cityInput = document.getElementById('ui-city');
+      var levelInput = document.getElementById('ui-level');
+      var roleInput = document.getElementById('ui-role');
+      var distanceInput = document.getElementById('ui-distance');
+      var distanceValue = document.getElementById('ui-distance-value');
+      var sortInput = document.getElementById('ui-sort');
+      var resultNode = document.getElementById('ui-results');
+      var resetButton = document.getElementById('ui-reset');
+      var citiesContainer = document.getElementById('cities-container');
+      if (!searchInput || !cityInput || !levelInput || !roleInput || !distanceInput || !citiesContainer) {
+        return;
+      }
 
-	  var citySections = Array.prototype.slice.call(
-	    document.querySelectorAll('.city-section')
-	  );
-	  var clubCards = Array.prototype.slice.call(
-	    document.querySelectorAll('.club-card')
-	  );
-	  var maxDistance = Number(distanceInput.max || distanceInput.value || 0);
-	  var activeCardId = '';
+      var citySections = Array.prototype.slice.call(
+        document.querySelectorAll('.city-section')
+      );
+      var clubCards = Array.prototype.slice.call(
+        document.querySelectorAll('.club-card')
+      );
+      var maxDistance = Number(distanceInput.max || distanceInput.value || 0);
+      var activeCardId = '';
 
-	  function normalize(value) {
-	    return String(value || '')
-	      .normalize('NFD')
-	      .replace(/[\\u0300-\\u036f]/g, '')
-	      .toLowerCase()
-	      .trim();
-	  }
+      function normalize(value) {
+        return String(value || '')
+          .normalize('NFD')
+          .replace(/[\\u0300-\\u036f]/g, '')
+          .toLowerCase()
+          .trim();
+      }
 
-	  function parseTokens(raw) {
-	    return String(raw || '')
-	      .split(/\\s+/)
-	      .map(function(token) { return token.trim(); })
-	      .filter(Boolean);
-	  }
+      function parseTokens(raw) {
+        return String(raw || '')
+          .split(/\\s+/)
+          .map(function(token) { return token.trim(); })
+          .filter(Boolean);
+      }
 
-	  function updateDistanceLabel() {
-	    if (distanceValue) {
-	      distanceValue.textContent = String(distanceInput.value || '0');
-	    }
-	  }
+      function updateDistanceLabel() {
+        if (distanceValue) {
+          distanceValue.textContent = String(distanceInput.value || '0');
+        }
+      }
 
-	  function sortCitySections(mode) {
-	    if (!citiesContainer) {
-	      return;
-	    }
-	    var sorted = citySections.slice().sort(function(a, b) {
-	      if (mode === 'city') {
-	        return (a.dataset.city || '').localeCompare(b.dataset.city || '', 'fr');
-	      }
-	      var da = Number(a.dataset.distance || 9999);
-	      var db = Number(b.dataset.distance || 9999);
-	      return da - db;
-	    });
-	    sorted.forEach(function(section) {
-	      citiesContainer.appendChild(section);
-	    });
-	  }
+      function sortCitySections(mode) {
+        if (!citiesContainer) {
+          return;
+        }
+        var sorted = citySections.slice().sort(function(a, b) {
+          if (mode === 'city') {
+            return (a.dataset.city || '').localeCompare(b.dataset.city || '', 'fr');
+          }
+          var da = Number(a.dataset.distance || 9999);
+          var db = Number(b.dataset.distance || 9999);
+          return da - db;
+        });
+        sorted.forEach(function(section) {
+          citiesContainer.appendChild(section);
+        });
+      }
 
-	  function sortClubCards(mode) {
-	    Array.prototype.forEach.call(
-	      document.querySelectorAll('.city-clubs'),
-	      function(group) {
-	        var cards = Array.prototype.slice.call(group.querySelectorAll('.club-card'));
-	        cards.sort(function(a, b) {
-	          if (mode === 'contacts') {
-	            var ca = Number(a.dataset.contactCount || 0);
-	            var cb = Number(b.dataset.contactCount || 0);
-	            return cb - ca;
-	          }
-	          var na = a.dataset.clubName || '';
-	          var nb = b.dataset.clubName || '';
-	          return na.localeCompare(nb, 'fr');
-	        });
-	        cards.forEach(function(card) {
-	          group.appendChild(card);
-	        });
-	      }
-	    );
-	  }
+      function sortClubCards(mode) {
+        Array.prototype.forEach.call(
+          document.querySelectorAll('.city-clubs'),
+          function(group) {
+            var cards = Array.prototype.slice.call(group.querySelectorAll('.club-card'));
+            cards.sort(function(a, b) {
+              if (mode === 'contacts') {
+                var ca = Number(a.dataset.contactCount || 0);
+                var cb = Number(b.dataset.contactCount || 0);
+                return cb - ca;
+              }
+              var na = a.dataset.clubName || '';
+              var nb = b.dataset.clubName || '';
+              return na.localeCompare(nb, 'fr');
+            });
+            cards.forEach(function(card) {
+              group.appendChild(card);
+            });
+          }
+        );
+      }
 
-	  function applySort() {
-	    var mode = sortInput ? sortInput.value : 'distance';
-	    if (mode === 'city') {
-	      sortCitySections('city');
-	    } else {
-	      sortCitySections('distance');
-	    }
-	    if (mode === 'club' || mode === 'contacts') {
-	      sortClubCards(mode);
-	    }
-	  }
+      function applySort() {
+        var mode = sortInput ? sortInput.value : 'distance';
+        if (mode === 'city') {
+          sortCitySections('city');
+        } else {
+          sortCitySections('distance');
+        }
+        if (mode === 'club' || mode === 'contacts') {
+          sortClubCards(mode);
+        }
+      }
 
-	  function updateCityNavigation() {
-	    Array.prototype.forEach.call(
-	      document.querySelectorAll('[data-city-link]'),
-	      function(item) {
-	        var sectionId = item.getAttribute('data-city-link');
-	        if (!sectionId) {
-	          return;
-	        }
-	        var section = document.getElementById(sectionId);
-	        if (!section) {
-	          return;
-	        }
-	        item.hidden = !!section.hidden;
-	      }
-	    );
-	  }
+      function updateCityNavigation() {
+        Array.prototype.forEach.call(
+          document.querySelectorAll('[data-city-link]'),
+          function(item) {
+            var sectionId = item.getAttribute('data-city-link');
+            if (!sectionId) {
+              return;
+            }
+            var section = document.getElementById(sectionId);
+            if (!section) {
+              return;
+            }
+            item.hidden = !!section.hidden;
+          }
+        );
+      }
 
-	  function applyTeamFilters(card, levelValue, roleValue) {
-	    var blocks = Array.prototype.slice.call(
-	      card.querySelectorAll('.team-filterable')
-	    );
-	    if (!blocks.length) {
-	      return true;
-	    }
-	    var hasVisible = false;
-	    blocks.forEach(function(block) {
-	      var isClubBlock = block.classList.contains('team--club');
-	      var levelTokens = parseTokens(block.dataset.teamLevel);
-	      var roleTokens = parseTokens(block.dataset.teamRoles);
-	      var levelOk = levelValue === 'all'
-	        ? true
-	        : !isClubBlock && levelTokens.indexOf(levelValue) >= 0;
-	      var roleOk = roleValue === 'all'
-	        ? true
-	        : roleTokens.indexOf(roleValue) >= 0;
-	      var show = levelOk && roleOk;
-	      block.hidden = !show;
-	      if (show) {
-	        hasVisible = true;
-	      }
-	    });
-	    return hasVisible;
-	  }
+      function applyTeamFilters(card, levelValue, roleValue) {
+        var blocks = Array.prototype.slice.call(
+          card.querySelectorAll('.team-filterable')
+        );
+        if (!blocks.length) {
+          return true;
+        }
+        var hasVisible = false;
+        blocks.forEach(function(block) {
+          var isClubBlock = block.classList.contains('team--club');
+          var levelTokens = parseTokens(block.dataset.teamLevel);
+          var roleTokens = parseTokens(block.dataset.teamRoles);
+          var levelOk = levelValue === 'all'
+            ? true
+            : !isClubBlock && levelTokens.indexOf(levelValue) >= 0;
+          var roleOk = roleValue === 'all'
+            ? true
+            : roleTokens.indexOf(roleValue) >= 0;
+          var show = levelOk && roleOk;
+          block.hidden = !show;
+          if (show) {
+            hasVisible = true;
+          }
+        });
+        return hasVisible;
+      }
 
-	  function applyFilters() {
-	    var term = normalize(searchInput.value);
-	    var cityValue = cityInput.value || 'all';
-	    var levelValue = levelInput.value || 'all';
-	    var roleValue = roleInput.value || 'all';
-	    var maxDistanceValue = Number(distanceInput.value || maxDistance);
-	    var visibleCardIds = [];
-	    var visibleContactCount = 0;
+      function applyFilters() {
+        var term = normalize(searchInput.value);
+        var cityValue = cityInput.value || 'all';
+        var levelValue = levelInput.value || 'all';
+        var roleValue = roleInput.value || 'all';
+        var maxDistanceValue = Number(distanceInput.value || maxDistance);
+        var visibleCardIds = [];
+        var visibleContactCount = 0;
 
-	    clubCards.forEach(function(card) {
-	      var cardSearch = normalize(card.dataset.search);
-	      var cardCity = card.dataset.city || '';
-	      var cardDistance = Number(card.dataset.distance || 9999);
-	      var searchOk = !term || cardSearch.indexOf(term) >= 0;
-	      var cityOk = cityValue === 'all' || cardCity === cityValue;
-	      var distanceOk = cardDistance <= maxDistanceValue;
-	      var teamsOk = applyTeamFilters(card, levelValue, roleValue);
-	      var visible = searchOk && cityOk && distanceOk && teamsOk;
-	      card.hidden = !visible;
-	      if (visible) {
-	        visibleCardIds.push(card.id);
-	        visibleContactCount += Number(card.dataset.contactCount || 0);
-	      }
-	    });
+        clubCards.forEach(function(card) {
+          var cardSearch = normalize(card.dataset.search);
+          var cardCity = card.dataset.city || '';
+          var cardDistance = Number(card.dataset.distance || 9999);
+          var searchOk = !term || cardSearch.indexOf(term) >= 0;
+          var cityOk = cityValue === 'all' || cardCity === cityValue;
+          var distanceOk = cardDistance <= maxDistanceValue;
+          var teamsOk = applyTeamFilters(card, levelValue, roleValue);
+          var visible = searchOk && cityOk && distanceOk && teamsOk;
+          card.hidden = !visible;
+          if (visible) {
+            visibleCardIds.push(card.id);
+            visibleContactCount += Number(card.dataset.contactCount || 0);
+          }
+        });
 
-	    citySections.forEach(function(section) {
-	      var cards = Array.prototype.slice.call(section.querySelectorAll('.club-card'));
-	      if (cards.length) {
-	        section.hidden = !cards.some(function(card) { return !card.hidden; });
-	        return;
-	      }
-	      var cityOk = cityValue === 'all' || (section.dataset.city || '') === cityValue;
-	      var searchOk = !term || normalize(section.dataset.search).indexOf(term) >= 0;
-	      var distanceOk = Number(section.dataset.distance || 0) <= maxDistanceValue;
-	      section.hidden = !(cityOk && searchOk && distanceOk && levelValue === 'all' && roleValue === 'all');
-	    });
+        citySections.forEach(function(section) {
+          var cards = Array.prototype.slice.call(section.querySelectorAll('.club-card'));
+          if (cards.length) {
+            section.hidden = !cards.some(function(card) { return !card.hidden; });
+            return;
+          }
+          var cityOk = cityValue === 'all' || (section.dataset.city || '') === cityValue;
+          var searchOk = !term || normalize(section.dataset.search).indexOf(term) >= 0;
+          var distanceOk = Number(section.dataset.distance || 0) <= maxDistanceValue;
+          section.hidden = !(cityOk && searchOk && distanceOk && levelValue === 'all' && roleValue === 'all');
+        });
 
-	    updateCityNavigation();
+        updateCityNavigation();
 
-	    if (resultNode) {
-	      resultNode.textContent = visibleCardIds.length
-	        + ' club(s) affiche(s) · '
-	        + visibleContactCount
-	        + ' contact(s)';
-	    }
-	    if (window.__ffbbMapBridge && typeof window.__ffbbMapBridge.setVisibleCards === 'function') {
-	      window.__ffbbMapBridge.setVisibleCards(visibleCardIds, true);
-	    }
-	  }
+        if (resultNode) {
+          resultNode.textContent = visibleCardIds.length
+            + ' club(s) affiche(s) · '
+            + visibleContactCount
+            + ' contact(s)';
+        }
+        if (window.__ffbbMapBridge && typeof window.__ffbbMapBridge.setVisibleCards === 'function') {
+          window.__ffbbMapBridge.setVisibleCards(visibleCardIds, true);
+        }
+      }
 
-	  function setActiveCard(cardId, options) {
-	    if (!cardId) {
-	      return;
-	    }
-	    var card = document.getElementById(cardId);
-	    if (!card || card.hidden) {
-	      return;
-	    }
-	    var opts = options || {};
-	    if (activeCardId && activeCardId !== cardId) {
-	      var old = document.getElementById(activeCardId);
-	      if (old) {
-	        old.classList.remove('is-highlighted');
-	      }
-	    }
-	    activeCardId = cardId;
-	    card.classList.add('is-highlighted');
-	    var cityDetails = card.closest('.city-details');
-	    if (cityDetails) {
-	      cityDetails.open = true;
-	    }
-	    if (opts.scroll) {
-	      card.scrollIntoView({behavior: 'smooth', block: 'center'});
-	    }
-	    if (
-	      opts.map !== false
-	      && window.__ffbbMapBridge
-	      && typeof window.__ffbbMapBridge.focusCard === 'function'
-	    ) {
-	      window.__ffbbMapBridge.focusCard(cardId, opts.openPopup !== false);
-	    }
-	  }
+      function setActiveCard(cardId, options) {
+        if (!cardId) {
+          return;
+        }
+        var card = document.getElementById(cardId);
+        if (!card || card.hidden) {
+          return;
+        }
+        var opts = options || {};
+        if (activeCardId && activeCardId !== cardId) {
+          var old = document.getElementById(activeCardId);
+          if (old) {
+            old.classList.remove('is-highlighted');
+          }
+        }
+        activeCardId = cardId;
+        card.classList.add('is-highlighted');
+        var cityDetails = card.closest('.city-details');
+        if (cityDetails) {
+          cityDetails.open = true;
+        }
+        if (opts.scroll) {
+          card.scrollIntoView({behavior: 'smooth', block: 'center'});
+        }
+        if (
+          opts.map !== false
+          && window.__ffbbMapBridge
+          && typeof window.__ffbbMapBridge.focusCard === 'function'
+        ) {
+          window.__ffbbMapBridge.focusCard(cardId, opts.openPopup !== false);
+        }
+      }
 
-	  function copyText(value) {
-	    if (!value) {
-	      return Promise.resolve(false);
-	    }
-	    if (navigator.clipboard && window.isSecureContext) {
-	      return navigator.clipboard.writeText(value).then(function() { return true; });
-	    }
-	    return new Promise(function(resolve) {
-	      var input = document.createElement('textarea');
-	      input.value = value;
-	      input.setAttribute('readonly', '');
-	      input.style.position = 'absolute';
-	      input.style.left = '-9999px';
-	      document.body.appendChild(input);
-	      input.select();
-	      try {
-	        document.execCommand('copy');
-	        resolve(true);
-	      } catch (error) {
-	        resolve(false);
-	      } finally {
-	        document.body.removeChild(input);
-	      }
-	    });
-	  }
+      function copyText(value) {
+        if (!value) {
+          return Promise.resolve(false);
+        }
+        if (navigator.clipboard && window.isSecureContext) {
+          return navigator.clipboard.writeText(value).then(function() { return true; });
+        }
+        return new Promise(function(resolve) {
+          var input = document.createElement('textarea');
+          input.value = value;
+          input.setAttribute('readonly', '');
+          input.style.position = 'absolute';
+          input.style.left = '-9999px';
+          document.body.appendChild(input);
+          input.select();
+          try {
+            document.execCommand('copy');
+            resolve(true);
+          } catch (error) {
+            resolve(false);
+          } finally {
+            document.body.removeChild(input);
+          }
+        });
+      }
 
-	  clubCards.forEach(function(card) {
-	    card.addEventListener('mouseenter', function() {
-	      setActiveCard(card.id, {scroll: false, openPopup: false});
-	    });
-	    card.addEventListener('focusin', function() {
-	      setActiveCard(card.id, {scroll: false, openPopup: false});
-	    });
-	    card.addEventListener('click', function(event) {
-	      if (event.target.closest('a, button, summary, input, select')) {
-	        return;
-	      }
-	      setActiveCard(card.id, {scroll: false});
-	    });
-	  });
+      clubCards.forEach(function(card) {
+        card.addEventListener('mouseenter', function() {
+          setActiveCard(card.id, {scroll: false, openPopup: false});
+        });
+        card.addEventListener('focusin', function() {
+          setActiveCard(card.id, {scroll: false, openPopup: false});
+        });
+        card.addEventListener('click', function(event) {
+          if (event.target.closest('a, button, summary, input, select')) {
+            return;
+          }
+          setActiveCard(card.id, {scroll: false});
+        });
+      });
 
-	  document.addEventListener('ffbb:marker-selected', function(event) {
-	    var cardId = event.detail && event.detail.cardId;
-	    if (cardId) {
-	      setActiveCard(cardId, {scroll: true, map: false, openPopup: false});
-	    }
-	  });
+      document.addEventListener('ffbb:marker-selected', function(event) {
+        var cardId = event.detail && event.detail.cardId;
+        if (cardId) {
+          setActiveCard(cardId, {scroll: true, map: false, openPopup: false});
+        }
+      });
 
-	  document.addEventListener('click', function(event) {
-	    var cardLink = event.target.closest('.js-open-card');
-	    if (cardLink) {
-	      event.preventDefault();
-	      var cardId = cardLink.getAttribute('data-card-id');
-	      setActiveCard(cardId, {scroll: true, map: false, openPopup: false});
-	      return;
-	    }
-	    var copyButton = event.target.closest('.copy-btn');
-	    if (!copyButton) {
-	      return;
-	    }
-	    var payload = copyButton.getAttribute('data-copy');
-	      copyText(payload).then(function(ok) {
-	        var previous = copyButton.textContent;
-	        copyButton.textContent = ok ? 'Copiee' : 'Erreur';
-	      setTimeout(function() {
-	        copyButton.textContent = previous || 'Copier';
-	      }, 1000);
-	    });
-	  });
+      document.addEventListener('click', function(event) {
+        var cardLink = event.target.closest('.js-open-card');
+        if (cardLink) {
+          event.preventDefault();
+          var cardId = cardLink.getAttribute('data-card-id');
+          setActiveCard(cardId, {scroll: true, map: false, openPopup: false});
+          return;
+        }
+        var copyButton = event.target.closest('.copy-btn');
+        if (!copyButton) {
+          return;
+        }
+        var payload = copyButton.getAttribute('data-copy');
+          copyText(payload).then(function(ok) {
+            var previous = copyButton.textContent;
+            copyButton.textContent = ok ? 'Copiee' : 'Erreur';
+          setTimeout(function() {
+            copyButton.textContent = previous || 'Copier';
+          }, 1000);
+        });
+      });
 
-	  [searchInput, cityInput, levelInput, roleInput].forEach(function(input) {
-	    input.addEventListener('input', applyFilters);
-	    input.addEventListener('change', applyFilters);
-	  });
+      [searchInput, cityInput, levelInput, roleInput].forEach(function(input) {
+        input.addEventListener('input', applyFilters);
+        input.addEventListener('change', applyFilters);
+      });
 
-	  distanceInput.addEventListener('input', function() {
-	    updateDistanceLabel();
-	    applyFilters();
-	  });
+      distanceInput.addEventListener('input', function() {
+        updateDistanceLabel();
+        applyFilters();
+      });
 
-	  if (sortInput) {
-	    sortInput.addEventListener('change', function() {
-	      applySort();
-	      applyFilters();
-	    });
-	  }
+      if (sortInput) {
+        sortInput.addEventListener('change', function() {
+          applySort();
+          applyFilters();
+        });
+      }
 
-	  if (resetButton) {
-	    resetButton.addEventListener('click', function() {
-	      searchInput.value = '';
-	      cityInput.value = 'all';
-	      levelInput.value = 'all';
-	      roleInput.value = 'all';
-	      distanceInput.value = String(maxDistance);
-	      if (sortInput) {
-	        sortInput.value = 'distance';
-	      }
-	      updateDistanceLabel();
-	      applySort();
-	      applyFilters();
-	    });
-	  }
+      if (resetButton) {
+        resetButton.addEventListener('click', function() {
+          searchInput.value = '';
+          cityInput.value = 'all';
+          levelInput.value = 'all';
+          roleInput.value = 'all';
+          distanceInput.value = String(maxDistance);
+          if (sortInput) {
+            sortInput.value = 'distance';
+          }
+          updateDistanceLabel();
+          applySort();
+          applyFilters();
+        });
+      }
 
-	  updateDistanceLabel();
-	  applySort();
-	  applyFilters();
-	})();
-	""")
+      updateDistanceLabel();
+      applySort();
+      applyFilters();
+    })();
+    """)
 
     def _write_html_annuaire(self, f) -> None:
         """Write the 'Annuaire' section with all contacts deduplicated."""
@@ -2819,10 +2820,13 @@ class _CollectedRow:
     telephone: str
     email: str
     source: str
+    engagement_id: int | None
+    engagement_updated_at: datetime | None
     ranking_url: str
     competition_logo_url: str
     ranking_position: int | None
     ranking_total: int | None
+    next_match_at: datetime | None
     next_match_date: str
     next_match_opponent: str
 
@@ -2983,6 +2987,66 @@ def _is_better_match_candidate(
     return candidate_date < current_date
 
 
+def _as_local_naive(value: datetime | None) -> datetime | None:
+    """Convert datetime to local naive value for safe comparisons."""
+    if value is None:
+        return None
+    if value.tzinfo is not None:
+        return value.astimezone().replace(tzinfo=None)
+    return value
+
+
+def _select_effective_team_rows(rows: list[_CollectedRow]) -> list[_CollectedRow]:
+    """Keep only rows belonging to the most likely effective engagement."""
+    groups: dict[int | None, list[_CollectedRow]] = defaultdict(list)
+    for row in rows:
+        groups[row.engagement_id].append(row)
+
+    if len(groups) <= 1:
+        return rows
+
+    now = datetime.now()
+
+    def score(
+        group_rows: list[_CollectedRow],
+    ) -> tuple[float, float, float, float, float]:
+        next_dates = [
+            dt
+            for dt in (_as_local_naive(r.next_match_at) for r in group_rows)
+            if dt is not None
+        ]
+        future_dates = [dt for dt in next_dates if dt >= now]
+        next_future = min(future_dates) if future_dates else None
+        if next_future is not None:
+            has_future = 1.0
+            proximity_score = -(next_future - now).total_seconds()
+        else:
+            has_future = 0.0
+            proximity_score = float("-inf")
+
+        updates = [
+            dt
+            for dt in (_as_local_naive(r.engagement_updated_at) for r in group_rows)
+            if dt is not None
+        ]
+        update_score = max((dt.timestamp() for dt in updates), default=float("-inf"))
+        ranking_score = (
+            1.0 if any(r.ranking_position is not None for r in group_rows) else 0.0
+        )
+        engagement_id = group_rows[0].engagement_id
+        engagement_score = float(engagement_id) if engagement_id is not None else -1.0
+        return (
+            has_future,
+            proximity_score,
+            update_score,
+            ranking_score,
+            engagement_score,
+        )
+
+    selected = max(groups.values(), key=score)
+    return selected
+
+
 def _load_poule_snapshots(
     client: FFBBAPIClientV2,
     poule_id: int,
@@ -3053,7 +3117,7 @@ def _load_poule_snapshots(
 def _extract_next_match_from_engagement(
     engagement: GetEngagementsResponse,
     engagement_id: int,
-) -> tuple[str, str]:
+) -> tuple[datetime | None, str]:
     """Best-effort next-match extraction from engagement payload."""
     selected_date: datetime | None = None
     selected_opponent = ""
@@ -3100,7 +3164,7 @@ def _extract_next_match_from_engagement(
             selected_date = date_value
             selected_opponent = opponent
 
-    return _format_next_match_date(selected_date), selected_opponent
+    return selected_date, selected_opponent
 
 
 def _extract_club_info(
@@ -3158,10 +3222,13 @@ def _contact_to_row(
     division: str,
     poule: str,
     sexe: str,
+    engagement_id: int | None,
+    engagement_updated_at: datetime | None,
     ranking_url: str,
     competition_logo_url: str,
     ranking_position: int | None,
     ranking_total: int | None,
+    next_match_at: datetime | None,
     next_match_date: str,
     next_match_opponent: str,
 ) -> _CollectedRow:
@@ -3180,10 +3247,13 @@ def _contact_to_row(
         telephone=contact.telephone,
         email=contact.email,
         source=contact.source,
+        engagement_id=engagement_id,
+        engagement_updated_at=engagement_updated_at,
         ranking_url=ranking_url,
         competition_logo_url=competition_logo_url,
         ranking_position=ranking_position,
         ranking_total=ranking_total,
+        next_match_at=next_match_at,
         next_match_date=next_match_date,
         next_match_opponent=next_match_opponent,
     )
@@ -3282,7 +3352,7 @@ def main() -> None:
     # Step 3: Enrich via facade contact methods
     club_cache: dict[int, _ClubInfo | None] = {}
     poule_cache: dict[int, dict[str, _TeamCompetitionSnapshot]] = {}
-    rows_by_key: dict[tuple[str, ...], _CollectedRow] = {}
+    rows_by_key: dict[tuple[object, ...], _CollectedRow] = {}
     city_geo: dict[str, _CityGeo] = {}
     api_calls = 0
     errors = 0
@@ -3301,6 +3371,8 @@ def main() -> None:
         competition_logo_url = _extract_competition_logo_url(hit)
         ranking_position: int | None = None
         ranking_total: int | None = None
+        engagement_updated_at: datetime | None = None
+        next_match_at: datetime | None = None
         next_match_date = ""
         next_match_opponent = ""
         team_lookup_name = hit.nom or hit.nom_equipe or ""
@@ -3321,6 +3393,10 @@ def main() -> None:
                 api_calls += 1
                 eng_contacts = client.get_engagement_contacts(eng_id)
                 if eng_contacts:
+                    engagement_updated_at = (
+                        eng_contacts.engagement.date_updated
+                        or eng_contacts.engagement.date_created
+                    )
                     if (
                         ranking_position is None
                         and eng_contacts.engagement.position is not None
@@ -3342,7 +3418,8 @@ def main() -> None:
                             )
                         )
                         if fallback_date:
-                            next_match_date = fallback_date
+                            next_match_at = fallback_date
+                            next_match_date = _format_next_match_date(fallback_date)
                             next_match_opponent = fallback_opponent
                     if eng_contacts.engagement.idPoule is not None:
                         engagement_poule_id = eng_contacts.engagement.idPoule
@@ -3427,6 +3504,7 @@ def main() -> None:
                 if snapshot:
                     ranking_position = snapshot.ranking_position
                     ranking_total = snapshot.ranking_total
+                    next_match_at = snapshot.next_match_date
                     next_match_date = _format_next_match_date(snapshot.next_match_date)
                     next_match_opponent = snapshot.next_match_opponent
 
@@ -3450,12 +3528,15 @@ def main() -> None:
                 )
 
         for contact in contacts:
+            is_team_contact = "get_organisme" not in contact.source
+            engagement_key = eng_id if is_team_contact else None
             key = (
                 ville,
                 club_name,
                 niveau,
                 division,
                 sexe,
+                engagement_key,
                 contact.titre,
                 contact.nom,
                 contact.prenom,
@@ -3465,10 +3546,17 @@ def main() -> None:
             if key in rows_by_key:
                 rows_by_key[key].poules.append(poule)
                 row = rows_by_key[key]
+                if (
+                    row.engagement_updated_at is None
+                    and engagement_updated_at is not None
+                ):
+                    row.engagement_updated_at = engagement_updated_at
                 if row.ranking_position is None and ranking_position is not None:
                     row.ranking_position = ranking_position
                 if row.ranking_total is None and ranking_total is not None:
                     row.ranking_total = ranking_total
+                if row.next_match_at is None and next_match_at is not None:
+                    row.next_match_at = next_match_at
                 if not row.next_match_date and next_match_date:
                     row.next_match_date = next_match_date
                 if not row.next_match_opponent and next_match_opponent:
@@ -3484,10 +3572,13 @@ def main() -> None:
                     division,
                     poule,
                     sexe,
+                    engagement_key,
+                    engagement_updated_at,
                     ranking_url,
                     competition_logo_url,
                     ranking_position,
                     ranking_total,
+                    next_match_at,
                     next_match_date,
                     next_match_opponent,
                 )
