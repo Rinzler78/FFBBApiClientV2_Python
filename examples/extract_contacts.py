@@ -133,12 +133,23 @@ _RE_NON_DIGITS = re.compile(r"\D")
 # ---------------------------------------------------------------------------
 
 
+_MATCH_TYPE_CSS: dict[str, str] = {
+    "COUPE": "team-chip--next-coupe",
+    "PLAT": "team-chip--next-plateau",
+}
+
+
 def _next_match_label(match_type: str) -> str:
     """Return a human-readable label for the next match chip."""
     suffix = _MATCH_TYPE_LABELS.get(match_type)
     if suffix:
         return f"Prochain ({suffix})"
     return "Prochain"
+
+
+def _next_match_css(match_type: str) -> str:
+    """Return extra CSS class for the next-match chip based on match type."""
+    return _MATCH_TYPE_CSS.get(match_type, "")
 
 
 def haversine_km(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
@@ -1441,32 +1452,12 @@ class ContactReport:
                     f"{team.ranking_position} / {team.ranking_total}</span>"
                     "</span>"
                 )
-            if club.salle_nom or club.salle_adresse or club.salle_map_url:
-                salle_club_label = self._salle_label(
-                    club.salle_nom,
-                    club.salle_adresse,
-                )
-                salle_club_id = salle_anchor(
-                    club.salle_nom,
-                    club.salle_adresse,
-                    club.salle_map_url,
-                )
-                if salle_club_label:
-                    if salle_club_id:
-                        salle_club_value = (
-                            f"<a href='#{h(salle_club_id)}' class='team-chip__hall-link'>"
-                            f"{h(salle_club_label)}</a>"
-                        )
-                    else:
-                        salle_club_value = h(salle_club_label)
-                    team_meta_items.append(
-                        "<span class='team-chip team-chip--home'>"
-                        "<span class='team-chip__label'>Salle club</span>"
-                        f"<span class='team-chip__value'>{salle_club_value}</span>"
-                        "</span>"
-                    )
-            if team.next_match_date and team.next_match_opponent:
+            if team.next_match_date:
                 match_type_label = _next_match_label(team.next_match_type)
+                match_type_css = _next_match_css(team.next_match_type)
+                chip_classes = "team-chip team-chip--next"
+                if match_type_css:
+                    chip_classes += f" {match_type_css}"
                 salle_line = ""
                 if (
                     team.next_match_salle_name
@@ -1493,51 +1484,20 @@ class ContactReport:
                             "<span class='team-chip__hall'>Lieu match: "
                             f"{h(salle_label)}</span>"
                         )
+                opponent_html = ""
+                if team.next_match_opponent:
+                    opponent_html = (
+                        "<span class='team-chip__vs'>contre</span>"
+                        f"<span class='team-chip__opponent'"
+                        f" title='{h(team.next_match_opponent)}'>"
+                        f"{h(team.next_match_opponent)}</span>"
+                    )
                 team_meta_items.append(
-                    "<span class='team-chip team-chip--next'>"
+                    f"<span class='{chip_classes}'>"
                     f"<span class='team-chip__label'>{h(match_type_label)}</span>"
                     "<span class='team-chip__next-main'>"
                     f"<span class='team-chip__when'>{h(team.next_match_date)}</span>"
-                    "<span class='team-chip__vs'>contre</span>"
-                    f"<span class='team-chip__opponent' title='{h(team.next_match_opponent)}'>"
-                    f"{h(team.next_match_opponent)}</span>"
-                    "</span>"
-                    f"{salle_line}"
-                    "</span>"
-                )
-            elif team.next_match_date:
-                match_type_label = _next_match_label(team.next_match_type)
-                salle_line = ""
-                if (
-                    team.next_match_salle_name
-                    or team.next_match_salle_address
-                    or team.next_match_salle_map_url
-                ):
-                    salle_label = self._salle_label(
-                        team.next_match_salle_name,
-                        team.next_match_salle_address,
-                    )
-                    salle_id = salle_anchor(
-                        team.next_match_salle_name,
-                        team.next_match_salle_address,
-                        team.next_match_salle_map_url,
-                    )
-                    if salle_id and salle_label:
-                        salle_line = (
-                            "<span class='team-chip__hall'>Lieu match: "
-                            f"<a href='#{h(salle_id)}' class='team-chip__hall-link'>"
-                            f"{h(salle_label)}</a></span>"
-                        )
-                    elif salle_label:
-                        salle_line = (
-                            "<span class='team-chip__hall'>Lieu match: "
-                            f"{h(salle_label)}</span>"
-                        )
-                team_meta_items.append(
-                    "<span class='team-chip team-chip--next'>"
-                    f"<span class='team-chip__label'>{h(match_type_label)}</span>"
-                    "<span class='team-chip__next-main'>"
-                    f"<span class='team-chip__when'>{h(team.next_match_date)}</span>"
+                    f"{opponent_html}"
                     "</span>"
                     f"{salle_line}"
                     "</span>"
@@ -2968,6 +2928,17 @@ p.address {
   color: var(--muted);
   font-weight: 700;
 }
+.team--club {
+  border-color: #D6DDED;
+  background: #F4F6FB;
+}
+.team--club .team-heading {
+  background: #E9EFFA;
+  border-bottom-color: #D6DDED;
+}
+.team--club .team-body {
+  background: #F4F6FB;
+}
 
 /* Badges */
 .badge {
@@ -3017,10 +2988,6 @@ p.address {
   background: #EEF3FF;
   border-color: #CBD9F8;
 }
-.team-chip--home {
-  background: #F5F8FF;
-  border-color: #D9E2F5;
-}
 .team-chip--next {
   background: #E9EFFC;
   border-color: #CBD9F8;
@@ -3030,6 +2997,36 @@ p.address {
   align-items: start;
   border-radius: 10px;
   padding: 0.28rem 0.52rem;
+}
+.team-chip--next-coupe {
+  background: #FFF5E6;
+  border-color: #F0D5A0;
+}
+.team-chip--next-coupe .team-chip__label {
+  color: #8B5E0F;
+}
+.team-chip--next-coupe .team-chip__value,
+.team-chip--next-coupe .team-chip__when,
+.team-chip--next-coupe .team-chip__opponent {
+  color: #7A4F00;
+}
+.team-chip--next-coupe .team-chip__vs {
+  color: #9E7530;
+}
+.team-chip--next-plateau {
+  background: #F0F8EC;
+  border-color: #C8DDB8;
+}
+.team-chip--next-plateau .team-chip__label {
+  color: #3D6B1E;
+}
+.team-chip--next-plateau .team-chip__value,
+.team-chip--next-plateau .team-chip__when,
+.team-chip--next-plateau .team-chip__opponent {
+  color: #2D5312;
+}
+.team-chip--next-plateau .team-chip__vs {
+  color: #507A30;
 }
 .team-chip__label {
   font-size: 0.61rem;
