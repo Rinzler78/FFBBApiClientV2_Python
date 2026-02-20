@@ -2226,7 +2226,13 @@ _HTML_CSS = """\
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 [hidden] { display: none !important; }
+html {
+  width: 100%;
+  overflow-x: hidden;
+}
 body {
+  width: 100%;
+  overflow-x: hidden;
   font-family: 'Manrope', 'Segoe UI', sans-serif;
   font-size: 14px;
   line-height: 1.6;
@@ -2306,8 +2312,8 @@ summary:focus-visible {
 .content {
   margin-left: var(--sidebar-w);
   width: calc(100% - var(--sidebar-w));
-  max-width: 1280px;
-  margin-right: auto;
+  max-width: none;
+  margin-right: 0;
   padding: 2rem clamp(1rem, 2.5vw, 2.5rem);
 }
 
@@ -2879,6 +2885,7 @@ p.address {
 .contacts-block { margin-top: 0.35rem; }
 table.contacts {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
   margin-top: 0.4rem;
   margin-bottom: 0.25rem;
@@ -2898,6 +2905,8 @@ table.contacts td {
   border-bottom: 1px solid #F3F4F6;
   font-size: 0.82rem;
   vertical-align: top;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 table.contacts tr:hover { background: #FFFBF5; }
 table.contacts a { color: var(--accent-dark); }
@@ -3059,7 +3068,7 @@ footer {
   .sidebar { display: none; }
   .content {
     margin-left: 0;
-    width: 100%;
+    width: auto;
     max-width: none;
     padding: 1.5rem 1rem;
   }
@@ -3080,30 +3089,34 @@ footer {
   }
   .hero-facts { grid-template-columns: 1fr; }
   .controls {
-    margin: 0.45rem 0 0.65rem;
-    padding: 0.42rem 0.48rem;
+    margin: 0.34rem 0 0.48rem;
+    padding: 0.33rem 0.4rem;
   }
   .controls-bar {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.38rem;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.25rem;
   }
   .control-field--search {
     min-width: 0;
+    flex: 1 1 auto;
   }
   .controls-actions {
-    margin-left: 0;
-    justify-content: flex-start;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 0.34rem;
+    display: none;
   }
   .controls-advanced {
-    margin-top: 0.35rem;
+    margin-top: 0.2rem;
   }
   .controls-advanced > summary {
-    font-size: 0.76rem;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.14rem 0.44rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: #fff;
+    font-size: 0.72rem;
   }
+  .controls-advanced[open] .controls-grid { margin-top: 0.35rem; }
   .controls-grid {
     grid-template-columns: 1fr;
     gap: 0.36rem;
@@ -3113,8 +3126,8 @@ footer {
   }
   .control-field input,
   .control-field select {
-    font-size: 0.82rem;
-    padding: 0.28rem 0.4rem;
+    font-size: 0.8rem;
+    padding: 0.24rem 0.36rem;
   }
   .controls-result {
     font-size: 0.72rem;
@@ -3159,7 +3172,13 @@ footer {
   .contacts-block .contacts-cards { display: block; }
   .annuaire-table td.mentions {
     white-space: normal;
-    min-width: 180px;
+    min-width: 0;
+  }
+  .annuaire-section {
+    overflow-x: auto;
+  }
+  .annuaire-table {
+    min-width: 100%;
   }
 }
 """
