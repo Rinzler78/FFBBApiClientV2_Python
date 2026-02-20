@@ -4,7 +4,9 @@ import re
 from dataclasses import dataclass, field
 
 from ..directus_ffbb.models.get_organisme_response import GetOrganismeResponse
+from .code_fonction import CODE_FONCTION_TO_CONTACT_ROLE
 from .contact_info import ContactInfo
+from .contact_role import ContactRole
 
 _PHONE_PATTERN = re.compile(r"[^0-9+]")
 
@@ -35,7 +37,7 @@ def extract_club_info(organisme: GetOrganismeResponse) -> ContactInfo | None:
     if not phone and not email:
         return None
     return ContactInfo(
-        titre="Club",
+        titre=ContactRole.CLUB,
         nom=organisme.nom or "",
         prenom="",
         telephone=phone,
@@ -54,7 +56,13 @@ def extract_membres_contacts(organisme: GetOrganismeResponse) -> list[ContactInf
             continue
         contacts.append(
             ContactInfo(
-                titre=membre.code_fonction or "Membre",
+                titre=(
+                    CODE_FONCTION_TO_CONTACT_ROLE.get(
+                        membre.code_fonction, ContactRole.MEMBRE
+                    )
+                    if membre.code_fonction
+                    else ContactRole.MEMBRE
+                ),
                 nom=_sanitize_name(membre.nom),
                 prenom=_sanitize_name(membre.prenom),
                 telephone=phone,

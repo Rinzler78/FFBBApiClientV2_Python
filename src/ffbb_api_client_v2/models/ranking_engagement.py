@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from ..utils.converter_utils import from_str
+from ..utils.converter_utils import from_int, from_str
 
 
 @dataclass
@@ -13,8 +13,8 @@ class RankingEngagement:
     nom: str
     nom_usuel: str | None = None
     code_abrege: str | None = None
-    numero_equ: str | None = None
-    numero_equipe: str | None = None
+    numero_equ: int | None = None
+    numero_equipe: int | None = None
     logo_id: str | None = None
     logo_gradient: str | None = None
 
@@ -36,8 +36,8 @@ class RankingEngagement:
             nom=from_str(data, "nom") or "",
             nom_usuel=from_str(data, "nomUsuel"),
             code_abrege=from_str(data, "codeAbrege"),
-            numero_equ=from_str(data, "numeroEqu"),
-            numero_equipe=from_str(data, "numeroEquipe"),
+            numero_equ=from_int(data, "numeroEqu"),
+            numero_equipe=from_int(data, "numeroEquipe"),
             logo_id=logo_id,
             logo_gradient=logo_gradient,
         )

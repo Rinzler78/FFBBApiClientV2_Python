@@ -11,6 +11,7 @@ from ...models.geo import Geo
 from ...models.type_association import TypeAssociation
 from ...utils.converter_utils import (
     from_datetime,
+    from_int,
     from_obj,
     from_str,
 )
@@ -22,7 +23,7 @@ class SallesHit(Hit):
     adresse: str | None = None
     id: str | None = None
     adresse_complement: str | None = None
-    capacite_spectateur: str | None = None
+    capacite_spectateur: int | None = None
     date_created: datetime | None = None
     date_updated: datetime | None = None
     libelle2: str | None = None
@@ -55,7 +56,7 @@ class SallesHit(Hit):
         adresse = from_str(obj, "adresse")
         id = from_str(obj, "id")
         adresse_complement = from_str(obj, "adresseComplement")
-        capacite_spectateur = from_str(obj, "capaciteSpectateur")
+        capacite_spectateur = from_int(obj, "capaciteSpectateur")
         date_created = from_datetime(obj, "date_created")
         date_updated = from_datetime(obj, "date_updated")
         libelle2 = from_str(obj, "libelle2")
@@ -99,7 +100,7 @@ class SallesHit(Hit):
         if self.adresse_complement is not None:
             result["adresseComplement"] = self.adresse_complement
         if self.capacite_spectateur is not None:
-            result["capaciteSpectateur"] = self.capacite_spectateur
+            result["capaciteSpectateur"] = str(self.capacite_spectateur)
         if self.date_created is not None:
             result["date_created"] = self.date_created.isoformat()
         if self.date_updated is not None:

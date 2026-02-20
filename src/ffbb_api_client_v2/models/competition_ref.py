@@ -26,7 +26,7 @@ class CompetitionRef:
     type_competition: str | None = None
     logo: Logo | None = None
     saison: Saison | None = None
-    id_competition_pere: Any | None = None
+    id_competition_pere: str | None = None
     organisateur: Organisateur | None = None
     type_competition_generique: TypeCompetitionGenerique | None = None
     categorie: Categorie | None = None
@@ -50,7 +50,7 @@ class CompetitionRef:
             type_competition=from_str(obj, "typeCompetition"),
             logo=from_obj(Logo.from_dict, obj, "logo"),
             saison=from_obj(Saison.from_dict, obj, "saison"),
-            id_competition_pere=obj.get("idCompetitionPere"),
+            id_competition_pere=from_str(obj, "idCompetitionPere"),
             organisateur=from_obj(Organisateur.from_dict, obj, "organisateur"),
             type_competition_generique=from_obj(
                 TypeCompetitionGenerique.from_dict, obj, "typeCompetitionGenerique"

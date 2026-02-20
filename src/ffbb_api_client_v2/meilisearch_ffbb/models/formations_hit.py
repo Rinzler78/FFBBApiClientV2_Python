@@ -10,6 +10,7 @@ from ...utils.converter_utils import (
     from_list,
     from_str,
 )
+from .formation_session import FormationSession
 
 
 @dataclass
@@ -33,7 +34,7 @@ class FormationsHit(Hit):
     reference: str | None = None
     program_id_fbi: str | None = None
     duration_hours: timedelta | None = None
-    sessions: list[Any] | None = None
+    sessions: list[FormationSession] | None = None
     files: list[Any] | None = None
     image: str | None = None
     thumbnail: str | None = None
@@ -72,7 +73,7 @@ class FormationsHit(Hit):
         reference = from_str(obj, "reference")
         program_id_fbi = from_str(obj, "programIdFbi")
         duration_hours = from_duration(obj, "duration_hours")
-        sessions = from_list(lambda x: x, obj, "sessions")
+        sessions = from_list(FormationSession.from_dict, obj, "sessions")
         files = from_list(lambda x: x, obj, "files")
         image = from_str(obj, "image")
         thumbnail = from_str(obj, "thumbnail")
@@ -154,7 +155,7 @@ class FormationsHit(Hit):
             minutes = remainder // 60
             result["duration_hours"] = f"{hours}h{minutes:02d}"
         if self.sessions is not None:
-            result["sessions"] = self.sessions
+            result["sessions"] = [s.to_dict() for s in self.sessions]
         if self.files is not None:
             result["files"] = self.files
         if self.image is not None:

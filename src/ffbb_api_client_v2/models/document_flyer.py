@@ -11,7 +11,6 @@ from ..utils.converter_utils import (
     from_enum,
     from_float,
     from_int,
-    from_list,
     from_obj,
     from_str,
     from_uuid,
@@ -51,8 +50,8 @@ class DocumentFlyer:
     newsbridge_recorded_at: datetime | None = None
     focal_point_x: float | None = None
     focal_point_y: float | None = None
-    newsbridge_labels: list[Any] | None = None
-    newsbridge_persons: list[Any] | None = None
+    newsbridge_labels: str | None = None
+    newsbridge_persons: str | None = None
     folder: Folder | None = None
     uploaded_by: UUID | None = None
     modified_by: UUID | None = None
@@ -89,8 +88,8 @@ class DocumentFlyer:
         newsbridge_recorded_at = from_datetime(obj, "newsbridge_recorded_at")
         focal_point_x = from_float(obj, "focal_point_x")
         focal_point_y = from_float(obj, "focal_point_y")
-        newsbridge_labels = from_list(lambda x: x, obj, "newsbridge_labels")
-        newsbridge_persons = from_list(lambda x: x, obj, "newsbridge_persons")
+        newsbridge_labels = from_str(obj, "newsbridge_labels")
+        newsbridge_persons = from_str(obj, "newsbridge_persons")
         folder = from_obj(Folder.from_dict, obj, "folder")
         uploaded_by = from_uuid(obj, "uploaded_by")
         modified_by = from_uuid(obj, "modified_by")

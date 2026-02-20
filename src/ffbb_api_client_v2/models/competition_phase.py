@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-from ..utils.converter_utils import from_bool, from_list, from_str
+from ..utils.converter_utils import from_bool, from_str
 from .competition_poule import CompetitionPoule
 
 
@@ -18,13 +18,20 @@ class CompetitionPhase:
     @staticmethod
     def from_dict(obj: Any) -> CompetitionPhase:
         assert isinstance(obj, dict)
-        poules_raw = from_list(CompetitionPoule.from_dict, obj, "poules")
+        raw_poules = obj.get("poules")
+        poules: list[CompetitionPoule] = []
+        if isinstance(raw_poules, list):
+            for item in raw_poules:
+                if isinstance(item, dict):
+                    poules.append(CompetitionPoule.from_dict(item))
+                elif item is not None:
+                    poules.append(CompetitionPoule(id=str(item)))
         return CompetitionPhase(
             id=from_str(obj, "id"),
             nom=from_str(obj, "nom"),
             live_stat=from_bool(obj, "liveStat"),
             phase_code=from_str(obj, "phase_code"),
-            poules=poules_raw if poules_raw is not None else [],
+            poules=poules,
         )
 
     def to_dict(self) -> dict:

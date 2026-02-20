@@ -3,7 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from ..utils.converter_utils import from_str
+from ..utils.converter_utils import from_enum, from_str
+from .code_fonction import CodeFonction
 
 
 @dataclass
@@ -18,7 +19,7 @@ class Membre:
     mail: str | None = None
     telephone_fixe: str | None = None
     telephone_portable: str | None = None
-    code_fonction: str | None = None
+    code_fonction: CodeFonction | None = None
 
     @staticmethod
     def from_dict(obj: Any) -> Membre:
@@ -34,7 +35,7 @@ class Membre:
             mail=from_str(obj, "mail"),
             telephone_fixe=from_str(obj, "telephoneFixe"),
             telephone_portable=from_str(obj, "telephonePortable"),
-            code_fonction=from_str(obj, "codeFonction"),
+            code_fonction=from_enum(CodeFonction, obj, "codeFonction"),
         )
 
     def to_dict(self) -> dict:
@@ -60,5 +61,5 @@ class Membre:
         if self.telephone_portable is not None:
             result["telephonePortable"] = self.telephone_portable
         if self.code_fonction is not None:
-            result["codeFonction"] = self.code_fonction
+            result["codeFonction"] = self.code_fonction.value
         return result

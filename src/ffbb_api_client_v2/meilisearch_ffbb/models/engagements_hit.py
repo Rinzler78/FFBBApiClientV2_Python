@@ -11,6 +11,7 @@ from ...models.geo import Geo
 from ...models.id_poule import IDPoule
 from ...utils.converter_utils import (
     from_bool,
+    from_int,
     from_obj,
     from_str,
 )
@@ -42,7 +43,7 @@ class EngagementsHit(Hit):
     nom_officiel: str | None = None
     nom_organisme: str | None = None
     nom_usuel: str | None = None
-    numero_equipe: str | None = None
+    numero_equipe: int | None = None
     thumbnail: str | None = None
     geo: Geo | None = None
     lower_nom: str | None = field(init=False, default=None, repr=False)
@@ -85,7 +86,7 @@ class EngagementsHit(Hit):
         nom_officiel = from_str(obj, "nomOfficiel")
         nom_organisme = from_str(obj, "nomOrganisme")
         nom_usuel = from_str(obj, "nomUsuel")
-        numero_equipe = from_str(obj, "numeroEquipe")
+        numero_equipe = from_int(obj, "numeroEquipe")
         thumbnail = from_str(obj, "thumbnail")
         geo = from_obj(Geo.from_dict, obj, "_geo")
         return EngagementsHit(
@@ -169,7 +170,7 @@ class EngagementsHit(Hit):
         if self.nom_usuel is not None:
             result["nomUsuel"] = self.nom_usuel
         if self.numero_equipe is not None:
-            result["numeroEquipe"] = self.numero_equipe
+            result["numeroEquipe"] = str(self.numero_equipe)
         if self.thumbnail is not None:
             result["thumbnail"] = self.thumbnail
         if self.geo is not None:
