@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Extract senior PRO/NATIONAL/LIGUE_FEMININE contacts near a geographic point.
+"""Extract basketball contacts near a city (coordinates resolved automatically).
 
 Uses Meilisearch geo-search on engagements, then enriches via facade
 contact methods (get_engagement_contacts, get_club_contacts).
@@ -7,8 +7,10 @@ Produces a hierarchical Markdown report sorted by distance, a CSV export,
 and a professional HTML report with an interactive Leaflet/OSM map.
 
 Usage:
-    python examples/extract_contacts.py --lat 50.629 --lng 3.057 --city-name Lille
-    python examples/extract_contacts.py --lat 48.856 --lng 2.352 --city-name Paris --radius 50
+    python examples/extract_contacts.py --city-name Lille
+    python examples/extract_contacts.py --city-name Paris --radius 50
+    python examples/extract_contacts.py --city-name Lyon --echelon NATIONAL DEPARTEMENT
+    python examples/extract_contacts.py --city-name Lille --sexe MASCULINE --age-group SENIOR VETERAN
 """
 
 from __future__ import annotations
@@ -23,6 +25,7 @@ import unicodedata
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime
+from enum import Enum
 from pathlib import Path
 
 from ffbb_api_client_v2 import FFBBAPIClientV2, TokenManager
@@ -38,6 +41,7 @@ from ffbb_api_client_v2.meilisearch_ffbb.models.engagements_hit import Engagemen
 from ffbb_api_client_v2.models.age_group import AgeGroup
 from ffbb_api_client_v2.models.contact_info import ContactInfo
 from ffbb_api_client_v2.models.echelon import Echelon
+from ffbb_api_client_v2.models.sexe import Sexe
 
 logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
@@ -55,8 +59,44 @@ NATIONAL_ECHELONS: frozenset[Echelon] = frozenset({Echelon.NATIONAL})
 ACCEPTED_ECHELONS: frozenset[Echelon] = PRO_ECHELONS | NATIONAL_ECHELONS
 
 # Display labels and sort priority, derived from the sets above
-NIVEAU_LABELS = {"PRO": "Pro", "NATIONAL": "National"}
-NIVEAU_PRIORITY = {"Pro": 0, "National": 1}
+NIVEAU_LABELS = {
+    "PRO": "Pro",
+    "NATIONAL": "National",
+    "PRE_NATIONAL": "Pre-National",
+    "REGIONAL": "Regional",
+    "PRE_REGIONAL": "Pre-Regional",
+    "DEPARTEMENTAL": "Departemental",
+    "FEDERAL": "Federal",
+    "EXCELLENCE": "Excellence",
+    "ASSOCIATION_REGIONALE": "Association Regionale",
+    "OTHER": "Autre",
+}
+NIVEAU_PRIORITY = {
+    "Pro": 0,
+    "National": 1,
+    "Pre-National": 2,
+    "Excellence": 3,
+    "Regional": 4,
+    "Pre-Regional": 5,
+    "Federal": 6,
+    "Departemental": 7,
+    "Association Regionale": 8,
+    "Autre": 9,
+}
+
+# Map Echelon enum members to classification labels
+_ECHELON_TO_LABEL: dict[Echelon, str] = {
+    Echelon.LIGUE_FEMININE: "PRO",
+    Echelon.BASKET_FAUTEUIL: "PRO",
+    Echelon.NATIONAL: "NATIONAL",
+    Echelon.PRE_NATIONAL: "PRE_NATIONAL",
+    Echelon.EXCELLENCE: "EXCELLENCE",
+    Echelon.REGION: "REGIONAL",
+    Echelon.PRE_REGIONAL: "PRE_REGIONAL",
+    Echelon.FEDERAL: "FEDERAL",
+    Echelon.DEPARTEMENT: "DEPARTEMENTAL",
+    Echelon.ASSOCIATION_REGIONALE: "ASSOCIATION_REGIONALE",
+}
 
 _COMPETITIONS_BASE = "https://competitions.ffbb.com"
 _ASSET_BASE = f"{API_FFBB_BASE_URL}{ENDPOINT_ASSETS}"
@@ -559,9 +599,9 @@ class ContactReport:
         f.write(f"| Ville | **{self.city_name}** |\n")
         f.write(f"| Position | {self.lat:.4f}, {self.lng:.4f} |\n")
         f.write(f"| Rayon | {self.radius:.0f} km |\n")
-        f.write("| Niveaux | Pro, National |\n")
-        f.write("| Sexe | Masculin, Feminin |\n")
-        f.write("| Tranches d'ages | Senior |\n\n")
+        f.write("| Niveaux | Tous |\n")
+        f.write("| Sexe | Tous |\n")
+        f.write("| Tranches d'ages | Toutes |\n\n")
         f.write(f"*{self.timestamp}*\n\n")
         f.write("---\n\n")
 
@@ -576,7 +616,7 @@ class ContactReport:
             f.write("\n")
         else:
             f.write(
-                f"Aucune equipe Pro ou National a **{self.city_name}**. "
+                f"Aucune equipe qualifiee a **{self.city_name}**. "
                 f"Recherche elargie a {self.radius:.0f} km.\n\n"
             )
         f.write("---\n\n")
@@ -634,7 +674,7 @@ class ContactReport:
 
             if not city.clubs:
                 f.write(
-                    f"*Aucune equipe Pro ou National a **{_md_escape(city.ville)}**."
+                    f"*Aucune equipe qualifiee a **{_md_escape(city.ville)}**."
                     f" Recherche elargie a {self.radius:.0f} km.*\n\n"
                 )
 
@@ -815,8 +855,14 @@ class ContactReport:
                 dist = (
                     f"{city.distance_km:.0f}" if city.distance_km is not None else "?"
                 )
+                city_label = (
+                    f"{city.ville} ({city.code_postal})"
+                    if city.code_postal
+                    else city.ville
+                )
                 f.write(
-                    f"<li data-city-link='{h(anchor)}'><a href='#{anchor}'>{h(city.ville)}"
+                    f"<li data-city-link='{h(anchor)}'><a href='#{anchor}'>"
+                    f"{h(city_label)}"
                     f"<span class='sidebar-dist'>{dist} km</span></a></li>\n"
                 )
             f.write(
@@ -833,24 +879,22 @@ class ContactReport:
             # --- Main content ---
             f.write("<main class='content' id='main-content'>\n")
 
+            # Top grid: left (hero + stats + controls) / right (map) on desktop
+            f.write("<div class='top-grid'>\n")
+            f.write("<div class='top-grid__left'>\n")
+
             # Header
             f.write("<header class='hero'>\n")
             f.write("<div class='hero-main'>\n")
             f.write("<div>\n")
             f.write("<p class='hero-kicker'>Recherche FFBB</p>\n")
             f.write("<h1>Liste de contacts</h1>\n")
-            f.write(
-                "<div class='hero-actions'>"
-                "<a class='hero-action hero-action--primary' href='#map-section'>Voir la carte</a>"
-                "<a class='hero-action hero-action--ghost' href='#annuaire'>Annuaire</a>"
-                "</div>\n"
-            )
             f.write("</div>\n")
             f.write(f"<p class='hero-date'>{h(self.timestamp)}</p>\n")
             f.write("</div>\n")
             f.write(
                 "<p class='hero-subtitle'>"
-                "Extraction des clubs et contacts seniors Pro/National dans un rayon "
+                "Extraction des clubs et contacts dans un rayon "
                 "personnalise autour de la ville de recherche."
                 "</p>\n"
             )
@@ -858,9 +902,6 @@ class ContactReport:
             for label, value in [
                 ("Ville", self.city_name),
                 ("Rayon", f"{self.radius:.0f} km"),
-                ("Niveaux", "Pro, National"),
-                ("Sexe", "Masculin, Feminin"),
-                ("Categorie", "Senior"),
                 ("Position", f"{self.lat:.4f}, {self.lng:.4f}"),
             ]:
                 f.write(
@@ -880,7 +921,6 @@ class ContactReport:
                 ("Clubs", self.total_clubs),
                 ("Equipes", self.total_teams),
                 ("Contacts", self.total_contacts),
-                ("Mentions", self.total_contact_mentions),
             ]:
                 f.write(
                     f"<div class='stat'>"
@@ -961,18 +1001,19 @@ class ContactReport:
             f.write("</select></label>\n")
             f.write("</div>\n")
             f.write("</details>\n")
-            f.write("</section>\n\n")
+            f.write("</section>\n")
+            f.write("</div>\n")  # end .top-grid__left
 
-            # Map
-            f.write("<section id='map-section'>\n")
-            f.write("<h2>Carte</h2>\n")
+            # Map (right column on desktop)
+            f.write("<section id='map-section' class='top-grid__right'>\n")
             f.write("<div id='map' aria-label='Carte des clubs'></div>\n")
             f.write(
                 "<noscript><p class='noscript-msg'>"
                 "Activez JavaScript pour afficher la carte interactive."
                 "</p></noscript>\n"
             )
-            f.write("</section>\n\n")
+            f.write("</section>\n")
+            f.write("</div>\n\n")  # end .top-grid
 
             # Mobile nav (replaces sidebar on small screens)
             f.write("<details class='mobile-nav'>\n")
@@ -985,9 +1026,14 @@ class ContactReport:
                     if city.distance_km is not None
                     else "?"
                 )
+                city_label = (
+                    f"{city.ville} ({city.code_postal})"
+                    if city.code_postal
+                    else city.ville
+                )
                 f.write(
                     f"<li data-city-link='{h(anchor)}'><a href='#{anchor}'>"
-                    f"{h(city.ville)} — {dist}</a></li>\n"
+                    f"{h(city_label)} — {dist}</a></li>\n"
                 )
             f.write(
                 "<li><a href='#annuaire'>" "&#x1F4D6; Annuaire des contacts</a></li>\n"
@@ -1048,7 +1094,7 @@ class ContactReport:
                     f.write("</div>\n")
                 elif is_target:
                     f.write(
-                        "<p class='empty-city'>Aucune equipe Pro ou National"
+                        "<p class='empty-city'>Aucune equipe qualifiee"
                         f" a <strong>{h(self.city_name)}</strong>."
                         f" Recherche elargie a {self.radius:.0f}&nbsp;km.</p>\n"
                     )
@@ -1586,7 +1632,7 @@ class ContactReport:
       }}).addTo(map);
 
   // Radius circle
-  L.circle(center, {{
+  var radiusCircle = L.circle(center, {{
     radius: {self.radius * 1000},
     color: '#416BD7',
     fillColor: '#416BD7',
@@ -1688,7 +1734,7 @@ class ContactReport:
           }});
         }}
         clusters.clearLayers();
-        var bounds = L.latLngBounds([center]);
+        var bounds = radiusCircle.getBounds();
         var visibleCount = 0;
         markerEntries.forEach(function(entry) {{
           var include = !hasFilter || !!visibleSet[entry.cardId];
@@ -1703,7 +1749,7 @@ class ContactReport:
           map.addLayer(clusters);
         }}
         if (!preserveView && visibleCount > 0) {{
-          map.fitBounds(bounds, {{padding: [30, 30], maxZoom: 11}});
+          map.fitBounds(bounds, {{padding: [10, 10], maxZoom: 11}});
         }}
       }}
 
@@ -2585,6 +2631,30 @@ h2 {
   background: #1A255F;
 }
 
+/* Top grid — hero/stats/controls left, map right on desktop */
+.top-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem;
+  align-items: stretch;
+  margin-bottom: 1.2rem;
+}
+.top-grid__right {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: clip;
+  box-shadow: 0 14px 30px rgba(16, 24, 64, 0.08);
+}
+.top-grid__right #map {
+  flex: 1;
+  height: auto;
+  min-height: 320px;
+  margin-bottom: 0;
+  border-radius: 0;
+}
+
 /* Map */
 #map {
   height: clamp(280px, 47vh, 520px);
@@ -3130,6 +3200,12 @@ footer {
 
 /* Responsive */
 @media (max-width: 1100px) {
+  .top-grid {
+    display: block;
+  }
+  .top-grid__right {
+    position: static;
+  }
   .sidebar { display: none; }
   .content {
     margin-left: 0;
@@ -3320,28 +3396,35 @@ class _TeamCompetitionSnapshot:
 # ---------------------------------------------------------------------------
 
 
-def _is_senior(hit: EngagementsHit) -> bool:
-    """Return True if the engagement is a senior category (or unparsable)."""
-    if hit.categorie and hit.categorie.code:
-        age = hit.categorie.code.age_group
-        return age is None or age == AgeGroup.SENIOR
-    return True
+def classify_engagement_level(
+    hit: EngagementsHit,
+    accepted_echelons: frozenset[Echelon] | None = None,
+    accepted_age_groups: frozenset[AgeGroup] | None = None,
+    accepted_sexes: frozenset[Sexe] | None = None,
+) -> str | None:
+    """Return the level label or None (excluded).
 
-
-def classify_engagement_level(hit: EngagementsHit) -> str | None:
-    """Return the level string (PRO/NATIONAL) or None.
-
-    Classification is based solely on the engagement's echelon, NOT
-    on the ``club_pro`` flag (which marks the *club*, not the team).
+    When a filter parameter is ``None``, all values are accepted.
     """
-    if not _is_senior(hit):
-        return None
+    # Sexe filter
+    if accepted_sexes is not None:
+        accepted_values = {s.value for s in accepted_sexes}
+        if (hit.sexe or "") not in accepted_values:
+            return None
+
+    # Age-group filter
+    if accepted_age_groups is not None:
+        if hit.categorie and hit.categorie.code:
+            age = hit.categorie.code.age_group
+            if age is not None and age not in accepted_age_groups:
+                return None
+
+    # Echelon filter + label
     if hit.niveau and hit.niveau.code:
         echelon = hit.niveau.code.echelon
-        if echelon in PRO_ECHELONS:
-            return "PRO"
-        if echelon in NATIONAL_ECHELONS:
-            return "NATIONAL"
+        if accepted_echelons is not None and echelon not in accepted_echelons:
+            return None
+        return _ECHELON_TO_LABEL.get(echelon, "OTHER")
     return None
 
 
@@ -3878,83 +3961,257 @@ def _contact_to_row(
 
 
 # ---------------------------------------------------------------------------
+# City resolution & CLI enum parsing
+# ---------------------------------------------------------------------------
+
+
+def resolve_city_coordinates(
+    client: FFBBAPIClientV2,
+    city_name: str,
+) -> tuple[float, float, str]:
+    """Resolve a city name to (lat, lng, code_postal) via Meilisearch organismes search."""
+    result = client.search_organismes(
+        name=city_name,
+        filter=[f'commune.libelle = "{city_name}"'],
+        limit=50,
+    )
+    coords: list[tuple[float, float]] = []
+    code_postal: str = ""
+    if result and result.hits:
+        for hit in result.hits:
+            if hit.geo and hit.geo.lat is not None and hit.geo.lng is not None:
+                coords.append((hit.geo.lat, hit.geo.lng))
+            if not code_postal and hit.commune and hit.commune.code_postal:
+                code_postal = hit.commune.code_postal
+
+    if not coords:
+        logger.error("Impossible de résoudre les coordonnées pour '%s'.", city_name)
+        raise SystemExit(1)
+
+    # Median for robustness
+    coords.sort()
+    mid = len(coords) // 2
+    lat, lng = coords[mid][0], coords[mid][1]
+    logger.info(
+        "Ville '%s' résolue → (%.5f, %.5f, CP %s) via %d organismes",
+        city_name,
+        lat,
+        lng,
+        code_postal or "?",
+        len(coords),
+    )
+    return lat, lng, code_postal
+
+
+def _parse_enum_args(
+    raw: list[str], enum_cls: type[Enum], label: str, parser: argparse.ArgumentParser
+) -> frozenset:
+    """Parse CLI args into a frozenset of enum members, validated by name."""
+    name_map = {e.name: e for e in enum_cls}
+    result = []
+    for val in raw:
+        key = val.upper()
+        if key not in name_map:
+            parser.error(
+                f"Unknown {label}: '{val}'. Valid values: {', '.join(name_map)}"
+            )
+        result.append(name_map[key])
+    return frozenset(result)
+
+
+# ---------------------------------------------------------------------------
+# Adaptive radius constants & helper
+# ---------------------------------------------------------------------------
+
+_CITY_RADIUS_KM = 10.0
+_DEFAULT_RADIUS_KM = 50.0
+
+
+def _search_and_classify(
+    client: FFBBAPIClientV2,
+    lat: float,
+    lng: float,
+    radius_km: float,
+    accepted_echelons: frozenset | None,
+    accepted_age_groups: frozenset | None,
+    accepted_sexes: frozenset | None,
+) -> tuple[object, list[tuple[EngagementsHit, str]], dict[str, int]]:
+    """Run geo search + classify in one pass. Returns (result, qualified, level_counts)."""
+    result = client.search_engagements_by_geo(
+        lat=lat,
+        lng=lng,
+        radius_km=radius_km,
+        limit=5000,
+    )
+    qualified: list[tuple[EngagementsHit, str]] = []
+    level_counts: dict[str, int] = defaultdict(int)
+    if result and result.hits:
+        for hit in result.hits:
+            level = classify_engagement_level(
+                hit, accepted_echelons, accepted_age_groups, accepted_sexes
+            )
+            if level:
+                qualified.append((hit, level))
+                level_counts[level] += 1
+    return result, qualified, level_counts
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Extract senior Elite/National basketball contacts near a point"
+        description="Extract basketball contacts near a city"
     )
-    parser.add_argument("--lat", type=float, required=True, help="Latitude")
-    parser.add_argument("--lng", type=float, required=True, help="Longitude")
     parser.add_argument(
         "--city-name",
         type=str,
         required=True,
-        help="Name of the search point (used in filenames and report title)",
+        help="City name — coordinates resolved automatically via Meilisearch",
     )
     parser.add_argument(
-        "--radius", type=float, default=100.0, help="Radius in km (default: 100)"
+        "--radius", type=float, default=None, help="Radius in km (default: auto 10→50)"
     )
     parser.add_argument("--out-dir", type=Path, default=Path("reports"))
     parser.add_argument(
         "--dry-run", action="store_true", help="Print planned actions without API calls"
     )
+    parser.add_argument(
+        "--echelon",
+        type=str,
+        nargs="+",
+        default=None,
+        help="Echelons to include (e.g. --echelon NATIONAL LIGUE_FEMININE). "
+        f"Valid: {', '.join(e.name for e in Echelon)}. Default: all",
+    )
+    parser.add_argument(
+        "--sexe",
+        type=str,
+        nargs="+",
+        default=None,
+        help="Sexe filter — use enum names (e.g. --sexe MASCULINE FEMININE). "
+        f"Valid: {', '.join(e.name for e in Sexe)}. Default: all",
+    )
+    parser.add_argument(
+        "--age-group",
+        type=str,
+        nargs="+",
+        default=None,
+        help="Age groups (e.g. --age-group SENIOR VETERAN). "
+        f"Valid: {', '.join(a.name for a in AgeGroup)}. Default: all",
+    )
     args = parser.parse_args()
 
     slug = args.city_name.lower().replace(" ", "_")
 
-    if args.dry_run:
-        logger.info(
-            "[dry-run] %s (%.5f, %.5f), rayon %.1f km → %s/%s_senior_contacts.{md,csv,html}",
-            args.city_name,
-            args.lat,
-            args.lng,
-            args.radius,
-            args.out_dir,
-            slug,
-        )
-        return
-
-    logger.info(
-        "[1/5] Recherche geo engagements: %s (%.5f, %.5f), rayon %.1f km",
-        args.city_name,
-        args.lat,
-        args.lng,
-        args.radius,
+    # --- Build validated filter sets from CLI args (None = accept all) ---
+    accepted_echelons: frozenset[Echelon] | None = (
+        _parse_enum_args(args.echelon, Echelon, "echelon", parser)
+        if args.echelon
+        else None
+    )
+    accepted_age_groups: frozenset[AgeGroup] | None = (
+        _parse_enum_args(args.age_group, AgeGroup, "age-group", parser)
+        if args.age_group
+        else None
+    )
+    accepted_sexes: frozenset[Sexe] | None = (
+        _parse_enum_args(args.sexe, Sexe, "sexe", parser) if args.sexe else None
     )
 
+    # --- Resolve city coordinates & create client ---
     tokens = TokenManager.get_tokens()
     client = FFBBAPIClientV2.create(
         api_bearer_token=tokens.api_token,
         meilisearch_bearer_token=tokens.meilisearch_token,
     )
+    lat, lng, city_code_postal = resolve_city_coordinates(client, args.city_name)
 
-    # Step 1: Geo search engagements via Meilisearch
-    result = client.search_engagements_by_geo(
-        lat=args.lat,
-        lng=args.lng,
-        radius_km=args.radius,
-        limit=5000,
-    )
+    if args.dry_run:
+        effective_radius = (
+            args.radius if args.radius is not None else _DEFAULT_RADIUS_KM
+        )
+        logger.info(
+            "[dry-run] %s (%.5f, %.5f), rayon %.1f km → %s/%s_senior_contacts.{md,csv,html}",
+            args.city_name,
+            lat,
+            lng,
+            effective_radius,
+            args.out_dir,
+            slug,
+        )
+        return
+
+    # Step 1: Geo search engagements via Meilisearch (adaptive radius)
+    if args.radius is not None:
+        search_radius = args.radius
+        logger.info(
+            "[1/5] Recherche geo engagements: %s (%.5f, %.5f), rayon %.1f km (explicite)",
+            args.city_name,
+            lat,
+            lng,
+            search_radius,
+        )
+        result, qualified, level_counts = _search_and_classify(
+            client,
+            lat,
+            lng,
+            search_radius,
+            accepted_echelons,
+            accepted_age_groups,
+            accepted_sexes,
+        )
+    else:
+        # 1st pass: city-only radius
+        search_radius = _CITY_RADIUS_KM
+        logger.info(
+            "[1/5] Recherche geo engagements: %s (%.5f, %.5f), rayon %.1f km (ville)",
+            args.city_name,
+            lat,
+            lng,
+            search_radius,
+        )
+        result, qualified, level_counts = _search_and_classify(
+            client,
+            lat,
+            lng,
+            search_radius,
+            accepted_echelons,
+            accepted_age_groups,
+            accepted_sexes,
+        )
+        if not qualified:
+            # 2nd pass: extend radius
+            search_radius = _DEFAULT_RADIUS_KM
+            logger.info(
+                "[1/5] Aucun resultat qualifie a %.0f km, extension a %.0f km",
+                _CITY_RADIUS_KM,
+                search_radius,
+            )
+            result, qualified, level_counts = _search_and_classify(
+                client,
+                lat,
+                lng,
+                search_radius,
+                accepted_echelons,
+                accepted_age_groups,
+                accepted_sexes,
+            )
+
     if not result or not result.hits:
         logger.warning("Aucun engagement trouve autour de %s.", args.city_name)
         return
 
-    logger.info("[1/5] %d engagements bruts trouves", len(result.hits))
-
-    # Step 2: Filter by level (PRO, NATIONAL, LIGUE_FEMININE — senior only)
-    qualified: list[tuple[EngagementsHit, str]] = []
-    level_counts: dict[str, int] = defaultdict(int)
-    for hit in result.hits:
-        level = classify_engagement_level(hit)
-        if level:
-            qualified.append((hit, level))
-            level_counts[level] += 1
+    logger.info(
+        "[1/5] %d engagements bruts trouves (rayon %.1f km)",
+        len(result.hits),
+        search_radius,
+    )
 
     if not qualified:
-        logger.warning("[2/5] Aucun engagement Pro/National/Ligue Feminine.")
+        logger.warning("[2/5] Aucun engagement qualifie avec les filtres donnes.")
         return
 
     breakdown = ", ".join(
@@ -4245,12 +4502,15 @@ def main() -> None:
     # Step 4: Compute distances
     city_distances: dict[str, float] = {}
     for v, geo in city_geo.items():
-        city_distances[v] = haversine_km(args.lat, args.lng, geo.lat, geo.lng)
+        city_distances[v] = haversine_km(lat, lng, geo.lat, geo.lng)
 
     city_postcodes: dict[str, str] = {}
     for row in all_rows:
         if row.ville and row.code_postal and row.ville not in city_postcodes:
             city_postcodes[row.ville] = row.code_postal
+    # Inject target city postal code resolved from Meilisearch organismes
+    if city_code_postal and args.city_name not in city_postcodes:
+        city_postcodes[args.city_name] = city_code_postal
 
     cities_with_geo = len(city_distances)
     cities_without = len({r.ville for r in all_rows if r.ville}) - cities_with_geo
@@ -4269,9 +4529,9 @@ def main() -> None:
     # Step 5: Build report and export
     report = ContactReport.build(
         city_name=args.city_name,
-        lat=args.lat,
-        lng=args.lng,
-        radius=args.radius,
+        lat=lat,
+        lng=lng,
+        radius=search_radius,
         rows=all_rows,
         city_distances=city_distances,
         city_postcodes=city_postcodes,
