@@ -993,6 +993,8 @@ class ContactReport:
                         "lng": lng,
                         "popup": popup,
                         "name": club.nom,
+                        "logo_url": club.logo_url,
+                        "has_logo": bool(club.logo_url),
                     }
                 )
 
@@ -1030,15 +1032,43 @@ class ContactReport:
     dashArray: '8 4'
   }}).addTo(map);
 
-  // Club markers inside a cluster group
-  var clubIcon = L.divIcon({{
-    className: 'club-marker',
-    html: '<div style="background:#F26522;width:12px;height:12px;'
-      + 'border-radius:50%;border:2px solid #fff;'
-      + 'box-shadow:0 0 4px rgba(0,0,0,0.3)"></div>',
-    iconSize: [12, 12],
-    iconAnchor: [6, 6]
-  }});
+  function escapeHtml(value) {{
+    return String(value || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }}
+
+  function buildClubIcon(markerData) {{
+    var safeName = escapeHtml(markerData.name || 'Club');
+    var rawLogo = typeof markerData.logo_url === 'string'
+      ? markerData.logo_url.trim()
+      : '';
+    var hasHttpLogo = /^https?:\\/\\//i.test(rawLogo);
+    if (hasHttpLogo) {{
+      return L.divIcon({{
+        className: 'club-marker',
+        html: '<div class="club-pin club-pin--logo" title="' + safeName + '">'
+          + '<img class="club-pin__img" src="' + escapeHtml(rawLogo) + '"'
+          + ' alt="" loading="lazy"></div>',
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
+        popupAnchor: [0, -15]
+      }});
+    }}
+
+    return L.divIcon({{
+      className: 'club-marker',
+      html: '<div class="club-pin club-pin--fallback" title="' + safeName + '">'
+        + '<span class="club-pin__emoji" aria-hidden="true">&#x1F3C0;</span>'
+        + '</div>',
+      iconSize: [30, 30],
+      iconAnchor: [15, 15],
+      popupAnchor: [0, -15]
+    }});
+  }}
 
   var clusters = L.markerClusterGroup({{
     maxClusterRadius: 40,
@@ -1062,8 +1092,16 @@ class ContactReport:
   var data = {markers_json};
   var bounds = L.latLngBounds([center]);
   data.forEach(function(m) {{
-    var marker = L.marker([m.lat, m.lng], {{icon: clubIcon}})
+    var marker = L.marker([m.lat, m.lng], {{icon: buildClubIcon(m)}})
       .bindPopup(m.popup);
+    if (m.name) {{
+      marker.bindTooltip(escapeHtml(m.name), {{
+        direction: 'top',
+        offset: [0, -18],
+        sticky: true,
+        opacity: 0.95
+      }});
+    }}
     clusters.addLayer(marker);
     bounds.extend([m.lat, m.lng]);
   }});
@@ -1259,8 +1297,10 @@ body {
 /* Main content */
 .content {
   margin-left: var(--sidebar-w);
-  max-width: 960px;
-  padding: 2rem 2rem 2rem 2.5rem;
+  width: calc(100% - var(--sidebar-w));
+  max-width: 1280px;
+  margin-right: auto;
+  padding: 2rem clamp(1rem, 2.5vw, 2.5rem);
 }
 
 /* Header */
@@ -1325,10 +1365,39 @@ table.params td { padding: 0.2rem 0; font-size: 0.85rem; }
 
 /* Map */
 #map {
-  height: 420px;
+  height: clamp(280px, 48vh, 520px);
   border-radius: var(--radius);
   border: 1px solid var(--border);
   margin-bottom: 1rem;
+}
+.club-marker {
+  background: transparent;
+  border: 0;
+}
+.club-pin {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+.club-pin--logo { background: #FFFFFF; }
+.club-pin--fallback {
+  background: linear-gradient(135deg, #F26522, #D4540E);
+}
+.club-pin__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.club-pin__emoji {
+  font-size: 0.95rem;
+  line-height: 1;
 }
 .noscript-msg {
   padding: 2rem;
@@ -1596,14 +1665,38 @@ footer {
 /* Responsive */
 @media (max-width: 1023px) {
   .sidebar { display: none; }
-  .content { margin-left: 0; padding: 1.5rem 1rem; }
+  .content {
+    margin-left: 0;
+    width: 100%;
+    max-width: none;
+    padding: 1.5rem 1rem;
+  }
   .mobile-nav { display: block; }
 }
 @media (max-width: 767px) {
+  body { font-size: 13px; }
+  h1 { font-size: 1.35rem; }
+  h2 { font-size: 1.05rem; }
   .stat-grid { grid-template-columns: repeat(2, 1fr); }
-  #map { height: 280px; }
+  #map { height: clamp(240px, 44vh, 320px); }
+  .club-card { padding: 0.85rem; }
+  .club-header { gap: 0.6rem; }
+  .club-logo, .club-logo-placeholder { width: 32px; height: 32px; }
   .club-actions { gap: 0.3rem; }
   .action-link { font-size: 0.72rem; }
+  table.contacts {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  table.contacts th, table.contacts td {
+    white-space: nowrap;
+    padding: 0.35rem 0.45rem;
+  }
+  .annuaire-table td.mentions {
+    white-space: normal;
+    min-width: 180px;
+  }
 }
 """
 
