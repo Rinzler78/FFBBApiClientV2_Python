@@ -18,6 +18,7 @@ from .categorie_code import CategorieCode
 from .clock import Clock
 from .club_contacts import ClubContacts
 from .code import Code
+from .code_fonction import CODE_FONCTION_TO_CONTACT_ROLE, CodeFonction
 from .commune import Commune
 from .competition_id import CompetitionID
 from .competition_id_categorie import CompetitionIDCategorie
@@ -37,6 +38,7 @@ from .competition_ref import CompetitionRef
 from .competition_rencontre import CompetitionRencontre
 from .competition_type import CompetitionType
 from .contact_info import ContactInfo
+from .contact_role import ContactRole
 from .coordonnees import Coordonnees
 from .coordonnees_type import CoordonneesType
 from .document_flyer import DocumentFlyer
@@ -109,7 +111,10 @@ __all__ = [
     "CategorieCode",
     "ClubContacts",
     "Clock",
+    "CODE_FONCTION_TO_CONTACT_ROLE",
+    "CodeFonction",
     "ContactInfo",
+    "ContactRole",
     "Code",
     "Commune",
     "CompetitionID",

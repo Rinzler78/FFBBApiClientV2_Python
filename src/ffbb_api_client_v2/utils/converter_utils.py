@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Callable
-from datetime import datetime, time, timedelta
+from datetime import datetime, time, timedelta, timezone
 from enum import Enum
 from typing import TYPE_CHECKING, Any, TypeVar
 from uuid import UUID
@@ -216,6 +216,31 @@ def from_duration(obj: dict, key: str) -> timedelta | None:
             return None
     logger.warning(
         "from_duration(%r): unexpected type %s (value: %.100r)",
+        key,
+        type(x).__name__,
+        x,
+    )
+    return None
+
+
+def from_timestamp(obj: dict, key: str) -> datetime | None:
+    """Parse a Unix timestamp (int or numeric string) into a datetime (UTC)."""
+    x = obj.get(key)
+    if x is None:
+        return None
+    if isinstance(x, (int, float)) and not isinstance(x, bool):
+        return datetime.fromtimestamp(x, tz=timezone.utc)
+    if isinstance(x, str):
+        x = x.strip()
+        if not x:
+            return None
+        try:
+            return datetime.fromtimestamp(int(x), tz=timezone.utc)
+        except (ValueError, OverflowError, OSError):
+            logger.warning("from_timestamp(%r): cannot parse %r as timestamp", key, x)
+            return None
+    logger.warning(
+        "from_timestamp(%r): unexpected type %s (value: %.100r)",
         key,
         type(x).__name__,
         x,
