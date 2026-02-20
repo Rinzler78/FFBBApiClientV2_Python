@@ -148,6 +148,7 @@ class ReportTeam:
     division: str
     poules: list[str]
     ranking_url: str
+    competition_logo_url: str
     contacts: list[ReportContact]
 
     @property
@@ -332,9 +333,13 @@ class ContactReport:
                 ):
                     poules = sorted({p for r in t_rows for p in r.poules if p})
                     ranking_url = ""
+                    competition_logo_url = ""
                     for r in t_rows:
-                        if r.ranking_url:
+                        if not ranking_url and r.ranking_url:
                             ranking_url = r.ranking_url
+                        if not competition_logo_url and r.competition_logo_url:
+                            competition_logo_url = r.competition_logo_url
+                        if ranking_url and competition_logo_url:
                             break
                     contacts = [
                         ReportContact(
@@ -354,6 +359,7 @@ class ContactReport:
                             division=division,
                             poules=poules,
                             ranking_url=ranking_url,
+                            competition_logo_url=competition_logo_url,
                             contacts=contacts,
                         )
                     )
@@ -395,6 +401,23 @@ class ContactReport:
                     lng=city_lng,
                     clubs=report_clubs,
                 )
+            )
+
+        # Ensure the target city always appears (even with 0 matching teams)
+        target_present = any(
+            c.ville.lower() == city_name.lower() for c in report_cities
+        )
+        if not target_present:
+            report_cities.insert(
+                0,
+                ReportCity(
+                    ville=city_name,
+                    code_postal="",
+                    distance_km=0.0,
+                    lat=lat,
+                    lng=lng,
+                    clubs=[],
+                ),
             )
 
         return ContactReport(
@@ -500,6 +523,12 @@ class ContactReport:
                 else "distance inconnue"
             )
             f.write(f"### {_md_escape(label)} — {dist}\n\n")
+
+            if not city.clubs:
+                f.write(
+                    f"*Aucune equipe Pro ou National a **{_md_escape(city.ville)}**."
+                    f" Recherche elargie a {self.radius:.0f} km.*\n\n"
+                )
 
             for club in city.clubs:
                 f.write(f"#### {_md_escape(club.nom)}\n\n")
@@ -740,12 +769,20 @@ class ContactReport:
                     else "distance inconnue"
                 )
                 anchor = f"city-{slugify(city.ville)}"
+                is_target = city.ville.lower() == self.city_name.lower()
                 f.write(
                     f"<section class='city-section' id='{anchor}'>\n"
                     f"<h2>{h(label)} &mdash; {dist}</h2>\n"
                 )
-                for club in city.clubs:
-                    self._write_html_club_card(f, club)
+                if city.clubs:
+                    for club in city.clubs:
+                        self._write_html_club_card(f, club)
+                elif is_target:
+                    f.write(
+                        "<p class='empty-city'>Aucune equipe Pro ou National"
+                        f" a <strong>{h(self.city_name)}</strong>."
+                        f" Recherche elargie a {self.radius:.0f}&nbsp;km.</p>\n"
+                    )
                 f.write(
                     "<p class='nav'>" "<a href='#map-section'>&#x2191; Carte</a></p>\n"
                 )
@@ -847,7 +884,13 @@ class ContactReport:
         # Teams with their contacts
         for team in club.teams:
             f.write("<div class='team'>\n")
-            # Badges
+            # Competition logo + badges
+            if team.competition_logo_url:
+                f.write(
+                    f"<img src='{h(team.competition_logo_url)}'"
+                    f" alt='{h(team.division)}' class='competition-logo'"
+                    f" width='28' height='28' loading='lazy'> "
+                )
             niveau_class = _niveau_css_class(team.niveau)
             sexe_badge = "M" if team.sexe.startswith("M") else "F"
             f.write(
@@ -1292,6 +1335,14 @@ table.params td { padding: 0.2rem 0; font-size: 0.85rem; }
 }
 
 /* Club card */
+.empty-city {
+  background: #FEF3C7;
+  border-left: 4px solid #F59E0B;
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  color: #92400E;
+  font-style: italic;
+}
 .club-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -1394,6 +1445,11 @@ p.address {
   margin-left: 0.5rem;
 }
 .ranking-link:hover { text-decoration: underline; }
+.competition-logo {
+  vertical-align: middle;
+  margin-right: 0.35rem;
+  border-radius: 4px;
+}
 
 /* Contact tables */
 table.contacts {
@@ -1565,6 +1621,7 @@ class _CollectedRow:
     email: str
     source: str
     ranking_url: str
+    competition_logo_url: str
 
 
 # ---------------------------------------------------------------------------
@@ -1612,6 +1669,19 @@ def _extract_poule(hit: EngagementsHit) -> str:
 def _extract_ranking_url(hit: EngagementsHit) -> str:
     if hit.competitions_url:
         return f"{_COMPETITIONS_BASE}{hit.competitions_url}"
+    return ""
+
+
+def _extract_competition_logo_url(hit: EngagementsHit) -> str:
+    """Extract the official competition logo URL from nested hit data.
+
+    Path: hit.id_competition.type_competition_generique.logo.id → UUID
+    """
+    comp = hit.id_competition
+    if comp and comp.type_competition_generique:
+        logo = comp.type_competition_generique.logo
+        if logo and logo.id:
+            return f"{_ASSET_BASE}{logo.id}"
     return ""
 
 
@@ -1688,6 +1758,7 @@ def _contact_to_row(
     poule: str,
     sexe: str,
     ranking_url: str,
+    competition_logo_url: str,
 ) -> _CollectedRow:
     return _CollectedRow(
         ville=ville,
@@ -1705,6 +1776,7 @@ def _contact_to_row(
         email=contact.email,
         source=contact.source,
         ranking_url=ranking_url,
+        competition_logo_url=competition_logo_url,
     )
 
 
@@ -1816,6 +1888,7 @@ def main() -> None:
         division = _extract_division(hit)
         poule = _extract_poule(hit)
         ranking_url = _extract_ranking_url(hit)
+        competition_logo_url = _extract_competition_logo_url(hit)
 
         # Logo fallback from Meilisearch hit
         hit_logo = hit.logo or hit.thumbnail or ""
@@ -1933,6 +2006,7 @@ def main() -> None:
                     poule,
                     sexe,
                     ranking_url,
+                    competition_logo_url,
                 )
 
     all_rows = list(rows_by_key.values())
