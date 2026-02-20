@@ -23,8 +23,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from requests_cache import CachedSession
-
 from ffbb_api_client_v2._http.client import (
     HttpClient,
     url_with_params,
@@ -65,6 +63,9 @@ from ffbb_api_client_v2.directus_ffbb.models.salles_fields import SallesFields
 from ffbb_api_client_v2.directus_ffbb.models.terrains_fields import TerrainsFields
 from ffbb_api_client_v2.directus_ffbb.models.tournois_fields import TournoisFields
 from ffbb_api_client_v2.facade.token_manager import TokenManager
+from ffbb_api_client_v2.utils.cache_manager import (
+    ThreadSafeCachedSession as CachedSession,
+)
 from ffbb_api_client_v2.utils.retry_utils import RetryConfig, TimeoutConfig
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent

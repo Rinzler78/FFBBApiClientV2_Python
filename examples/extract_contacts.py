@@ -21,8 +21,10 @@ import json
 import logging
 import math
 import re
+import threading
 import unicodedata
 from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
@@ -103,6 +105,13 @@ _ASSET_BASE = f"{API_FFBB_BASE_URL}{ENDPOINT_ASSETS}"
 
 
 # ---------------------------------------------------------------------------
+# Pre-compiled regex patterns (avoid recompilation per call)
+# ---------------------------------------------------------------------------
+_RE_INVALID_CHARS = re.compile(r"[^\w\s-]")
+_RE_SPACES_DASHES = re.compile(r"[-\s]+")
+_RE_NON_DIGITS = re.compile(r"\D")
+
+# ---------------------------------------------------------------------------
 # Utility functions
 # ---------------------------------------------------------------------------
 
@@ -125,8 +134,8 @@ def slugify(text: str) -> str:
     """Create a URL-safe slug for Markdown anchors."""
     text = unicodedata.normalize("NFKD", text)
     text = text.encode("ascii", "ignore").decode("ascii")
-    text = re.sub(r"[^\w\s-]", "", text.lower())
-    return re.sub(r"[-\s]+", "-", text).strip("-")
+    text = _RE_INVALID_CHARS.sub("", text.lower())
+    return _RE_SPACES_DASHES.sub("-", text).strip("-")
 
 
 def _contact_id(c) -> str:
@@ -146,7 +155,7 @@ def _md_escape(text: str) -> str:
 
 def _format_phone(raw: str) -> str:
     """Format a French phone number as 06 12 34 56 78."""
-    digits = re.sub(r"\D", "", raw)
+    digits = _RE_NON_DIGITS.sub("", raw)
     if len(digits) == 11 and digits.startswith("33"):
         digits = "0" + digits[2:]
     if len(digits) == 10:
@@ -286,7 +295,10 @@ class ContactReport:
 
     @property
     def total_contacts(self) -> int:
-        """Unique contacts count (deduplicated by identity)."""
+        """Unique contacts count (deduplicated by identity), cached."""
+        cached = getattr(self, "_cached_total_contacts", None)
+        if cached is not None:
+            return cached
         seen: set[str] = set()
         for city in self.cities:
             for club in city.clubs:
@@ -295,6 +307,7 @@ class ContactReport:
                 for team in club.teams:
                     for c in team.contacts:
                         seen.add(_contact_id(c))
+        object.__setattr__(self, "_cached_total_contacts", len(seen))
         return len(seen)
 
     @property
@@ -793,9 +806,12 @@ class ContactReport:
     # Export: HTML (Leaflet + OSM interactive map)
     # ------------------------------------------------------------------
 
-    def to_html(self, path: Path) -> None:
-        """Write a professional HTML report with interactive Leaflet map."""
-        h = _html_escape
+    @property
+    def all_roles(self) -> list[str]:
+        """Sorted unique roles across all contacts, cached."""
+        cached = getattr(self, "_cached_all_roles", None)
+        if cached is not None:
+            return cached
         role_set: set[str] = set()
         for city in self.cities:
             for club in city.clubs:
@@ -806,7 +822,14 @@ class ContactReport:
                     for contact in team.contacts:
                         if contact.role:
                             role_set.add(contact.role)
-        role_options = sorted(role_set, key=str.casefold)
+        result = sorted(role_set, key=str.casefold)
+        object.__setattr__(self, "_cached_all_roles", result)
+        return result
+
+    def to_html(self, path: Path) -> None:
+        """Write a professional HTML report with interactive Leaflet map."""
+        h = _html_escape
+        role_options = self.all_roles
         max_city_distance = max(
             (city.distance_km for city in self.cities if city.distance_km is not None),
             default=self.radius,
@@ -3401,14 +3424,17 @@ def classify_engagement_level(
     accepted_echelons: frozenset[Echelon] | None = None,
     accepted_age_groups: frozenset[AgeGroup] | None = None,
     accepted_sexes: frozenset[Sexe] | None = None,
+    _sexes_values: frozenset[str] | None = None,
 ) -> str | None:
     """Return the level label or None (excluded).
 
     When a filter parameter is ``None``, all values are accepted.
+    Pass ``_sexes_values`` (pre-computed ``frozenset(s.value for s in accepted_sexes)``)
+    to avoid rebuilding the set on every call.
     """
     # Sexe filter
     if accepted_sexes is not None:
-        accepted_values = {s.value for s in accepted_sexes}
+        accepted_values = _sexes_values or frozenset(s.value for s in accepted_sexes)
         if (hit.sexe or "") not in accepted_values:
             return None
 
@@ -4045,10 +4071,17 @@ def _search_and_classify(
     )
     qualified: list[tuple[EngagementsHit, str]] = []
     level_counts: dict[str, int] = defaultdict(int)
+    sexes_values = (
+        frozenset(s.value for s in accepted_sexes) if accepted_sexes else None
+    )
     if result and result.hits:
         for hit in result.hits:
             level = classify_engagement_level(
-                hit, accepted_echelons, accepted_age_groups, accepted_sexes
+                hit,
+                accepted_echelons,
+                accepted_age_groups,
+                accepted_sexes,
+                _sexes_values=sexes_values,
             )
             if level:
                 qualified.append((hit, level))
@@ -4224,16 +4257,186 @@ def main() -> None:
         breakdown,
     )
 
-    # Step 3: Enrich via facade contact methods
+    # Step 3: Enrich via facade contact methods (parallelised prefetch)
     club_cache: dict[int, _ClubInfo | None] = {}
     poule_cache: dict[int, dict[str, _TeamCompetitionSnapshot]] = {}
     salle_cache: dict[int, tuple[str, str, str]] = {}
+    salle_lock = threading.Lock()
     rows_by_key: dict[tuple[object, ...], _CollectedRow] = {}
     city_geo: dict[str, _CityGeo] = {}
-    api_calls = 0
     errors = 0
+    _MAX_WORKERS = 8
 
-    for i, (hit, level) in enumerate(qualified, 1):
+    # CacheManager now uses ThreadSafeCachedSession — the shared client
+    # can be used from multiple threads without external locking.
+
+    # -- Pre-parse eng_ids from qualified hits --
+    eng_ids: list[int] = []
+    eng_id_by_hit: dict[int, int] = {}  # index in qualified -> eng_id
+    for idx, (hit, _level) in enumerate(qualified):
+        try:
+            eid = int(hit.id) if hit.id else None
+        except (ValueError, TypeError):
+            eid = None
+        if eid:
+            eng_ids.append(eid)
+            eng_id_by_hit[idx] = eid
+
+    # -- Phase A: Prefetch engagement contacts in parallel --
+    from ffbb_api_client_v2.models.club_contacts import ClubContacts as _CC
+    from ffbb_api_client_v2.models.engagement_contacts import EngagementContacts as _EC
+
+    def _fetch_engagement(eid: int) -> tuple[int, _EC | None]:
+        return eid, client.get_engagement_contacts(eid)
+
+    def _fetch_club(oid: int) -> tuple[int, _CC | None]:
+        return oid, client.get_club_contacts(oid)
+
+    eng_results: dict[int, _EC | None] = {}
+    if eng_ids:
+        logger.info(
+            "[3/5] Phase A: prefetch engagements (%d ids)...",
+            len(eng_ids),
+        )
+        with ThreadPoolExecutor(max_workers=_MAX_WORKERS) as pool:
+            futures = {pool.submit(_fetch_engagement, eid): eid for eid in eng_ids}
+            done = 0
+            for future in as_completed(futures):
+                eid = futures[future]
+                try:
+                    _, ec = future.result()
+                    eng_results[eid] = ec
+                except FFBBApiError as e:
+                    eng_results[eid] = None
+                    errors += 1
+                    logger.debug("Erreur engagement id=%s: %s", eid, e)
+                done += 1
+                if done % 50 == 0:
+                    logger.info(
+                        "[3/5] Phase A: %d/%d engagements fetched",
+                        done,
+                        len(eng_ids),
+                    )
+
+    # -- Phase B: Prefetch club contacts (unique org_ids) in parallel --
+    # Also collect first-seen hit info per org_id for logo/url fallback
+    org_ids: set[int] = set()
+    org_hit_fallback: dict[int, EngagementsHit] = {}
+    for idx, (hit, _level) in enumerate(qualified):
+        eid = eng_id_by_hit.get(idx)
+        if eid is None:
+            continue
+        ec = eng_results.get(eid)
+        if ec and ec.engagement.idOrganisme is not None:
+            oid = ec.engagement.idOrganisme
+            if oid not in org_ids:
+                org_ids.add(oid)
+                org_hit_fallback[oid] = hit
+
+    club_contacts_raw: dict[int, _CC | None] = {}
+    if org_ids:
+        logger.info(
+            "[3/5] Phase B: prefetch clubs (%d unique org_ids)...",
+            len(org_ids),
+        )
+        with ThreadPoolExecutor(max_workers=_MAX_WORKERS) as pool:
+            futures = {pool.submit(_fetch_club, oid): oid for oid in org_ids}
+            for future in as_completed(futures):
+                oid = futures[future]
+                try:
+                    _, cc = future.result()
+                    club_contacts_raw[oid] = cc
+                except FFBBApiError as e:
+                    club_contacts_raw[oid] = None
+                    errors += 1
+                    logger.debug("Erreur club org_id=%s: %s", oid, e)
+
+    # -- Build club_cache from raw club contacts (sequential, resolves salles) --
+    for oid, cc in club_contacts_raw.items():
+        if cc:
+            salle_nom = ""
+            salle_adresse = ""
+            salle_map_url = ""
+            if cc.organisme.salle is not None:
+                salle_nom, salle_adresse, salle_map_url = _resolve_salle_details(
+                    client,
+                    cc.organisme.salle,
+                    salle_cache,
+                )
+            fallback_hit = org_hit_fallback.get(oid)
+            hit_logo = ""
+            hit_club_url = ""
+            if fallback_hit:
+                hit_logo = fallback_hit.logo or fallback_hit.thumbnail or ""
+                hit_club_url = _extract_club_page_url(fallback_hit)
+            club_cache[oid] = _extract_club_info(
+                cc.organisme,
+                hit_logo_fallback=hit_logo,
+                hit_club_url_fallback=hit_club_url,
+                salle_nom=salle_nom,
+                salle_adresse=salle_adresse,
+                salle_map_url=salle_map_url,
+            )
+        else:
+            club_cache[oid] = None
+
+    # -- Phase C: Prefetch poule snapshots (unique poule_ids) in parallel --
+    # Collect poule_ids from hit data + engagement data
+    poule_ids: set[int] = set()
+    poule_id_for_hit: dict[int, int | None] = {}  # idx -> poule_id
+    for idx, (hit, _level) in enumerate(qualified):
+        eid = eng_id_by_hit.get(idx)
+        poule_id: int | None = None
+        try:
+            if hit.id_poule and hit.id_poule.id:
+                poule_id = int(hit.id_poule.id)
+        except (TypeError, ValueError):
+            poule_id = None
+        if poule_id is None and eid is not None:
+            ec = eng_results.get(eid)
+            if ec and ec.engagement.idPoule is not None:
+                poule_id = ec.engagement.idPoule
+        poule_id_for_hit[idx] = poule_id
+        if poule_id is not None:
+            poule_ids.add(poule_id)
+
+    def _safe_load_poule(pid: int) -> tuple[int, dict[str, _TeamCompetitionSnapshot]]:
+        """Load poule snapshots with thread-safe salle_cache access."""
+        local_salle: dict[int, tuple[str, str, str]] = {}
+        with salle_lock:
+            local_salle.update(salle_cache)
+        snapshots = _load_poule_snapshots(
+            client,
+            pid,
+            salle_cache=local_salle,
+        )
+        with salle_lock:
+            salle_cache.update(local_salle)
+        return pid, snapshots
+
+    if poule_ids:
+        logger.info(
+            "[3/5] Phase C: prefetch poules (%d unique poule_ids)...",
+            len(poule_ids),
+        )
+        with ThreadPoolExecutor(max_workers=_MAX_WORKERS) as pool:
+            futures = {pool.submit(_safe_load_poule, pid): pid for pid in poule_ids}
+            for future in as_completed(futures):
+                pid = futures[future]
+                try:
+                    _, snapshots = future.result()
+                    poule_cache[pid] = snapshots
+                except FFBBApiError as e:
+                    errors += 1
+                    logger.debug("Erreur poule id=%s: %s", pid, e)
+                    poule_cache[pid] = {}
+
+    # -- Phase D: Sequential assembly (no API calls, only cache lookups) --
+    logger.info("[3/5] Assemblage des contacts...")
+    _club_contacts_added: set[int] = (
+        set()
+    )  # org_ids whose club contacts were already added
+    for idx, (hit, level) in enumerate(qualified):
         sexe = hit.sexe or ""
         club_name = hit.nom_club or hit.nom_organisme or ""
         ville = ""
@@ -4256,146 +4459,75 @@ def main() -> None:
         next_match_salle_map_url = ""
         team_lookup_name = hit.nom or hit.nom_equipe or ""
 
-        # Logo fallback from Meilisearch hit
         hit_logo = hit.logo or hit.thumbnail or ""
 
-        try:
-            eng_id = int(hit.id) if hit.id else None
-        except (ValueError, TypeError):
-            eng_id = None
-
+        eng_id = eng_id_by_hit.get(idx)
         contacts: list[ContactInfo] = []
 
         if eng_id:
-            engagement_poule_id: int | None = None
-            try:
-                api_calls += 1
-                eng_contacts = client.get_engagement_contacts(eng_id)
-                if eng_contacts:
-                    engagement_updated_at = (
-                        eng_contacts.engagement.date_updated
-                        or eng_contacts.engagement.date_created
-                    )
-                    if (
-                        ranking_position is None
-                        and eng_contacts.engagement.position is not None
-                        and eng_contacts.engagement.position > 0
-                    ):
-                        ranking_position = eng_contacts.engagement.position
-                    if ranking_total is None and isinstance(
-                        eng_contacts.engagement.classement, list
-                    ):
-                        classement_count = len(eng_contacts.engagement.classement)
-                        ranking_total = (
-                            classement_count if classement_count > 1 else None
-                        )
-                    if not next_match_date:
-                        fallback_date, fallback_opponent = (
-                            _extract_next_match_from_engagement(
-                                eng_contacts.engagement,
-                                eng_id,
+            eng_contacts = eng_results.get(eng_id)
+            if eng_contacts:
+                engagement_updated_at = (
+                    eng_contacts.engagement.date_updated
+                    or eng_contacts.engagement.date_created
+                )
+                if (
+                    eng_contacts.engagement.position is not None
+                    and eng_contacts.engagement.position > 0
+                ):
+                    ranking_position = eng_contacts.engagement.position
+                if isinstance(eng_contacts.engagement.classement, list):
+                    classement_count = len(eng_contacts.engagement.classement)
+                    if classement_count > 1:
+                        ranking_total = classement_count
+                fallback_date, fallback_opponent = _extract_next_match_from_engagement(
+                    eng_contacts.engagement,
+                    eng_id,
+                )
+                if fallback_date:
+                    next_match_at = fallback_date
+                    next_match_date = _format_next_match_date(fallback_date)
+                    next_match_opponent = fallback_opponent
+                for c in [
+                    eng_contacts.correspondant,
+                    eng_contacts.entraineur,
+                    eng_contacts.entraineur_adjoint,
+                ]:
+                    if c:
+                        contacts.append(c)
+
+                org_id = eng_contacts.engagement.idOrganisme
+                if org_id is not None:
+                    # Club contacts added only once per org_id (same as original)
+                    if org_id not in _club_contacts_added:
+                        _club_contacts_added.add(org_id)
+                        cc = club_contacts_raw.get(org_id)
+                        if cc:
+                            if cc.club_contact:
+                                contacts.append(cc.club_contact)
+                            contacts.extend(cc.membres)
+
+                    cached = club_cache.get(org_id)
+                    if cached:
+                        club_name = cached.nom or club_name
+                        ville = cached.ville
+                        adresse_club = cached.adresse
+                        code_postal = cached.code_postal
+
+                        if (
+                            ville
+                            and ville not in city_geo
+                            and cached.lat is not None
+                            and cached.lng is not None
+                        ):
+                            city_geo[ville] = _CityGeo(
+                                ville=ville,
+                                lat=cached.lat,
+                                lng=cached.lng,
                             )
-                        )
-                        if fallback_date:
-                            next_match_at = fallback_date
-                            next_match_date = _format_next_match_date(fallback_date)
-                            next_match_opponent = fallback_opponent
-                    if eng_contacts.engagement.idPoule is not None:
-                        engagement_poule_id = eng_contacts.engagement.idPoule
-                    for c in [
-                        eng_contacts.correspondant,
-                        eng_contacts.entraineur,
-                        eng_contacts.entraineur_adjoint,
-                    ]:
-                        if c:
-                            contacts.append(c)
 
-                    org_id = eng_contacts.engagement.idOrganisme
-                    if org_id is not None:
-                        if org_id not in club_cache:
-                            try:
-                                api_calls += 1
-                                club_contacts = client.get_club_contacts(org_id)
-                                if club_contacts:
-                                    salle_nom = ""
-                                    salle_adresse = ""
-                                    salle_map_url = ""
-                                    if club_contacts.organisme.salle is not None:
-                                        (
-                                            salle_nom,
-                                            salle_adresse,
-                                            salle_map_url,
-                                        ) = _resolve_salle_details(
-                                            client,
-                                            club_contacts.organisme.salle,
-                                            salle_cache,
-                                        )
-                                    info = _extract_club_info(
-                                        club_contacts.organisme,
-                                        hit_logo_fallback=hit_logo,
-                                        hit_club_url_fallback=_extract_club_page_url(
-                                            hit
-                                        ),
-                                        salle_nom=salle_nom,
-                                        salle_adresse=salle_adresse,
-                                        salle_map_url=salle_map_url,
-                                    )
-                                    club_cache[org_id] = info
-                                    if club_contacts.club_contact:
-                                        contacts.append(club_contacts.club_contact)
-                                    contacts.extend(club_contacts.membres)
-                                else:
-                                    club_cache[org_id] = None
-                            except FFBBApiError as e:
-                                errors += 1
-                                logger.debug("Erreur club org_id=%s: %s", org_id, e)
-                                club_cache[org_id] = None
-
-                        cached = club_cache.get(org_id)
-                        if cached:
-                            club_name = cached.nom or club_name
-                            ville = cached.ville
-                            adresse_club = cached.adresse
-                            code_postal = cached.code_postal
-
-                            if (
-                                ville
-                                and ville not in city_geo
-                                and cached.lat is not None
-                                and cached.lng is not None
-                            ):
-                                city_geo[ville] = _CityGeo(
-                                    ville=ville,
-                                    lat=cached.lat,
-                                    lng=cached.lng,
-                                )
-            except FFBBApiError as e:
-                errors += 1
-                logger.debug("Erreur engagement id=%s: %s", eng_id, e)
-
-            poule_id: int | None = None
-            try:
-                if hit.id_poule and hit.id_poule.id:
-                    poule_id = int(hit.id_poule.id)
-            except (TypeError, ValueError):
-                poule_id = None
-            if poule_id is None and engagement_poule_id is not None:
-                poule_id = engagement_poule_id
-
+            poule_id = poule_id_for_hit.get(idx)
             if poule_id is not None:
-                if poule_id not in poule_cache:
-                    try:
-                        api_calls += 1
-                        poule_cache[poule_id] = _load_poule_snapshots(
-                            client,
-                            poule_id,
-                            salle_cache=salle_cache,
-                        )
-                    except FFBBApiError as e:
-                        errors += 1
-                        logger.debug("Erreur poule id=%s: %s", poule_id, e)
-                        poule_cache[poule_id] = {}
-
                 snapshot_lookup = poule_cache.get(poule_id, {})
                 snapshot = snapshot_lookup.get(str(eng_id))
                 if not snapshot and team_lookup_name:
@@ -4409,16 +4541,6 @@ def main() -> None:
                     next_match_salle_name = snapshot.next_match_salle_name
                     next_match_salle_address = snapshot.next_match_salle_address
                     next_match_salle_map_url = snapshot.next_match_salle_map_url
-
-        if i % 10 == 0 or i == len(qualified):
-            logger.info(
-                "[3/5] Enrichissement: %d/%d engagements, %d clubs en cache,"
-                " %d appels API",
-                i,
-                len(qualified),
-                len(club_cache),
-                api_calls,
-            )
 
         # Fallback geo from Meilisearch hit
         if ville and ville not in city_geo and hit.geo:
@@ -4493,6 +4615,15 @@ def main() -> None:
                     next_match_salle_address,
                     next_match_salle_map_url,
                 )
+
+    logger.info(
+        "[3/5] Enrichissement termine: %d contacts collectes, %d clubs, "
+        "%d poules, %d erreurs",
+        len(rows_by_key),
+        len(club_cache),
+        len(poule_cache),
+        errors,
+    )
 
     all_rows = list(rows_by_key.values())
 

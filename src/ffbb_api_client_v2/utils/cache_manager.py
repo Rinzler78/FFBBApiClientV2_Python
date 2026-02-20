@@ -16,8 +16,35 @@ import threading
 from dataclasses import dataclass
 from typing import Any, cast
 
-from requests import PreparedRequest
+from requests import PreparedRequest, Response
 from requests_cache import CachedSession
+
+
+class ThreadSafeCachedSession(CachedSession):
+    """Thread-safe wrapper around ``CachedSession``.
+
+    ``requests.Session`` (and its subclass ``CachedSession``) is **not**
+    thread-safe: concurrent calls from multiple threads can corrupt
+    internal state and — with the SQLite backend — trigger
+    ``sqlite3.DatabaseError`` or even segfaults.
+
+    This subclass serialises every request through a single
+    ``threading.Lock`` on the ``request()`` method, which is the common
+    dispatch point for all HTTP verbs (``get()``, ``post()``, etc. all
+    delegate to ``request()``).
+    """
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self._ts_lock = threading.Lock()
+
+    def __getstate__(self) -> dict[str, Any]:
+        """Preserve parent cache/session pickling contract."""
+        return cast(dict[str, Any], super().__getstate__())
+
+    def request(self, *args: Any, **kwargs: Any) -> Response:  # type: ignore[override]
+        with self._ts_lock:
+            return cast(Response, super().request(*args, **kwargs))
 
 
 @dataclass
@@ -152,14 +179,18 @@ class CacheManager:
             CacheManager._initialized = True
 
     def _initialize_cache(self) -> None:
-        """Initialize the cache backend."""
+        """Initialize the cache backend.
+
+        Uses ``ThreadSafeCachedSession`` so that the singleton session
+        can be shared safely across multiple threads.
+        """
         if self.config.backend == "memory":
-            self._session = CachedSession(
+            self._session = ThreadSafeCachedSession(
                 backend="memory",
                 expire_after=self.config.expire_after,
             )
         elif self.config.backend == "sqlite":
-            self._session = CachedSession(
+            self._session = ThreadSafeCachedSession(
                 "http_cache.db",
                 backend="sqlite",
                 expire_after=self.config.expire_after,
@@ -169,7 +200,7 @@ class CacheManager:
         elif self.config.backend == "redis":
             if not self.config.redis_url:
                 raise ValueError("Redis URL is required for Redis backend")
-            self._session = CachedSession(
+            self._session = ThreadSafeCachedSession(
                 self.config.redis_url,
                 backend="redis",
                 expire_after=self.config.expire_after,

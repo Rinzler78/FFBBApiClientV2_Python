@@ -90,7 +90,7 @@ class Test018CacheManager(unittest.TestCase):
         self.assertFalse(manager.is_enabled())
         self.assertIsNone(manager.get_session())
 
-    @patch("ffbb_api_client_v2.utils.cache_manager.CachedSession")
+    @patch("ffbb_api_client_v2.utils.cache_manager.ThreadSafeCachedSession")
     def test_005_cache_manager_initialization_redis(self, mock_cached_session):
         """Test cache manager initialization with Redis backend."""
         config = CacheConfig(backend="redis", redis_url="redis://localhost:6379")

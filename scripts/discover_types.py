@@ -35,8 +35,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from requests_cache import CachedSession
-
 import ffbb_api_client_v2.directus_ffbb.config as _directus_config
 import ffbb_api_client_v2.meilisearch_ffbb.config as _meili_config
 from ffbb_api_client_v2._http.client import (
@@ -52,6 +50,9 @@ from ffbb_api_client_v2.directus_ffbb.config import (
     API_FFBB_BASE_URL,
 )
 from ffbb_api_client_v2.facade.token_manager import TokenManager
+from ffbb_api_client_v2.utils.cache_manager import (
+    ThreadSafeCachedSession as CachedSession,
+)
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 SRC_ROOT = PROJECT_ROOT / "src"
