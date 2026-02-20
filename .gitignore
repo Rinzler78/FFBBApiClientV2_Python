@@ -69,5 +69,5 @@ data/meilisearch_settings_discovery.json
 # Executed notebooks (outputs)
 examples/executed_*.ipynb
 examples/http_cache.db
-data/responses
-data/*.sqlite
+data
+reports
