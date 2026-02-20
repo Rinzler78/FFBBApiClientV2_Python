@@ -20,8 +20,9 @@ import csv
 import json
 import logging
 import math
+import os
 import re
-import threading
+import time
 import unicodedata
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -35,12 +36,19 @@ from ffbb_api_client_v2.directus_ffbb.config import API_FFBB_BASE_URL, ENDPOINT_
 from ffbb_api_client_v2.directus_ffbb.models.get_engagements_response import (
     GetEngagementsResponse,
 )
+from ffbb_api_client_v2.directus_ffbb.models.get_entraineurs_response import (
+    GetEntraineursResponse,
+)
 from ffbb_api_client_v2.directus_ffbb.models.get_organisme_response import (
     GetOrganismeResponse,
 )
 from ffbb_api_client_v2.exceptions import FFBBApiError
+from ffbb_api_client_v2.meilisearch_ffbb.models.engagements_facet_distribution import (
+    EngagementsFacetDistribution,
+)
 from ffbb_api_client_v2.meilisearch_ffbb.models.engagements_hit import EngagementsHit
 from ffbb_api_client_v2.models.age_group import AgeGroup
+from ffbb_api_client_v2.models.categorie_code import CategorieCode
 from ffbb_api_client_v2.models.contact_info import ContactInfo
 from ffbb_api_client_v2.models.echelon import Echelon
 from ffbb_api_client_v2.models.sexe import Sexe
@@ -51,7 +59,7 @@ logging.getLogger("ffbb_api_client_v2.utils.converter_utils").setLevel(logging.E
 
 # Echelons considered pro-level (top-tier competitions)
 PRO_ECHELONS: frozenset[Echelon] = frozenset(
-    {Echelon.LIGUE_FEMININE, Echelon.BASKET_FAUTEUIL}
+    {Echelon.PRO, Echelon.LIGUE_FEMININE, Echelon.BASKET_FAUTEUIL}
 )
 
 # Echelons considered national-level
@@ -71,6 +79,7 @@ NIVEAU_LABELS = {
     "FEDERAL": "Federal",
     "EXCELLENCE": "Excellence",
     "ASSOCIATION_REGIONALE": "Association Regionale",
+    "ASSOCIATION_DEPARTEMENTALE": "Association Departementale",
     "OTHER": "Autre",
 }
 NIVEAU_PRIORITY = {
@@ -88,6 +97,7 @@ NIVEAU_PRIORITY = {
 
 # Map Echelon enum members to classification labels
 _ECHELON_TO_LABEL: dict[Echelon, str] = {
+    Echelon.PRO: "PRO",
     Echelon.LIGUE_FEMININE: "PRO",
     Echelon.BASKET_FAUTEUIL: "PRO",
     Echelon.NATIONAL: "NATIONAL",
@@ -98,6 +108,13 @@ _ECHELON_TO_LABEL: dict[Echelon, str] = {
     Echelon.FEDERAL: "FEDERAL",
     Echelon.DEPARTEMENT: "DEPARTEMENTAL",
     Echelon.ASSOCIATION_REGIONALE: "ASSOCIATION_REGIONALE",
+    Echelon.ASSOCIATION_DEPARTEMENTALE: "ASSOCIATION_DEPARTEMENTALE",
+}
+
+_MATCH_TYPE_LABELS: dict[str, str] = {
+    "COUPE": "Coupe",
+    "DIV": "Championnat",
+    "PLAT": "Plateau",
 }
 
 _COMPETITIONS_BASE = "https://competitions.ffbb.com"
@@ -114,6 +131,14 @@ _RE_NON_DIGITS = re.compile(r"\D")
 # ---------------------------------------------------------------------------
 # Utility functions
 # ---------------------------------------------------------------------------
+
+
+def _next_match_label(match_type: str) -> str:
+    """Return a human-readable label for the next match chip."""
+    suffix = _MATCH_TYPE_LABELS.get(match_type)
+    if suffix:
+        return f"Prochain ({suffix})"
+    return "Prochain"
 
 
 def haversine_km(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
@@ -205,6 +230,7 @@ class ReportTeam:
     ranking_total: int | None
     next_match_date: str
     next_match_opponent: str
+    next_match_type: str
     next_match_salle_name: str
     next_match_salle_address: str
     next_match_salle_map_url: str
@@ -280,6 +306,11 @@ class ContactReport:
 
     # Results
     cities: list[ReportCity]
+
+    # Active filters (None = all accepted)
+    filter_echelons: frozenset[Echelon] | None = None
+    filter_age_groups: frozenset[AgeGroup] | None = None
+    filter_sexes: frozenset[Sexe] | None = None
 
     @property
     def total_cities(self) -> int:
@@ -407,6 +438,10 @@ class ContactReport:
         city_postcodes: dict[str, str],
         club_infos: dict[str, _ClubInfo],
         city_geo: dict[str, _CityGeo],
+        *,
+        filter_echelons: frozenset[Echelon] | None = None,
+        filter_age_groups: frozenset[AgeGroup] | None = None,
+        filter_sexes: frozenset[Sexe] | None = None,
     ) -> ContactReport:
         """Build a hierarchical report from flat collected rows."""
 
@@ -470,6 +505,7 @@ class ContactReport:
                     ranking_total: int | None = None
                     next_match_date = ""
                     next_match_opponent = ""
+                    next_match_type = ""
                     next_match_salle_name = ""
                     next_match_salle_address = ""
                     next_match_salle_map_url = ""
@@ -486,6 +522,7 @@ class ContactReport:
                             next_match_date = r.next_match_date
                         if not next_match_opponent and r.next_match_opponent:
                             next_match_opponent = r.next_match_opponent
+                            next_match_type = r.next_match_type
                         if not next_match_salle_name and r.next_match_salle_name:
                             next_match_salle_name = r.next_match_salle_name
                         if not next_match_salle_address and r.next_match_salle_address:
@@ -515,6 +552,7 @@ class ContactReport:
                             ranking_total=ranking_total,
                             next_match_date=next_match_date,
                             next_match_opponent=next_match_opponent,
+                            next_match_type=next_match_type,
                             next_match_salle_name=next_match_salle_name,
                             next_match_salle_address=next_match_salle_address,
                             next_match_salle_map_url=next_match_salle_map_url,
@@ -588,6 +626,9 @@ class ContactReport:
             radius=radius,
             timestamp=datetime.now().strftime("%Y-%m-%d %H:%M"),
             cities=report_cities,
+            filter_echelons=filter_echelons,
+            filter_age_groups=filter_age_groups,
+            filter_sexes=filter_sexes,
         )
 
     # ------------------------------------------------------------------
@@ -604,6 +645,12 @@ class ContactReport:
             self._write_md_contacts(f)
             f.write(f"*Genere le {self.timestamp} par ffbb-api-client-v2*\n")
 
+    @staticmethod
+    def _format_filter(values: frozenset | None, default: str) -> str:
+        if values is None:
+            return default
+        return ", ".join(sorted(v.name for v in values))
+
     def _write_md_header(self, f) -> None:
         f.write(f"# Contacts Basketball Senior — {self.city_name}\n\n")
         f.write("### Recherche\n\n")
@@ -612,9 +659,11 @@ class ContactReport:
         f.write(f"| Ville | **{self.city_name}** |\n")
         f.write(f"| Position | {self.lat:.4f}, {self.lng:.4f} |\n")
         f.write(f"| Rayon | {self.radius:.0f} km |\n")
-        f.write("| Niveaux | Tous |\n")
-        f.write("| Sexe | Tous |\n")
-        f.write("| Tranches d'ages | Toutes |\n\n")
+        f.write(f"| Echelons | {self._format_filter(self.filter_echelons, 'Tous')} |\n")
+        f.write(f"| Sexe | {self._format_filter(self.filter_sexes, 'Tous')} |\n")
+        f.write(
+            f"| Tranches d'ages | {self._format_filter(self.filter_age_groups, 'Toutes')} |\n\n"
+        )
         f.write(f"*{self.timestamp}*\n\n")
         f.write("---\n\n")
 
@@ -926,6 +975,12 @@ class ContactReport:
                 ("Ville", self.city_name),
                 ("Rayon", f"{self.radius:.0f} km"),
                 ("Position", f"{self.lat:.4f}, {self.lng:.4f}"),
+                ("Echelons", self._format_filter(self.filter_echelons, "Tous")),
+                (
+                    "Tranches d'age",
+                    self._format_filter(self.filter_age_groups, "Toutes"),
+                ),
+                ("Sexe", self._format_filter(self.filter_sexes, "Tous")),
             ]:
                 f.write(
                     "<li class='hero-fact'>"
@@ -1411,6 +1466,7 @@ class ContactReport:
                         "</span>"
                     )
             if team.next_match_date and team.next_match_opponent:
+                match_type_label = _next_match_label(team.next_match_type)
                 salle_line = ""
                 if (
                     team.next_match_salle_name
@@ -1439,7 +1495,7 @@ class ContactReport:
                         )
                 team_meta_items.append(
                     "<span class='team-chip team-chip--next'>"
-                    "<span class='team-chip__label'>Prochain</span>"
+                    f"<span class='team-chip__label'>{h(match_type_label)}</span>"
                     "<span class='team-chip__next-main'>"
                     f"<span class='team-chip__when'>{h(team.next_match_date)}</span>"
                     "<span class='team-chip__vs'>contre</span>"
@@ -1450,6 +1506,7 @@ class ContactReport:
                     "</span>"
                 )
             elif team.next_match_date:
+                match_type_label = _next_match_label(team.next_match_type)
                 salle_line = ""
                 if (
                     team.next_match_salle_name
@@ -1478,7 +1535,7 @@ class ContactReport:
                         )
                 team_meta_items.append(
                     "<span class='team-chip team-chip--next'>"
-                    "<span class='team-chip__label'>Prochain</span>"
+                    f"<span class='team-chip__label'>{h(match_type_label)}</span>"
                     "<span class='team-chip__next-main'>"
                     f"<span class='team-chip__when'>{h(team.next_match_date)}</span>"
                     "</span>"
@@ -3398,6 +3455,7 @@ class _CollectedRow:
     next_match_at: datetime | None
     next_match_date: str
     next_match_opponent: str
+    next_match_type: str
     next_match_salle_name: str
     next_match_salle_address: str
     next_match_salle_map_url: str
@@ -3829,6 +3887,116 @@ def _load_poule_snapshots(
     return snapshots
 
 
+def _load_all_poule_snapshots(
+    client: FFBBAPIClientV2,
+    poule_ids: set[int],
+    salle_cache: dict[int, tuple[str, str, str]] | None = None,
+) -> dict[int, dict[str, _TeamCompetitionSnapshot]]:
+    """Batch-load ranking + next match info for multiple poules at once.
+
+    Makes 2 API calls total (one for engagements, one for rencontres)
+    instead of 2 per poule.
+    """
+    if not poule_ids:
+        return {}
+    if salle_cache is None:
+        salle_cache = {}
+
+    # 1. Batch-fetch all engagements for all poules
+    all_engagements = client.list_engagements_by_poules(list(poule_ids))
+    eng_by_poule: dict[int, list[GetEngagementsResponse]] = defaultdict(list)
+    for eng in all_engagements:
+        if eng.idPoule is not None:
+            eng_by_poule[eng.idPoule].append(eng)
+
+    # 2. Batch-fetch all rencontres for all poules
+    all_rencontres = client.list_rencontres_by_poules(
+        list(poule_ids), sort=["date_rencontre"]
+    )
+    ren_by_poule: dict[int, list] = defaultdict(list)
+    for match in all_rencontres:
+        if match.idPoule is not None:
+            ren_by_poule[match.idPoule].append(match)
+
+    # 3. Assemble snapshots per poule (reuses _load_poule_snapshots logic)
+    result: dict[int, dict[str, _TeamCompetitionSnapshot]] = {}
+    for pid in poule_ids:
+        snapshots: dict[str, _TeamCompetitionSnapshot] = {}
+
+        # Rankings from engagements
+        engagements = eng_by_poule.get(pid, [])
+        rank_total = len(engagements)
+        for engagement in engagements:
+            if not engagement.id:
+                continue
+            snapshot = snapshots.get(str(engagement.id), _TeamCompetitionSnapshot())
+            if engagement.position is not None and engagement.position > 0:
+                snapshot.ranking_position = engagement.position
+            if rank_total > 1:
+                snapshot.ranking_total = rank_total
+            snapshots[str(engagement.id)] = snapshot
+            for name in (engagement.nom, engagement.nomEquipe, engagement.nomUsuel):
+                if name:
+                    snapshots[_team_name_key(name)] = snapshot
+
+        # Next matches from rencontres
+        matches = ren_by_poule.get(pid, [])
+        for match in matches:
+            if match.joue is True:
+                continue
+
+            date_value = match.date_rencontre or match.date
+            nom1 = match.nomEquipe1 or ""
+            nom2 = match.nomEquipe2 or ""
+            id1 = str(match.idEngagementEquipe1) if match.idEngagementEquipe1 else ""
+            id2 = str(match.idEngagementEquipe2) if match.idEngagementEquipe2 else ""
+            key1 = id1 or (_team_name_key(nom1) if nom1 else "")
+            key2 = id2 or (_team_name_key(nom2) if nom2 else "")
+
+            if key1:
+                current = snapshots.get(key1, _TeamCompetitionSnapshot())
+                if _is_better_match_candidate(date_value, current.next_match_date):
+                    current.next_match_date = date_value
+                    current.next_match_opponent = nom2
+                    current.next_match_salle_name = ""
+                    current.next_match_salle_address = ""
+                    current.next_match_salle_map_url = ""
+                    if match.salle:
+                        (
+                            current.next_match_salle_name,
+                            current.next_match_salle_address,
+                            current.next_match_salle_map_url,
+                        ) = _resolve_salle_details(client, match.salle, salle_cache)
+                snapshots[key1] = current
+                if id1:
+                    snapshots[id1] = current
+                if nom1:
+                    snapshots[_team_name_key(nom1)] = current
+            if key2:
+                current = snapshots.get(key2, _TeamCompetitionSnapshot())
+                if _is_better_match_candidate(date_value, current.next_match_date):
+                    current.next_match_date = date_value
+                    current.next_match_opponent = nom1
+                    current.next_match_salle_name = ""
+                    current.next_match_salle_address = ""
+                    current.next_match_salle_map_url = ""
+                    if match.salle:
+                        (
+                            current.next_match_salle_name,
+                            current.next_match_salle_address,
+                            current.next_match_salle_map_url,
+                        ) = _resolve_salle_details(client, match.salle, salle_cache)
+                snapshots[key2] = current
+                if id2:
+                    snapshots[id2] = current
+                if nom2:
+                    snapshots[_team_name_key(nom2)] = current
+
+        result[pid] = snapshots
+
+    return result
+
+
 def _extract_next_match_from_engagement(
     engagement: GetEngagementsResponse,
     engagement_id: int,
@@ -3952,6 +4120,7 @@ def _contact_to_row(
     next_match_at: datetime | None,
     next_match_date: str,
     next_match_opponent: str,
+    next_match_type: str,
     next_match_salle_name: str,
     next_match_salle_address: str,
     next_match_salle_map_url: str,
@@ -3980,6 +4149,7 @@ def _contact_to_row(
         next_match_at=next_match_at,
         next_match_date=next_match_date,
         next_match_opponent=next_match_opponent,
+        next_match_type=next_match_type,
         next_match_salle_name=next_match_salle_name,
         next_match_salle_address=next_match_salle_address,
         next_match_salle_map_url=next_match_salle_map_url,
@@ -3994,39 +4164,75 @@ def _contact_to_row(
 def resolve_city_coordinates(
     client: FFBBAPIClientV2,
     city_name: str,
-) -> tuple[float, float, str]:
-    """Resolve a city name to (lat, lng, code_postal) via Meilisearch organismes search."""
-    result = client.search_organismes(
-        name=city_name,
-        filter=[f'commune.libelle = "{city_name}"'],
-        limit=50,
-    )
+) -> tuple[float, float, str, frozenset[str]]:
+    """Resolve a city name to (lat, lng, code_postal, club_codes) via Meilisearch.
+
+    Two-step approach:
+    1. Text search to discover matching **commune names** (e.g. "Paris" →
+       "Paris", "Paris 1er Arrondissement", "Paris 2ème", …).
+    2. For each matching commune, ``search_organismes_by_city`` to retrieve
+       ALL clubs registered in that commune.
+    """
+    # Step 1: text search → discover matching commune names + coordinates
+    result = client.search_organismes(name=city_name, limit=200)
     coords: list[tuple[float, float]] = []
     code_postal: str = ""
+    commune_names: set[str] = set()
+    city_lower = city_name.lower()
+
     if result and result.hits:
         for hit in result.hits:
             if hit.geo and hit.geo.lat is not None and hit.geo.lng is not None:
                 coords.append((hit.geo.lat, hit.geo.lng))
             if not code_postal and hit.commune and hit.commune.code_postal:
                 code_postal = hit.commune.code_postal
+            if (
+                hit.commune
+                and hit.commune.lower_libelle
+                and (
+                    hit.commune.lower_libelle == city_lower
+                    or hit.commune.lower_libelle.startswith(city_lower + " ")
+                )
+            ):
+                commune_names.add(hit.commune.libelle)
 
     if not coords:
         logger.error("Impossible de résoudre les coordonnées pour '%s'.", city_name)
         raise SystemExit(1)
 
-    # Median for robustness
     coords.sort()
     mid = len(coords) // 2
     lat, lng = coords[mid][0], coords[mid][1]
     logger.info(
-        "Ville '%s' résolue → (%.5f, %.5f, CP %s) via %d organismes",
+        "Ville '%s' coords → (%.5f, %.5f, CP %s) via %d organismes, " "%d communes: %s",
         city_name,
         lat,
         lng,
         code_postal or "?",
-        len(coords),
+        len(result.hits) if result and result.hits else 0,
+        len(commune_names),
+        (
+            ", ".join(sorted(commune_names))
+            if len(commune_names) <= 10
+            else f"{len(commune_names)} communes"
+        ),
     )
-    return lat, lng, code_postal
+
+    # Step 2: search organismes in each matching commune → comprehensive club codes
+    club_codes: set[str] = set()
+    for commune in sorted(commune_names):
+        r = client.search_organismes_by_city(commune, limit=200)
+        if r and r.hits:
+            for hit in r.hits:
+                if hit.code:
+                    club_codes.add(hit.code)
+    logger.info(
+        "Ville '%s' clubs → %d clubs dans %d communes",
+        city_name,
+        len(club_codes),
+        len(commune_names),
+    )
+    return lat, lng, code_postal, frozenset(club_codes)
 
 
 def _parse_enum_args(
@@ -4049,8 +4255,48 @@ def _parse_enum_args(
 # Adaptive radius constants & helper
 # ---------------------------------------------------------------------------
 
-_CITY_RADIUS_KM = 10.0
-_DEFAULT_RADIUS_KM = 50.0
+_CITY_RADIUS_KM = 50.0
+_MAX_WORKERS = os.cpu_count() or 8
+
+
+def _resolve_niveau_codes(
+    facet_distribution: EngagementsFacetDistribution | None,
+    accepted_echelons: frozenset[Echelon] | None,
+    accepted_age_groups: frozenset[AgeGroup] | None,
+) -> list[str] | None:
+    """Parse facet niveau.code distribution and return matching codes.
+
+    Returns None if no filtering is needed (all accepted).
+    """
+    if accepted_echelons is None and accepted_age_groups is None:
+        return None
+    if not facet_distribution or not facet_distribution.niveau_code:
+        return None
+    matching: list[str] = []
+    for code_str in facet_distribution.niveau_code:
+        cc = CategorieCode(code_str)
+        if not cc.is_parsed:
+            count = facet_distribution.niveau_code[code_str]
+            logger.warning(
+                "Code niveau non reconnu: '%s' (%d engagements ignores)",
+                code_str,
+                count,
+            )
+            continue
+        if accepted_echelons is not None and cc.echelon not in accepted_echelons:
+            continue
+        if accepted_age_groups is not None:
+            if cc.age_group is not None and cc.age_group not in accepted_age_groups:
+                continue
+        matching.append(code_str)
+    return matching if matching else None
+
+
+def _resolve_sexe_filter(accepted_sexes: frozenset[Sexe] | None) -> list[str] | None:
+    """Map Sexe enums to Meilisearch idCompetition.sexe filter values."""
+    if accepted_sexes is None:
+        return None
+    return [s.value for s in accepted_sexes]
 
 
 def _search_and_classify(
@@ -4063,12 +4309,32 @@ def _search_and_classify(
     accepted_sexes: frozenset | None,
 ) -> tuple[object, list[tuple[EngagementsHit, str]], dict[str, int]]:
     """Run geo search + classify in one pass. Returns (result, qualified, level_counts)."""
-    result = client.search_engagements_by_geo(
+    # 1. Facet discovery — lightweight query to get niveau.code distribution
+    discovery = client.search_engagements_by_geo(
+        lat=lat,
+        lng=lng,
+        radius_km=radius_km,
+        limit=1,
+    )
+
+    # 2. Resolve filters from facet distribution
+    facet_dist = discovery.facet_distribution if discovery else None
+    niveau_codes = _resolve_niveau_codes(
+        facet_dist, accepted_echelons, accepted_age_groups
+    )
+    sexes = _resolve_sexe_filter(accepted_sexes)
+
+    # 3. Filtered query — Meilisearch does the heavy lifting
+    result = client.search_engagements_filtered(
         lat=lat,
         lng=lng,
         radius_km=radius_km,
         limit=5000,
+        sexes=sexes,
+        niveau_codes=niveau_codes,
     )
+
+    # 4. Classify — still needed for label assignment + hit.sexe check
     qualified: list[tuple[EngagementsHit, str]] = []
     level_counts: dict[str, int] = defaultdict(int)
     sexes_values = (
@@ -4155,17 +4421,20 @@ def main() -> None:
     )
 
     # --- Resolve city coordinates & create client ---
+    t_start = time.perf_counter()
     tokens = TokenManager.get_tokens()
     client = FFBBAPIClientV2.create(
         api_bearer_token=tokens.api_token,
         meilisearch_bearer_token=tokens.meilisearch_token,
     )
-    lat, lng, city_code_postal = resolve_city_coordinates(client, args.city_name)
+    t0 = time.perf_counter()
+    lat, lng, city_code_postal, city_club_codes = resolve_city_coordinates(
+        client, args.city_name
+    )
+    logger.info("[0/5] Résolution ville: %.2fs", time.perf_counter() - t0)
 
     if args.dry_run:
-        effective_radius = (
-            args.radius if args.radius is not None else _DEFAULT_RADIUS_KM
-        )
+        effective_radius = args.radius if args.radius is not None else _CITY_RADIUS_KM
         logger.info(
             "[dry-run] %s (%.5f, %.5f), rayon %.1f km → %s/%s_senior_contacts.{md,csv,html}",
             args.city_name,
@@ -4178,6 +4447,7 @@ def main() -> None:
         return
 
     # Step 1: Geo search engagements via Meilisearch (adaptive radius)
+    t1 = time.perf_counter()
     if args.radius is not None:
         search_radius = args.radius
         logger.info(
@@ -4197,14 +4467,15 @@ def main() -> None:
             accepted_sexes,
         )
     else:
-        # 1st pass: city-only radius
+        # City mode: geo-search + post-filter by city club codes, fallback if empty
         search_radius = _CITY_RADIUS_KM
         logger.info(
-            "[1/5] Recherche geo engagements: %s (%.5f, %.5f), rayon %.1f km (ville)",
+            "[1/5] Recherche geo engagements: %s (%.5f, %.5f), rayon %.1f km (ville, %d clubs)",
             args.city_name,
             lat,
             lng,
             search_radius,
+            len(city_club_codes),
         )
         result, qualified, level_counts = _search_and_classify(
             client,
@@ -4215,32 +4486,57 @@ def main() -> None:
             accepted_age_groups,
             accepted_sexes,
         )
-        if not qualified:
-            # 2nd pass: extend radius
-            search_radius = _DEFAULT_RADIUS_KM
+        # Post-filter: keep only engagements from clubs in the target city
+        all_qualified = qualified[:]  # save for fallback
+        if city_club_codes:
+            filtered = [(h, l) for h, l in qualified if h.code_club in city_club_codes]
+            if filtered:
+                qualified = filtered
+                level_counts = defaultdict(int)
+                for _, l in qualified:
+                    level_counts[l] += 1
+                logger.info(
+                    "[1/5] Ville %s: %d engagements bruts, %d qualifies, "
+                    "%d apres filtre clubs ville (%d clubs)",
+                    args.city_name,
+                    len(result.hits) if result and result.hits else 0,
+                    len(all_qualified),
+                    len(qualified),
+                    len(city_club_codes),
+                )
+            else:
+                # No results after city filter → fallback to all geo results
+                logger.info(
+                    "[1/5] Ville %s: %d engagements bruts, %d qualifies, "
+                    "0 apres filtre clubs ville (%d clubs) → fallback geo-rayon %.0f km",
+                    args.city_name,
+                    len(result.hits) if result and result.hits else 0,
+                    len(all_qualified),
+                    len(city_club_codes),
+                    search_radius,
+                )
+        else:
             logger.info(
-                "[1/5] Aucun resultat qualifie a %.0f km, extension a %.0f km",
-                _CITY_RADIUS_KM,
+                "[1/5] Ville %s: %d engagements bruts, %d qualifies "
+                "(rayon %.0f km, pas de clubs ville)",
+                args.city_name,
+                len(result.hits) if result and result.hits else 0,
+                len(qualified),
                 search_radius,
-            )
-            result, qualified, level_counts = _search_and_classify(
-                client,
-                lat,
-                lng,
-                search_radius,
-                accepted_echelons,
-                accepted_age_groups,
-                accepted_sexes,
             )
 
+    t1_elapsed = time.perf_counter() - t1
     if not result or not result.hits:
-        logger.warning("Aucun engagement trouve autour de %s.", args.city_name)
+        logger.warning(
+            "Aucun engagement trouve autour de %s. (%.2fs)", args.city_name, t1_elapsed
+        )
         return
 
     logger.info(
-        "[1/5] %d engagements bruts trouves (rayon %.1f km)",
+        "[1/5] %d engagements bruts trouves (rayon %.1f km) en %.2fs",
         len(result.hits),
         search_radius,
+        t1_elapsed,
     )
 
     if not qualified:
@@ -4258,14 +4554,13 @@ def main() -> None:
     )
 
     # Step 3: Enrich via facade contact methods (parallelised prefetch)
+    t3 = time.perf_counter()
     club_cache: dict[int, _ClubInfo | None] = {}
     poule_cache: dict[int, dict[str, _TeamCompetitionSnapshot]] = {}
     salle_cache: dict[int, tuple[str, str, str]] = {}
-    salle_lock = threading.Lock()
     rows_by_key: dict[tuple[object, ...], _CollectedRow] = {}
     city_geo: dict[str, _CityGeo] = {}
     errors = 0
-    _MAX_WORKERS = 8
 
     # CacheManager now uses ThreadSafeCachedSession — the shared client
     # can be used from multiple threads without external locking.
@@ -4282,41 +4577,86 @@ def main() -> None:
             eng_ids.append(eid)
             eng_id_by_hit[idx] = eid
 
-    # -- Phase A: Prefetch engagement contacts in parallel --
+    # -- Phase A: Batch-fetch engagements + entraineurs --
     from ffbb_api_client_v2.models.club_contacts import ClubContacts as _CC
+    from ffbb_api_client_v2.models.contact_role import ContactRole as _ContactRole
     from ffbb_api_client_v2.models.engagement_contacts import EngagementContacts as _EC
-
-    def _fetch_engagement(eid: int) -> tuple[int, _EC | None]:
-        return eid, client.get_engagement_contacts(eid)
+    from ffbb_api_client_v2.models.engagement_contacts import (
+        extract_correspondant as _extract_correspondant,
+    )
+    from ffbb_api_client_v2.models.engagement_contacts import (
+        extract_entraineur_contact as _extract_entraineur_contact,
+    )
 
     def _fetch_club(oid: int) -> tuple[int, _CC | None]:
         return oid, client.get_club_contacts(oid)
 
     eng_results: dict[int, _EC | None] = {}
     if eng_ids:
+        tA = time.perf_counter()
         logger.info(
-            "[3/5] Phase A: prefetch engagements (%d ids)...",
+            "[3/5] Phase A: batch engagements (%d ids)...",
             len(eng_ids),
         )
-        with ThreadPoolExecutor(max_workers=_MAX_WORKERS) as pool:
-            futures = {pool.submit(_fetch_engagement, eid): eid for eid in eng_ids}
-            done = 0
-            for future in as_completed(futures):
-                eid = futures[future]
+        try:
+            all_engagements = client.list_engagements_by_ids(eng_ids)
+        except FFBBApiError as e:
+            all_engagements = []
+            errors += 1
+            logger.warning("Erreur batch engagements: %s", e)
+
+        eng_by_id: dict[int, GetEngagementsResponse] = {}
+        trainer_ids: set[int] = set()
+        for eng in all_engagements:
+            try:
+                eid = int(eng.id)
+            except (ValueError, TypeError):
+                continue
+            eng_by_id[eid] = eng
+            if eng.entraineur is not None:
+                trainer_ids.add(eng.entraineur)
+            if eng.entraineurAdjoint is not None:
+                trainer_ids.add(eng.entraineurAdjoint)
+
+        trainer_by_id: dict[int, GetEntraineursResponse] = {}
+        if trainer_ids:
+            try:
+                all_trainers = client.list_entraineurs_by_ids(list(trainer_ids))
+            except FFBBApiError as e:
+                all_trainers = []
+                errors += 1
+                logger.warning("Erreur batch entraineurs: %s", e)
+            for tr in all_trainers:
                 try:
-                    _, ec = future.result()
-                    eng_results[eid] = ec
-                except FFBBApiError as e:
-                    eng_results[eid] = None
-                    errors += 1
-                    logger.debug("Erreur engagement id=%s: %s", eid, e)
-                done += 1
-                if done % 50 == 0:
-                    logger.info(
-                        "[3/5] Phase A: %d/%d engagements fetched",
-                        done,
-                        len(eng_ids),
-                    )
+                    trainer_by_id[int(tr.idLicence)] = tr
+                except (ValueError, TypeError, AttributeError):
+                    continue
+
+        for eid in eng_ids:
+            eng = eng_by_id.get(eid)
+            if eng is None:
+                eng_results[eid] = None
+                continue
+            correspondant = _extract_correspondant(eng)
+            entraineur = None
+            if eng.entraineur is not None:
+                entraineur = _extract_entraineur_contact(
+                    trainer_by_id.get(eng.entraineur), _ContactRole.ENTRAINEUR
+                )
+            entraineur_adj = None
+            if eng.entraineurAdjoint is not None:
+                entraineur_adj = _extract_entraineur_contact(
+                    trainer_by_id.get(eng.entraineurAdjoint),
+                    _ContactRole.ENTRAINEUR_ADJOINT,
+                )
+            eng_results[eid] = _EC(eng, correspondant, entraineur, entraineur_adj)
+
+        logger.info(
+            "[3/5] Phase A terminee: %d/%d engagements en %.2fs",
+            len(eng_results),
+            len(eng_ids),
+            time.perf_counter() - tA,
+        )
 
     # -- Phase B: Prefetch club contacts (unique org_ids) in parallel --
     # Also collect first-seen hit info per org_id for logo/url fallback
@@ -4335,6 +4675,7 @@ def main() -> None:
 
     club_contacts_raw: dict[int, _CC | None] = {}
     if org_ids:
+        tB = time.perf_counter()
         logger.info(
             "[3/5] Phase B: prefetch clubs (%d unique org_ids)...",
             len(org_ids),
@@ -4349,7 +4690,13 @@ def main() -> None:
                 except FFBBApiError as e:
                     club_contacts_raw[oid] = None
                     errors += 1
-                    logger.debug("Erreur club org_id=%s: %s", oid, e)
+                    logger.warning("Erreur club org_id=%s: %s", oid, e)
+        logger.info(
+            "[3/5] Phase B terminee: %d/%d clubs en %.2fs",
+            len(club_contacts_raw),
+            len(org_ids),
+            time.perf_counter() - tB,
+        )
 
     # -- Build club_cache from raw club contacts (sequential, resolves salles) --
     for oid, cc in club_contacts_raw.items():
@@ -4380,7 +4727,7 @@ def main() -> None:
         else:
             club_cache[oid] = None
 
-    # -- Phase C: Prefetch poule snapshots (unique poule_ids) in parallel --
+    # -- Phase C: Batch-fetch poule snapshots --
     # Collect poule_ids from hit data + engagement data
     poule_ids: set[int] = set()
     poule_id_for_hit: dict[int, int | None] = {}  # idx -> poule_id
@@ -4400,39 +4747,29 @@ def main() -> None:
         if poule_id is not None:
             poule_ids.add(poule_id)
 
-    def _safe_load_poule(pid: int) -> tuple[int, dict[str, _TeamCompetitionSnapshot]]:
-        """Load poule snapshots with thread-safe salle_cache access."""
-        local_salle: dict[int, tuple[str, str, str]] = {}
-        with salle_lock:
-            local_salle.update(salle_cache)
-        snapshots = _load_poule_snapshots(
-            client,
-            pid,
-            salle_cache=local_salle,
-        )
-        with salle_lock:
-            salle_cache.update(local_salle)
-        return pid, snapshots
-
     if poule_ids:
+        tC = time.perf_counter()
         logger.info(
-            "[3/5] Phase C: prefetch poules (%d unique poule_ids)...",
+            "[3/5] Phase C: batch poules (%d unique poule_ids)...",
             len(poule_ids),
         )
-        with ThreadPoolExecutor(max_workers=_MAX_WORKERS) as pool:
-            futures = {pool.submit(_safe_load_poule, pid): pid for pid in poule_ids}
-            for future in as_completed(futures):
-                pid = futures[future]
-                try:
-                    _, snapshots = future.result()
-                    poule_cache[pid] = snapshots
-                except FFBBApiError as e:
-                    errors += 1
-                    logger.debug("Erreur poule id=%s: %s", pid, e)
-                    poule_cache[pid] = {}
+        try:
+            poule_cache.update(
+                _load_all_poule_snapshots(client, poule_ids, salle_cache)
+            )
+        except FFBBApiError as e:
+            errors += 1
+            logger.warning("Erreur batch poules: %s", e)
+        logger.info(
+            "[3/5] Phase C terminee: %d/%d poules en %.2fs",
+            len(poule_cache),
+            len(poule_ids),
+            time.perf_counter() - tC,
+        )
 
     # -- Phase D: Sequential assembly (no API calls, only cache lookups) --
-    logger.info("[3/5] Assemblage des contacts...")
+    tD = time.perf_counter()
+    logger.info("[3/5] Phase D: assemblage des contacts...")
     _club_contacts_added: set[int] = (
         set()
     )  # org_ids whose club contacts were already added
@@ -4454,6 +4791,14 @@ def main() -> None:
         next_match_at: datetime | None = None
         next_match_date = ""
         next_match_opponent = ""
+        next_match_type = (
+            hit.id_competition.type_competition.value
+            if (
+                hit.id_competition is not None
+                and hit.id_competition.type_competition is not None
+            )
+            else ""
+        )
         next_match_salle_name = ""
         next_match_salle_address = ""
         next_match_salle_map_url = ""
@@ -4585,6 +4930,7 @@ def main() -> None:
                     row.next_match_date = next_match_date
                 if not row.next_match_opponent and next_match_opponent:
                     row.next_match_opponent = next_match_opponent
+                    row.next_match_type = next_match_type
                 if not row.next_match_salle_name and next_match_salle_name:
                     row.next_match_salle_name = next_match_salle_name
                 if not row.next_match_salle_address and next_match_salle_address:
@@ -4611,26 +4957,31 @@ def main() -> None:
                     next_match_at,
                     next_match_date,
                     next_match_opponent,
+                    next_match_type,
                     next_match_salle_name,
                     next_match_salle_address,
                     next_match_salle_map_url,
                 )
 
+    t3_elapsed = time.perf_counter() - t3
     logger.info(
-        "[3/5] Enrichissement termine: %d contacts collectes, %d clubs, "
-        "%d poules, %d erreurs",
+        "[3/5] Enrichissement termine: %d contacts, %d clubs, "
+        "%d poules, %d erreurs — %.2fs (assemblage %.2fs)",
         len(rows_by_key),
         len(club_cache),
         len(poule_cache),
         errors,
+        t3_elapsed,
+        time.perf_counter() - tD,
     )
 
     all_rows = list(rows_by_key.values())
 
     if errors:
-        logger.warning("[3/5] %d erreurs API ignorees (details en DEBUG)", errors)
+        logger.warning("[3/5] %d erreurs API ignorees", errors)
 
     # Step 4: Compute distances
+    t4 = time.perf_counter()
     city_distances: dict[str, float] = {}
     for v, geo in city_geo.items():
         city_distances[v] = haversine_km(lat, lng, geo.lat, geo.lng)
@@ -4646,9 +4997,10 @@ def main() -> None:
     cities_with_geo = len(city_distances)
     cities_without = len({r.ville for r in all_rows if r.ville}) - cities_with_geo
     logger.info(
-        "[4/5] Distances calculees: %d villes geoloc, %d sans coordonnees",
+        "[4/5] Distances calculees: %d villes geoloc, %d sans coordonnees — %.2fs",
         cities_with_geo,
         max(0, cities_without),
+        time.perf_counter() - t4,
     )
 
     # Build club_infos dict keyed by club name for report
@@ -4658,6 +5010,7 @@ def main() -> None:
             club_infos[info.nom] = info
 
     # Step 5: Build report and export
+    t5 = time.perf_counter()
     report = ContactReport.build(
         city_name=args.city_name,
         lat=lat,
@@ -4668,6 +5021,9 @@ def main() -> None:
         city_postcodes=city_postcodes,
         club_infos=club_infos,
         city_geo=city_geo,
+        filter_echelons=accepted_echelons,
+        filter_age_groups=accepted_age_groups,
+        filter_sexes=accepted_sexes,
     )
 
     out_dir = args.out_dir
@@ -4680,14 +5036,17 @@ def main() -> None:
     report.to_csv(csv_path)
     report.to_html(html_path)
 
+    t_total = time.perf_counter() - t_start
     logger.info(
-        "[5/5] %d contacts, %d clubs, %d villes → %s, %s, %s",
+        "[5/5] %d contacts, %d clubs, %d villes → %s, %s, %s — export %.2fs, total %.2fs",
         report.total_contacts,
         report.total_clubs,
         report.total_cities,
         md_path,
         csv_path,
         html_path,
+        time.perf_counter() - t5,
+        t_total,
     )
 
 
