@@ -16,6 +16,7 @@ from .cartographie import Cartographie
 from .categorie import Categorie
 from .categorie_code import CategorieCode
 from .clock import Clock
+from .club_contacts import ClubContacts
 from .code import Code
 from .commune import Commune
 from .competition_id import CompetitionID
@@ -35,11 +36,15 @@ from .competition_poule import CompetitionPoule
 from .competition_ref import CompetitionRef
 from .competition_rencontre import CompetitionRencontre
 from .competition_type import CompetitionType
+from .contact_info import ContactInfo
 from .coordonnees import Coordonnees
 from .coordonnees_type import CoordonneesType
 from .document_flyer import DocumentFlyer
 from .document_flyer_type import DocumentFlyerType
 from .echelon import Echelon
+from .engagement_contacts import (
+    EngagementContacts,
+)
 from .engagement_equipe import EngagementEquipe
 from .etat import Etat
 from .external_competition_id import ExternalCompetitionID
@@ -102,7 +107,9 @@ __all__ = [
     "Cartographie",
     "Categorie",
     "CategorieCode",
+    "ClubContacts",
     "Clock",
+    "ContactInfo",
     "Code",
     "Commune",
     "CompetitionID",
@@ -122,6 +129,7 @@ __all__ = [
     "CoordonneesType",
     "DocumentFlyer",
     "DocumentFlyerType",
+    "EngagementContacts",
     "EngagementEquipe",
     "Echelon",
     "Etat",

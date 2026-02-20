@@ -23,6 +23,7 @@ from ..directus_ffbb.models.saisons_models import GetSaisonsResponse
 from ..meilisearch.models.meilisearch_index_settings import MeilisearchIndexSettings
 from ..meilisearch.models.multi_search_results import MultiSearchResult
 from ..meilisearch_ffbb.client import MeilisearchFFBBClient
+from ..meilisearch_ffbb.geo_sort_order import GeoSortOrder
 from ..meilisearch_ffbb.models.competitions_multi_search_query import (
     CompetitionsMultiSearchQuery,
 )
@@ -74,6 +75,16 @@ from ..meilisearch_ffbb.models.tournois_multi_search_query import (
     TournoisMultiSearchQuery,
 )
 from ..meilisearch_ffbb.query_helper import generate_queries
+from ..models.club_contacts import (
+    ClubContacts,
+    extract_club_info,
+    extract_membres_contacts,
+)
+from ..models.engagement_contacts import (
+    EngagementContacts,
+    extract_correspondant,
+    extract_entraineur_contact,
+)
 from ..utils.cache_manager import CacheManager
 from ..utils.input_validation import (
     validate_boolean,
@@ -1216,3 +1227,95 @@ class FFBBAPIClientV2:
         return self.meilisearch_ffbb_client.get_sortable_attributes(
             index_uid, cached_session
         )
+
+    # --- Geo-search proxies ---
+
+    def search_organismes_by_geo(
+        self,
+        lat: float,
+        lng: float,
+        radius_km: float = 10.0,
+        q: str = "",
+        limit: int | None = 20,
+        geo_sort: GeoSortOrder = GeoSortOrder.NEAREST_FIRST,
+        cached_session: CachedSession | None = None,
+    ) -> OrganismesMultiSearchResult | None:
+        """Search organismes by geographic proximity."""
+        return self.meilisearch_ffbb_client.search_organismes_by_geo(
+            lat, lng, radius_km, q, limit, geo_sort, cached_session
+        )
+
+    def search_salles_by_geo(
+        self,
+        lat: float,
+        lng: float,
+        radius_km: float = 10.0,
+        q: str = "",
+        limit: int | None = 20,
+        geo_sort: GeoSortOrder = GeoSortOrder.NEAREST_FIRST,
+        cached_session: CachedSession | None = None,
+    ) -> SallesMultiSearchResult | None:
+        """Search salles by geographic proximity."""
+        return self.meilisearch_ffbb_client.search_salles_by_geo(
+            lat, lng, radius_km, q, limit, geo_sort, cached_session
+        )
+
+    def search_engagements_by_geo(
+        self,
+        lat: float,
+        lng: float,
+        radius_km: float = 10.0,
+        q: str = "",
+        limit: int | None = 20,
+        geo_sort: GeoSortOrder = GeoSortOrder.NEAREST_FIRST,
+        cached_session: CachedSession | None = None,
+    ) -> EngagementsMultiSearchResult | None:
+        """Search engagements by geographic proximity."""
+        return self.meilisearch_ffbb_client.search_engagements_by_geo(
+            lat, lng, radius_km, q, limit, geo_sort, cached_session
+        )
+
+    # --- Composite contact methods ---
+
+    def get_engagement_contacts(
+        self,
+        engagement_id: int,
+        cached_session: CachedSession | None = None,
+    ) -> EngagementContacts | None:
+        """Get contacts for an engagement: correspondant + coaches."""
+        engagement = self.get_engagement(engagement_id, cached_session=cached_session)
+        if not engagement:
+            return None
+
+        correspondant = extract_correspondant(engagement)
+
+        entraineur = None
+        if engagement.entraineur:
+            ent = self.get_entraineur(
+                engagement.entraineur, cached_session=cached_session
+            )
+            entraineur = extract_entraineur_contact(ent, "Entraîneur")
+
+        entraineur_adj = None
+        if engagement.entraineurAdjoint:
+            adj = self.get_entraineur(
+                engagement.entraineurAdjoint, cached_session=cached_session
+            )
+            entraineur_adj = extract_entraineur_contact(adj, "Entraîneur adjoint")
+
+        return EngagementContacts(engagement, correspondant, entraineur, entraineur_adj)
+
+    def get_club_contacts(
+        self,
+        organisme_id: int,
+        cached_session: CachedSession | None = None,
+    ) -> ClubContacts | None:
+        """Get contacts for a club: club info + members/dirigeants."""
+        organisme = self.get_organisme(organisme_id, cached_session=cached_session)
+        if not organisme:
+            return None
+
+        club_contact = extract_club_info(organisme)
+        membres = extract_membres_contacts(organisme)
+
+        return ClubContacts(organisme, club_contact, membres)

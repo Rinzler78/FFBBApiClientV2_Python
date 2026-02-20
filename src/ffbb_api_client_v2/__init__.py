@@ -50,6 +50,7 @@ from .meilisearch.models.federated_search_result import (
 from .meilisearch.models.meilisearch_index_settings import MeilisearchIndexSettings
 from .meilisearch.models.multi_search_query import MultiSearchQuery
 from .meilisearch_ffbb.client import MeilisearchFFBBClient
+from .meilisearch_ffbb.geo_sort_order import GeoSortOrder
 from .meilisearch_ffbb.models.competitions_facet_distribution import (
     CompetitionsFacetDistribution,
 )
@@ -113,6 +114,9 @@ from .meilisearch_ffbb.models.terrains_hit import TerrainsHit
 from .meilisearch_ffbb.models.tournois_facet_stats import TournoisFacetStats
 from .meilisearch_ffbb.models.tournois_hit import TournoisHit
 from .meilisearch_ffbb.query_helper import generate_queries
+from .models.club_contacts import ClubContacts
+from .models.contact_info import ContactInfo
+from .models.engagement_contacts import EngagementContacts
 
 # Public API exports
 __all__ = [
@@ -140,7 +144,12 @@ __all__ = [
     # Helpers
     "MeilisearchClientExtension",
     "generate_queries",
+    # Geo
+    "GeoSortOrder",
     # Models
+    "ClubContacts",
+    "ContactInfo",
+    "EngagementContacts",
     "FieldSet",
     "MeilisearchIndexSettings",
     # Federated search

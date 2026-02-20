@@ -9,6 +9,7 @@ from ..meilisearch.client_extension import MeilisearchClientExtension
 from ..meilisearch.models.federated_search_result import FederatedSearchResult
 from ..meilisearch.models.meilisearch_index_settings import MeilisearchIndexSettings
 from ..utils.retry_utils import RetryConfig, TimeoutConfig
+from .geo_sort_order import GeoSortOrder
 from .models.competitions_multi_search_query import CompetitionsMultiSearchQuery
 from .models.engagements_multi_search_query import EngagementsMultiSearchQuery
 from .models.formations_multi_search_query import FormationsMultiSearchQuery
@@ -420,13 +421,12 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
         radius_km: float = 10.0,
         q: str = "",
         limit: int | None = 20,
-        sort: list[str] | None = None,
+        geo_sort: GeoSortOrder = GeoSortOrder.NEAREST_FIRST,
         cached_session: CachedSession | None = None,
     ) -> OrganismesMultiSearchResult | None:
         """Search organismes by geographic proximity.
 
         Uses Meilisearch _geoRadius() filter to find organismes near a location.
-        The _geo facet data is already present in the organismes index.
 
         Args:
             lat: Latitude of the center point.
@@ -434,7 +434,7 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
             radius_km: Radius in kilometers. Defaults to 10.
             q: Optional search query to combine with geo filter.
             limit: Maximum results to return. Defaults to 20.
-            sort: Optional sort criteria. If None, sorts by _geoPoint(lat,lng):asc.
+            geo_sort: Sort order for distance. Defaults to NEAREST_FIRST.
             cached_session: Optional cached session.
 
         Returns:
@@ -442,8 +442,7 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
         """
         radius_meters = int(radius_km * 1000)
         geo_filter = f"_geoRadius({lat}, {lng}, {radius_meters})"
-        if sort is None:
-            sort = [f"_geoPoint({lat}, {lng}):asc"]
+        sort = [f"_geoPoint({lat}, {lng}):{geo_sort.value}"]
 
         query = OrganismesMultiSearchQuery(
             q, limit=limit, filter=[geo_filter], sort=sort
@@ -460,7 +459,7 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
         radius_km: float = 10.0,
         q: str = "",
         limit: int | None = 20,
-        sort: list[str] | None = None,
+        geo_sort: GeoSortOrder = GeoSortOrder.NEAREST_FIRST,
         cached_session: CachedSession | None = None,
     ) -> SallesMultiSearchResult | None:
         """Search salles by geographic proximity.
@@ -471,7 +470,7 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
             radius_km: Radius in kilometers. Defaults to 10.
             q: Optional search query to combine with geo filter.
             limit: Maximum results to return. Defaults to 20.
-            sort: Optional sort criteria. If None, sorts by _geoPoint(lat,lng):asc.
+            geo_sort: Sort order for distance. Defaults to NEAREST_FIRST.
             cached_session: Optional cached session.
 
         Returns:
@@ -479,13 +478,48 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
         """
         radius_meters = int(radius_km * 1000)
         geo_filter = f"_geoRadius({lat}, {lng}, {radius_meters})"
-        if sort is None:
-            sort = [f"_geoPoint({lat}, {lng}):asc"]
+        sort = [f"_geoPoint({lat}, {lng}):{geo_sort.value}"]
 
         query = SallesMultiSearchQuery(q, limit=limit, filter=[geo_filter], sort=sort)
         results = self.smart_multi_search([query], cached_session)
         if results and results.results:
             return cast(SallesMultiSearchResult, results.results[0])
+        return None
+
+    def search_engagements_by_geo(
+        self,
+        lat: float,
+        lng: float,
+        radius_km: float = 10.0,
+        q: str = "",
+        limit: int | None = 20,
+        geo_sort: GeoSortOrder = GeoSortOrder.NEAREST_FIRST,
+        cached_session: CachedSession | None = None,
+    ) -> EngagementsMultiSearchResult | None:
+        """Search engagements by geographic proximity.
+
+        Args:
+            lat: Latitude of the center point.
+            lng: Longitude of the center point.
+            radius_km: Radius in kilometers. Defaults to 10.
+            q: Optional search query to combine with geo filter.
+            limit: Maximum results to return. Defaults to 20.
+            geo_sort: Sort order for distance. Defaults to NEAREST_FIRST.
+            cached_session: Optional cached session.
+
+        Returns:
+            EngagementsMultiSearchResult or None.
+        """
+        radius_meters = int(radius_km * 1000)
+        geo_filter = f"_geoRadius({lat}, {lng}, {radius_meters})"
+        sort = [f"_geoPoint({lat}, {lng}):{geo_sort.value}"]
+
+        query = EngagementsMultiSearchQuery(
+            q, limit=limit, filter=[geo_filter], sort=sort
+        )
+        results = self.smart_multi_search([query], cached_session)
+        if results and results.results:
+            return cast(EngagementsMultiSearchResult, results.results[0])
         return None
 
     # --- Federated search (FFBB-specific) ---
