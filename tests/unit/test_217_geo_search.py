@@ -252,6 +252,215 @@ class Test217GeoSearchEngagements(unittest.TestCase):
         self.assertIsNone(result)
 
 
+class Test217CitySearchOrganismes(unittest.TestCase):
+    """Tests for search_organismes_by_city."""
+
+    def setUp(self) -> None:
+        with patch("ffbb_api_client_v2.meilisearch.client_extension.CacheManager"):
+            self.client = MeilisearchFFBBClient(bearer_token="test-token")
+
+    @patch.object(MeilisearchFFBBClient, "smart_multi_search")
+    def test_000_city_search_builds_correct_filter(
+        self, mock_search: MagicMock
+    ) -> None:
+        mock_result = MagicMock(spec=OrganismesMultiSearchResult)
+        results = MagicMock(spec=MultiSearchResults)
+        results.results = [mock_result]
+        mock_search.return_value = results
+
+        self.client.search_organismes_by_city(city_name="Lille")
+
+        mock_search.assert_called_once()
+        queries = mock_search.call_args[0][0]
+        self.assertEqual(len(queries), 1)
+        query = queries[0]
+        self.assertIsNotNone(query.filter)
+        self.assertEqual(len(query.filter), 1)
+        self.assertEqual(query.filter[0], 'commune.libelle = "Lille"')
+
+    @patch.object(MeilisearchFFBBClient, "smart_multi_search")
+    def test_001_city_search_returns_result(self, mock_search: MagicMock) -> None:
+        mock_result = MagicMock(spec=OrganismesMultiSearchResult)
+        results = MagicMock(spec=MultiSearchResults)
+        results.results = [mock_result]
+        mock_search.return_value = results
+
+        result = self.client.search_organismes_by_city(city_name="Paris")
+
+        self.assertEqual(result, mock_result)
+
+    @patch.object(MeilisearchFFBBClient, "smart_multi_search")
+    def test_002_city_search_returns_none_on_empty(
+        self, mock_search: MagicMock
+    ) -> None:
+        mock_search.return_value = None
+        result = self.client.search_organismes_by_city(city_name="Nowhere")
+        self.assertIsNone(result)
+
+    @patch.object(MeilisearchFFBBClient, "smart_multi_search")
+    def test_003_city_search_default_limit_200(self, mock_search: MagicMock) -> None:
+        mock_result = MagicMock(spec=OrganismesMultiSearchResult)
+        results = MagicMock(spec=MultiSearchResults)
+        results.results = [mock_result]
+        mock_search.return_value = results
+
+        self.client.search_organismes_by_city(city_name="Lyon")
+
+        query = mock_search.call_args[0][0][0]
+        self.assertEqual(query.limit, 200)
+
+    @patch.object(MeilisearchFFBBClient, "smart_multi_search")
+    def test_004_city_search_with_query(self, mock_search: MagicMock) -> None:
+        mock_result = MagicMock(spec=OrganismesMultiSearchResult)
+        results = MagicMock(spec=MultiSearchResults)
+        results.results = [mock_result]
+        mock_search.return_value = results
+
+        self.client.search_organismes_by_city(city_name="Marseille", q="basket")
+
+        query = mock_search.call_args[0][0][0]
+        self.assertEqual(query.q, "basket")
+        self.assertEqual(query.filter[0], 'commune.libelle = "Marseille"')
+
+    @patch.object(MeilisearchFFBBClient, "smart_multi_search")
+    def test_005_city_search_empty_results_list(self, mock_search: MagicMock) -> None:
+        results = MagicMock(spec=MultiSearchResults)
+        results.results = []
+        mock_search.return_value = results
+
+        result = self.client.search_organismes_by_city(city_name="Lille")
+        self.assertIsNone(result)
+
+    @patch.object(MeilisearchFFBBClient, "smart_multi_search")
+    def test_006_city_search_custom_limit(self, mock_search: MagicMock) -> None:
+        mock_result = MagicMock(spec=OrganismesMultiSearchResult)
+        results = MagicMock(spec=MultiSearchResults)
+        results.results = [mock_result]
+        mock_search.return_value = results
+
+        self.client.search_organismes_by_city(city_name="Lille", limit=50)
+
+        query = mock_search.call_args[0][0][0]
+        self.assertEqual(query.limit, 50)
+
+
+class Test217EngagementsFiltered(unittest.TestCase):
+    """Tests for search_engagements_filtered."""
+
+    def setUp(self) -> None:
+        with patch("ffbb_api_client_v2.meilisearch.client_extension.CacheManager"):
+            self.client = MeilisearchFFBBClient(bearer_token="test-token")
+
+    @patch.object(MeilisearchFFBBClient, "smart_multi_search")
+    def test_000_builds_geo_only_filter(self, mock_search: MagicMock) -> None:
+        """sexes=None, niveau_codes=None → only _geoRadius filter."""
+        mock_result = MagicMock(spec=EngagementsMultiSearchResult)
+        results = MagicMock(spec=MultiSearchResults)
+        results.results = [mock_result]
+        mock_search.return_value = results
+
+        self.client.search_engagements_filtered(
+            lat=50.6,
+            lng=3.1,
+            radius_km=10.0,
+            sexes=None,
+            niveau_codes=None,
+        )
+
+        query = mock_search.call_args[0][0][0]
+        self.assertEqual(len(query.filter), 1)
+        self.assertIn("_geoRadius", query.filter[0])
+
+    @patch.object(MeilisearchFFBBClient, "smart_multi_search")
+    def test_001_builds_sexe_filter(self, mock_search: MagicMock) -> None:
+        mock_result = MagicMock(spec=EngagementsMultiSearchResult)
+        results = MagicMock(spec=MultiSearchResults)
+        results.results = [mock_result]
+        mock_search.return_value = results
+
+        self.client.search_engagements_filtered(
+            lat=50.6,
+            lng=3.1,
+            sexes=["Masculin"],
+        )
+
+        query = mock_search.call_args[0][0][0]
+        self.assertEqual(len(query.filter), 2)
+        self.assertIn("_geoRadius", query.filter[0])
+        self.assertEqual(query.filter[1], 'idCompetition.sexe IN ["Masculin"]')
+
+    @patch.object(MeilisearchFFBBClient, "smart_multi_search")
+    def test_002_builds_niveau_filter(self, mock_search: MagicMock) -> None:
+        mock_result = MagicMock(spec=EngagementsMultiSearchResult)
+        results = MagicMock(spec=MultiSearchResults)
+        results.results = [mock_result]
+        mock_search.return_value = results
+
+        self.client.search_engagements_filtered(
+            lat=50.6,
+            lng=3.1,
+            niveau_codes=["NM1", "SED1M"],
+        )
+
+        query = mock_search.call_args[0][0][0]
+        self.assertEqual(len(query.filter), 2)
+        self.assertEqual(query.filter[1], 'niveau.code IN ["NM1", "SED1M"]')
+
+    @patch.object(MeilisearchFFBBClient, "smart_multi_search")
+    def test_003_builds_combined_filters(self, mock_search: MagicMock) -> None:
+        mock_result = MagicMock(spec=EngagementsMultiSearchResult)
+        results = MagicMock(spec=MultiSearchResults)
+        results.results = [mock_result]
+        mock_search.return_value = results
+
+        self.client.search_engagements_filtered(
+            lat=50.6,
+            lng=3.1,
+            sexes=["Masculin", "Féminin"],
+            niveau_codes=["NM1"],
+        )
+
+        query = mock_search.call_args[0][0][0]
+        self.assertEqual(len(query.filter), 3)
+        self.assertIn("_geoRadius", query.filter[0])
+        self.assertIn("idCompetition.sexe IN", query.filter[1])
+        self.assertIn("niveau.code IN", query.filter[2])
+
+    @patch.object(MeilisearchFFBBClient, "smart_multi_search")
+    def test_004_returns_none_on_empty(self, mock_search: MagicMock) -> None:
+        mock_search.return_value = None
+        result = self.client.search_engagements_filtered(lat=50.6, lng=3.1)
+        self.assertIsNone(result)
+
+    @patch.object(MeilisearchFFBBClient, "smart_multi_search")
+    def test_005_default_limit_5000(self, mock_search: MagicMock) -> None:
+        mock_result = MagicMock(spec=EngagementsMultiSearchResult)
+        results = MagicMock(spec=MultiSearchResults)
+        results.results = [mock_result]
+        mock_search.return_value = results
+
+        self.client.search_engagements_filtered(lat=50.6, lng=3.1)
+
+        query = mock_search.call_args[0][0][0]
+        self.assertEqual(query.limit, 5000)
+
+    @patch.object(MeilisearchFFBBClient, "smart_multi_search")
+    def test_006_sort_order_passed(self, mock_search: MagicMock) -> None:
+        mock_result = MagicMock(spec=EngagementsMultiSearchResult)
+        results = MagicMock(spec=MultiSearchResults)
+        results.results = [mock_result]
+        mock_search.return_value = results
+
+        self.client.search_engagements_filtered(
+            lat=50.6,
+            lng=3.1,
+            geo_sort=GeoSortOrder.FARTHEST_FIRST,
+        )
+
+        query = mock_search.call_args[0][0][0]
+        self.assertIn("desc", query.sort[0])
+
+
 class Test217GeoSortOrder(unittest.TestCase):
     """Tests for GeoSortOrder enum."""
 

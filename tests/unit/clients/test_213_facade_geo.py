@@ -101,5 +101,101 @@ class Test213FacadeGeoEngagements(unittest.TestCase):
         self.assertIsNone(result)
 
 
+class Test213FacadeEngagementsFiltered(unittest.TestCase):
+    """Tests for facade search_engagements_filtered proxy."""
+
+    def test_000_delegates_to_meilisearch_client(self) -> None:
+        client = _make_client()
+        mock_result = MagicMock(spec=EngagementsMultiSearchResult)
+        client.meilisearch_ffbb_client.search_engagements_filtered.return_value = (
+            mock_result
+        )
+
+        result = client.search_engagements_filtered(
+            lat=50.6,
+            lng=3.1,
+            radius_km=100,
+        )
+
+        client.meilisearch_ffbb_client.search_engagements_filtered.assert_called_once_with(
+            50.6,
+            3.1,
+            100,
+            "",
+            5000,
+            GeoSortOrder.NEAREST_FIRST,
+            None,
+            None,
+            None,
+        )
+        self.assertEqual(result, mock_result)
+
+    def test_001_passes_all_params(self) -> None:
+        client = _make_client()
+        client.meilisearch_ffbb_client.search_engagements_filtered.return_value = None
+
+        result = client.search_engagements_filtered(
+            lat=1.0,
+            lng=2.0,
+            radius_km=50.0,
+            q="test",
+            limit=100,
+            geo_sort=GeoSortOrder.FARTHEST_FIRST,
+            sexes=["Masculin"],
+            niveau_codes=["NM1"],
+        )
+
+        client.meilisearch_ffbb_client.search_engagements_filtered.assert_called_once_with(
+            1.0,
+            2.0,
+            50.0,
+            "test",
+            100,
+            GeoSortOrder.FARTHEST_FIRST,
+            ["Masculin"],
+            ["NM1"],
+            None,
+        )
+        self.assertIsNone(result)
+
+
+class Test213FacadeCityOrganismes(unittest.TestCase):
+    """Tests for facade search_organismes_by_city proxy."""
+
+    def test_000_delegates_to_meilisearch_client(self) -> None:
+        client = _make_client()
+        mock_result = MagicMock(spec=OrganismesMultiSearchResult)
+        client.meilisearch_ffbb_client.search_organismes_by_city.return_value = (
+            mock_result
+        )
+
+        result = client.search_organismes_by_city(city_name="Lille")
+
+        client.meilisearch_ffbb_client.search_organismes_by_city.assert_called_once_with(
+            "Lille", "", 200, None
+        )
+        self.assertEqual(result, mock_result)
+
+    def test_001_passes_all_params(self) -> None:
+        client = _make_client()
+        client.meilisearch_ffbb_client.search_organismes_by_city.return_value = None
+
+        result = client.search_organismes_by_city(
+            city_name="Paris", q="basket", limit=50
+        )
+
+        client.meilisearch_ffbb_client.search_organismes_by_city.assert_called_once_with(
+            "Paris", "basket", 50, None
+        )
+        self.assertIsNone(result)
+
+    def test_002_returns_none_when_no_results(self) -> None:
+        client = _make_client()
+        client.meilisearch_ffbb_client.search_organismes_by_city.return_value = None
+
+        result = client.search_organismes_by_city(city_name="Nowhere")
+        self.assertIsNone(result)
+
+
 if __name__ == "__main__":
     unittest.main()

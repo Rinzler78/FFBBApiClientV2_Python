@@ -452,6 +452,38 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
             return cast(OrganismesMultiSearchResult, results.results[0])
         return None
 
+    def search_organismes_by_city(
+        self,
+        city_name: str,
+        q: str = "",
+        limit: int | None = 200,
+        cached_session: CachedSession | None = None,
+    ) -> OrganismesMultiSearchResult | None:
+        """Search organismes located in a specific city.
+
+        Uses the ``commune.libelle`` Meilisearch filterable facet
+        to return only organismes whose commune matches *city_name*.
+
+        Args:
+            city_name: Exact city name (e.g. ``"Lille"``).
+            q: Optional text query to combine with the city filter.
+            limit: Maximum results to return. Defaults to 200.
+            cached_session: Optional cached session.
+
+        Returns:
+            OrganismesMultiSearchResult or None.
+        """
+        city_filter = f'commune.libelle = "{city_name}"'
+        query = OrganismesMultiSearchQuery(
+            q,
+            limit=limit,
+            filter=[city_filter],
+        )
+        results = self.smart_multi_search([query], cached_session)
+        if results and results.results:
+            return cast(OrganismesMultiSearchResult, results.results[0])
+        return None
+
     def search_salles_by_geo(
         self,
         lat: float,
@@ -517,6 +549,57 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
         query = EngagementsMultiSearchQuery(
             q, limit=limit, filter=[geo_filter], sort=sort
         )
+        results = self.smart_multi_search([query], cached_session)
+        if results and results.results:
+            return cast(EngagementsMultiSearchResult, results.results[0])
+        return None
+
+    def search_engagements_filtered(
+        self,
+        lat: float,
+        lng: float,
+        radius_km: float = 10.0,
+        q: str = "",
+        limit: int | None = 5000,
+        geo_sort: GeoSortOrder = GeoSortOrder.NEAREST_FIRST,
+        sexes: list[str] | None = None,
+        niveau_codes: list[str] | None = None,
+        cached_session: CachedSession | None = None,
+    ) -> EngagementsMultiSearchResult | None:
+        """Search engagements with geo + sexe + niveau.code filters.
+
+        Builds a combined Meilisearch filter from:
+        - ``_geoRadius(lat, lng, radius_meters)``
+        - ``idCompetition.sexe IN [...]`` (when *sexes* provided)
+        - ``niveau.code IN [...]`` (when *niveau_codes* provided)
+
+        Args:
+            lat: Latitude of the center point.
+            lng: Longitude of the center point.
+            radius_km: Radius in kilometers. Defaults to 10.
+            q: Optional text query.
+            limit: Max results. Defaults to 5000.
+            geo_sort: Sort order for distance. Defaults to NEAREST_FIRST.
+            sexes: Sexe values (e.g. ``["Masculin", "Féminin"]``).
+            niveau_codes: Niveau codes (e.g. ``["NM1", "SED1M"]``).
+            cached_session: Optional cached session.
+
+        Returns:
+            EngagementsMultiSearchResult or None.
+        """
+        radius_meters = int(radius_km * 1000)
+        filters: list[str] = [f"_geoRadius({lat}, {lng}, {radius_meters})"]
+        sort = [f"_geoPoint({lat}, {lng}):{geo_sort.value}"]
+
+        if sexes:
+            quoted = ", ".join(f'"{s}"' for s in sexes)
+            filters.append(f"idCompetition.sexe IN [{quoted}]")
+
+        if niveau_codes:
+            quoted = ", ".join(f'"{c}"' for c in niveau_codes)
+            filters.append(f"niveau.code IN [{quoted}]")
+
+        query = EngagementsMultiSearchQuery(q, limit=limit, filter=filters, sort=sort)
         results = self.smart_multi_search([query], cached_session)
         if results and results.results:
             return cast(EngagementsMultiSearchResult, results.results[0])

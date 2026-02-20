@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from typing import cast
 from uuid import UUID
 
@@ -1253,6 +1254,20 @@ class FFBBAPIClientV2:
             lat, lng, radius_km, q, limit, geo_sort, cached_session
         )
 
+    # --- City-search proxies ---
+
+    def search_organismes_by_city(
+        self,
+        city_name: str,
+        q: str = "",
+        limit: int | None = 200,
+        cached_session: CachedSession | None = None,
+    ) -> OrganismesMultiSearchResult | None:
+        """Search organismes located in a specific city."""
+        return self.meilisearch_ffbb_client.search_organismes_by_city(
+            city_name, q, limit, cached_session
+        )
+
     def search_salles_by_geo(
         self,
         lat: float,
@@ -1281,6 +1296,31 @@ class FFBBAPIClientV2:
         """Search engagements by geographic proximity."""
         return self.meilisearch_ffbb_client.search_engagements_by_geo(
             lat, lng, radius_km, q, limit, geo_sort, cached_session
+        )
+
+    def search_engagements_filtered(
+        self,
+        lat: float,
+        lng: float,
+        radius_km: float = 10.0,
+        q: str = "",
+        limit: int | None = 5000,
+        geo_sort: GeoSortOrder = GeoSortOrder.NEAREST_FIRST,
+        sexes: list[str] | None = None,
+        niveau_codes: list[str] | None = None,
+        cached_session: CachedSession | None = None,
+    ) -> EngagementsMultiSearchResult | None:
+        """Search engagements with geo + sexe + niveau.code filters."""
+        return self.meilisearch_ffbb_client.search_engagements_filtered(
+            lat,
+            lng,
+            radius_km,
+            q,
+            limit,
+            geo_sort,
+            sexes,
+            niveau_codes,
+            cached_session,
         )
 
     # --- Composite contact methods ---
@@ -1329,3 +1369,131 @@ class FFBBAPIClientV2:
         membres = extract_membres_contacts(organisme)
 
         return ClubContacts(organisme, club_contact, membres)
+
+    # --- Batch helpers (Directus _in filters) ---
+    #
+    # The ``_in`` filter JSON must stay under the 1000-char validation
+    # limit.  With a ~30-char overhead (``{"field":{"_in":[...]}}``),
+    # that leaves ~970 chars for the comma-separated IDs.  Using 50 IDs
+    # per chunk keeps us safely within bounds for IDs up to ~18 digits.
+
+    _BATCH_CHUNK_SIZE = 50
+
+    @staticmethod
+    def _chunked(items: list[int], size: int) -> list[list[int]]:
+        """Split *items* into sublists of at most *size* elements."""
+        return [items[i : i + size] for i in range(0, len(items), size)]
+
+    def list_engagements_by_ids(
+        self,
+        ids: list[int],
+        cached_session: CachedSession | None = None,
+    ) -> list[GetEngagementsResponse]:
+        """Fetch multiple engagements using ``_in`` filter (auto-chunked)."""
+        if not ids:
+            return []
+        results: list[GetEngagementsResponse] = []
+        for chunk in self._chunked(ids, self._BATCH_CHUNK_SIZE):
+            results.extend(
+                self.list_engagements(
+                    limit=len(chunk),
+                    filter_criteria=json.dumps({"id": {"_in": chunk}}),
+                    cached_session=cached_session,
+                )
+            )
+        return results
+
+    def list_engagements_by_poule(
+        self,
+        poule_id: int,
+        limit: int = 250,
+        cached_session: CachedSession | None = None,
+    ) -> list[GetEngagementsResponse]:
+        """List engagements belonging to a single poule."""
+        return self.list_engagements(
+            limit=limit,
+            filter_criteria=json.dumps({"idPoule": {"_eq": poule_id}}),
+            cached_session=cached_session,
+        )
+
+    def list_engagements_by_poules(
+        self,
+        poule_ids: list[int],
+        limit: int = 2000,
+        cached_session: CachedSession | None = None,
+    ) -> list[GetEngagementsResponse]:
+        """Fetch engagements for multiple poules using ``_in`` (auto-chunked)."""
+        if not poule_ids:
+            return []
+        results: list[GetEngagementsResponse] = []
+        for chunk in self._chunked(poule_ids, self._BATCH_CHUNK_SIZE):
+            results.extend(
+                self.list_engagements(
+                    limit=limit,
+                    filter_criteria=json.dumps({"idPoule": {"_in": chunk}}),
+                    cached_session=cached_session,
+                )
+            )
+        return results
+
+    def list_rencontres_by_poule(
+        self,
+        poule_id: int,
+        limit: int = 500,
+        sort: list[str] | None = None,
+        cached_session: CachedSession | None = None,
+    ) -> list[GetRencontresResponse]:
+        """List rencontres belonging to a single poule."""
+        return self.list_rencontres(
+            limit=limit,
+            filter_criteria=json.dumps({"idPoule": {"_eq": poule_id}}),
+            sort=sort,
+            cached_session=cached_session,
+        )
+
+    def list_rencontres_by_poules(
+        self,
+        poule_ids: list[int],
+        limit: int = 5000,
+        sort: list[str] | None = None,
+        cached_session: CachedSession | None = None,
+    ) -> list[GetRencontresResponse]:
+        """Fetch rencontres for multiple poules using ``_in`` (auto-chunked)."""
+        if not poule_ids:
+            return []
+        results: list[GetRencontresResponse] = []
+        for chunk in self._chunked(poule_ids, self._BATCH_CHUNK_SIZE):
+            results.extend(
+                self.list_rencontres(
+                    limit=limit,
+                    filter_criteria=json.dumps({"idPoule": {"_in": chunk}}),
+                    sort=sort,
+                    cached_session=cached_session,
+                )
+            )
+        return results
+
+    def list_entraineurs_by_ids(
+        self,
+        ids: list[int],
+        cached_session: CachedSession | None = None,
+    ) -> list[GetEntraineursResponse]:
+        """Fetch multiple entraineurs by licence ID using ``_in`` (auto-chunked).
+
+        The ``ids`` are the numeric values stored in
+        ``engagement.entraineur`` / ``engagement.entraineurAdjoint``
+        which correspond to the ``idLicence`` primary key.
+        """
+        if not ids:
+            return []
+        results: list[GetEntraineursResponse] = []
+        for chunk in self._chunked(ids, self._BATCH_CHUNK_SIZE):
+            str_ids = [str(i) for i in chunk]
+            results.extend(
+                self.list_entraineurs(
+                    limit=len(chunk),
+                    filter_criteria=json.dumps({"idLicence": {"_in": str_ids}}),
+                    cached_session=cached_session,
+                )
+            )
+        return results
