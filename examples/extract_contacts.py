@@ -40,17 +40,20 @@ logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
 logging.getLogger("ffbb_api_client_v2.utils.converter_utils").setLevel(logging.ERROR)
 
-NIVEAU_LABELS = {
-    "PRO": "Pro",
-    "NATIONAL": "National",
-    "LIGUE_FEMININE": "Ligue Feminine",
-}
+# Echelons considered pro-level (top-tier competitions)
+PRO_ECHELONS: frozenset[Echelon] = frozenset(
+    {Echelon.LIGUE_FEMININE, Echelon.BASKET_FAUTEUIL}
+)
 
-NIVEAU_PRIORITY = {
-    "Pro": 0,
-    "National": 1,
-    "Ligue Feminine": 2,
-}
+# Echelons considered national-level
+NATIONAL_ECHELONS: frozenset[Echelon] = frozenset({Echelon.NATIONAL})
+
+# All echelons we accept
+ACCEPTED_ECHELONS: frozenset[Echelon] = PRO_ECHELONS | NATIONAL_ECHELONS
+
+# Display labels and sort priority, derived from the sets above
+NIVEAU_LABELS = {"PRO": "Pro", "NATIONAL": "National"}
+NIVEAU_PRIORITY = {"Pro": 0, "National": 1}
 
 _COMPETITIONS_BASE = "https://competitions.ffbb.com"
 _ASSET_BASE = f"{API_FFBB_BASE_URL}{ENDPOINT_ASSETS}"
@@ -81,6 +84,16 @@ def slugify(text: str) -> str:
     text = text.encode("ascii", "ignore").decode("ascii")
     text = re.sub(r"[^\w\s-]", "", text.lower())
     return re.sub(r"[-\s]+", "-", text).strip("-")
+
+
+def _contact_id(c) -> str:
+    """Generate a stable HTML-safe id for a contact (nom-prenom-tel-email)."""
+    raw = f"{getattr(c, 'nom', '')}-{getattr(c, 'prenom', '')}"
+    if getattr(c, "telephone", ""):
+        raw += f"-{c.telephone}"
+    elif getattr(c, "email", ""):
+        raw += f"-{c.email}"
+    return f"contact-{slugify(raw)}"
 
 
 def _md_escape(text: str) -> str:
@@ -219,6 +232,20 @@ class ContactReport:
 
     @property
     def total_contacts(self) -> int:
+        """Unique contacts count (deduplicated by identity)."""
+        seen: set[str] = set()
+        for city in self.cities:
+            for club in city.clubs:
+                for c in club.club_contacts:
+                    seen.add(_contact_id(c))
+                for team in club.teams:
+                    for c in team.contacts:
+                        seen.add(_contact_id(c))
+        return len(seen)
+
+    @property
+    def total_contact_mentions(self) -> int:
+        """Total contact mentions (including duplicates across teams)."""
         return sum(c.total_contacts for c in self.cities)
 
     @property
@@ -626,6 +653,10 @@ class ContactReport:
                     f"<li><a href='#{anchor}'>{h(city.ville)}"
                     f"<span class='sidebar-dist'>{dist} km</span></a></li>\n"
                 )
+            f.write(
+                "<li class='sidebar-annuaire'>"
+                "<a href='#annuaire'>&#x1F4D6; Annuaire</a></li>\n"
+            )
             f.write("</ul>\n</nav>\n\n")
 
             # --- Main content ---
@@ -691,6 +722,9 @@ class ContactReport:
                 f.write(
                     f"<li><a href='#{anchor}'>" f"{h(city.ville)} — {dist}</a></li>\n"
                 )
+            f.write(
+                "<li><a href='#annuaire'>" "&#x1F4D6; Annuaire des contacts</a></li>\n"
+            )
             f.write("</ul>\n</details>\n\n")
 
             # Contacts detail by city
@@ -716,6 +750,9 @@ class ContactReport:
                     "<p class='nav'>" "<a href='#map-section'>&#x2191; Carte</a></p>\n"
                 )
                 f.write("</section>\n\n")
+
+            # Annuaire — all contacts, deduplicated
+            self._write_html_annuaire(f)
 
             # Footer
             f.write(
@@ -800,7 +837,14 @@ class ContactReport:
             f.write(" ".join(links))
             f.write("\n</div>\n")
 
-        # Teams
+        # Club-level contacts FIRST (at the top of the club card)
+        if club.club_contacts:
+            f.write("<div class='team club-contacts-section'>\n")
+            f.write("<span class='badge badge-club'>Contacts club</span>\n")
+            self._write_html_contact_table(f, club.club_contacts, with_refs=True)
+            f.write("</div>\n")
+
+        # Teams with their contacts
         for team in club.teams:
             f.write("<div class='team'>\n")
             # Badges
@@ -822,14 +866,7 @@ class ContactReport:
                     f" class='ranking-link'>Classement &#x2197;</a>"
                 )
             f.write("\n")
-            self._write_html_contact_table(f, team.contacts)
-            f.write("</div>\n")
-
-        # Club-level contacts
-        if club.club_contacts:
-            f.write("<div class='team'>\n")
-            f.write("<span class='badge badge-club'>Contacts club</span>\n")
-            self._write_html_contact_table(f, club.club_contacts)
+            self._write_html_contact_table(f, team.contacts, with_refs=True)
             f.write("</div>\n")
 
         f.write("</div>\n")
@@ -838,6 +875,8 @@ class ContactReport:
     def _write_html_contact_table(
         f,
         contacts: list[ReportContact],
+        *,
+        with_refs: bool = False,
     ) -> None:
         h = _html_escape
         f.write("<table class='contacts'>\n<thead><tr>")
@@ -857,10 +896,18 @@ class ContactReport:
                 )
             nom_full = f"{c.nom} {c.prenom}".strip()
             role_class = _role_css_class(c.role)
+            cid = _contact_id(c)
+            nom_cell = h(nom_full)
+            if with_refs:
+                nom_cell = (
+                    f"<a href='#{h(cid)}' class='contact-ref'"
+                    f" title='Voir dans l&#39;annuaire'>"
+                    f"{h(nom_full)}</a>"
+                )
             f.write(
                 f"<tr><td><span class='badge {role_class}'>"
                 f"{h(c.role)}</span></td>"
-                f"<td>{h(nom_full)}</td>"
+                f"<td>{nom_cell}</td>"
                 f"<td>{tel_cell}</td>"
                 f"<td>{email_cell}</td></tr>\n"
             )
@@ -953,6 +1000,89 @@ class ContactReport:
   }}
 }})();
 """)
+
+    def _write_html_annuaire(self, f) -> None:
+        """Write the 'Annuaire' section with all contacts deduplicated."""
+        h = _html_escape
+
+        # Collect all contacts with their context (club, team)
+        # Deduplicate by (nom, prenom, telephone, email)
+        seen: dict[str, dict] = {}  # cid -> entry
+        for city in self.cities:
+            for club in city.clubs:
+                # Club-level contacts
+                for c in club.club_contacts:
+                    cid = _contact_id(c)
+                    if cid not in seen:
+                        seen[cid] = {
+                            "contact": c,
+                            "mentions": [],
+                        }
+                    seen[cid]["mentions"].append(f"{club.nom} (contact club)")
+                # Team contacts
+                for team in club.teams:
+                    for c in team.contacts:
+                        cid = _contact_id(c)
+                        if cid not in seen:
+                            seen[cid] = {
+                                "contact": c,
+                                "mentions": [],
+                            }
+                        seen[cid]["mentions"].append(f"{club.nom} — {team.label}")
+
+        if not seen:
+            return
+
+        # Sort by nom, prenom
+        entries = sorted(
+            seen.items(),
+            key=lambda x: (x[1]["contact"].nom, x[1]["contact"].prenom),
+        )
+
+        f.write("<section class='annuaire-section' id='annuaire'>\n")
+        f.write(f"<h2>Annuaire des contacts ({len(entries)})</h2>\n")
+        f.write(
+            "<p class='annuaire-desc'>"
+            "Liste complete des contacts sans doublons."
+            " Cliquez sur un nom pour revenir au club correspondant."
+            "</p>\n"
+        )
+        f.write("<table class='contacts annuaire-table'>\n")
+        f.write("<thead><tr>")
+        for col in ["Nom", "Role", "Tel", "Email", "Mentions"]:
+            f.write(f"<th>{col}</th>")
+        f.write("</tr></thead>\n<tbody>\n")
+
+        for cid, entry in entries:
+            c = entry["contact"]
+            mentions = entry["mentions"]
+            nom_full = f"{c.nom} {c.prenom}".strip()
+            email_cell = (
+                f"<a href='mailto:{h(c.email)}'>{h(c.email)}</a>" if c.email else ""
+            )
+            tel_cell = ""
+            if c.telephone:
+                tel_clean = re.sub(r"\D", "", c.telephone)
+                tel_cell = (
+                    f"<a href='tel:{h(tel_clean)}'>"
+                    f"{h(_format_phone(c.telephone))}</a>"
+                )
+            role_class = _role_css_class(c.role)
+            mentions_html = "<br>".join(h(m) for m in mentions)
+            f.write(
+                f"<tr id='{h(cid)}'>"
+                f"<td><strong>{h(nom_full)}</strong></td>"
+                f"<td><span class='badge {role_class}'>"
+                f"{h(c.role)}</span></td>"
+                f"<td>{tel_cell}</td>"
+                f"<td>{email_cell}</td>"
+                f"<td class='mentions'>{mentions_html}</td>"
+                f"</tr>\n"
+            )
+
+        f.write("</tbody></table>\n")
+        f.write("<p class='nav'>" "<a href='#map-section'>&#x2191; Carte</a>" "</p>\n")
+        f.write("</section>\n\n")
 
 
 def _html_escape(text: str) -> str:
@@ -1299,6 +1429,61 @@ p.nav {
 p.nav a { color: var(--accent); text-decoration: none; }
 p.nav a:hover { text-decoration: underline; }
 
+/* Contact references (links to annuaire) */
+a.contact-ref {
+  color: var(--accent-dark);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--accent);
+}
+a.contact-ref:hover {
+  color: var(--accent);
+  border-bottom-style: solid;
+}
+
+/* Club contacts section (at top of club card) */
+.club-contacts-section {
+  background: var(--accent-light);
+  border-radius: var(--radius);
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Sidebar annuaire link */
+.sidebar-annuaire {
+  margin-top: 0.5rem;
+  border-top: 1px solid var(--border);
+  padding-top: 0.5rem;
+}
+.sidebar-annuaire a {
+  font-weight: 600;
+  color: var(--accent) !important;
+}
+
+/* Annuaire section */
+.annuaire-section {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 3px solid var(--accent);
+}
+.annuaire-desc {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+.annuaire-table td.mentions {
+  font-size: 0.75rem;
+  color: var(--muted);
+  max-width: 250px;
+}
+.annuaire-table tr:target {
+  background: var(--accent-light) !important;
+  animation: highlight-fade 2s ease-out;
+}
+@keyframes highlight-fade {
+  0% { background: #FFD6A5; }
+  100% { background: var(--accent-light); }
+}
+
 /* Footer */
 footer {
   margin-top: 3rem;
@@ -1396,17 +1581,19 @@ def _is_senior(hit: EngagementsHit) -> bool:
 
 
 def classify_engagement_level(hit: EngagementsHit) -> str | None:
-    """Return the level string (PRO/NATIONAL/LIGUE_FEMININE) or None."""
+    """Return the level string (PRO/NATIONAL) or None.
+
+    Classification is based solely on the engagement's echelon, NOT
+    on the ``club_pro`` flag (which marks the *club*, not the team).
+    """
     if not _is_senior(hit):
         return None
-    if hit.club_pro:
-        return "PRO"
     if hit.niveau and hit.niveau.code:
         echelon = hit.niveau.code.echelon
-        if echelon == Echelon.NATIONAL:
+        if echelon in PRO_ECHELONS:
+            return "PRO"
+        if echelon in NATIONAL_ECHELONS:
             return "NATIONAL"
-        if echelon == Echelon.LIGUE_FEMININE:
-            return "LIGUE_FEMININE"
     return None
 
 
@@ -1428,9 +1615,27 @@ def _extract_ranking_url(hit: EngagementsHit) -> str:
     return ""
 
 
+def _extract_club_page_url(hit: EngagementsHit) -> str:
+    """Derive the club page URL from the team's competitions_url.
+
+    ``competitions_url`` has the form
+    ``/ligues/.../clubs/XXX/equipes/YYY``.  Stripping ``/equipes/YYY``
+    gives the club page path.
+    """
+    if hit.competitions_url:
+        path = hit.competitions_url
+        idx = path.find("/equipes/")
+        if idx != -1:
+            return f"{_COMPETITIONS_BASE}{path[:idx]}"
+        # No /equipes/ suffix — return the path as-is (could be a club page)
+        return f"{_COMPETITIONS_BASE}{path}"
+    return ""
+
+
 def _extract_club_info(
     organisme: GetOrganismeResponse,
     hit_logo_fallback: str = "",
+    hit_club_url_fallback: str = "",
 ) -> _ClubInfo:
     nom = organisme.nom or ""
     ville = ""
@@ -1448,7 +1653,7 @@ def _extract_club_info(
         lng = carto.longitude
 
     site_web = organisme.url_site_web or ""
-    url_ffbb = organisme.url_competition or ""
+    url_ffbb = organisme.url_competition or hit_club_url_fallback
     logo_url = ""
     if organisme.logo:
         logo_url = f"{_ASSET_BASE}{organisme.logo}"
@@ -1645,6 +1850,9 @@ def main() -> None:
                                     info = _extract_club_info(
                                         club_contacts.organisme,
                                         hit_logo_fallback=hit_logo,
+                                        hit_club_url_fallback=_extract_club_page_url(
+                                            hit
+                                        ),
                                     )
                                     club_cache[org_id] = info
                                     if club_contacts.club_contact:
