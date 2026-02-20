@@ -4,8 +4,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
+from uuid import UUID
 
-from ...utils.converter_utils import from_datetime
+from ...utils.converter_utils import from_datetime, from_uuid
 
 
 @dataclass
@@ -19,6 +20,8 @@ class GetConfigurationResponse:
     key_directus_competitions: str | None = None
     ios_version: str | None = None
     android_version: str | None = None
+    user_created: UUID | None = None
+    user_updated: UUID | None = None
     date_created: datetime | None = None
     date_updated: datetime | None = None
 
@@ -33,6 +36,8 @@ class GetConfigurationResponse:
             key_directus_competitions=data.get("key_directus_competitions"),
             ios_version=data.get("ios_version"),
             android_version=data.get("android_version"),
+            user_created=from_uuid(data, "user_created"),
+            user_updated=from_uuid(data, "user_updated"),
             date_created=from_datetime(data, "date_created"),
             date_updated=from_datetime(data, "date_updated"),
         )

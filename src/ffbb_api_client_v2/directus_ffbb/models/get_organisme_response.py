@@ -10,6 +10,7 @@ from ...models.labellisation_item import LabellisationItem
 from ...models.membre import Membre
 from ...models.offre_pratique import OffrePratique
 from ...utils.converter_utils import (
+    from_bool,
     from_datetime,
     from_int,
     from_list,
@@ -44,6 +45,15 @@ class GetOrganismeResponse:
     engagements: list[int | Any] = field(default_factory=list)
     competitions: list[int | Any] = field(default_factory=list)
     organismes_fils: list[int | Any] = field(default_factory=list)
+    # Scalar fields
+    date_affiliation: datetime | None = None
+    entreprise: bool | None = None
+    handibasket: bool | None = None
+    hors_association: bool | None = None
+    logo_base64: UUID | None = None
+    omnisport: bool | None = None
+    saison_en_cours: bool | None = None
+    url_competition: str | None = None
     # Embedded
     cartographie: Cartographie | None = None
     membres: list[Membre] = field(default_factory=list)
@@ -89,6 +99,14 @@ class GetOrganismeResponse:
             saison=from_int(data, "saison"),
             organisme_id_pere=from_int(data, "organisme_id_pere"),
             logo=from_uuid(data, "logo"),
+            date_affiliation=from_datetime(data, "dateAffiliation"),
+            entreprise=from_bool(data, "entreprise"),
+            handibasket=from_bool(data, "handibasket"),
+            hors_association=from_bool(data, "horsAssociation"),
+            logo_base64=from_uuid(data, "logo_base64"),
+            omnisport=from_bool(data, "omnisport"),
+            saison_en_cours=from_bool(data, "saison_en_cours"),
+            url_competition=from_str(data, "url_competition"),
             engagements=engagements_raw if isinstance(engagements_raw, list) else [],
             competitions=competitions_raw if isinstance(competitions_raw, list) else [],
             organismes_fils=(

@@ -58,6 +58,14 @@ class CompetitionsHit(Hit):
     type_competition_generique: TypeCompetitionGenerique | None = None
     thumbnail: str | None = None
     niveau_nb: int | None = None
+    age: str | None = None
+    code_comite: str | None = None
+    code_ligue: str | None = None
+    compare_old_site: bool | None = None
+    ordre: int | None = None
+    participants: str | None = None
+    slug: str | None = None
+    to_update: bool | None = None
     lower_nom: str | None = field(init=False, default=None, repr=False)
     lower_code: str | None = field(init=False, default=None, repr=False)
     lower_id: str | None = field(init=False, default=None, repr=False)
@@ -115,6 +123,14 @@ class CompetitionsHit(Hit):
             )
             thumbnail = from_str(obj, "thumbnail")
             niveau_nb = from_int(obj, "niveau_nb")
+            age = from_str(obj, "age")
+            code_comite = from_str(obj, "codeComite")
+            code_ligue = from_str(obj, "codeLigue")
+            compare_old_site = from_bool(obj, "compare_old_site")
+            ordre = from_int(obj, "ordre")
+            participants = from_str(obj, "participants")
+            slug = from_str(obj, "slug")
+            to_update = from_bool(obj, "toUpdate")
             return CompetitionsHit(
                 nom=nom,
                 code=code,
@@ -144,6 +160,14 @@ class CompetitionsHit(Hit):
                 type_competition_generique=type_competition_generique,
                 thumbnail=thumbnail,
                 niveau_nb=niveau_nb,
+                age=age,
+                code_comite=code_comite,
+                code_ligue=code_ligue,
+                compare_old_site=compare_old_site,
+                ordre=ordre,
+                participants=participants,
+                slug=slug,
+                to_update=to_update,
             )
         except Exception as e:
             raise ValueError(f"Invalid `Hit.from_dict` input: {e}") from e
@@ -208,6 +232,22 @@ class CompetitionsHit(Hit):
             result["thumbnail"] = self.thumbnail
         if self.niveau_nb is not None:
             result["niveau_nb"] = str(self.niveau_nb)
+        if self.age is not None:
+            result["age"] = self.age
+        if self.code_comite is not None:
+            result["codeComite"] = self.code_comite
+        if self.code_ligue is not None:
+            result["codeLigue"] = self.code_ligue
+        if self.compare_old_site is not None:
+            result["compare_old_site"] = self.compare_old_site
+        if self.ordre is not None:
+            result["ordre"] = self.ordre
+        if self.participants is not None:
+            result["participants"] = self.participants
+        if self.slug is not None:
+            result["slug"] = self.slug
+        if self.to_update is not None:
+            result["toUpdate"] = self.to_update
         return result
 
     def is_valid_for_query(self, query: str) -> bool:

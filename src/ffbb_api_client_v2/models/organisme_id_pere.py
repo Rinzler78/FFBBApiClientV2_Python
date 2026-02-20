@@ -46,7 +46,7 @@ class OrganismeIDPere:
     handibasket: bool | None = None
     omnisport: bool | None = None
     hors_association: bool | None = None
-    offres_pratiques: list[Any] | None = None
+    offres_pratiques: list[int] | None = None
     engagements: list[IDPoule] | None = None
     labellisation: list[LabellisationItem] | None = None
 
@@ -81,7 +81,7 @@ class OrganismeIDPere:
         handibasket = from_bool(obj, "handibasket")
         omnisport = from_bool(obj, "omnisport")
         hors_association = from_bool(obj, "horsAssociation")
-        offres_pratiques = from_list(lambda x: x, obj, "offresPratiques")
+        offres_pratiques = from_list(int, obj, "offresPratiques")
         engagements = from_list(IDPoule.from_dict, obj, "engagements")
         labellisation = from_list(LabellisationItem.from_dict, obj, "labellisation")
         return OrganismeIDPere(

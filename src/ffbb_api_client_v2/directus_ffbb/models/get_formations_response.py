@@ -40,8 +40,8 @@ class GetFormationsResponse:
     modalities: str | None = None
     image: UUID | None = None
     files: list[Any] = field(default_factory=list)
-    user_created: str | None = None
-    user_updated: str | None = None
+    user_created: UUID | None = None
+    user_updated: UUID | None = None
     idOrigin: str | None = None
     idOriginHash: str | None = None
     programIdFbi: str | None = None
@@ -81,8 +81,8 @@ class GetFormationsResponse:
             modalities=from_str(data, "modalities"),
             image=from_uuid(data, "image"),
             files=data.get("files", []) or [],
-            user_created=from_str(data, "user_created"),
-            user_updated=from_str(data, "user_updated"),
+            user_created=from_uuid(data, "user_created"),
+            user_updated=from_uuid(data, "user_updated"),
             idOrigin=from_str(data, "idOrigin"),
             idOriginHash=from_str(data, "idOriginHash"),
             programIdFbi=from_str(data, "programIdFbi"),

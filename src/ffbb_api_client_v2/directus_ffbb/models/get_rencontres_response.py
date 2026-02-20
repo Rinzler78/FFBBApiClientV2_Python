@@ -54,6 +54,7 @@ class GetRencontresResponse:
     idPoule: int | None = None
     saison: int | None = None
     salle: int | None = None
+    gsId: str | None = None
     # Embedded objects
     officiels: list[str] = field(default_factory=list)
     date_created: datetime | None = None
@@ -109,6 +110,7 @@ class GetRencontresResponse:
             idPoule=from_int(data, "idPoule"),
             saison=from_int(data, "saison"),
             salle=from_int(data, "salle"),
+            gsId=from_str(data, "gsId"),
             officiels=[str(x) for x in (data.get("officiels") or []) if x is not None],
             date_created=from_datetime(data, "date_created"),
             date_updated=from_datetime(data, "date_updated"),

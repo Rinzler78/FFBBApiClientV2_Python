@@ -45,6 +45,7 @@ class EngagementsHit(Hit):
     nom_usuel: str | None = None
     numero_equipe: int | None = None
     thumbnail: str | None = None
+    gradient_color: str | None = None
     geo: Geo | None = None
     lower_nom: str | None = field(init=False, default=None, repr=False)
     lower_nom_club: str | None = field(init=False, default=None, repr=False)
@@ -88,6 +89,7 @@ class EngagementsHit(Hit):
         nom_usuel = from_str(obj, "nomUsuel")
         numero_equipe = from_int(obj, "numeroEquipe")
         thumbnail = from_str(obj, "thumbnail")
+        gradient_color = from_str(obj, "gradient_color")
         geo = from_obj(Geo.from_dict, obj, "_geo")
         return EngagementsHit(
             id=id,
@@ -116,6 +118,7 @@ class EngagementsHit(Hit):
             nom_usuel=nom_usuel,
             numero_equipe=numero_equipe,
             thumbnail=thumbnail,
+            gradient_color=gradient_color,
             geo=geo,
         )
 
@@ -173,6 +176,8 @@ class EngagementsHit(Hit):
             result["numeroEquipe"] = str(self.numero_equipe)
         if self.thumbnail is not None:
             result["thumbnail"] = self.thumbnail
+        if self.gradient_color is not None:
+            result["gradient_color"] = self.gradient_color
         if self.geo is not None:
             result["_geo"] = self.geo.to_dict()
         return result

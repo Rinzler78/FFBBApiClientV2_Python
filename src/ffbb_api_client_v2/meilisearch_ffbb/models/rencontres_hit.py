@@ -16,6 +16,7 @@ from ...models.pratique import Pratique
 from ...models.saison import Saison
 from ...models.salle import Salle
 from ...utils.converter_utils import (
+    from_bool,
     from_datetime,
     from_enum,
     from_int,
@@ -54,6 +55,22 @@ class RencontresHit(Hit):
     thumbnail: str | None = None
     organisateur: Organisateur | None = None
     niveau_nb: int | None = None
+    competition_orgine: str | None = None
+    competition_origine: str | None = None
+    handicap1: int | None = None
+    handicap2: int | None = None
+    horaire: str | None = None
+    joue: bool | None = None
+    logo: str | None = None
+    nom_extended: str | None = None
+    officiels_string: str | None = None
+    pro: bool | None = None
+    resultat_equipe1: str | None = None
+    resultat_equipe2: str | None = None
+    sexe: str | None = None
+    type_competition_generique: str | None = None
+    unique_key: str | None = None
+    url_competition: str | None = None
     lower_id: str | None = field(init=False, default=None, repr=False)
     lower_nom_equipe1: str | None = field(init=False, default=None, repr=False)
     lower_nom_equipe2: str | None = field(init=False, default=None, repr=False)
@@ -121,6 +138,22 @@ class RencontresHit(Hit):
             thumbnail = from_str(obj, "thumbnail")
             organisateur = from_obj(Organisateur.from_dict, obj, "organisateur")
             niveau_nb = from_int(obj, "niveau_nb")
+            competition_orgine = from_str(obj, "competition_orgine")
+            competition_origine = from_str(obj, "competition_origine")
+            handicap1 = from_int(obj, "handicap1")
+            handicap2 = from_int(obj, "handicap2")
+            horaire = from_str(obj, "horaire")
+            joue = from_bool(obj, "joue")
+            logo = from_str(obj, "logo")
+            nom_extended = from_str(obj, "nomExtended")
+            officiels_string = from_str(obj, "officiels_string")
+            pro = from_bool(obj, "pro")
+            resultat_equipe1 = from_str(obj, "resultatEquipe1")
+            resultat_equipe2 = from_str(obj, "resultatEquipe2")
+            sexe = from_str(obj, "sexe")
+            type_competition_generique = from_str(obj, "typeCompetitionGenerique")
+            unique_key = from_str(obj, "uniqueKey")
+            url_competition = from_str(obj, "url_competition")
             return RencontresHit(
                 niveau=niveau,
                 id=id,
@@ -149,6 +182,22 @@ class RencontresHit(Hit):
                 thumbnail=thumbnail,
                 organisateur=organisateur,
                 niveau_nb=niveau_nb,
+                competition_orgine=competition_orgine,
+                competition_origine=competition_origine,
+                handicap1=handicap1,
+                handicap2=handicap2,
+                horaire=horaire,
+                joue=joue,
+                logo=logo,
+                nom_extended=nom_extended,
+                officiels_string=officiels_string,
+                pro=pro,
+                resultat_equipe1=resultat_equipe1,
+                resultat_equipe2=resultat_equipe2,
+                sexe=sexe,
+                type_competition_generique=type_competition_generique,
+                unique_key=unique_key,
+                url_competition=url_competition,
             )
         except Exception as e:
             raise ValueError(f"Invalid `Hit` object: {e}") from e
@@ -209,6 +258,38 @@ class RencontresHit(Hit):
             result["organisateur"] = self.organisateur.to_dict()
         if self.niveau_nb is not None:
             result["niveau_nb"] = str(self.niveau_nb)
+        if self.competition_orgine is not None:
+            result["competition_orgine"] = self.competition_orgine
+        if self.competition_origine is not None:
+            result["competition_origine"] = self.competition_origine
+        if self.handicap1 is not None:
+            result["handicap1"] = self.handicap1
+        if self.handicap2 is not None:
+            result["handicap2"] = self.handicap2
+        if self.horaire is not None:
+            result["horaire"] = self.horaire
+        if self.joue is not None:
+            result["joue"] = self.joue
+        if self.logo is not None:
+            result["logo"] = self.logo
+        if self.nom_extended is not None:
+            result["nomExtended"] = self.nom_extended
+        if self.officiels_string is not None:
+            result["officiels_string"] = self.officiels_string
+        if self.pro is not None:
+            result["pro"] = self.pro
+        if self.resultat_equipe1 is not None:
+            result["resultatEquipe1"] = self.resultat_equipe1
+        if self.resultat_equipe2 is not None:
+            result["resultatEquipe2"] = self.resultat_equipe2
+        if self.sexe is not None:
+            result["sexe"] = self.sexe
+        if self.type_competition_generique is not None:
+            result["typeCompetitionGenerique"] = self.type_competition_generique
+        if self.unique_key is not None:
+            result["uniqueKey"] = self.unique_key
+        if self.url_competition is not None:
+            result["url_competition"] = self.url_competition
         return result
 
     def is_valid_for_query(self, query: str) -> bool:

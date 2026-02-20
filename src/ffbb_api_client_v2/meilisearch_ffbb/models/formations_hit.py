@@ -1,14 +1,18 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import Any
+from uuid import UUID
 
 from ...meilisearch.models.hit import Hit
 from ...utils.converter_utils import (
+    from_datetime,
     from_duration,
+    from_int,
     from_list,
     from_str,
+    from_uuid,
 )
 from .formation_session import FormationSession
 
@@ -42,6 +46,24 @@ class FormationsHit(Hit):
     postal_codes: list[str] | None = None
     places: list[str] | None = None
     id_origin_hash: str | None = None
+    date_end: datetime | None = None
+    date_end_formatted: int | None = None
+    date_start: datetime | None = None
+    date_start_formatted: int | None = None
+    entity: str | None = None
+    formation_domain: str | None = None
+    formation_duration_hours: str | None = None
+    formation_id: UUID | None = None
+    formation_image: str | None = None
+    formation_mode: str | None = None
+    formation_theme: str | None = None
+    formation_thumbnail: str | None = None
+    formation_title: str | None = None
+    place: str | None = None
+    postal_code: str | None = None
+    reference_hidden: str | None = None
+    subscribe_btn: str | None = None
+    subscribe_button: str | None = None
     lower_title: str | None = field(init=False, default=None, repr=False)
     lower_domain: str | None = field(init=False, default=None, repr=False)
     lower_theme: str | None = field(init=False, default=None, repr=False)
@@ -81,6 +103,24 @@ class FormationsHit(Hit):
         postal_codes = from_list(str, obj, "postal_codes")
         places = from_list(str, obj, "places")
         id_origin_hash = from_str(obj, "id_origin_hash")
+        date_end = from_datetime(obj, "date_end")
+        date_end_formatted = from_int(obj, "date_end_formatted")
+        date_start = from_datetime(obj, "date_start")
+        date_start_formatted = from_int(obj, "date_start_formatted")
+        entity = from_str(obj, "entity")
+        formation_domain = from_str(obj, "formation_domain")
+        formation_duration_hours = from_str(obj, "formation_duration_hours")
+        formation_id = from_uuid(obj, "formation_id")
+        formation_image = from_str(obj, "formation_image")
+        formation_mode = from_str(obj, "formation_mode")
+        formation_theme = from_str(obj, "formation_theme")
+        formation_thumbnail = from_str(obj, "formation_thumbnail")
+        formation_title = from_str(obj, "formation_title")
+        place = from_str(obj, "place")
+        postal_code = from_str(obj, "postal_code")
+        reference_hidden = from_str(obj, "reference_hidden")
+        subscribe_btn = from_str(obj, "subscribeBtn")
+        subscribe_button = from_str(obj, "subscribe_button")
         return FormationsHit(
             id=id,
             title=title,
@@ -109,6 +149,24 @@ class FormationsHit(Hit):
             postal_codes=postal_codes,
             places=places,
             id_origin_hash=id_origin_hash,
+            date_end=date_end,
+            date_end_formatted=date_end_formatted,
+            date_start=date_start,
+            date_start_formatted=date_start_formatted,
+            entity=entity,
+            formation_domain=formation_domain,
+            formation_duration_hours=formation_duration_hours,
+            formation_id=formation_id,
+            formation_image=formation_image,
+            formation_mode=formation_mode,
+            formation_theme=formation_theme,
+            formation_thumbnail=formation_thumbnail,
+            formation_title=formation_title,
+            place=place,
+            postal_code=postal_code,
+            reference_hidden=reference_hidden,
+            subscribe_btn=subscribe_btn,
+            subscribe_button=subscribe_button,
         )
 
     def to_dict(self) -> dict:
@@ -170,6 +228,42 @@ class FormationsHit(Hit):
             result["places"] = self.places
         if self.id_origin_hash is not None:
             result["id_origin_hash"] = self.id_origin_hash
+        if self.date_end is not None:
+            result["date_end"] = self.date_end.isoformat()
+        if self.date_end_formatted is not None:
+            result["date_end_formatted"] = self.date_end_formatted
+        if self.date_start is not None:
+            result["date_start"] = self.date_start.isoformat()
+        if self.date_start_formatted is not None:
+            result["date_start_formatted"] = self.date_start_formatted
+        if self.entity is not None:
+            result["entity"] = self.entity
+        if self.formation_domain is not None:
+            result["formation_domain"] = self.formation_domain
+        if self.formation_duration_hours is not None:
+            result["formation_duration_hours"] = self.formation_duration_hours
+        if self.formation_id is not None:
+            result["formation_id"] = str(self.formation_id)
+        if self.formation_image is not None:
+            result["formation_image"] = self.formation_image
+        if self.formation_mode is not None:
+            result["formation_mode"] = self.formation_mode
+        if self.formation_theme is not None:
+            result["formation_theme"] = self.formation_theme
+        if self.formation_thumbnail is not None:
+            result["formation_thumbnail"] = self.formation_thumbnail
+        if self.formation_title is not None:
+            result["formation_title"] = self.formation_title
+        if self.place is not None:
+            result["place"] = self.place
+        if self.postal_code is not None:
+            result["postal_code"] = self.postal_code
+        if self.reference_hidden is not None:
+            result["reference_hidden"] = self.reference_hidden
+        if self.subscribe_btn is not None:
+            result["subscribeBtn"] = self.subscribe_btn
+        if self.subscribe_button is not None:
+            result["subscribe_button"] = self.subscribe_button
         return result
 
     def is_valid_for_query(self, query: str) -> bool:

@@ -46,6 +46,9 @@ class OrganismesHit(Hit):
     logo: Logo | None = None
     geo: Geo | None = None
     thumbnail: str | None = None
+    engagements_codes: str | None = None
+    saison: str | None = None
+    url_competition: str | None = None
     lower_nom_club_pro: str | None = field(init=False, default=None, repr=False)
     lower_nom: str | None = field(init=False, default=None, repr=False)
     lower_engagements_noms: str | None = field(init=False, default=None, repr=False)
@@ -91,6 +94,9 @@ class OrganismesHit(Hit):
             logo = from_obj(Logo.from_dict, obj, "logo")
             geo = from_obj(Geo.from_dict, obj, "_geo")
             thumbnail = from_str(obj, "thumbnail")
+            engagements_codes = from_str(obj, "engagements_codes")
+            saison = from_str(obj, "saison")
+            url_competition = from_str(obj, "url_competition")
             return OrganismesHit(
                 nom_club_pro=nom_club_pro,
                 nom=nom,
@@ -116,6 +122,9 @@ class OrganismesHit(Hit):
                 logo=logo,
                 geo=geo,
                 thumbnail=thumbnail,
+                engagements_codes=engagements_codes,
+                saison=saison,
+                url_competition=url_competition,
             )
         except Exception as e:
             raise ValueError(f"Invalid `OrganismesHit` object: {e}") from e
@@ -170,6 +179,12 @@ class OrganismesHit(Hit):
             result["_geo"] = self.geo.to_dict()
         if self.thumbnail is not None:
             result["thumbnail"] = self.thumbnail
+        if self.engagements_codes is not None:
+            result["engagements_codes"] = self.engagements_codes
+        if self.saison is not None:
+            result["saison"] = self.saison
+        if self.url_competition is not None:
+            result["url_competition"] = self.url_competition
         return result
 
     def is_valid_for_query(self, query: str) -> bool:

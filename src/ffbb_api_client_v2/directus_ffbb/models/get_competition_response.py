@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from datetime import datetime
 from typing import Any
 from uuid import UUID
 
@@ -9,6 +10,7 @@ from ...models.competition_phase import CompetitionPhase
 from ...models.type_competition_generique import TypeCompetitionGenerique
 from ...utils.converter_utils import (
     from_bool,
+    from_datetime,
     from_int,
     from_list,
     from_obj,
@@ -49,6 +51,8 @@ class GetCompetitionResponse:
     categorie: Categorie | None = None
     type_competition_generique: TypeCompetitionGenerique | None = None
     phases: list[CompetitionPhase] = field(default_factory=list)
+    date_created: datetime | None = None
+    date_updated: datetime | None = None
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> GetCompetitionResponse | None:
@@ -92,4 +96,6 @@ class GetCompetitionResponse:
                 TypeCompetitionGenerique.from_dict, data, "typeCompetitionGenerique"
             ),
             phases=from_list(CompetitionPhase.from_dict, data, "phases") or [],
+            date_created=from_datetime(data, "date_created"),
+            date_updated=from_datetime(data, "date_updated"),
         )
