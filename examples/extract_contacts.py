@@ -1412,8 +1412,11 @@ class ContactReport:
                 {slugify(contact.role) for contact in team.contacts if contact.role}
             )
             team_level = slugify(team.niveau) if team.niveau else ""
+            sexe_cls = (
+                "team--masculin" if team.sexe.startswith("M") else "team--feminin"
+            )
             f.write(
-                "<section class='team team-filterable' "
+                f"<section class='team team-filterable {sexe_cls}' "
                 f"data-team-level='{h(team_level)}' "
                 f"data-team-roles='{h(' '.join(team_role_tokens))}'>\n"
             )
@@ -2929,15 +2932,37 @@ p.address {
   font-weight: 700;
 }
 .team--club {
-  border-color: #D6DDED;
-  background: #F4F6FB;
+  border-color: #D4C9A8;
+  background: #FBF8F0;
 }
 .team--club .team-heading {
-  background: #E9EFFA;
-  border-bottom-color: #D6DDED;
+  background: #F3EDD8;
+  border-bottom-color: #D4C9A8;
 }
 .team--club .team-body {
-  background: #F4F6FB;
+  background: #FBF8F0;
+}
+.team--masculin {
+  border-color: #B8D4F0;
+  background: #EFF6FF;
+}
+.team--masculin .team-heading {
+  background: #DBEAFE;
+  border-bottom-color: #B8D4F0;
+}
+.team--masculin .team-body {
+  background: #EFF6FF;
+}
+.team--feminin {
+  border-color: #F0B8D4;
+  background: #FFF0F6;
+}
+.team--feminin .team-heading {
+  background: #FCE4F0;
+  border-bottom-color: #F0B8D4;
+}
+.team--feminin .team-body {
+  background: #FFF0F6;
 }
 
 /* Badges */
