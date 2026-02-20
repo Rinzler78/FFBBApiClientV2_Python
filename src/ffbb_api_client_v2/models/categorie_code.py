@@ -22,11 +22,20 @@ _YOUTH_GENERIC = re.compile(r"^(U\d{1,2})$")
 _SENIOR_STRUCTURED = re.compile(r"^SE([DRE])(\d)([MF])$")
 _NATIONAL = re.compile(r"^N([MF])(\d)$")
 _PRE = re.compile(r"^P([NR])([MF])$")
+_ADEP = re.compile(r"^ADEP([MF])$")
 _AREG = re.compile(r"^AREG([MF])$")
 _LF = re.compile(r"^LF(\d)$")
 _SENIOR_GENERIC = re.compile(r"^(?:SE|SEN|S|SENIOR)$")
 _VETERAN = re.compile(r"^VE$")
 _BASKET_FAUTEUIL = re.compile(r"^LBWL$")
+_DEP_NIV = re.compile(r"^DEP NIV(\d)([MF])$")
+
+# Special codes — non-structured names used for professional/specific leagues
+_SPECIAL_CODES: dict[str, _ParseResult] = {
+    "Betclic E": (AgeGroup.SENIOR, Echelon.PRO, None, Gender.MASCULIN, True),
+    "PROA": (AgeGroup.SENIOR, Echelon.PRO, None, Gender.MASCULIN, True),
+    "PROB": (AgeGroup.SENIOR, Echelon.PRO, None, Gender.MASCULIN, True),
+}
 
 _AGE_GROUP_MAP: dict[str, AgeGroup] = {m.value: m for m in AgeGroup}
 _ECHELON_LETTER: dict[str, Echelon] = {
@@ -61,6 +70,11 @@ def _parse(value: str) -> _ParseResult:
 
     Returns (age_group, echelon, division, gender, parsed).
     """
+    # Special codes (professional leagues, non-structured names)
+    special = _SPECIAL_CODES.get(value)
+    if special is not None:
+        return special
+
     # Youth + echelon + division + gender: U13D1M, U15R2F, U18F1M
     m = _YOUTH_ECHELON.match(value)
     if m:
@@ -121,6 +135,17 @@ def _parse(value: str) -> _ParseResult:
             True,
         )
 
+    # Association departementale: ADEPM, ADEPF
+    m = _ADEP.match(value)
+    if m:
+        return (
+            None,
+            Echelon.ASSOCIATION_DEPARTEMENTALE,
+            None,
+            _GENDER_LETTER[m.group(1)],
+            True,
+        )
+
     # Association regionale: AREGM, AREGF
     m = _AREG.match(value)
     if m:
@@ -154,6 +179,17 @@ def _parse(value: str) -> _ParseResult:
     # Basket fauteuil: LBWL
     if _BASKET_FAUTEUIL.match(value):
         return (None, Echelon.BASKET_FAUTEUIL, None, None, True)
+
+    # Departement with space: DEP NIV1F, DEP NIV2M
+    m = _DEP_NIV.match(value)
+    if m:
+        return (
+            None,
+            Echelon.DEPARTEMENT,
+            int(m.group(1)),
+            _GENDER_LETTER[m.group(2)],
+            True,
+        )
 
     # Fallback — unrecognized code
     return (None, None, None, None, False)

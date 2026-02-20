@@ -526,7 +526,7 @@ class TestEchelon(unittest.TestCase):
         self.assertIsInstance(Echelon.DEPARTEMENT, str)
 
     def test_member_count(self) -> None:
-        self.assertEqual(len(Echelon), 10)
+        self.assertEqual(len(Echelon), 12)
 
 
 class TestGender(unittest.TestCase):

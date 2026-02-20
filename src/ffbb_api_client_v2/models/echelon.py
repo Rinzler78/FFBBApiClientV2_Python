@@ -12,6 +12,7 @@ class Echelon(str, Enum):
     (ex: D dans U13D1M, N dans NM1, PN dans PNM).
     """
 
+    PRO = "PRO"
     DEPARTEMENT = "D"
     REGION = "R"
     FEDERAL = "F"
@@ -20,5 +21,6 @@ class Echelon(str, Enum):
     PRE_REGIONAL = "PR"
     EXCELLENCE = "E"
     LIGUE_FEMININE = "LF"
+    ASSOCIATION_DEPARTEMENTALE = "ADEP"
     ASSOCIATION_REGIONALE = "AREG"
     BASKET_FAUTEUIL = "LBWL"
