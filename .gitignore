@@ -72,3 +72,4 @@ examples/http_cache.db
 data
 reports
 *.png
+.pylint.d
