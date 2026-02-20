@@ -18,6 +18,7 @@ from ffbb_api_client_v2.models.officiel_personne import OfficielPersonne
 from ffbb_api_client_v2.models.organisme_equipe import OrganismeEquipe
 from ffbb_api_client_v2.models.organisme_id import OrganismeId
 from ffbb_api_client_v2.models.phase_engagement import PhaseEngagement
+from ffbb_api_client_v2.models.type_competition import TypeCompetition
 
 
 class TestFonction(unittest.TestCase):
@@ -449,7 +450,7 @@ class TestGetCompetitionResponseExtracted(unittest.TestCase):
         }
         resp = GetCompetitionResponse.from_dict(data)
         self.assertIsNotNone(resp)
-        self.assertEqual(resp.type_competition, "Championnat")
+        self.assertEqual(resp.type_competition, TypeCompetition.CHAMPIONNAT)
         self.assertEqual(resp.live_stat, True)
         self.assertEqual(resp.publication_internet, "O")
         self.assertEqual(resp.competition_origine, 42)

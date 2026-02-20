@@ -9,6 +9,7 @@ from ffbb_api_client_v2.models.competition_ref import CompetitionRef
 from ffbb_api_client_v2.models.logo import Logo
 from ffbb_api_client_v2.models.organisateur import Organisateur
 from ffbb_api_client_v2.models.saison import Saison
+from ffbb_api_client_v2.models.type_competition import TypeCompetition
 from ffbb_api_client_v2.models.type_competition_generique import (
     TypeCompetitionGenerique,
 )
@@ -35,7 +36,7 @@ class Test141CompetitionRefAdditional(unittest.TestCase):
             competition_origine="Ligue",
             competition_origine_nom="Ligue Test",
             competition_origine_niveau=1,
-            type_competition="Championnat",
+            type_competition=TypeCompetition.CHAMPIONNAT,
             logo=logo,
             saison=saison,
             id_competition_pere="parent123",
@@ -51,7 +52,7 @@ class Test141CompetitionRefAdditional(unittest.TestCase):
         assert competition_ref.competition_origine == "Ligue"
         assert competition_ref.competition_origine_nom == "Ligue Test"
         assert competition_ref.competition_origine_niveau == 1
-        assert competition_ref.type_competition == "Championnat"
+        assert competition_ref.type_competition == TypeCompetition.CHAMPIONNAT
         assert competition_ref.logo == logo
         assert competition_ref.saison == saison
         assert competition_ref.id_competition_pere == "parent123"
@@ -106,7 +107,9 @@ class Test141CompetitionRefAdditional(unittest.TestCase):
         assert competition_ref.competition_origine == "District"
         assert competition_ref.competition_origine_nom == "District Test"
         assert competition_ref.competition_origine_niveau == 2
-        assert competition_ref.type_competition == "Coupe"
+        from ffbb_api_client_v2.models.type_competition import TypeCompetition
+
+        assert competition_ref.type_competition == TypeCompetition.COUPE
         assert competition_ref.logo is not None
         assert competition_ref.saison is not None
         assert competition_ref.id_competition_pere == "parent456"
@@ -153,7 +156,7 @@ class Test141CompetitionRefAdditional(unittest.TestCase):
             competition_origine="Ligue",
             competition_origine_nom="Ligue Test",
             competition_origine_niveau=1,
-            type_competition="Championnat",
+            type_competition=TypeCompetition.CHAMPIONNAT,
             logo=logo,
             saison=saison,
             id_competition_pere="parent123",

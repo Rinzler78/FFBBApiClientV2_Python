@@ -149,12 +149,13 @@ class TestExternalIDToDictCoverage(unittest.TestCase):
 
     def test_007_competition_id_to_dict(self) -> None:
         from ffbb_api_client_v2.models.external_id import ExternalCompetitionID
+        from ffbb_api_client_v2.models.type_competition import TypeCompetition
 
         c = ExternalCompetitionID(
             code="NM1",
             nom="Nationale 1",
             sexe="Masculin",
-            type_competition="Championnat",
+            type_competition=TypeCompetition.CHAMPIONNAT,
         )
         d = c.to_dict()
         self.assertEqual(d["code"], "NM1")
@@ -172,7 +173,7 @@ class TestExternalIDToDictCoverage(unittest.TestCase):
         from ffbb_api_client_v2.models.salle import Salle
 
         comp = ExternalCompetitionID(
-            code="NM1", nom="Nationale 1", sexe="M", type_competition="Champ"
+            code="NM1", nom="Nationale 1", sexe="M", type_competition=None
         )
         org1 = IDOrganismeEquipe(
             id="o1",

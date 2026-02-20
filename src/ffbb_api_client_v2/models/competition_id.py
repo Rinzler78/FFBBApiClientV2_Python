@@ -5,6 +5,7 @@ from typing import Any
 
 from ..utils.converter_utils import (
     from_bool,
+    from_enum,
     from_obj,
     from_str,
 )
@@ -14,6 +15,7 @@ from .competition_id_type_competition_generique import (
 )
 from .competition_origine import CompetitionOrigine
 from .logo import Logo
+from .type_competition import TypeCompetition
 
 
 @dataclass
@@ -26,7 +28,7 @@ class CompetitionID:
     live_stat: bool | None = None
     publication_internet: str | None = None
     sexe: str | None = None
-    type_competition: str | None = None
+    type_competition: TypeCompetition | None = None
     pro: bool | None = None
     logo: Logo | None = None
     categorie: CompetitionIDCategorie | None = None
@@ -46,7 +48,7 @@ class CompetitionID:
             live_stat = from_bool(obj, "liveStat")
             publication_internet = from_str(obj, "publicationInternet")
             sexe = from_str(obj, "sexe")
-            type_competition = from_str(obj, "typeCompetition")
+            type_competition = from_enum(TypeCompetition, obj, "typeCompetition")
             pro = from_bool(obj, "pro")
             logo = from_obj(Logo.from_dict, obj, "logo")
             categorie = from_obj(CompetitionIDCategorie.from_dict, obj, "categorie")
@@ -98,7 +100,7 @@ class CompetitionID:
         if self.sexe is not None:
             result["sexe"] = self.sexe
         if self.type_competition is not None:
-            result["typeCompetition"] = self.type_competition
+            result["typeCompetition"] = self.type_competition.value
         if self.pro is not None:
             result["pro"] = self.pro
         if self.logo is not None:

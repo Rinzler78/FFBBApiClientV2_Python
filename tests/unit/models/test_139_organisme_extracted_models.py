@@ -342,7 +342,9 @@ class TestCompetitionRef(unittest.TestCase):
         self.assertEqual(ref.nom, "Regionale 2 Masculine")
         self.assertEqual(ref.sexe, "M")
         self.assertEqual(ref.competition_origine_niveau, 2)
-        self.assertEqual(ref.type_competition, "Championnat")
+        from ffbb_api_client_v2.models.type_competition import TypeCompetition
+
+        self.assertEqual(ref.type_competition, TypeCompetition.CHAMPIONNAT)
         self.assertIsNotNone(ref.logo)
         self.assertIsNotNone(ref.saison)
         self.assertEqual(ref.id_competition_pere, "comp-parent")
@@ -355,9 +357,11 @@ class TestCompetitionRef(unittest.TestCase):
         self.assertIsNone(ref.nom)
 
     def test_028_to_dict_camelcase_keys(self) -> None:
+        from ffbb_api_client_v2.models.type_competition import TypeCompetition
+
         ref = CompetitionRef(
             id="comp-001",
-            type_competition="Championnat",
+            type_competition=TypeCompetition.CHAMPIONNAT,
             competition_origine_niveau=2,
             id_competition_pere="comp-parent",
         )
