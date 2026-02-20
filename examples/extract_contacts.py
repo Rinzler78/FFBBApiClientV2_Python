@@ -30,7 +30,10 @@ from ffbb_api_client_v2.directus_ffbb.config import API_FFBB_BASE_URL, ENDPOINT_
 from ffbb_api_client_v2.directus_ffbb.models.get_organisme_response import (
     GetOrganismeResponse,
 )
-from ffbb_api_client_v2.exceptions import FFBBServerError
+from ffbb_api_client_v2.directus_ffbb.models.get_engagements_response import (
+    GetEngagementsResponse,
+)
+from ffbb_api_client_v2.exceptions import FFBBApiError
 from ffbb_api_client_v2.meilisearch_ffbb.models.engagements_hit import EngagementsHit
 from ffbb_api_client_v2.models.age_group import AgeGroup
 from ffbb_api_client_v2.models.contact_info import ContactInfo
@@ -149,6 +152,10 @@ class ReportTeam:
     poules: list[str]
     ranking_url: str
     competition_logo_url: str
+    ranking_position: int | None
+    ranking_total: int | None
+    next_match_date: str
+    next_match_opponent: str
     contacts: list[ReportContact]
 
     @property
@@ -334,13 +341,23 @@ class ContactReport:
                     poules = sorted({p for r in t_rows for p in r.poules if p})
                     ranking_url = ""
                     competition_logo_url = ""
+                    ranking_position: int | None = None
+                    ranking_total: int | None = None
+                    next_match_date = ""
+                    next_match_opponent = ""
                     for r in t_rows:
                         if not ranking_url and r.ranking_url:
                             ranking_url = r.ranking_url
                         if not competition_logo_url and r.competition_logo_url:
                             competition_logo_url = r.competition_logo_url
-                        if ranking_url and competition_logo_url:
-                            break
+                        if ranking_position is None and r.ranking_position is not None:
+                            ranking_position = r.ranking_position
+                        if ranking_total is None and r.ranking_total is not None:
+                            ranking_total = r.ranking_total
+                        if not next_match_date and r.next_match_date:
+                            next_match_date = r.next_match_date
+                        if not next_match_opponent and r.next_match_opponent:
+                            next_match_opponent = r.next_match_opponent
                     contacts = [
                         ReportContact(
                             role=r.titre,
@@ -360,6 +377,10 @@ class ContactReport:
                             poules=poules,
                             ranking_url=ranking_url,
                             competition_logo_url=competition_logo_url,
+                            ranking_position=ranking_position,
+                            ranking_total=ranking_total,
+                            next_match_date=next_match_date,
+                            next_match_opponent=next_match_opponent,
                             contacts=contacts,
                         )
                     )
@@ -648,6 +669,26 @@ class ContactReport:
     def to_html(self, path: Path) -> None:
         """Write a professional HTML report with interactive Leaflet map."""
         h = _html_escape
+        role_set: set[str] = set()
+        for city in self.cities:
+            for club in city.clubs:
+                for contact in club.club_contacts:
+                    if contact.role:
+                        role_set.add(contact.role)
+                for team in club.teams:
+                    for contact in team.contacts:
+                        if contact.role:
+                            role_set.add(contact.role)
+        role_options = sorted(role_set, key=str.casefold)
+        max_city_distance = max(
+            (city.distance_km for city in self.cities if city.distance_km is not None),
+            default=self.radius,
+        )
+        max_distance_slider = max(
+            5,
+            int(math.ceil(max(max_city_distance, self.radius))),
+        )
+
         with path.open("w", encoding="utf-8") as f:
             f.write("<!DOCTYPE html>\n<html lang='fr'>\n<head>\n")
             f.write("<meta charset='utf-8'>\n")
@@ -674,6 +715,10 @@ class ContactReport:
             f.write("<style>\n")
             f.write(_HTML_CSS)
             f.write("</style>\n</head>\n<body>\n")
+            f.write(
+                "<a class='skip-link' href='#main-content'>"
+                "Aller au contenu principal</a>\n"
+            )
 
             # --- Sidebar (desktop nav) ---
             f.write("<nav class='sidebar' id='sidebar'>\n")
@@ -685,7 +730,7 @@ class ContactReport:
                     f"{city.distance_km:.0f}" if city.distance_km is not None else "?"
                 )
                 f.write(
-                    f"<li><a href='#{anchor}'>{h(city.ville)}"
+                    f"<li data-city-link='{h(anchor)}'><a href='#{anchor}'>{h(city.ville)}"
                     f"<span class='sidebar-dist'>{dist} km</span></a></li>\n"
                 )
             f.write(
@@ -695,25 +740,41 @@ class ContactReport:
             f.write("</ul>\n</nav>\n\n")
 
             # --- Main content ---
-            f.write("<main class='content'>\n")
+            f.write("<main class='content' id='main-content'>\n")
 
             # Header
-            f.write("<header>\n")
+            f.write("<header class='hero'>\n")
+            f.write("<div class='hero-main'>\n")
+            f.write("<div>\n")
+            f.write("<p class='hero-kicker'>Recherche FFBB</p>\n")
             f.write(
                 f"<h1>Contacts Basketball Senior" f" &mdash; {h(self.city_name)}</h1>\n"
             )
-            f.write("<table class='params'>\n")
-            f.write("<tr><th>Ville</th>")
-            f.write(f"<td><strong>{h(self.city_name)}</strong></td></tr>\n")
-            f.write("<tr><th>Position</th>")
-            f.write(f"<td>{self.lat:.4f}, {self.lng:.4f}</td></tr>\n")
-            f.write("<tr><th>Rayon</th>")
-            f.write(f"<td>{self.radius:.0f} km</td></tr>\n")
-            f.write("<tr><th>Niveaux</th><td>Pro, National</td></tr>\n")
-            f.write("<tr><th>Sexe</th><td>Masculin, Feminin</td></tr>\n")
-            f.write("<tr><th>Tranches d'ages</th><td>Senior</td></tr>\n")
-            f.write("</table>\n")
-            f.write(f"<p class='date'>{h(self.timestamp)}</p>\n")
+            f.write("</div>\n")
+            f.write(f"<p class='hero-date'>{h(self.timestamp)}</p>\n")
+            f.write("</div>\n")
+            f.write(
+                "<p class='hero-subtitle'>"
+                "Extraction des clubs et contacts seniors Pro/National dans un rayon "
+                "personnalise autour de la ville de recherche."
+                "</p>\n"
+            )
+            f.write("<ul class='hero-facts'>\n")
+            for label, value in [
+                ("Ville", self.city_name),
+                ("Position", f"{self.lat:.4f}, {self.lng:.4f}"),
+                ("Rayon", f"{self.radius:.0f} km"),
+                ("Niveaux", "Pro, National"),
+                ("Sexe", "Masculin, Feminin"),
+                ("Ages", "Senior"),
+            ]:
+                f.write(
+                    "<li class='hero-fact'>"
+                    f"<span class='hero-fact__label'>{h(label)}</span>"
+                    f"<span class='hero-fact__value'>{h(value)}</span>"
+                    "</li>\n"
+                )
+            f.write("</ul>\n")
             f.write("</header>\n\n")
 
             # Summary stats
@@ -724,6 +785,7 @@ class ContactReport:
                 ("Clubs", self.total_clubs),
                 ("Equipes", self.total_teams),
                 ("Contacts", self.total_contacts),
+                ("Mentions", self.total_contact_mentions),
             ]:
                 f.write(
                     f"<div class='stat'>"
@@ -732,10 +794,84 @@ class ContactReport:
                 )
             f.write("</div>\n</section>\n\n")
 
+            # Search/filter/sort controls
+            f.write("<section class='controls' aria-labelledby='controls-title'>\n")
+            f.write(
+                "<h2 id='controls-title' class='visually-hidden'>"
+                "Recherche et filtres</h2>\n"
+            )
+            f.write("<div class='controls-bar'>\n")
+            f.write(
+                "<label class='control-field control-field--search' for='ui-search'>"
+                "<span>Recherche</span>"
+                "<input id='ui-search' type='search' "
+                "placeholder='Club, ville, contact, email...' "
+                "autocomplete='off'></label>\n"
+            )
+            f.write("<div class='controls-actions'>\n")
+            f.write(
+                "<p class='controls-result' id='ui-results'>"
+                f"{self.total_clubs} clubs affiches</p>\n"
+            )
+            f.write(
+                "<button type='button' id='ui-reset' class='control-reset'>"
+                "Reinitialiser</button>\n"
+            )
+            f.write("</div>\n")
+            f.write("</div>\n")
+            f.write("<details class='controls-advanced'>\n")
+            f.write("<summary>Filtres avances</summary>\n")
+            f.write("<div class='controls-grid'>\n")
+            f.write("<label class='control-field' for='ui-city'>")
+            f.write("<span>Ville</span>")
+            f.write("<select id='ui-city'>")
+            f.write("<option value='all'>Toutes les villes</option>")
+            for city in self.cities:
+                city_slug = slugify(city.ville)
+                f.write(f"<option value='{h(city_slug)}'>{h(city.ville)}</option>")
+            f.write("</select></label>\n")
+            f.write("<label class='control-field' for='ui-level'>")
+            f.write("<span>Niveau</span>")
+            f.write("<select id='ui-level'>")
+            f.write("<option value='all'>Tous les niveaux</option>")
+            f.write("<option value='pro'>Pro</option>")
+            f.write("<option value='national'>National</option>")
+            f.write("</select></label>\n")
+            f.write("<label class='control-field' for='ui-role'>")
+            f.write("<span>Role</span>")
+            f.write("<select id='ui-role'>")
+            f.write("<option value='all'>Tous les roles</option>")
+            for role in role_options:
+                f.write(f"<option value='{h(slugify(role))}'>{h(role)}</option>")
+            f.write("</select></label>\n")
+            f.write(
+                "<label class='control-field control-field--range' for='ui-distance'>"
+            )
+            f.write(
+                "<span>Distance max: <strong id='ui-distance-value'>"
+                f"{max_distance_slider}</strong> km</span>"
+            )
+            f.write(
+                f"<input id='ui-distance' type='range' min='0' max='{max_distance_slider}' "
+                f"value='{max_distance_slider}' step='1'>"
+            )
+            f.write("</label>\n")
+            f.write("<label class='control-field' for='ui-sort'>")
+            f.write("<span>Tri</span>")
+            f.write("<select id='ui-sort'>")
+            f.write("<option value='distance'>Distance</option>")
+            f.write("<option value='city'>Ville (A-Z)</option>")
+            f.write("<option value='club'>Club (A-Z)</option>")
+            f.write("<option value='contacts'>Nb contacts</option>")
+            f.write("</select></label>\n")
+            f.write("</div>\n")
+            f.write("</details>\n")
+            f.write("</section>\n\n")
+
             # Map
             f.write("<section id='map-section'>\n")
             f.write("<h2>Carte</h2>\n")
-            f.write("<div id='map'></div>\n")
+            f.write("<div id='map' aria-label='Carte des clubs'></div>\n")
             f.write(
                 "<noscript><p class='noscript-msg'>"
                 "Activez JavaScript pour afficher la carte interactive."
@@ -755,7 +891,8 @@ class ContactReport:
                     else "?"
                 )
                 f.write(
-                    f"<li><a href='#{anchor}'>" f"{h(city.ville)} — {dist}</a></li>\n"
+                    f"<li data-city-link='{h(anchor)}'><a href='#{anchor}'>"
+                    f"{h(city.ville)} — {dist}</a></li>\n"
                 )
             f.write(
                 "<li><a href='#annuaire'>" "&#x1F4D6; Annuaire des contacts</a></li>\n"
@@ -763,6 +900,7 @@ class ContactReport:
             f.write("</ul>\n</details>\n\n")
 
             # Contacts detail by city
+            f.write("<div id='cities-container'>\n")
             for city in self.cities:
                 label = (
                     f"{city.ville} ({city.code_postal})"
@@ -775,14 +913,41 @@ class ContactReport:
                     else "distance inconnue"
                 )
                 anchor = f"city-{slugify(city.ville)}"
+                city_slug = slugify(city.ville)
+                city_distance = (
+                    city.distance_km
+                    if city.distance_km is not None
+                    else max_distance_slider
+                )
                 is_target = city.ville.lower() == self.city_name.lower()
                 f.write(
-                    f"<section class='city-section' id='{anchor}'>\n"
-                    f"<h2>{h(label)} &mdash; {dist}</h2>\n"
+                    f"<section class='city-section' id='{anchor}' "
+                    f"data-city='{h(city_slug)}' data-distance='{city_distance:.2f}' "
+                    f"data-search='{h(city.ville.lower())}'>\n"
                 )
+                f.write("<details class='city-details' open>\n")
+                f.write(
+                    "<summary class='city-summary'>"
+                    f"<span class='city-summary__title'>{h(label)}</span>"
+                    f"<span class='city-summary__meta'>{dist} · {city.total_clubs} club(s) · "
+                    f"{city.total_teams} equipe(s) · {city.total_contacts} contact(s)</span>"
+                    "</summary>\n"
+                )
+                f.write("<div class='city-body'>\n")
                 if city.clubs:
-                    for club in city.clubs:
-                        self._write_html_club_card(f, club)
+                    f.write("<div class='city-clubs'>\n")
+                    for idx, club in enumerate(city.clubs, start=1):
+                        card_id = (
+                            f"club-{slugify(city.ville)}-{slugify(club.nom)}-{idx}"
+                        )
+                        self._write_html_club_card(
+                            f,
+                            club,
+                            card_id=card_id,
+                            city_name=city.ville,
+                            city_distance_km=city_distance,
+                        )
+                    f.write("</div>\n")
                 elif is_target:
                     f.write(
                         "<p class='empty-city'>Aucune equipe Pro ou National"
@@ -790,9 +955,11 @@ class ContactReport:
                         f" Recherche elargie a {self.radius:.0f}&nbsp;km.</p>\n"
                     )
                 f.write(
-                    "<p class='nav'>" "<a href='#map-section'>&#x2191; Carte</a></p>\n"
+                    "<p class='nav'><a href='#map-section'>&#x2191; Carte</a> · "
+                    "<a href='#main-content'>Filtres</a></p>\n"
                 )
-                f.write("</section>\n\n")
+                f.write("</div>\n</details>\n</section>\n\n")
+            f.write("</div>\n\n")
 
             # Annuaire — all contacts, deduplicated
             self._write_html_annuaire(f)
@@ -817,20 +984,64 @@ class ContactReport:
             )
             f.write("<script>\n")
             self._write_leaflet_js(f)
+            self._write_report_ui_js(f)
             f.write("</script>\n")
             f.write("</body>\n</html>\n")
 
-    def _write_html_club_card(self, f, club: ReportClub) -> None:
+    def _write_html_club_card(
+        self,
+        f,
+        club: ReportClub,
+        *,
+        card_id: str,
+        city_name: str,
+        city_distance_km: float,
+    ) -> None:
         """Write a single club card with logo, links, teams, contacts."""
         h = _html_escape
-        f.write("<div class='club-card'>\n")
+        level_tokens = sorted({slugify(t.niveau) for t in club.teams if t.niveau})
+        role_tokens: set[str] = set()
+        search_tokens = [city_name, club.nom, club.adresse, club.mail, club.telephone]
+        for contact in club.club_contacts:
+            if contact.role:
+                role_tokens.add(slugify(contact.role))
+                search_tokens.append(contact.role)
+            search_tokens.extend(
+                [contact.nom, contact.prenom, contact.email, contact.telephone]
+            )
+        for team in club.teams:
+            if team.niveau:
+                search_tokens.append(team.niveau)
+            if team.division:
+                search_tokens.append(team.division)
+            for contact in team.contacts:
+                if contact.role:
+                    role_tokens.add(slugify(contact.role))
+                    search_tokens.append(contact.role)
+                search_tokens.extend(
+                    [contact.nom, contact.prenom, contact.email, contact.telephone]
+                )
+        search_blob = " ".join(token for token in search_tokens if token).lower()
+        total_contacts = len(club.club_contacts) + sum(
+            len(t.contacts) for t in club.teams
+        )
+        f.write(
+            f"<article class='club-card' id='{h(card_id)}' "
+            f"data-card-id='{h(card_id)}' data-city='{h(slugify(city_name))}' "
+            f"data-distance='{city_distance_km:.2f}' "
+            f"data-club-name='{h(club.nom.lower())}' "
+            f"data-levels='{h(' '.join(level_tokens))}' "
+            f"data-roles='{h(' '.join(sorted(role_tokens)))}' "
+            f"data-search='{h(search_blob)}' "
+            f"data-contact-count='{total_contacts}'>\n"
+        )
 
         # Club header row
         f.write("<div class='club-header'>\n")
         if club.logo_url:
             f.write(
                 f"<img class='club-logo' src='{h(club.logo_url)}'"
-                f" alt='' loading='lazy'"
+                f" alt='Logo {h(club.nom)}' loading='lazy' decoding='async'"
                 f" onerror=\"this.style.display='none'\">\n"
             )
         else:
@@ -839,6 +1050,10 @@ class ContactReport:
         f.write(f"<h3 class='club-name'>{h(club.nom)}</h3>\n")
         if club.adresse:
             f.write(f"<p class='address'>{h(club.adresse)}</p>\n")
+        f.write(
+            f"<p class='club-meta'>{h(city_name)} · {city_distance_km:.1f} km · "
+            f"{len(club.teams)} equipe(s) · {total_contacts} contact(s)</p>\n"
+        )
         f.write("</div>\n</div>\n")
 
         # Action links row
@@ -846,7 +1061,7 @@ class ContactReport:
         dir_url = _directions_url(club.lat, club.lng, club.adresse)
         if dir_url:
             links.append(
-                f"<a href='{h(dir_url)}' target='_blank'"
+                f"<a href='{h(dir_url)}' target='_blank' rel='noopener noreferrer'"
                 f" title='Itineraire Google Maps'"
                 f" class='action-link'>&#x1F4CD; Itineraire</a>"
             )
@@ -855,7 +1070,7 @@ class ContactReport:
             if not url.startswith("http"):
                 url = "https://" + url
             links.append(
-                f"<a href='{h(url)}' target='_blank'"
+                f"<a href='{h(url)}' target='_blank' rel='noopener noreferrer'"
                 f" title='Site web du club'"
                 f" class='action-link'>&#x1F310; Site web</a>"
             )
@@ -864,7 +1079,7 @@ class ContactReport:
             if not ffbb_url.startswith("http"):
                 ffbb_url = f"{_COMPETITIONS_BASE}{ffbb_url}"
             links.append(
-                f"<a href='{h(ffbb_url)}' target='_blank'"
+                f"<a href='{h(ffbb_url)}' target='_blank' rel='noopener noreferrer'"
                 f" title='Page FFBB'"
                 f" class='action-link'>&#x1F3C6; Page FFBB</a>"
             )
@@ -884,21 +1099,49 @@ class ContactReport:
             f.write(" ".join(links))
             f.write("\n</div>\n")
 
-        # Club-level contacts FIRST (at the top of the club card)
         if club.club_contacts:
-            f.write("<div class='team club-contacts-section'>\n")
-            f.write("<span class='badge badge-club'>Contacts club</span>\n")
-            self._write_html_contact_table(f, club.club_contacts, with_refs=True)
-            f.write("</div>\n")
+            club_role_tokens = sorted(
+                {
+                    slugify(contact.role)
+                    for contact in club.club_contacts
+                    if contact.role
+                }
+            )
+            f.write(
+                "<section class='team team-filterable team--club' "
+                f"data-team-level='' data-team-roles='{h(' '.join(club_role_tokens))}'>\n"
+            )
+            f.write(
+                "<div class='team-heading'>"
+                "<span class='badge badge-club'>Contacts club</span>"
+                f"<span class='team-count'>{len(club.club_contacts)} contact(s)</span>"
+                "</div>\n"
+            )
+            f.write("<div class='team-body'>\n")
+            self._write_html_contact_table(
+                f,
+                club.club_contacts,
+                with_refs=True,
+                table_id=f"{card_id}-club",
+            )
+            f.write("</div>\n</section>\n")
 
-        # Teams with their contacts
-        for team in club.teams:
-            f.write("<div class='team'>\n")
-            # Competition logo + badges
+        for index, team in enumerate(club.teams, start=1):
+            team_role_tokens = sorted(
+                {slugify(contact.role) for contact in team.contacts if contact.role}
+            )
+            team_level = slugify(team.niveau) if team.niveau else ""
+            f.write(
+                "<section class='team team-filterable' "
+                f"data-team-level='{h(team_level)}' "
+                f"data-team-roles='{h(' '.join(team_role_tokens))}'>\n"
+            )
+            f.write("<div class='team-heading'>")
+            f.write("<span class='team-label'>Equipe</span>")
             if team.competition_logo_url:
                 f.write(
                     f"<img src='{h(team.competition_logo_url)}'"
-                    f" alt='{h(team.division)}' class='competition-logo'"
+                    f" alt='{h(team.division or team.niveau)}' class='competition-logo'"
                     f" width='28' height='28' loading='lazy'> "
                 )
             niveau_class = _niveau_css_class(team.niveau)
@@ -909,20 +1152,62 @@ class ContactReport:
             )
             if team.division:
                 f.write(f" <span class='badge badge-div'>{h(team.division)}</span>")
-            if team.poules:
-                f.write(
-                    f" <span class='team-poules'>{h(' / '.join(team.poules))}</span>"
-                )
-            if team.ranking_url:
-                f.write(
-                    f" <a href='{h(team.ranking_url)}' target='_blank'"
-                    f" class='ranking-link'>Classement &#x2197;</a>"
-                )
-            f.write("\n")
-            self._write_html_contact_table(f, team.contacts, with_refs=True)
+            f.write(f"<span class='team-count'>{len(team.contacts)} contact(s)</span>")
             f.write("</div>\n")
+            f.write("<div class='team-body'>\n")
+            team_meta_items: list[str] = []
+            if team.poules:
+                team_meta_items.append(
+                    "<span class='team-chip team-chip--poule'>"
+                    "<span class='team-chip__label'>Poule(s)</span>"
+                    f"<span class='team-chip__value'>{h(' / '.join(team.poules))}</span>"
+                    "</span>"
+                )
+            if team.ranking_position is not None and team.ranking_total is not None:
+                team_meta_items.append(
+                    "<span class='team-chip team-chip--ranking'>"
+                    "<span class='team-chip__label'>Classement</span>"
+                    "<span class='team-chip__value'>"
+                    f"{team.ranking_position} / {team.ranking_total}</span>"
+                    "</span>"
+                )
+            if team.next_match_date and team.next_match_opponent:
+                team_meta_items.append(
+                    "<span class='team-chip team-chip--next'>"
+                    "<span class='team-chip__label'>Prochain</span>"
+                    f"<span class='team-chip__when'>{h(team.next_match_date)}</span>"
+                    "<span class='team-chip__vs'>contre</span>"
+                    f"<span class='team-chip__opponent' title='{h(team.next_match_opponent)}'>"
+                    f"{h(team.next_match_opponent)}</span>"
+                    "</span>"
+                )
+            elif team.next_match_date:
+                team_meta_items.append(
+                    "<span class='team-chip team-chip--next'>"
+                    "<span class='team-chip__label'>Prochain</span>"
+                    f"<span class='team-chip__when'>{h(team.next_match_date)}</span>"
+                    "</span>"
+                )
+            if team_meta_items or team.ranking_url:
+                f.write("<div class='team-meta'>")
+                if team_meta_items:
+                    f.write("".join(team_meta_items))
+                if team.ranking_url:
+                    f.write(
+                        f"<a href='{h(team.ranking_url)}' target='_blank' "
+                        "rel='noopener noreferrer' class='team-meta-link'>"
+                        "Voir classement &#x2197;</a>"
+                    )
+                f.write("</div>\n")
+            self._write_html_contact_table(
+                f,
+                team.contacts,
+                with_refs=True,
+                table_id=f"{card_id}-team-{index}",
+            )
+            f.write("</div>\n</section>\n")
 
-        f.write("</div>\n")
+        f.write("</article>\n")
 
     @staticmethod
     def _write_html_contact_table(
@@ -930,54 +1215,109 @@ class ContactReport:
         contacts: list[ReportContact],
         *,
         with_refs: bool = False,
+        table_id: str | None = None,
     ) -> None:
         h = _html_escape
-        f.write("<table class='contacts'>\n<thead><tr>")
-        for col in ["Role", "Nom", "Tel", "Email"]:
-            f.write(f"<th>{col}</th>")
-        f.write("</tr></thead>\n<tbody>\n")
-        for c in contacts:
-            email_cell = (
-                f"<a href='mailto:{h(c.email)}'>{h(c.email)}</a>" if c.email else ""
-            )
-            tel_cell = ""
-            if c.telephone:
-                tel_clean = re.sub(r"\D", "", c.telephone)
-                tel_cell = (
-                    f"<a href='tel:{h(tel_clean)}'>"
-                    f"{h(_format_phone(c.telephone))}</a>"
-                )
-            nom_full = f"{c.nom} {c.prenom}".strip()
-            role_class = _role_css_class(c.role)
-            cid = _contact_id(c)
+        rows: list[dict[str, str]] = []
+        for contact in contacts:
+            nom_full = f"{contact.nom} {contact.prenom}".strip()
+            cid = _contact_id(contact)
             nom_cell = h(nom_full)
             if with_refs:
                 nom_cell = (
                     f"<a href='#{h(cid)}' class='contact-ref'"
-                    f" title='Voir dans l&#39;annuaire'>"
-                    f"{h(nom_full)}</a>"
+                    f" title='Voir dans l&#39;annuaire'>{h(nom_full)}</a>"
+                )
+            tel_display = ""
+            tel_clean = ""
+            if contact.telephone:
+                tel_display = _format_phone(contact.telephone)
+                tel_clean = re.sub(r"\D", "", contact.telephone)
+            rows.append(
+                {
+                    "cid": cid,
+                    "nom": nom_full,
+                    "nom_cell": nom_cell,
+                    "role": contact.role,
+                    "role_class": _role_css_class(contact.role),
+                    "role_token": slugify(contact.role),
+                    "tel": tel_display,
+                    "tel_href": tel_clean,
+                    "email": contact.email or "",
+                }
+            )
+
+        table_dom_id = table_id or "contacts"
+        f.write("<div class='contacts-block'>\n")
+        f.write(f"<table class='contacts' id='{h(table_dom_id)}'>\n<thead><tr>")
+        for col in ["Role", "Nom", "Tel", "Email"]:
+            f.write(f"<th>{col}</th>")
+        f.write("</tr></thead>\n<tbody>\n")
+        for row in rows:
+            email_cell = ""
+            if row["email"]:
+                email_cell = (
+                    f"<a href='mailto:{h(row['email'])}'>{h(row['email'])}</a>"
+                    f"<button type='button' class='copy-btn copy-btn--inline'"
+                    f" data-copy='{h(row['email'])}' "
+                    f" aria-label='Copier l email de {h(row['nom'])}'>Copier</button>"
+                )
+            tel_cell = ""
+            if row["tel_href"]:
+                tel_cell = (
+                    f"<a href='tel:{h(row['tel_href'])}'>{h(row['tel'])}</a>"
+                    f"<button type='button' class='copy-btn copy-btn--inline'"
+                    f" data-copy='{h(row['tel'])}' "
+                    f" aria-label='Copier le telephone de {h(row['nom'])}'>Copier</button>"
                 )
             f.write(
-                f"<tr><td><span class='badge {role_class}'>"
-                f"{h(c.role)}</span></td>"
-                f"<td>{nom_cell}</td>"
+                f"<tr data-role='{h(row['role_token'])}'>"
+                f"<td><span class='badge {row['role_class']}'>{h(row['role'])}</span></td>"
+                f"<td>{row['nom_cell']}</td>"
                 f"<td>{tel_cell}</td>"
                 f"<td>{email_cell}</td></tr>\n"
             )
         f.write("</tbody></table>\n")
+        f.write("<div class='contacts-cards'>\n")
+        for row in rows:
+            f.write(
+                f"<article class='contact-card' data-role='{h(row['role_token'])}' "
+                f"data-contact-search='{h(row['nom'].lower())} {h(row['role'].lower())}'>\n"
+            )
+            f.write(
+                f"<p class='contact-card__title'>{row['nom_cell']}</p>"
+                f"<p class='contact-card__role'><span class='badge {row['role_class']}'>"
+                f"{h(row['role'])}</span></p>\n"
+            )
+            if row["tel_href"]:
+                f.write(
+                    "<p class='contact-card__line'><span>Tel</span>"
+                    f"<a href='tel:{h(row['tel_href'])}'>{h(row['tel'])}</a>"
+                    f"<button type='button' class='copy-btn'"
+                    f" data-copy='{h(row['tel'])}'>Copier</button></p>\n"
+                )
+            if row["email"]:
+                f.write(
+                    "<p class='contact-card__line'><span>Email</span>"
+                    f"<a href='mailto:{h(row['email'])}'>{h(row['email'])}</a>"
+                    f"<button type='button' class='copy-btn'"
+                    f" data-copy='{h(row['email'])}'>Copier</button></p>\n"
+                )
+            f.write("</article>\n")
+        f.write("</div>\n</div>\n")
 
     def _write_leaflet_js(self, f) -> None:
         """Write the Leaflet map initialization script."""
-        h = _html_escape
 
         # Collect all club markers
         markers: list[dict] = []
         for city in self.cities:
-            for club in city.clubs:
+            for index, club in enumerate(city.clubs, start=1):
                 lat = club.lat
                 lng = club.lng
                 if lat is None or lng is None:
                     continue
+                card_id = f"club-{slugify(city.ville)}-{slugify(club.nom)}-{index}"
                 dir_url = _directions_url(lat, lng, club.adresse)
                 popup = f"<strong>{_html_escape(club.nom)}</strong>"
                 if club.adresse:
@@ -985,8 +1325,12 @@ class ContactReport:
                 if dir_url:
                     popup += (
                         f"<br><a href='{_html_escape(dir_url)}'"
-                        f" target='_blank'>Itineraire</a>"
+                        " target='_blank' rel='noopener noreferrer'>Itineraire</a>"
                     )
+                popup += (
+                    f"<br><a href='#{_html_escape(card_id)}' class='js-open-card' "
+                    f"data-card-id='{_html_escape(card_id)}'>Voir la fiche</a>"
+                )
                 markers.append(
                     {
                         "lat": lat,
@@ -994,7 +1338,7 @@ class ContactReport:
                         "popup": popup,
                         "name": club.nom,
                         "logo_url": club.logo_url,
-                        "has_logo": bool(club.logo_url),
+                        "card_id": card_id,
                     }
                 )
 
@@ -1002,25 +1346,16 @@ class ContactReport:
 
         f.write(f"""\
 (function() {{
-  var center = [{self.lat}, {self.lng}];
-  var map = L.map('map').setView(center, 8);
-  L.tileLayer('https://{{s}}.tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png', {{
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    maxZoom: 18
-  }}).addTo(map);
-
-  // Center marker (not in cluster)
-  var centerIcon = L.divIcon({{
-    className: 'center-marker',
-    html: '<div style="background:#DC2626;width:16px;height:16px;'
-      + 'border-radius:50%;border:3px solid #fff;'
-      + 'box-shadow:0 0 6px rgba(0,0,0,0.4)"></div>',
-    iconSize: [16, 16],
-    iconAnchor: [8, 8]
-  }});
-  L.marker(center, {{icon: centerIcon, zIndexOffset: 1000}})
-    .bindPopup('<strong>Centre de recherche</strong><br>{h(self.city_name)}')
-    .addTo(map);
+	  var center = [{self.lat}, {self.lng}];
+	  var mapEl = document.getElementById('map');
+	  if (!mapEl || typeof L === 'undefined') {{
+	    return;
+	  }}
+	  var map = L.map('map').setView(center, 8);
+	  L.tileLayer('https://{{s}}.tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png', {{
+	    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+	    maxZoom: 18
+	  }}).addTo(map);
 
   // Radius circle
   L.circle(center, {{
@@ -1070,10 +1405,10 @@ class ContactReport:
     }});
   }}
 
-  var clusters = L.markerClusterGroup({{
-    maxClusterRadius: 40,
-    spiderfyOnMaxZoom: true,
-    showCoverageOnHover: false,
+	  var clusters = L.markerClusterGroup({{
+	    maxClusterRadius: 40,
+	    spiderfyOnMaxZoom: true,
+	    showCoverageOnHover: false,
     iconCreateFunction: function(cluster) {{
       var n = cluster.getChildCount();
       return L.divIcon({{
@@ -1087,31 +1422,418 @@ class ContactReport:
         iconAnchor: [16, 16]
       }});
     }}
-  }});
+	  }});
 
-  var data = {markers_json};
-  var bounds = L.latLngBounds([center]);
-  data.forEach(function(m) {{
-    var marker = L.marker([m.lat, m.lng], {{icon: buildClubIcon(m)}})
-      .bindPopup(m.popup);
-    if (m.name) {{
+	  var data = {markers_json};
+	  var markerEntries = [];
+	  var markerByCardId = Object.create(null);
+	  data.forEach(function(m) {{
+	    var marker = L.marker([m.lat, m.lng], {{icon: buildClubIcon(m)}})
+	      .bindPopup(m.popup);
+	    if (m.name) {{
       marker.bindTooltip(escapeHtml(m.name), {{
         direction: 'top',
         offset: [0, -18],
         sticky: true,
-        opacity: 0.95
-      }});
-    }}
-    clusters.addLayer(marker);
-    bounds.extend([m.lat, m.lng]);
-  }});
-  map.addLayer(clusters);
+	        opacity: 0.95
+	      }});
+	    }}
+	    markerEntries.push({{cardId: m.card_id || '', marker: marker}});
+	    if (m.card_id) {{
+	      markerByCardId[m.card_id] = marker;
+	      marker.on('click', function() {{
+	        document.dispatchEvent(
+	          new CustomEvent('ffbb:marker-selected', {{
+	            detail: {{cardId: m.card_id}}
+	          }})
+	        );
+	      }});
+	    }}
+	  }});
 
-  if (data.length > 0) {{
-    map.fitBounds(bounds, {{padding: [30, 30]}});
-  }}
-}})();
-""")
+	  function updateClusters(visibleCardIds, preserveView) {{
+	    var hasFilter = Array.isArray(visibleCardIds);
+	    var visibleSet = Object.create(null);
+	    if (hasFilter) {{
+	      visibleCardIds.forEach(function(cardId) {{
+	        visibleSet[cardId] = true;
+	      }});
+	    }}
+	    clusters.clearLayers();
+	    var bounds = L.latLngBounds([center]);
+	    var visibleCount = 0;
+	    markerEntries.forEach(function(entry) {{
+	      var include = !hasFilter || !!visibleSet[entry.cardId];
+	      if (!include) {{
+	        return;
+	      }}
+	      clusters.addLayer(entry.marker);
+	      bounds.extend(entry.marker.getLatLng());
+	      visibleCount += 1;
+	    }});
+	    if (!map.hasLayer(clusters)) {{
+	      map.addLayer(clusters);
+	    }}
+	    if (!preserveView && visibleCount > 0) {{
+	      map.fitBounds(bounds, {{padding: [30, 30], maxZoom: 11}});
+	    }}
+	  }}
+
+	  updateClusters(null, false);
+
+	  window.__ffbbMapBridge = {{
+	    setVisibleCards: function(cardIds, preserveView) {{
+	      updateClusters(cardIds, !!preserveView);
+	    }},
+	    focusCard: function(cardId, openPopup) {{
+	      var marker = markerByCardId[cardId];
+	      if (!marker) {{
+	        return;
+	      }}
+	      map.panTo(marker.getLatLng(), {{animate: true, duration: 0.35}});
+	      if (openPopup !== false) {{
+	        marker.openPopup();
+	      }}
+	    }}
+	  }};
+	}})();
+	""")
+
+    @staticmethod
+    def _write_report_ui_js(f) -> None:
+        """Write client-side UI interactions (filters, sorting, copy, sync)."""
+        f.write("""\
+	(function() {
+	  var searchInput = document.getElementById('ui-search');
+	  var cityInput = document.getElementById('ui-city');
+	  var levelInput = document.getElementById('ui-level');
+	  var roleInput = document.getElementById('ui-role');
+	  var distanceInput = document.getElementById('ui-distance');
+	  var distanceValue = document.getElementById('ui-distance-value');
+	  var sortInput = document.getElementById('ui-sort');
+	  var resultNode = document.getElementById('ui-results');
+	  var resetButton = document.getElementById('ui-reset');
+	  var citiesContainer = document.getElementById('cities-container');
+	  if (!searchInput || !cityInput || !levelInput || !roleInput || !distanceInput || !citiesContainer) {
+	    return;
+	  }
+
+	  var citySections = Array.prototype.slice.call(
+	    document.querySelectorAll('.city-section')
+	  );
+	  var clubCards = Array.prototype.slice.call(
+	    document.querySelectorAll('.club-card')
+	  );
+	  var maxDistance = Number(distanceInput.max || distanceInput.value || 0);
+	  var activeCardId = '';
+
+	  function normalize(value) {
+	    return String(value || '')
+	      .normalize('NFD')
+	      .replace(/[\\u0300-\\u036f]/g, '')
+	      .toLowerCase()
+	      .trim();
+	  }
+
+	  function parseTokens(raw) {
+	    return String(raw || '')
+	      .split(/\\s+/)
+	      .map(function(token) { return token.trim(); })
+	      .filter(Boolean);
+	  }
+
+	  function updateDistanceLabel() {
+	    if (distanceValue) {
+	      distanceValue.textContent = String(distanceInput.value || '0');
+	    }
+	  }
+
+	  function sortCitySections(mode) {
+	    if (!citiesContainer) {
+	      return;
+	    }
+	    var sorted = citySections.slice().sort(function(a, b) {
+	      if (mode === 'city') {
+	        return (a.dataset.city || '').localeCompare(b.dataset.city || '', 'fr');
+	      }
+	      var da = Number(a.dataset.distance || 9999);
+	      var db = Number(b.dataset.distance || 9999);
+	      return da - db;
+	    });
+	    sorted.forEach(function(section) {
+	      citiesContainer.appendChild(section);
+	    });
+	  }
+
+	  function sortClubCards(mode) {
+	    Array.prototype.forEach.call(
+	      document.querySelectorAll('.city-clubs'),
+	      function(group) {
+	        var cards = Array.prototype.slice.call(group.querySelectorAll('.club-card'));
+	        cards.sort(function(a, b) {
+	          if (mode === 'contacts') {
+	            var ca = Number(a.dataset.contactCount || 0);
+	            var cb = Number(b.dataset.contactCount || 0);
+	            return cb - ca;
+	          }
+	          var na = a.dataset.clubName || '';
+	          var nb = b.dataset.clubName || '';
+	          return na.localeCompare(nb, 'fr');
+	        });
+	        cards.forEach(function(card) {
+	          group.appendChild(card);
+	        });
+	      }
+	    );
+	  }
+
+	  function applySort() {
+	    var mode = sortInput ? sortInput.value : 'distance';
+	    if (mode === 'city') {
+	      sortCitySections('city');
+	    } else {
+	      sortCitySections('distance');
+	    }
+	    if (mode === 'club' || mode === 'contacts') {
+	      sortClubCards(mode);
+	    }
+	  }
+
+	  function updateCityNavigation() {
+	    Array.prototype.forEach.call(
+	      document.querySelectorAll('[data-city-link]'),
+	      function(item) {
+	        var sectionId = item.getAttribute('data-city-link');
+	        if (!sectionId) {
+	          return;
+	        }
+	        var section = document.getElementById(sectionId);
+	        if (!section) {
+	          return;
+	        }
+	        item.hidden = !!section.hidden;
+	      }
+	    );
+	  }
+
+	  function applyTeamFilters(card, levelValue, roleValue) {
+	    var blocks = Array.prototype.slice.call(
+	      card.querySelectorAll('.team-filterable')
+	    );
+	    if (!blocks.length) {
+	      return true;
+	    }
+	    var hasVisible = false;
+	    blocks.forEach(function(block) {
+	      var isClubBlock = block.classList.contains('team--club');
+	      var levelTokens = parseTokens(block.dataset.teamLevel);
+	      var roleTokens = parseTokens(block.dataset.teamRoles);
+	      var levelOk = levelValue === 'all'
+	        ? true
+	        : !isClubBlock && levelTokens.indexOf(levelValue) >= 0;
+	      var roleOk = roleValue === 'all'
+	        ? true
+	        : roleTokens.indexOf(roleValue) >= 0;
+	      var show = levelOk && roleOk;
+	      block.hidden = !show;
+	      if (show) {
+	        hasVisible = true;
+	      }
+	    });
+	    return hasVisible;
+	  }
+
+	  function applyFilters() {
+	    var term = normalize(searchInput.value);
+	    var cityValue = cityInput.value || 'all';
+	    var levelValue = levelInput.value || 'all';
+	    var roleValue = roleInput.value || 'all';
+	    var maxDistanceValue = Number(distanceInput.value || maxDistance);
+	    var visibleCardIds = [];
+	    var visibleContactCount = 0;
+
+	    clubCards.forEach(function(card) {
+	      var cardSearch = normalize(card.dataset.search);
+	      var cardCity = card.dataset.city || '';
+	      var cardDistance = Number(card.dataset.distance || 9999);
+	      var searchOk = !term || cardSearch.indexOf(term) >= 0;
+	      var cityOk = cityValue === 'all' || cardCity === cityValue;
+	      var distanceOk = cardDistance <= maxDistanceValue;
+	      var teamsOk = applyTeamFilters(card, levelValue, roleValue);
+	      var visible = searchOk && cityOk && distanceOk && teamsOk;
+	      card.hidden = !visible;
+	      if (visible) {
+	        visibleCardIds.push(card.id);
+	        visibleContactCount += Number(card.dataset.contactCount || 0);
+	      }
+	    });
+
+	    citySections.forEach(function(section) {
+	      var cards = Array.prototype.slice.call(section.querySelectorAll('.club-card'));
+	      if (cards.length) {
+	        section.hidden = !cards.some(function(card) { return !card.hidden; });
+	        return;
+	      }
+	      var cityOk = cityValue === 'all' || (section.dataset.city || '') === cityValue;
+	      var searchOk = !term || normalize(section.dataset.search).indexOf(term) >= 0;
+	      var distanceOk = Number(section.dataset.distance || 0) <= maxDistanceValue;
+	      section.hidden = !(cityOk && searchOk && distanceOk && levelValue === 'all' && roleValue === 'all');
+	    });
+
+	    updateCityNavigation();
+
+	    if (resultNode) {
+	      resultNode.textContent = visibleCardIds.length
+	        + ' club(s) affiche(s) · '
+	        + visibleContactCount
+	        + ' contact(s)';
+	    }
+	    if (window.__ffbbMapBridge && typeof window.__ffbbMapBridge.setVisibleCards === 'function') {
+	      window.__ffbbMapBridge.setVisibleCards(visibleCardIds, true);
+	    }
+	  }
+
+	  function setActiveCard(cardId, options) {
+	    if (!cardId) {
+	      return;
+	    }
+	    var card = document.getElementById(cardId);
+	    if (!card || card.hidden) {
+	      return;
+	    }
+	    var opts = options || {};
+	    if (activeCardId && activeCardId !== cardId) {
+	      var old = document.getElementById(activeCardId);
+	      if (old) {
+	        old.classList.remove('is-highlighted');
+	      }
+	    }
+	    activeCardId = cardId;
+	    card.classList.add('is-highlighted');
+	    var cityDetails = card.closest('.city-details');
+	    if (cityDetails) {
+	      cityDetails.open = true;
+	    }
+	    if (opts.scroll) {
+	      card.scrollIntoView({behavior: 'smooth', block: 'center'});
+	    }
+	    if (
+	      opts.map !== false
+	      && window.__ffbbMapBridge
+	      && typeof window.__ffbbMapBridge.focusCard === 'function'
+	    ) {
+	      window.__ffbbMapBridge.focusCard(cardId, opts.openPopup !== false);
+	    }
+	  }
+
+	  function copyText(value) {
+	    if (!value) {
+	      return Promise.resolve(false);
+	    }
+	    if (navigator.clipboard && window.isSecureContext) {
+	      return navigator.clipboard.writeText(value).then(function() { return true; });
+	    }
+	    return new Promise(function(resolve) {
+	      var input = document.createElement('textarea');
+	      input.value = value;
+	      input.setAttribute('readonly', '');
+	      input.style.position = 'absolute';
+	      input.style.left = '-9999px';
+	      document.body.appendChild(input);
+	      input.select();
+	      try {
+	        document.execCommand('copy');
+	        resolve(true);
+	      } catch (error) {
+	        resolve(false);
+	      } finally {
+	        document.body.removeChild(input);
+	      }
+	    });
+	  }
+
+	  clubCards.forEach(function(card) {
+	    card.addEventListener('mouseenter', function() {
+	      setActiveCard(card.id, {scroll: false, openPopup: false});
+	    });
+	    card.addEventListener('focusin', function() {
+	      setActiveCard(card.id, {scroll: false, openPopup: false});
+	    });
+	    card.addEventListener('click', function(event) {
+	      if (event.target.closest('a, button, summary, input, select')) {
+	        return;
+	      }
+	      setActiveCard(card.id, {scroll: false});
+	    });
+	  });
+
+	  document.addEventListener('ffbb:marker-selected', function(event) {
+	    var cardId = event.detail && event.detail.cardId;
+	    if (cardId) {
+	      setActiveCard(cardId, {scroll: true, map: false, openPopup: false});
+	    }
+	  });
+
+	  document.addEventListener('click', function(event) {
+	    var cardLink = event.target.closest('.js-open-card');
+	    if (cardLink) {
+	      event.preventDefault();
+	      var cardId = cardLink.getAttribute('data-card-id');
+	      setActiveCard(cardId, {scroll: true, map: false, openPopup: false});
+	      return;
+	    }
+	    var copyButton = event.target.closest('.copy-btn');
+	    if (!copyButton) {
+	      return;
+	    }
+	    var payload = copyButton.getAttribute('data-copy');
+	      copyText(payload).then(function(ok) {
+	        var previous = copyButton.textContent;
+	        copyButton.textContent = ok ? 'Copiee' : 'Erreur';
+	      setTimeout(function() {
+	        copyButton.textContent = previous || 'Copier';
+	      }, 1000);
+	    });
+	  });
+
+	  [searchInput, cityInput, levelInput, roleInput].forEach(function(input) {
+	    input.addEventListener('input', applyFilters);
+	    input.addEventListener('change', applyFilters);
+	  });
+
+	  distanceInput.addEventListener('input', function() {
+	    updateDistanceLabel();
+	    applyFilters();
+	  });
+
+	  if (sortInput) {
+	    sortInput.addEventListener('change', function() {
+	      applySort();
+	      applyFilters();
+	    });
+	  }
+
+	  if (resetButton) {
+	    resetButton.addEventListener('click', function() {
+	      searchInput.value = '';
+	      cityInput.value = 'all';
+	      levelInput.value = 'all';
+	      roleInput.value = 'all';
+	      distanceInput.value = String(maxDistance);
+	      if (sortInput) {
+	        sortInput.value = 'distance';
+	      }
+	      updateDistanceLabel();
+	      applySort();
+	      applyFilters();
+	    });
+	  }
+
+	  updateDistanceLabel();
+	  applySort();
+	  applyFilters();
+	})();
+	""")
 
     def _write_html_annuaire(self, f) -> None:
         """Write the 'Annuaire' section with all contacts deduplicated."""
@@ -1228,6 +1950,7 @@ def _role_css_class(role: str) -> str:
 
 
 _HTML_CSS = """\
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
 :root {
   --bg: #FAFBFC;
   --surface: #FFFFFF;
@@ -1237,17 +1960,42 @@ _HTML_CSS = """\
   --accent: #F26522;
   --accent-dark: #D4540E;
   --accent-light: #FFF4ED;
+  --focus: #0EA5E9;
   --radius: 8px;
   --sidebar-w: 220px;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+[hidden] { display: none !important; }
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-    'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Manrope', 'Segoe UI', sans-serif;
   font-size: 14px;
   line-height: 1.6;
   color: var(--text);
-  background: var(--bg);
+  background:
+    radial-gradient(circle at 8% 5%, rgba(242, 101, 34, 0.12), transparent 32%),
+    radial-gradient(circle at 90% 0%, rgba(14, 165, 233, 0.08), transparent 28%),
+    var(--bg);
+}
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0.5rem;
+  background: var(--text);
+  color: #fff;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  z-index: 999;
+}
+.skip-link:focus {
+  left: 0.75rem;
+}
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
 }
 
 /* Sidebar */
@@ -1304,15 +2052,71 @@ body {
 }
 
 /* Header */
-header {
-  margin-bottom: 1.5rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 3px solid var(--accent);
+.hero {
+  margin-bottom: 1.15rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background:
+    linear-gradient(180deg, #FFFFFF 0%, #FFF7F0 100%);
+}
+.hero-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.9rem;
+}
+.hero-kicker {
+  margin: 0;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  font-weight: 700;
 }
 h1 {
-  font-size: 1.6rem;
-  margin-bottom: 1rem;
+  font-size: clamp(1.3rem, 2.6vw, 1.65rem);
+  margin: 0.2rem 0 0;
   color: var(--accent);
+}
+.hero-date {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+.hero-subtitle {
+  margin: 0.55rem 0 0.75rem;
+  color: #4B5563;
+  font-size: 0.88rem;
+}
+.hero-facts {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+}
+.hero-fact {
+  border: 1px solid #F3E6DC;
+  border-radius: 8px;
+  padding: 0.45rem 0.55rem;
+  background: #fff;
+}
+.hero-fact__label {
+  display: block;
+  color: var(--muted);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.hero-fact__value {
+  display: block;
+  margin-top: 0.12rem;
+  font-size: 0.85rem;
+  color: var(--text);
+  font-weight: 600;
 }
 h2 {
   font-size: 1.2rem;
@@ -1321,25 +2125,23 @@ h2 {
   border-bottom: 1px solid var(--border);
   color: var(--text);
 }
-table.params {
-  border-collapse: collapse;
-  margin-bottom: 0.5rem;
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
-table.params th {
-  text-align: left;
-  padding: 0.2rem 1rem 0.2rem 0;
-  color: var(--muted);
-  font-weight: normal;
-  font-size: 0.85rem;
-}
-table.params td { padding: 0.2rem 0; font-size: 0.85rem; }
-.date { color: var(--muted); font-size: 0.82rem; }
 
 /* Stats */
 .summary { margin: 1rem 0 1.5rem; }
 .stat-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 0.75rem;
 }
 .stat {
@@ -1362,6 +2164,93 @@ table.params td { padding: 0.2rem 0; font-size: 0.85rem; }
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
+
+/* Controls */
+.controls {
+  margin: 0.8rem 0 1rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: #fff;
+}
+.controls-bar {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.controls-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-left: auto;
+}
+.controls-advanced {
+  margin-top: 0.5rem;
+}
+.controls-advanced > summary {
+  cursor: pointer;
+  color: var(--accent-dark);
+  font-size: 0.8rem;
+  font-weight: 700;
+  user-select: none;
+  list-style: none;
+}
+.controls-advanced > summary::-webkit-details-marker { display: none; }
+.controls-advanced > summary::before {
+  content: "▸";
+  margin-right: 0.3rem;
+}
+.controls-advanced[open] > summary::before { content: "▾"; }
+.controls-advanced[open] .controls-grid { margin-top: 0.55rem; }
+.controls-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+.control-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.control-field > span {
+  color: var(--muted);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.control-field--search {
+  flex: 1 1 420px;
+  min-width: 220px;
+}
+.control-field input,
+.control-field select {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.32rem 0.45rem;
+  font: inherit;
+  background: #fff;
+  font-size: 0.86rem;
+}
+.control-field--range input { padding: 0; }
+.controls-result {
+  font-size: 0.76rem;
+  color: var(--muted);
+  margin: 0;
+  white-space: nowrap;
+}
+.control-reset {
+  border: 1px solid var(--border);
+  background: #FFFAF7;
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.28rem 0.52rem;
+  font-size: 0.78rem;
+  line-height: 1.2;
+  cursor: pointer;
+}
+.control-reset:hover { background: var(--accent-light); }
 
 /* Map */
 #map {
@@ -1435,6 +2324,31 @@ table.params td { padding: 0.2rem 0; font-size: 0.85rem; }
 }
 
 /* Club card */
+.city-section { margin-bottom: 1rem; }
+.city-details {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.city-summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+.city-summary__title {
+  font-weight: 700;
+  color: var(--text);
+}
+.city-summary__meta {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.city-body { padding: 0 0.9rem 0.85rem; }
+.city-clubs { margin-top: 0.5rem; }
 .empty-city {
   background: #FEF3C7;
   border-left: 4px solid #F59E0B;
@@ -1450,6 +2364,17 @@ table.params td { padding: 0.2rem 0; font-size: 0.85rem; }
   border-radius: var(--radius);
   padding: 1rem 1.25rem;
   margin-bottom: 1rem;
+  box-shadow: 0 8px 22px rgba(17, 24, 39, 0.04);
+  transition: border-color 0.15s, box-shadow 0.2s, transform 0.2s;
+}
+.club-card:hover {
+  border-color: #F7C3A5;
+  box-shadow: 0 14px 28px rgba(17, 24, 39, 0.08);
+}
+.club-card.is-highlighted {
+  border-color: var(--focus);
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15), 0 14px 28px rgba(17, 24, 39, 0.09);
+  transform: translateY(-1px);
 }
 .club-header {
   display: flex;
@@ -1483,6 +2408,11 @@ p.address {
   font-style: italic;
   margin: 0;
 }
+.club-meta {
+  margin-top: 0.2rem;
+  color: var(--muted);
+  font-size: 0.76rem;
+}
 .club-actions {
   display: flex;
   flex-wrap: wrap;
@@ -1508,8 +2438,35 @@ p.address {
 
 /* Teams */
 .team {
-  margin-top: 0.5rem;
-  padding-top: 0.5rem;
+  margin-top: 0.45rem;
+  border: 1px solid #F1F5F9;
+  border-radius: 8px;
+  overflow: clip;
+}
+.team-heading {
+  padding: 0.45rem 0.55rem;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  background: #FCFCFD;
+  border-bottom: 1px solid #F1F5F9;
+}
+.team-body {
+  padding: 0.35rem 0.55rem 0.45rem;
+}
+.team-count {
+  margin-left: auto;
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+.team-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  font-weight: 700;
 }
 
 /* Badges */
@@ -1523,7 +2480,7 @@ p.address {
   letter-spacing: 0.03em;
   vertical-align: middle;
 }
-.badge-pro { background: #EDE9FE; color: #7C3AED; }
+.badge-pro { background: #FFE8D9; color: #B45309; }
 .badge-national { background: #FEE2E2; color: #DC2626; }
 .badge-ligue { background: #DBEAFE; color: #2563EB; }
 .badge-sexe { background: #F3F4F6; color: #4B5563; }
@@ -1533,18 +2490,75 @@ p.address {
 .badge-coach { background: #D1FAE5; color: #065F46; }
 .badge-correspondant { background: #DBEAFE; color: #1E40AF; }
 .badge-role { background: #F3F4F6; color: #4B5563; }
-.team-poules {
-  font-size: 0.8rem;
-  color: var(--muted);
-  margin-left: 0.25rem;
+.team-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.35rem 0 0.15rem;
 }
-.ranking-link {
+.team-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  max-width: 100%;
+  border: 1px solid #E2E8F0;
+  border-radius: 999px;
+  padding: 0.22rem 0.52rem;
+  background: #FFFFFF;
+  color: #334155;
+  font-size: 0.76rem;
+}
+.team-chip--poule {
+  background: #F8FAFC;
+  border-color: #E2E8F0;
+}
+.team-chip--ranking {
+  background: #FFF7ED;
+  border-color: #FED7AA;
+}
+.team-chip--next {
+  background: #EFF6FF;
+  border-color: #BFDBFE;
+}
+.team-chip__label {
+  font-size: 0.64rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #64748B;
+  font-weight: 700;
+}
+.team-chip__value,
+.team-chip__when {
+  font-weight: 600;
+  color: #0F172A;
+}
+.team-chip__vs {
+  color: #64748B;
+  font-size: 0.72rem;
+}
+.team-chip__opponent {
+  font-weight: 600;
+  color: #0F172A;
+  max-width: min(44vw, 360px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.team-meta-link {
+  margin-left: auto;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.24rem 0.58rem;
+  background: #FFFFFF;
   font-size: 0.78rem;
   color: var(--accent);
   text-decoration: none;
-  margin-left: 0.5rem;
 }
-.ranking-link:hover { text-decoration: underline; }
+.team-meta-link:hover {
+  text-decoration: none;
+  background: var(--accent-light);
+}
 .competition-logo {
   vertical-align: middle;
   margin-right: 0.35rem;
@@ -1552,6 +2566,7 @@ p.address {
 }
 
 /* Contact tables */
+.contacts-block { margin-top: 0.35rem; }
 table.contacts {
   width: 100%;
   border-collapse: collapse;
@@ -1572,9 +2587,43 @@ table.contacts td {
   padding: 0.3rem 0.6rem;
   border-bottom: 1px solid #F3F4F6;
   font-size: 0.82rem;
+  vertical-align: top;
 }
 table.contacts tr:hover { background: #FFFBF5; }
 table.contacts a { color: var(--accent-dark); }
+.contacts-cards { display: none; }
+.contact-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  padding: 0.55rem 0.65rem;
+  margin-top: 0.5rem;
+}
+.contact-card__title { font-weight: 700; }
+.contact-card__role { margin-top: 0.2rem; }
+.contact-card__line {
+  margin-top: 0.3rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  font-size: 0.83rem;
+}
+.contact-card__line > span {
+  color: var(--muted);
+  min-width: 44px;
+}
+.copy-btn {
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.1rem 0.45rem;
+  font-size: 0.68rem;
+  cursor: pointer;
+}
+.copy-btn:hover { background: var(--accent-light); }
+.copy-btn--inline { margin-left: 0.35rem; }
 
 /* Nav links */
 p.nav {
@@ -1652,7 +2701,7 @@ footer {
 
 /* Print */
 @media print {
-  .sidebar, #map-section, .mobile-nav, p.nav, .club-actions { display: none; }
+  .sidebar, #map-section, .mobile-nav, p.nav, .club-actions, .controls, .copy-btn { display: none; }
   .content { margin-left: 0; max-width: none; padding: 0; }
   body { font-size: 11px; background: #fff; }
   .club-card { border: 1px solid #ccc; box-shadow: none; break-inside: avoid; }
@@ -1671,12 +2720,37 @@ footer {
     max-width: none;
     padding: 1.5rem 1rem;
   }
+  .hero-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .controls-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .mobile-nav { display: block; }
 }
 @media (max-width: 767px) {
   body { font-size: 13px; }
   h1 { font-size: 1.35rem; }
   h2 { font-size: 1.05rem; }
+  .hero {
+    padding: 0.8rem 0.85rem;
+  }
+  .hero-main {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .hero-facts { grid-template-columns: 1fr; }
+  .controls {
+    padding: 0.5rem 0.55rem;
+  }
+  .controls-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .control-field--search {
+    min-width: 0;
+  }
+  .controls-actions {
+    margin-left: 0;
+    justify-content: space-between;
+  }
+  .controls-grid { grid-template-columns: 1fr; }
   .stat-grid { grid-template-columns: repeat(2, 1fr); }
   #map { height: clamp(240px, 44vh, 320px); }
   .club-card { padding: 0.85rem; }
@@ -1684,15 +2758,16 @@ footer {
   .club-logo, .club-logo-placeholder { width: 32px; height: 32px; }
   .club-actions { gap: 0.3rem; }
   .action-link { font-size: 0.72rem; }
-  table.contacts {
-    display: block;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+  .city-summary { flex-direction: column; align-items: flex-start; }
+  .city-summary__meta { font-size: 0.74rem; }
+  .team-heading {
+    gap: 0.28rem;
   }
-  table.contacts th, table.contacts td {
-    white-space: nowrap;
-    padding: 0.35rem 0.45rem;
+  .team-label {
+    width: 100%;
   }
+  .contacts-block table.contacts { display: none; }
+  .contacts-block .contacts-cards { display: block; }
   .annuaire-table td.mentions {
     white-space: normal;
     min-width: 180px;
@@ -1746,6 +2821,18 @@ class _CollectedRow:
     source: str
     ranking_url: str
     competition_logo_url: str
+    ranking_position: int | None
+    ranking_total: int | None
+    next_match_date: str
+    next_match_opponent: str
+
+
+@dataclass
+class _TeamCompetitionSnapshot:
+    ranking_position: int | None = None
+    ranking_total: int | None = None
+    next_match_date: datetime | None = None
+    next_match_opponent: str = ""
 
 
 # ---------------------------------------------------------------------------
@@ -1826,6 +2913,196 @@ def _extract_club_page_url(hit: EngagementsHit) -> str:
     return ""
 
 
+def _parse_match_datetime(value: object) -> datetime | None:
+    """Parse an API match date into ``datetime`` when possible."""
+    if isinstance(value, datetime):
+        return value
+    if not isinstance(value, str):
+        return None
+    raw = value.strip()
+    if not raw:
+        return None
+    # Directus often sends UTC suffix "Z" which fromisoformat does not accept.
+    if raw.endswith("Z"):
+        raw = raw[:-1] + "+00:00"
+    try:
+        return datetime.fromisoformat(raw)
+    except ValueError:
+        return None
+
+
+def _extract_engagement_id(value: object) -> str:
+    """Extract engagement ID from nested match payload objects."""
+    if isinstance(value, dict):
+        candidate = value.get("id")
+        return str(candidate) if candidate is not None else ""
+    if value is None:
+        return ""
+    if hasattr(value, "id"):
+        candidate = getattr(value, "id", None)
+        return str(candidate) if candidate is not None else ""
+    return str(value)
+
+
+def _format_next_match_date(value: datetime | None) -> str:
+    """Format match date for the report UI."""
+    if value is None:
+        return ""
+    if value.hour == 0 and value.minute == 0:
+        return value.strftime("%d/%m/%Y")
+    return value.strftime("%d/%m/%Y %H:%M")
+
+
+def _team_name_key(value: str) -> str:
+    """Normalize team name for resilient matching across payload sources."""
+    return "name:" + slugify(value or "")
+
+
+def _is_better_match_candidate(
+    candidate_date: datetime | None,
+    current_date: datetime | None,
+) -> bool:
+    """Return True when candidate should replace current next-match selection."""
+    if candidate_date is None:
+        return False
+    if current_date is None:
+        return True
+    now = datetime.now()
+
+    if candidate_date.tzinfo is not None:
+        candidate_date = candidate_date.astimezone().replace(tzinfo=None)
+    if current_date.tzinfo is not None:
+        current_date = current_date.astimezone().replace(tzinfo=None)
+
+    candidate_future = candidate_date >= now
+    current_future = current_date >= now
+    if candidate_future and not current_future:
+        return True
+    if current_future and not candidate_future:
+        return False
+    return candidate_date < current_date
+
+
+def _load_poule_snapshots(
+    client: FFBBAPIClientV2,
+    poule_id: int,
+) -> dict[str, _TeamCompetitionSnapshot]:
+    """Load ranking + next match info for all teams in one poule."""
+    snapshots: dict[str, _TeamCompetitionSnapshot] = {}
+
+    engagements = client.list_engagements(
+        limit=250,
+        filter_criteria=f'{{"idPoule":{{"_eq":{poule_id}}}}}',
+    )
+    rank_total = len(engagements) if engagements else 0
+    for engagement in engagements:
+        if not engagement.id:
+            continue
+        snapshot = snapshots.get(str(engagement.id), _TeamCompetitionSnapshot())
+        if engagement.position is not None and engagement.position > 0:
+            snapshot.ranking_position = engagement.position
+        if rank_total > 1:
+            snapshot.ranking_total = rank_total
+
+        snapshots[str(engagement.id)] = snapshot
+        for name in (engagement.nom, engagement.nomEquipe, engagement.nomUsuel):
+            if name:
+                snapshots[_team_name_key(name)] = snapshot
+
+    matches = client.list_rencontres(
+        limit=500,
+        filter_criteria=f'{{"idPoule":{{"_eq":{poule_id}}}}}',
+        sort=["date_rencontre"],
+    )
+    for match in matches:
+        if match.joue is True:
+            continue
+
+        date_value = match.date_rencontre or match.date
+        nom1 = match.nomEquipe1 or ""
+        nom2 = match.nomEquipe2 or ""
+        id1 = str(match.idEngagementEquipe1) if match.idEngagementEquipe1 else ""
+        id2 = str(match.idEngagementEquipe2) if match.idEngagementEquipe2 else ""
+        key1 = id1 or (_team_name_key(nom1) if nom1 else "")
+        key2 = id2 or (_team_name_key(nom2) if nom2 else "")
+
+        if key1:
+            current = snapshots.get(key1, _TeamCompetitionSnapshot())
+            if _is_better_match_candidate(date_value, current.next_match_date):
+                current.next_match_date = date_value
+                current.next_match_opponent = nom2
+            snapshots[key1] = current
+            if id1:
+                snapshots[id1] = current
+            if nom1:
+                snapshots[_team_name_key(nom1)] = current
+        if key2:
+            current = snapshots.get(key2, _TeamCompetitionSnapshot())
+            if _is_better_match_candidate(date_value, current.next_match_date):
+                current.next_match_date = date_value
+                current.next_match_opponent = nom1
+            snapshots[key2] = current
+            if id2:
+                snapshots[id2] = current
+            if nom2:
+                snapshots[_team_name_key(nom2)] = current
+
+    return snapshots
+
+
+def _extract_next_match_from_engagement(
+    engagement: GetEngagementsResponse,
+    engagement_id: int,
+) -> tuple[str, str]:
+    """Best-effort next-match extraction from engagement payload."""
+    selected_date: datetime | None = None
+    selected_opponent = ""
+    own_id = str(engagement_id)
+
+    match_rows = []
+    match_rows.extend(
+        engagement.rencontres_domiciles
+        if isinstance(engagement.rencontres_domiciles, list)
+        else []
+    )
+    match_rows.extend(
+        engagement.rencontres_exterieur
+        if isinstance(engagement.rencontres_exterieur, list)
+        else []
+    )
+
+    for row in match_rows:
+        if not isinstance(row, dict):
+            continue
+        joue = row.get("joue")
+        if joue is True:
+            continue
+        date_value = _parse_match_datetime(
+            row.get("date_rencontre") or row.get("dateRencontre")
+        )
+        id1 = _extract_engagement_id(
+            row.get("idEngagementEquipe1") or row.get("id_engagement_equipe1")
+        )
+        id2 = _extract_engagement_id(
+            row.get("idEngagementEquipe2") or row.get("id_engagement_equipe2")
+        )
+        nom1 = row.get("nomEquipe1") or row.get("nom_equipe1") or ""
+        nom2 = row.get("nomEquipe2") or row.get("nom_equipe2") or ""
+
+        if own_id == id1:
+            opponent = str(nom2) if nom2 else ""
+        elif own_id == id2:
+            opponent = str(nom1) if nom1 else ""
+        else:
+            opponent = str(nom2 or nom1) if (nom2 or nom1) else ""
+
+        if _is_better_match_candidate(date_value, selected_date):
+            selected_date = date_value
+            selected_opponent = opponent
+
+    return _format_next_match_date(selected_date), selected_opponent
+
+
 def _extract_club_info(
     organisme: GetOrganismeResponse,
     hit_logo_fallback: str = "",
@@ -1883,6 +3160,10 @@ def _contact_to_row(
     sexe: str,
     ranking_url: str,
     competition_logo_url: str,
+    ranking_position: int | None,
+    ranking_total: int | None,
+    next_match_date: str,
+    next_match_opponent: str,
 ) -> _CollectedRow:
     return _CollectedRow(
         ville=ville,
@@ -1901,6 +3182,10 @@ def _contact_to_row(
         source=contact.source,
         ranking_url=ranking_url,
         competition_logo_url=competition_logo_url,
+        ranking_position=ranking_position,
+        ranking_total=ranking_total,
+        next_match_date=next_match_date,
+        next_match_opponent=next_match_opponent,
     )
 
 
@@ -1996,6 +3281,7 @@ def main() -> None:
 
     # Step 3: Enrich via facade contact methods
     club_cache: dict[int, _ClubInfo | None] = {}
+    poule_cache: dict[int, dict[str, _TeamCompetitionSnapshot]] = {}
     rows_by_key: dict[tuple[str, ...], _CollectedRow] = {}
     city_geo: dict[str, _CityGeo] = {}
     api_calls = 0
@@ -2013,6 +3299,11 @@ def main() -> None:
         poule = _extract_poule(hit)
         ranking_url = _extract_ranking_url(hit)
         competition_logo_url = _extract_competition_logo_url(hit)
+        ranking_position: int | None = None
+        ranking_total: int | None = None
+        next_match_date = ""
+        next_match_opponent = ""
+        team_lookup_name = hit.nom or hit.nom_equipe or ""
 
         # Logo fallback from Meilisearch hit
         hit_logo = hit.logo or hit.thumbnail or ""
@@ -2025,10 +3316,36 @@ def main() -> None:
         contacts: list[ContactInfo] = []
 
         if eng_id:
+            engagement_poule_id: int | None = None
             try:
                 api_calls += 1
                 eng_contacts = client.get_engagement_contacts(eng_id)
                 if eng_contacts:
+                    if (
+                        ranking_position is None
+                        and eng_contacts.engagement.position is not None
+                        and eng_contacts.engagement.position > 0
+                    ):
+                        ranking_position = eng_contacts.engagement.position
+                    if ranking_total is None and isinstance(
+                        eng_contacts.engagement.classement, list
+                    ):
+                        classement_count = len(eng_contacts.engagement.classement)
+                        ranking_total = (
+                            classement_count if classement_count > 1 else None
+                        )
+                    if not next_match_date:
+                        fallback_date, fallback_opponent = (
+                            _extract_next_match_from_engagement(
+                                eng_contacts.engagement,
+                                eng_id,
+                            )
+                        )
+                        if fallback_date:
+                            next_match_date = fallback_date
+                            next_match_opponent = fallback_opponent
+                    if eng_contacts.engagement.idPoule is not None:
+                        engagement_poule_id = eng_contacts.engagement.idPoule
                     for c in [
                         eng_contacts.correspondant,
                         eng_contacts.entraineur,
@@ -2057,7 +3374,7 @@ def main() -> None:
                                     contacts.extend(club_contacts.membres)
                                 else:
                                     club_cache[org_id] = None
-                            except FFBBServerError as e:
+                            except FFBBApiError as e:
                                 errors += 1
                                 logger.debug("Erreur club org_id=%s: %s", org_id, e)
                                 club_cache[org_id] = None
@@ -2080,9 +3397,38 @@ def main() -> None:
                                     lat=cached.lat,
                                     lng=cached.lng,
                                 )
-            except FFBBServerError as e:
+            except FFBBApiError as e:
                 errors += 1
                 logger.debug("Erreur engagement id=%s: %s", eng_id, e)
+
+            poule_id: int | None = None
+            try:
+                if hit.id_poule and hit.id_poule.id:
+                    poule_id = int(hit.id_poule.id)
+            except (TypeError, ValueError):
+                poule_id = None
+            if poule_id is None and engagement_poule_id is not None:
+                poule_id = engagement_poule_id
+
+            if poule_id is not None:
+                if poule_id not in poule_cache:
+                    try:
+                        api_calls += 1
+                        poule_cache[poule_id] = _load_poule_snapshots(client, poule_id)
+                    except FFBBApiError as e:
+                        errors += 1
+                        logger.debug("Erreur poule id=%s: %s", poule_id, e)
+                        poule_cache[poule_id] = {}
+
+                snapshot_lookup = poule_cache.get(poule_id, {})
+                snapshot = snapshot_lookup.get(str(eng_id))
+                if not snapshot and team_lookup_name:
+                    snapshot = snapshot_lookup.get(_team_name_key(team_lookup_name))
+                if snapshot:
+                    ranking_position = snapshot.ranking_position
+                    ranking_total = snapshot.ranking_total
+                    next_match_date = _format_next_match_date(snapshot.next_match_date)
+                    next_match_opponent = snapshot.next_match_opponent
 
         if i % 10 == 0 or i == len(qualified):
             logger.info(
@@ -2118,6 +3464,15 @@ def main() -> None:
             )
             if key in rows_by_key:
                 rows_by_key[key].poules.append(poule)
+                row = rows_by_key[key]
+                if row.ranking_position is None and ranking_position is not None:
+                    row.ranking_position = ranking_position
+                if row.ranking_total is None and ranking_total is not None:
+                    row.ranking_total = ranking_total
+                if not row.next_match_date and next_match_date:
+                    row.next_match_date = next_match_date
+                if not row.next_match_opponent and next_match_opponent:
+                    row.next_match_opponent = next_match_opponent
             else:
                 rows_by_key[key] = _contact_to_row(
                     contact,
@@ -2131,6 +3486,10 @@ def main() -> None:
                     sexe,
                     ranking_url,
                     competition_logo_url,
+                    ranking_position,
+                    ranking_total,
+                    next_match_date,
+                    next_match_opponent,
                 )
 
     all_rows = list(rows_by_key.values())
