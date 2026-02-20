@@ -15,6 +15,8 @@ from ffbb_api_client_v2.directus_ffbb.models.get_organisme_response import (
     GetOrganismeResponse,
 )
 from ffbb_api_client_v2.facade.client import FFBBAPIClientV2
+from ffbb_api_client_v2.models.code_fonction import CodeFonction
+from ffbb_api_client_v2.models.contact_role import ContactRole
 from ffbb_api_client_v2.models.membre import Membre
 
 
@@ -73,7 +75,7 @@ class Test214GetEngagementContacts(unittest.TestCase):
         assert result is not None
         self.assertIsNotNone(result.entraineur)
         assert result.entraineur is not None
-        self.assertEqual(result.entraineur.titre, "Entraîneur")
+        self.assertEqual(result.entraineur.titre, ContactRole.ENTRAINEUR)
         self.assertEqual(result.entraineur.nom, "Coach")
 
     def test_003_returns_entraineur_adjoint_contact(self) -> None:
@@ -93,7 +95,9 @@ class Test214GetEngagementContacts(unittest.TestCase):
         assert result is not None
         self.assertIsNotNone(result.entraineur_adjoint)
         assert result.entraineur_adjoint is not None
-        self.assertEqual(result.entraineur_adjoint.titre, "Entraîneur adjoint")
+        self.assertEqual(
+            result.entraineur_adjoint.titre, ContactRole.ENTRAINEUR_ADJOINT
+        )
 
     def test_004_all_contacts_populated(self) -> None:
         client = _make_client()
@@ -162,7 +166,7 @@ class Test214GetClubContacts(unittest.TestCase):
         self.assertEqual(result.organisme, org)
         self.assertIsNotNone(result.club_contact)
         assert result.club_contact is not None
-        self.assertEqual(result.club_contact.titre, "Club")
+        self.assertEqual(result.club_contact.titre, ContactRole.CLUB)
         self.assertEqual(result.club_contact.email, "contact@bclille.fr")
         self.assertEqual(result.membres, [])
 
@@ -178,7 +182,7 @@ class Test214GetClubContacts(unittest.TestCase):
                     prenom="jean",
                     telephone_portable="0612345678",
                     mail="pres@club.fr",
-                    code_fonction="PRE",
+                    code_fonction=CodeFonction.PRESIDENT,
                 ),
             ],
         )
@@ -188,7 +192,7 @@ class Test214GetClubContacts(unittest.TestCase):
         self.assertIsNotNone(result)
         assert result is not None
         self.assertEqual(len(result.membres), 1)
-        self.assertEqual(result.membres[0].titre, "PRE")
+        self.assertEqual(result.membres[0].titre, ContactRole.PRESIDENT)
         self.assertEqual(result.membres[0].nom, "President")
 
     def test_003_no_club_contact_when_no_info(self) -> None:
@@ -214,13 +218,13 @@ class Test214GetClubContacts(unittest.TestCase):
                     id="M1",
                     nom="a",
                     mail="a@test.com",
-                    code_fonction="PRE",
+                    code_fonction=CodeFonction.PRESIDENT,
                 ),
                 Membre(
                     id="M2",
                     nom="b",
                     mail="b@test.com",
-                    code_fonction="SEC",
+                    code_fonction=CodeFonction.CORRESPONDANT,
                 ),
             ],
         )

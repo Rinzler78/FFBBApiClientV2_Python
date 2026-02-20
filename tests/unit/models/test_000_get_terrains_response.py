@@ -14,7 +14,7 @@ SAMPLE_DATA: dict[str, Any] = {
     "id": "200000001234567",
     "nom": "Gymnase Pierre de Coubertin",
     "rue": "12 Avenue du Général de Gaulle",
-    "numero": "T-75013-001",
+    "numero": 42,
     "largeur": 15.0,
     "longueur": 28.0,
     "accesLibre": True,
@@ -73,7 +73,7 @@ class TestGetTerrainsResponse(unittest.TestCase):
     def test_010_field_numero(self) -> None:
         result = GetTerrainsResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertEqual(result.numero, "T-75013-001")
+        self.assertEqual(result.numero, 42)
 
     def test_011_field_largeur(self) -> None:
         result = GetTerrainsResponse.from_dict(SAMPLE_DATA)

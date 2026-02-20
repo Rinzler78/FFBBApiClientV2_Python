@@ -26,16 +26,13 @@ SAMPLE_DATA: dict[str, Any] = {
     "urlOrganisateur": "https://www.levallois-basket.fr",
     "siteChoisi": "Gymnase Marcel Cerdan - Levallois-Perret",
     "nbParticipantPrevu": 24,
-    "tarifOrganisateur": "15 EUR par equipe",
+    "tarifOrganisateur": 15,
     "ageMin": 12,
     "ageMax": 18,
-    "tournoiType": {"id": "3", "libelle": "3x3"},
+    "tournoiType": "3",
     "commune": 92300,
     "cartographie": {"latitude": 48.8938, "longitude": 2.2882},
-    "tournoiTypes3x3": [
-        {"id": "1", "libelle": "U13"},
-        {"id": "2", "libelle": "U15"},
-    ],
+    "tournoiTypes3x3": [1, 2],
     "document_flyer": {
         "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
         "filename_download": "flyer_tournoi.pdf",
@@ -99,8 +96,8 @@ class TestGetTournoisResponse(unittest.TestCase):
     def test_011_field_debut_fin(self) -> None:
         result = GetTournoisResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertEqual(result.debut, "2025-06-07T08:00:00.000Z")
-        self.assertEqual(result.fin, "2025-06-08T18:00:00.000Z")
+        self.assertIsInstance(result.debut, datetime)
+        self.assertIsInstance(result.fin, datetime)
 
     def test_012_field_description(self) -> None:
         result = GetTournoisResponse.from_dict(SAMPLE_DATA)
@@ -134,7 +131,7 @@ class TestGetTournoisResponse(unittest.TestCase):
     def test_017_field_tarif(self) -> None:
         result = GetTournoisResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertEqual(result.tarifOrganisateur, "15 EUR par equipe")
+        self.assertEqual(result.tarifOrganisateur, 15)
 
     def test_018_field_age_min_max(self) -> None:
         result = GetTournoisResponse.from_dict(SAMPLE_DATA)
@@ -145,8 +142,7 @@ class TestGetTournoisResponse(unittest.TestCase):
     def test_019_field_tournoi_type(self) -> None:
         result = GetTournoisResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertIsInstance(result.tournoiType, dict)
-        self.assertEqual(result.tournoiType["libelle"], "3x3")  # type: ignore[index]
+        self.assertEqual(result.tournoiType, "3")
 
     def test_020_field_commune(self) -> None:
         result = GetTournoisResponse.from_dict(SAMPLE_DATA)
@@ -168,7 +164,7 @@ class TestGetTournoisResponse(unittest.TestCase):
         assert result is not None
         self.assertIsInstance(result.tournoiTypes3x3, list)
         self.assertEqual(len(result.tournoiTypes3x3), 2)
-        self.assertEqual(result.tournoiTypes3x3[0]["libelle"], "U13")
+        self.assertEqual(result.tournoiTypes3x3[0], 1)
 
     def test_023_field_document_flyer(self) -> None:
         result = GetTournoisResponse.from_dict(SAMPLE_DATA)

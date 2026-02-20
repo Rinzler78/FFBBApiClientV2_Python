@@ -123,8 +123,8 @@ class TestGetPratiquesResponse(unittest.TestCase):
     def test_016_field_date_debut_fin(self) -> None:
         result = GetPratiquesResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertEqual(result.date_debut, "2025-09-01T00:00:00.000Z")
-        self.assertEqual(result.date_fin, "2026-06-30T00:00:00.000Z")
+        self.assertIsInstance(result.date_debut, datetime)
+        self.assertIsInstance(result.date_fin, datetime)
 
     def test_017_field_horaires_seances(self) -> None:
         result = GetPratiquesResponse.from_dict(SAMPLE_DATA)

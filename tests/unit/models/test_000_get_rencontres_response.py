@@ -35,11 +35,7 @@ SAMPLE_DATA: dict[str, Any] = {
     "idEngagementEquipe1": 5001,
     "idEngagementEquipe2": 5002,
     # Embedded
-    "gsId": None,
-    "officiels": [
-        {"nom": "DURAND", "prenom": "Luc", "role": "Arbitre 1"},
-        {"nom": "MOREAU", "prenom": "Sophie", "role": "Arbitre 2"},
-    ],
+    "officiels": ["off-001", "off-002"],
     "date_created": "2025-10-01T08:00:00.000Z",
     "date_updated": "2025-12-14T23:30:00.000Z",
 }
@@ -51,8 +47,8 @@ class TestGetRencontresResponse(unittest.TestCase):
         self.assertIsNotNone(result)
         assert result is not None
         self.assertEqual(result.id, "200000012345678")
-        self.assertEqual(result.date, "2025-12-14")
-        self.assertEqual(result.date_rencontre, "2025-12-14T20:00:00")
+        self.assertIsInstance(result.date, datetime)
+        self.assertIsInstance(result.date_rencontre, datetime)
         self.assertEqual(result.horaire, "20:00")
         self.assertEqual(result.numero, "J07-001")
         self.assertEqual(result.numeroJournee, "7")
@@ -71,9 +67,9 @@ class TestGetRencontresResponse(unittest.TestCase):
         self.assertEqual(result.idPoule, 3000001)
         self.assertEqual(result.saison, 10)
         self.assertEqual(result.salle, 4000001)
-        self.assertIsNone(result.gsId)
         self.assertIsInstance(result.officiels, list)
         self.assertEqual(len(result.officiels), 2)
+        self.assertEqual(result.officiels[0], "off-001")
         self.assertIsInstance(result.date_created, datetime)
         self.assertIsInstance(result.date_updated, datetime)
 
@@ -118,7 +114,6 @@ class TestGetRencontresResponse(unittest.TestCase):
         self.assertIsNone(result.idPoule)
         self.assertIsNone(result.saison)
         self.assertIsNone(result.salle)
-        self.assertIsNone(result.gsId)
         self.assertEqual(result.officiels, [])
         self.assertIsNone(result.date_created)
         self.assertIsNone(result.date_updated)

@@ -424,7 +424,9 @@ class TestGetCompetitionResponseExtracted(unittest.TestCase):
         self.assertIsNotNone(resp)
         self.assertEqual(resp.id, "comp-001")
         self.assertEqual(len(resp.phases), 1)
-        self.assertIsInstance(resp.phases[0], dict)
+        from ffbb_api_client_v2.models.competition_phase import CompetitionPhase
+
+        self.assertIsInstance(resp.phases[0], CompetitionPhase)
 
     def test_037_from_dict_with_poules(self) -> None:
         data = {

@@ -11,6 +11,7 @@ from ffbb_api_client_v2.directus_ffbb.models.get_engagements_response import (
     GetEngagementsResponse,
 )
 from ffbb_api_client_v2.models.categorie import Categorie
+from ffbb_api_client_v2.models.engagement_position import EngagementPosition
 
 SAMPLE_DATA: dict[str, Any] = {
     "id": "200000005137866",
@@ -18,7 +19,7 @@ SAMPLE_DATA: dict[str, Any] = {
     "nomEquipe": "Equipe 1",
     "nomUsuel": "CA MANTES",
     "nomOfficiel": "CA MANTES LA VILLE BASKET",
-    "numeroEquipe": "1",
+    "numeroEquipe": "1",  # string in API, converted to int by from_int
     "codeAbrege": "MAN",
     "clubPro": False,
     "position": 3,
@@ -38,12 +39,16 @@ SAMPLE_DATA: dict[str, Any] = {
     "photo": "11223344-5566-7788-99aa-bbccddeeff00",
     # Embedded objects
     "niveau": {"code": "SEN", "libelle": "Seniors"},
-    "classement": {
-        "victoires": 12,
-        "defaites": 4,
-        "nuls": 0,
-        "points": 28,
-    },
+    "classement": [
+        {
+            "id": "200000003017520-3",
+            "position": "3",
+            "points": "29",
+            "matchJoues": "17",
+            "gagnes": "12",
+            "perdus": "5",
+        },
+    ],
     # Correspondant fields
     "adresseCorrespondantEquipe": "12 Rue du Stade",
     "emailCorrespondantEquipe": "contact@club.fr",
@@ -55,9 +60,17 @@ SAMPLE_DATA: dict[str, Any] = {
     "toUpdate": False,
     "url_competition": "https://example.com/competition",
     "positions": [
-        {"journee": 1, "position": 1},
-        {"journee": 2, "position": 2},
-        {"journee": 3, "position": 3},
+        {"position": "5", "key": "5_0_0_0_0_0_0", "date": "2025-08-08T03:18:28.606Z"},
+        {
+            "position": "13",
+            "key": "13_1_0_1_0_1_-21",
+            "date": "2025-09-15T03:15:04.279Z",
+        },
+        {
+            "position": "14",
+            "key": "14_2_0_2_0_2_-42",
+            "date": "2025-10-06T03:15:26.456Z",
+        },
     ],
     # FK-only: lists
     "rencontres_domiciles": [101, 102, 103],
@@ -124,7 +137,7 @@ class TestGetEngagementsResponse(unittest.TestCase):
     def test_012_field_numero_equipe(self) -> None:
         result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertEqual(result.numeroEquipe, "1")
+        self.assertEqual(result.numeroEquipe, 1)
 
     def test_013_field_code_abrege(self) -> None:
         result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
@@ -172,8 +185,9 @@ class TestGetEngagementsResponse(unittest.TestCase):
     def test_021_field_classement(self) -> None:
         result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertIsInstance(result.classement, dict)
-        self.assertEqual(result.classement["victoires"], 12)  # type: ignore[index]
+        self.assertIsInstance(result.classement, list)
+        self.assertEqual(len(result.classement), 1)
+        self.assertEqual(result.classement[0]["position"], "3")
 
     def test_022_field_entraineur(self) -> None:
         result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
@@ -190,6 +204,8 @@ class TestGetEngagementsResponse(unittest.TestCase):
         assert result is not None
         self.assertIsInstance(result.positions, list)
         self.assertEqual(len(result.positions), 3)
+        self.assertIsInstance(result.positions[0], EngagementPosition)
+        self.assertEqual(result.positions[0].position, "5")
 
     def test_025_field_rencontres_domiciles(self) -> None:
         result = GetEngagementsResponse.from_dict(SAMPLE_DATA)

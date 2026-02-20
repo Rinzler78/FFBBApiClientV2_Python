@@ -18,6 +18,7 @@ from ffbb_api_client_v2.utils.converter_utils import (
     from_obj,
     from_str,
     from_time,
+    from_timestamp,
     from_uuid,
 )
 
@@ -358,6 +359,52 @@ class TestFromTime(unittest.TestCase):
 
     def test_063_time_passthrough(self) -> None:
         self.assertEqual(from_time({"k": time(20, 30)}, "k"), time(20, 30))
+
+
+# ==========================================================================
+# from_timestamp
+# ==========================================================================
+
+
+class TestFromTimestamp(unittest.TestCase):
+    def test_064_int_value(self) -> None:
+        result = from_timestamp({"k": 1757534767}, "k")
+        self.assertIsInstance(result, datetime)
+        assert result is not None
+        self.assertEqual(result.year, 2025)
+
+    def test_065_numeric_string(self) -> None:
+        result = from_timestamp({"k": "1757534767"}, "k")
+        self.assertIsInstance(result, datetime)
+
+    def test_066_none_returns_none(self) -> None:
+        self.assertIsNone(from_timestamp({"k": None}, "k"))
+
+    def test_067_missing_key_returns_none(self) -> None:
+        self.assertIsNone(from_timestamp({}, "k"))
+
+    def test_068_empty_str_returns_none(self) -> None:
+        self.assertIsNone(from_timestamp({"k": ""}, "k"))
+
+    def test_069_non_numeric_str_warns(self) -> None:
+        with self.assertLogs(LOGGER_NAME, level=logging.WARNING) as cm:
+            result = from_timestamp({"k": "not-a-number"}, "k")
+        self.assertIsNone(result)
+        self.assertTrue(any("cannot parse" in msg for msg in cm.output))
+
+    def test_070_float_value(self) -> None:
+        result = from_timestamp({"k": 1757534767.5}, "k")
+        self.assertIsInstance(result, datetime)
+
+    def test_071_bool_ignored(self) -> None:
+        """Booleans are not treated as ints."""
+        with self.assertLogs(LOGGER_NAME, level=logging.WARNING) as cm:
+            result = from_timestamp({"k": True}, "k")
+        self.assertIsNone(result)
+        self.assertTrue(any("unexpected type" in msg for msg in cm.output))
+
+    def test_072_whitespace_string(self) -> None:
+        self.assertIsNone(from_timestamp({"k": "   "}, "k"))
 
 
 if __name__ == "__main__":

@@ -51,8 +51,8 @@ class TestRankingEngagement(unittest.TestCase):
         self.assertEqual(result.nom, "Club Paris BC")
         self.assertEqual(result.nom_usuel, "Paris BC")
         self.assertEqual(result.code_abrege, "PBC")
-        self.assertEqual(result.numero_equ, "1")
-        self.assertEqual(result.numero_equipe, "001")
+        self.assertEqual(result.numero_equ, 1)
+        self.assertEqual(result.numero_equipe, 1)
         self.assertEqual(result.logo_id, "logo-123")
         self.assertEqual(result.logo_gradient, "#FF0000")
 

@@ -10,6 +10,7 @@ from ffbb_api_client_v2.directus_ffbb.models.get_engagements_response import (
 from ffbb_api_client_v2.directus_ffbb.models.get_entraineurs_response import (
     GetEntraineursResponse,
 )
+from ffbb_api_client_v2.models.contact_role import ContactRole
 from ffbb_api_client_v2.models.engagement_contacts import (
     EngagementContacts,
     extract_correspondant,
@@ -30,7 +31,7 @@ class Test161ExtractCorrespondant(unittest.TestCase):
         contact = extract_correspondant(eng)
         self.assertIsNotNone(contact)
         assert contact is not None
-        self.assertEqual(contact.titre, "Correspondant")
+        self.assertEqual(contact.titre, ContactRole.CORRESPONDANT_EQUIPE)
         self.assertEqual(contact.nom, "Dupont")
         self.assertEqual(contact.telephone, "0612345678")
         self.assertEqual(contact.email, "dupont@example.com")
@@ -96,22 +97,22 @@ class Test161ExtractEntraineurContact(unittest.TestCase):
             telephonePortable="06 98 76 54 32",
             email="paul@example.com",
         )
-        contact = extract_entraineur_contact(ent, "Entraîneur")
+        contact = extract_entraineur_contact(ent, ContactRole.ENTRAINEUR)
         self.assertIsNotNone(contact)
         assert contact is not None
-        self.assertEqual(contact.titre, "Entraîneur")
+        self.assertEqual(contact.titre, ContactRole.ENTRAINEUR)
         self.assertEqual(contact.nom, "Martin")
         self.assertEqual(contact.prenom, "Paul")
         self.assertEqual(contact.telephone, "0698765432")
         self.assertEqual(contact.email, "paul@example.com")
 
     def test_001_extract_entraineur_none(self) -> None:
-        contact = extract_entraineur_contact(None, "Entraîneur")
+        contact = extract_entraineur_contact(None, ContactRole.ENTRAINEUR)
         self.assertIsNone(contact)
 
     def test_002_extract_entraineur_no_contact(self) -> None:
         ent = GetEntraineursResponse(idLicence="LIC002", nom="Test")
-        contact = extract_entraineur_contact(ent, "Entraîneur adjoint")
+        contact = extract_entraineur_contact(ent, ContactRole.ENTRAINEUR_ADJOINT)
         self.assertIsNone(contact)
 
     def test_003_extract_entraineur_domicile_phone(self) -> None:
@@ -119,7 +120,7 @@ class Test161ExtractEntraineurContact(unittest.TestCase):
             idLicence="LIC003",
             telephoneDomicile="03 20 00 00 00",
         )
-        contact = extract_entraineur_contact(ent, "Entraîneur")
+        contact = extract_entraineur_contact(ent, ContactRole.ENTRAINEUR)
         self.assertIsNotNone(contact)
         assert contact is not None
         self.assertEqual(contact.telephone, "0320000000")
@@ -129,7 +130,7 @@ class Test161ExtractEntraineurContact(unittest.TestCase):
             idLicence="LIC004",
             telephoneTravail="01 00 00 00 00",
         )
-        contact = extract_entraineur_contact(ent, "Entraîneur")
+        contact = extract_entraineur_contact(ent, ContactRole.ENTRAINEUR)
         self.assertIsNotNone(contact)
         assert contact is not None
         self.assertEqual(contact.telephone, "0100000000")
@@ -139,7 +140,7 @@ class Test161ExtractEntraineurContact(unittest.TestCase):
             idLicence="LIC005",
             email="coach@example.com",
         )
-        contact = extract_entraineur_contact(ent, "Entraîneur")
+        contact = extract_entraineur_contact(ent, ContactRole.ENTRAINEUR)
         self.assertIsNotNone(contact)
         assert contact is not None
         self.assertEqual(contact.email, "coach@example.com")

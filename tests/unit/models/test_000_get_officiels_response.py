@@ -13,7 +13,7 @@ from ffbb_api_client_v2.directus_ffbb.models.get_officiels_response import (
 SAMPLE_DATA: dict[str, Any] = {
     "nom": "DUPONT",
     "prenom": "Jean-Pierre",
-    "numeroNational": "0075123456",
+    "numeroNational": "100001072726",
     "date_created": "2023-09-01T08:00:00.000Z",
     "date_updated": "2025-11-15T16:30:00.000Z",
 }
@@ -26,7 +26,7 @@ class TestGetOfficielsResponse(unittest.TestCase):
         assert result is not None
         self.assertEqual(result.nom, "DUPONT")
         self.assertEqual(result.prenom, "Jean-Pierre")
-        self.assertEqual(result.numeroNational, "0075123456")
+        self.assertEqual(result.numeroNational, 100001072726)
         self.assertIsInstance(result.date_created, datetime)
         self.assertIsInstance(result.date_updated, datetime)
 

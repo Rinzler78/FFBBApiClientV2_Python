@@ -9,6 +9,7 @@ from typing import Any
 from ffbb_api_client_v2.directus_ffbb.models.get_organisme_response import (
     GetOrganismeResponse,
 )
+from ffbb_api_client_v2.models.code_fonction import CodeFonction
 from ffbb_api_client_v2.models.competition_ref import CompetitionRef
 from ffbb_api_client_v2.models.labellisation_item import LabellisationItem
 from ffbb_api_client_v2.models.labellisation_programme import LabellisationProgramme
@@ -64,7 +65,7 @@ class TestMembre(unittest.TestCase):
             code_postal="75001",
             telephone_fixe="01",
             telephone_portable="06",
-            code_fonction="PRES",
+            code_fonction=CodeFonction.PRESIDENT,
         )
         d = membre.to_dict()
         self.assertEqual(d["codePostal"], "75001")

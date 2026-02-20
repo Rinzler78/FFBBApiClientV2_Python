@@ -27,18 +27,8 @@ SAMPLE_DATA: dict[str, Any] = {
         "name": "Diplome de Preparateur Physique en Basketball",
     },
     "sessions": [
-        {
-            "id": "sess-001",
-            "date_debut": "2025-09-15",
-            "date_fin": "2025-09-19",
-            "lieu": "INSEP Paris",
-        },
-        {
-            "id": "sess-002",
-            "date_debut": "2025-10-13",
-            "date_fin": "2025-10-17",
-            "lieu": "CREPS Montpellier",
-        },
+        "afe6790f-05b7-4682-9988-4293d87cf03e",
+        "ac28121a-821b-4a62-ade6-178e051f566e",
     ],
     "public": "Entraineurs et preparateurs physiques titulaires du BPJEPS Basketball",
     "goals": "Maitriser les fondamentaux de la preparation physique appliquee au basketball",
@@ -164,7 +154,7 @@ class TestGetFormationsResponse(unittest.TestCase):
         assert result is not None
         self.assertIsInstance(result.sessions, list)
         self.assertEqual(len(result.sessions), 2)
-        self.assertEqual(result.sessions[0]["lieu"], "INSEP Paris")
+        self.assertEqual(result.sessions[0], "afe6790f-05b7-4682-9988-4293d87cf03e")
 
     def test_020_field_public(self) -> None:
         result = GetFormationsResponse.from_dict(SAMPLE_DATA)
