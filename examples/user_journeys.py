@@ -295,23 +295,29 @@ def journey_3_rencontre_deep_dive(client: FFBBAPIClientV2) -> None:
     if eng_search and eng_search.hits:
         print(f"  Engagement search: {eng_search.hits[0].nom}")
 
-    # search_rencontres
+    # search_rencontres (Meilisearch — all seasons, for demo)
     track("search_rencontres")
     result = client.search_rencontres("Paris", limit=5)
     time.sleep(DELAY)
-    if not result or not result.hits:
-        print("  No rencontres found.")
+    if result and result.hits:
+        hit = result.hits[0]
+        print(f"  Search hit: {hit.nom_equipe1} vs {hit.nom_equipe2} (id={hit.id})")
+
+    # get_rencontre — use Directus list to get a valid current-season ID
+    # (Meilisearch IDs may belong to previous seasons → Directus 403)
+    track("list_rencontres")
+    recent = client.list_rencontres(
+        limit=1,
+        filter_criteria='{"joue":{"_eq":true}}',
+        sort=["-date_rencontre"],
+    )
+    time.sleep(DELAY)
+    if not recent:
+        print("  No current-season rencontres found via Directus.")
         return
 
-    hit = result.hits[0]
-    print(f"  Hit: {hit.nom_equipe1} vs {hit.nom_equipe2} (id={hit.id})")
-
-    if not hit.id:
-        return
-
-    # get_rencontre
     track("get_rencontre")
-    r = client.get_rencontre(int(hit.id))
+    r = client.get_rencontre(int(recent[0].id))
     time.sleep(DELAY)
     if not r:
         print("  Rencontre not found via Directus.")

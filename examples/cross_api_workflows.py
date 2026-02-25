@@ -7,6 +7,8 @@ with detailed data retrieval (Directus REST API).
 Usage: python examples/cross_api_workflows.py
 """
 
+import json
+
 from ffbb_api_client_v2 import FFBBAPIClientV2, TokenManager
 
 
@@ -44,22 +46,29 @@ def workflow_club_and_venue(client: FFBBAPIClientV2) -> None:
         print(f"\nClub: {organisme.nom}")
         print(f"  Code: {organisme.code}")
         print(f"  Address: {organisme.adresse}")
-        if organisme.commune:
-            print(
-                f"  City: {organisme.commune.libelle} ({organisme.commune.code_postal})"
+        if isinstance(organisme.commune, int):
+            communes = client.list_communes(
+                filter_criteria=json.dumps({"id": {"_eq": organisme.commune}})
             )
+            if communes:
+                c = communes[0]
+                print(f"  City: {c.libelle} ({c.codePostal})")
         print(f"  Phone: {organisme.telephone}")
         print(f"  Email: {organisme.mail}")
 
-        if organisme.salle:
-            print("\n  Associated venue:")
-            print(f"    Name: {organisme.salle.libelle}")
-            print(f"    Address: {organisme.salle.adresse}")
-            if organisme.salle.commune:
-                print(
-                    f"    City: {organisme.salle.commune.libelle} "
-                    f"({organisme.salle.commune.code_postal})"
-                )
+        if isinstance(organisme.salle, int):
+            salle = client.get_salle(organisme.salle)
+            if salle:
+                print("\n  Associated venue:")
+                print(f"    Name: {salle.libelle}")
+                print(f"    Address: {salle.adresse}")
+                if isinstance(salle.commune, int):
+                    salle_communes = client.list_communes(
+                        filter_criteria=json.dumps({"id": {"_eq": salle.commune}})
+                    )
+                    if salle_communes:
+                        sc = salle_communes[0]
+                        print(f"    City: {sc.libelle} ({sc.codePostal})")
         else:
             print("\n  No venue associated with this club.")
 
@@ -86,9 +95,12 @@ def workflow_salles_and_terrains(client: FFBBAPIClientV2) -> None:
             if salle:
                 print(f"\n  Salle '{salle.libelle}':")
                 print(f"    Address: {salle.adresse}")
-                commune_data = salle.commune
-                if isinstance(commune_data, dict):
-                    print(f"    City: {commune_data.get('libelle', 'N/A')}")
+                if isinstance(salle.commune, int):
+                    salle_communes = client.list_communes(
+                        filter_criteria=json.dumps({"id": {"_eq": salle.commune}})
+                    )
+                    if salle_communes:
+                        print(f"    City: {salle_communes[0].libelle}")
 
     # Step 3: Search terrains
     terrains_result = client.search_terrains("Paris", limit=5)
@@ -115,7 +127,7 @@ def workflow_matches_and_engagements(client: FFBBAPIClientV2) -> None:
     print("Workflow 3: Matches and team engagements for Paris")
     print("=" * 60)
 
-    # Step 1: Search recent matches
+    # Step 1: Search recent matches via Meilisearch (all seasons)
     rencontres = client.search_rencontres("Paris", limit=5)
     if rencontres and rencontres.hits:
         print(f"\nMatches found: ~{rencontres.estimated_total_hits}")
@@ -126,17 +138,23 @@ def workflow_matches_and_engagements(client: FFBBAPIClientV2) -> None:
             )
             print(f"  - {hit.nom_equipe1} vs {hit.nom_equipe2} ({date_str})")
 
-        # Step 2: Get detailed match via Directus
-        first_hit = rencontres.hits[0]
-        if first_hit.id:
-            match_detail = client.get_rencontre(int(first_hit.id))
-            if match_detail:
-                print(f"\n  Match detail (ID={match_detail.id}):")
-                print(f"    {match_detail.nomEquipe1} vs {match_detail.nomEquipe2}")
-                print(
-                    f"    Score: {match_detail.resultatEquipe1}-"
-                    f"{match_detail.resultatEquipe2}"
-                )
+    # Step 2: Get detailed match via Directus (current-season rencontre)
+    # Meilisearch IDs may belong to previous seasons (→ Directus 403),
+    # so we fetch a recent played match directly from Directus.
+    recent = client.list_rencontres(
+        limit=1,
+        filter_criteria='{"joue":{"_eq":true}}',
+        sort=["-date_rencontre"],
+    )
+    if recent:
+        match_detail = client.get_rencontre(int(recent[0].id))
+        if match_detail:
+            print(f"\n  Match detail (ID={match_detail.id}):")
+            print(f"    {match_detail.nomEquipe1} vs {match_detail.nomEquipe2}")
+            print(
+                f"    Score: {match_detail.resultatEquipe1}-"
+                f"{match_detail.resultatEquipe2}"
+            )
 
     # Step 3: Search engagements
     engagements = client.search_engagements("Paris", limit=5)
