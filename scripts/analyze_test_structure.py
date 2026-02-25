@@ -178,7 +178,7 @@ def create_test_file_mapping():
         if module not in module_to_test_files:
             modules_without_tests.append(module)
 
-    print(f"\\nModules sans fichiers de test: {len(modules_without_tests)}")
+    print(f"\nModules sans fichiers de test: {len(modules_without_tests)}")
     for module in modules_without_tests:
         print(f"  - {module}")
 
@@ -190,19 +190,19 @@ def main():
         create_test_file_mapping()
     )
 
-    print("\\n" + "=" * 80)
+    print("\n" + "=" * 80)
     print("RÉSUMÉ:")
     print(f"- Nombre total de modules source: {len(source_mapping)}")
     print(f"- Modules avec tests: {len(module_to_test_files)}")
     print(f"- Modules sans tests: {len(modules_without_tests)}")
 
-    print("\\nRECOMMANDATIONS:")
+    print("\nRECOMMANDATIONS:")
     print("1. Créer des fichiers de test pour les modules sans tests")
     print("2. Fusionner les fichiers de test multiples pour un même module")
     print("3. Numéroter les fichiers de test selon le mapping source")
 
     # Afficher le mapping source pour référence
-    print("\\nMapping des modules source:")
+    print("\nMapping des modules source:")
     print("-" * 40)
     for module, number in sorted(source_mapping.items(), key=lambda x: x[1]):
         print(f"{number:3d} - {module}")

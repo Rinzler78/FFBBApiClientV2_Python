@@ -148,8 +148,8 @@ class FromDictComplianceChecker:
             self.results["non_compliant"]
         )
         if total_methods > 0:
-            len(self.results["compliant"]) / total_methods * 100
-            print(".1f")
+            pct = len(self.results["compliant"]) / total_methods * 100
+            print(f"\nCompliance rate: {pct:.1f}%")
 
 
 def main():

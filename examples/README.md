@@ -119,6 +119,17 @@ python examples/extract_contacts.py --lat 50.629 --lng 3.057 --city-name Lille
 python examples/extract_contacts.py --lat 48.856 --lng 2.352 --city-name Paris --radius 50
 ```
 
+### `user_journeys.py`
+End-to-end user journey examples covering:
+- Club discovery (search → organisme → engagements → competition → poule)
+- Competition analysis (poule standings, match history, Elo ratings)
+- Venue and court lookup
+- Tournament discovery with geo-search
+
+```bash
+python examples/user_journeys.py
+```
+
 ## Prerequisites
 
 1. **Install the package:**

@@ -31,6 +31,7 @@ Contents
 
    Overview <readme>
    Architecture <architecture>
+   API Architecture <api_architecture>
    Examples <examples>
    Migration <migration>
    License <license>

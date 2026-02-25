@@ -193,9 +193,9 @@ tests/
 ## 4. Coverage
 
 ### Current Status
-- **Global coverage**: **97%** (branch coverage enabled)
+- **Global coverage**: **96%+** (branch coverage enabled)
 - **Per-module minimum**: **>=90%**
-- **Total tests**: **532** (all passing, 0 skipped)
+- **Total tests**: **1700+** (all passing, 0 skipped)
 
 ### Coverage Targets
 
@@ -215,6 +215,7 @@ tests/
 | + test_023 to test_045 | 92% | 346 |
 | + test_046 (converter_utils) | 95% | 450 |
 | + test_047 + test_048 + dead code removal | **97%** | **532** |
+| + docstrings, search, batch helpers, coverage audit | **96%+** | **1700+** |
 
 ### Bugs Fixed During Coverage Work
 1. `facet_stats.py`: `raise NotImplementedError` -> `assert False` (from_union catches AssertionError)

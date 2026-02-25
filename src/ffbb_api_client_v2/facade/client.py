@@ -101,11 +101,37 @@ from ..utils.retry_utils import RetryConfig, TimeoutConfig
 
 
 class FFBBAPIClientV2:
+    """Facade unifiee pour les APIs FFBB v2.
+
+    Compose deux clients backend :
+
+    - **ApiFFBBAppClient** (Directus REST) : get/list avec FK bruts (int IDs)
+    - **MeilisearchFFBBClient** (Meilisearch) : search avec objets denormalises
+
+    Pattern d'utilisation recommande :
+
+    1. Meilisearch pour la decouverte (recherche textuelle, geo)
+    2. Directus pour l'approfondissement (resolution FK en profondeur)
+    3. ``int(hit.id)`` pour passer d'un hit Meilisearch a un get Directus
+
+    69 methodes publiques : get (13), list (10), list_all (10), search (9),
+    search_multiple (9), search_geo (4), composite (2), batch (5),
+    settings (4), create (1), asset (1).
+    """
+
     def __init__(
         self,
         api_ffbb_client: ApiFFBBAppClient,
         meilisearch_ffbb_client: MeilisearchFFBBClient,
     ):
+        """Initialise la facade avec les deux clients backend.
+
+        Preferer ``FFBBAPIClientV2.create()`` pour la construction standard.
+
+        Args:
+            api_ffbb_client: Client Directus REST configure.
+            meilisearch_ffbb_client: Client Meilisearch configure.
+        """
         self.api_ffbb_client = api_ffbb_client
         self.meilisearch_ffbb_client = meilisearch_ffbb_client
 
@@ -820,6 +846,10 @@ class FFBBAPIClientV2:
         limit: int | None = 10,
         cached_session: CachedSession | None = None,
     ) -> CompetitionsMultiSearchResult | None:
+        """Recherche textuelle dans ffbbserver_competitions.
+
+        ``int(hit.id)`` → ``get_competition()``.
+        """
         results = self.search_multiple_competitions(
             [name],
             filter=filter,
@@ -837,6 +867,7 @@ class FFBBAPIClientV2:
         limit: int | None = 10,
         cached_session: CachedSession | None = None,
     ) -> list[CompetitionsMultiSearchResult] | None:
+        """Recherche batch dans ffbbserver_competitions (une query par name)."""
         if not names:
             return None
 
@@ -864,6 +895,7 @@ class FFBBAPIClientV2:
         limit: int | None = 10,
         cached_session: CachedSession | None = None,
     ) -> list[OrganismesMultiSearchResult] | None:
+        """Recherche batch dans ffbbserver_organismes (une query par name)."""
         if not names:
             return None
 
@@ -891,6 +923,7 @@ class FFBBAPIClientV2:
         limit: int | None = 10,
         cached_session: CachedSession | None = None,
     ) -> list[PratiquesMultiSearchResult] | None:
+        """Recherche batch dans ffbbnational_pratiques (une query par name)."""
         if not names:
             return None
 
@@ -916,6 +949,7 @@ class FFBBAPIClientV2:
         limit: int | None = 10,
         cached_session: CachedSession | None = None,
     ) -> list[RencontresMultiSearchResult] | None:
+        """Recherche batch dans ffbbserver_rencontres (une query par name)."""
         if not names:
             return None
 
@@ -943,6 +977,7 @@ class FFBBAPIClientV2:
         limit: int | None = 10,
         cached_session: CachedSession | None = None,
     ) -> list[SallesMultiSearchResult] | None:
+        """Recherche batch dans ffbbserver_salles (une query par name)."""
         if not names:
             return None
 
@@ -966,6 +1001,7 @@ class FFBBAPIClientV2:
         limit: int | None = 10,
         cached_session: CachedSession | None = None,
     ) -> list[TerrainsMultiSearchResult] | None:
+        """Recherche batch dans ffbbserver_terrains (une query par name)."""
         if not names:
             return None
 
@@ -991,6 +1027,7 @@ class FFBBAPIClientV2:
         limit: int | None = 10,
         cached_session: CachedSession | None = None,
     ) -> list[EngagementsMultiSearchResult] | None:
+        """Recherche batch dans ffbbserver_engagements (une query par name)."""
         if not names:
             return None
 
@@ -1018,6 +1055,7 @@ class FFBBAPIClientV2:
         limit: int | None = 10,
         cached_session: CachedSession | None = None,
     ) -> list[FormationsMultiSearchResult] | None:
+        """Recherche batch dans ffbbserver_formations (une query par name)."""
         if not names:
             return None
 
@@ -1045,6 +1083,7 @@ class FFBBAPIClientV2:
         limit: int | None = 10,
         cached_session: CachedSession | None = None,
     ) -> list[TournoisMultiSearchResult] | None:
+        """Recherche batch dans ffbbserver_tournois (une query par name)."""
         if not names:
             return None
 
@@ -1070,6 +1109,10 @@ class FFBBAPIClientV2:
         limit: int | None = 10,
         cached_session: CachedSession | None = None,
     ) -> OrganismesMultiSearchResult | None:
+        """Recherche textuelle dans ffbbserver_organismes.
+
+        ``int(hit.id)`` → ``get_organisme()``. Hits denormalises avec commune, salle, geo.
+        """
         results = self.search_multiple_organismes(
             [name],
             filter=filter,
@@ -1087,6 +1130,7 @@ class FFBBAPIClientV2:
         limit: int | None = 10,
         cached_session: CachedSession | None = None,
     ) -> PratiquesMultiSearchResult | None:
+        """Recherche textuelle dans ffbbnational_pratiques."""
         results = self.search_multiple_pratiques(
             [name],
             filter=filter,
@@ -1104,6 +1148,10 @@ class FFBBAPIClientV2:
         limit: int | None = 10,
         cached_session: CachedSession | None = None,
     ) -> RencontresMultiSearchResult | None:
+        """Recherche textuelle dans ffbbserver_rencontres.
+
+        ``int(hit.id)`` → ``get_rencontre()``.
+        """
         results = self.search_multiple_rencontres(
             [name],
             filter=filter,
@@ -1121,6 +1169,10 @@ class FFBBAPIClientV2:
         limit: int | None = 10,
         cached_session: CachedSession | None = None,
     ) -> SallesMultiSearchResult | None:
+        """Recherche textuelle dans ffbbserver_salles.
+
+        ``int(hit.id)`` → ``get_salle()``.
+        """
         results = self.search_multiple_salles(
             [name],
             filter=filter,
@@ -1138,6 +1190,10 @@ class FFBBAPIClientV2:
         limit: int | None = 10,
         cached_session: CachedSession | None = None,
     ) -> TerrainsMultiSearchResult | None:
+        """Recherche textuelle dans ffbbserver_terrains.
+
+        ``int(hit.id)`` → ``get_terrain()``.
+        """
         results = self.search_multiple_terrains(
             [name],
             filter=filter,
@@ -1155,6 +1211,10 @@ class FFBBAPIClientV2:
         limit: int | None = 10,
         cached_session: CachedSession | None = None,
     ) -> EngagementsMultiSearchResult | None:
+        """Recherche textuelle dans ffbbserver_engagements.
+
+        ``int(hit.id)`` → ``get_engagement()``.
+        """
         results = self.search_multiple_engagements(
             [name],
             filter=filter,
@@ -1172,6 +1232,10 @@ class FFBBAPIClientV2:
         limit: int | None = 10,
         cached_session: CachedSession | None = None,
     ) -> FormationsMultiSearchResult | None:
+        """Recherche textuelle dans ffbbserver_formations.
+
+        ``hit.id`` est un str (UUID) → ``get_formation(hit.id)``.
+        """
         results = self.search_multiple_formations(
             [name],
             filter=filter,
@@ -1189,6 +1253,10 @@ class FFBBAPIClientV2:
         limit: int | None = 10,
         cached_session: CachedSession | None = None,
     ) -> TournoisMultiSearchResult | None:
+        """Recherche textuelle dans ffbbserver_tournois.
+
+        ``int(hit.id)`` → ``get_tournoi()``.
+        """
         results = self.search_multiple_tournois(
             [name],
             filter=filter,
@@ -1330,7 +1398,19 @@ class FFBBAPIClientV2:
         engagement_id: int,
         cached_session: CachedSession | None = None,
     ) -> EngagementContacts | None:
-        """Get contacts for an engagement: correspondant + coaches."""
+        """Recupere les contacts d'un engagement : correspondant + entraineurs.
+
+        Methode composite qui appelle ``get_engagement()`` puis
+        ``get_entraineur()`` pour le coach principal et adjoint.
+
+        Args:
+            engagement_id: ID numerique de l'engagement.
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            EngagementContacts (engagement, correspondant, entraineur,
+            entraineur_adjoint) ou None.
+        """
         engagement = self.get_engagement(engagement_id, cached_session=cached_session)
         if not engagement:
             return None
@@ -1360,7 +1440,18 @@ class FFBBAPIClientV2:
         organisme_id: int,
         cached_session: CachedSession | None = None,
     ) -> ClubContacts | None:
-        """Get contacts for a club: club info + members/dirigeants."""
+        """Recupere les contacts d'un club : info club + membres/dirigeants.
+
+        Methode composite qui appelle ``get_organisme()`` puis extrait
+        les contacts du club et des membres.
+
+        Args:
+            organisme_id: ID numerique de l'organisme (club).
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            ClubContacts (organisme, club_contact, membres) ou None.
+        """
         organisme = self.get_organisme(organisme_id, cached_session=cached_session)
         if not organisme:
             return None

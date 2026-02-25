@@ -31,6 +31,29 @@ from .models.tournois_multi_search_query import TournoisMultiSearchQuery
 
 
 class MeilisearchFFBBClient(MeilisearchClientExtension):
+    """Client Meilisearch pour les index FFBB.
+
+    Fournit des methodes de recherche textuelle, geo-spatiale et multi-index
+    sur les 9 index Meilisearch FFBB. Les hits contiennent des objets denormalises
+    (commune, salle, geo, saison embarques) contrairement au client Directus
+    qui retourne des FK bruts.
+
+    Index disponibles (9) :
+        ffbbserver_organismes, ffbbserver_competitions, ffbbserver_rencontres,
+        ffbbserver_salles, ffbbserver_terrains, ffbbserver_tournois,
+        ffbbnational_pratiques, ffbbserver_engagements, ffbbserver_formations
+
+    Methodes (30+) :
+        - 9x ``search_*`` : recherche textuelle sur un index
+        - 9x ``search_multiple_*`` : recherche batch multi-requetes
+        - 4x ``search_*_by_geo`` : recherche geo-spatiale (_geoRadius)
+        - ``search_organismes_by_city`` : filtre par commune.libelle
+        - ``search_engagements_filtered`` : geo + sexe + niveau.code
+        - ``federated_search_all`` : recherche federee multi-index
+        - ``get_index_settings``, ``get_all_index_settings``
+        - ``get_filterable_attributes``, ``get_sortable_attributes``
+    """
+
     def __init__(
         self,
         bearer_token: str,
@@ -54,6 +77,21 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
         limit: int | None = 10,
         cached_session: CachedSession | None = None,
     ) -> list[OrganismesMultiSearchResult] | None:
+        """Recherche batch dans l'index ffbbserver_organismes.
+
+        Envoie une requete multi-search avec une query par element de *names*.
+        Les hits contiennent commune (Commune), salle (Salle), geo (Geo) embarques.
+
+        Args:
+            names: Liste de termes de recherche (None pour tout lister).
+            filter: Filtres Meilisearch (ex: ``['type = "ASS"']``).
+            sort: Tri (ex: ``['nom:asc']``). Voir ``get_sortable_attributes()``.
+            limit: Nombre max de resultats par query (defaut: 10).
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            Liste de OrganismesMultiSearchResult (un par query) ou None.
+        """
         if not names:
             return None
 
@@ -77,6 +115,22 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
         limit: int | None = 10,
         cached_session: CachedSession | None = None,
     ) -> OrganismesMultiSearchResult | None:
+        """Recherche textuelle dans l'index ffbbserver_organismes.
+
+        Les hits contiennent des objets denormalises : commune (Commune),
+        salle (Salle), geo (Geo), saison (Saison) sont embarques.
+        L'id du hit correspond au PK Directus : ``int(hit.id)`` pour ``get_organisme()``.
+
+        Args:
+            name: Terme de recherche textuel (None pour tout lister).
+            filter: Filtre Meilisearch (ex: ``['type = "ASS"']``).
+            sort: Tri (ex: ``['nom:asc']``).
+            limit: Nombre max de resultats (defaut: 10).
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            OrganismesMultiSearchResult avec .hits et .estimated_total_hits, ou None.
+        """
         results = self.search_multiple_organismes(
             [name],
             filter=filter,
@@ -96,6 +150,18 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
         limit: int | None = 10,
         cached_session: CachedSession | None = None,
     ) -> list[RencontresMultiSearchResult] | None:
+        """Recherche batch dans l'index ffbbserver_rencontres.
+
+        Args:
+            names: Liste de termes de recherche.
+            filter: Filtres Meilisearch (ex: ``['joue = true']``).
+            sort: Tri (ex: ``['date_rencontre_timestamp:desc']``).
+            limit: Nombre max de resultats par query (defaut: 10).
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            Liste de RencontresMultiSearchResult (un par query) ou None.
+        """
         if not names:
             return None
 
@@ -119,6 +185,21 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
         limit: int | None = 10,
         cached_session: CachedSession | None = None,
     ) -> RencontresMultiSearchResult | None:
+        """Recherche textuelle dans l'index ffbbserver_rencontres.
+
+        Les hits contiennent competitionId, idOrganismeEquipe1/2, salle
+        en objets denormalises. ``int(hit.id)`` → ``get_rencontre()``.
+
+        Args:
+            name: Terme de recherche (None pour tout lister).
+            filter: Filtre Meilisearch (ex: ``['joue = true']``).
+            sort: Tri. Voir ``get_sortable_attributes()``.
+            limit: Nombre max de resultats (defaut: 10).
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            RencontresMultiSearchResult ou None.
+        """
         results = self.search_multiple_rencontres(
             [name],
             filter=filter,
@@ -138,6 +219,18 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
         limit: int | None = 10,
         cached_session: CachedSession | None = None,
     ) -> list[TerrainsMultiSearchResult] | None:
+        """Recherche batch dans l'index ffbbserver_terrains.
+
+        Args:
+            names: Liste de termes de recherche.
+            filter: Filtres Meilisearch (ex: ``['natureSol.code = "PARQ"']``).
+            sort: Tri.
+            limit: Nombre max de resultats par query (defaut: 10).
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            Liste de TerrainsMultiSearchResult (un par query) ou None.
+        """
         if not names:
             return None
 
@@ -159,6 +252,21 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
         limit: int | None = 10,
         cached_session: CachedSession | None = None,
     ) -> TerrainsMultiSearchResult | None:
+        """Recherche textuelle dans l'index ffbbserver_terrains.
+
+        Les hits contiennent commune, natureSol, geo en objets denormalises.
+        ``int(hit.id)`` → ``get_terrain()``.
+
+        Args:
+            name: Terme de recherche (None pour tout lister).
+            filter: Filtre Meilisearch.
+            sort: Tri.
+            limit: Nombre max de resultats (defaut: 10).
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            TerrainsMultiSearchResult ou None.
+        """
         results = self.search_multiple_terrains(
             [name],
             filter=filter,
@@ -178,6 +286,18 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
         limit: int | None = 10,
         cached_session: CachedSession | None = None,
     ) -> list[CompetitionsMultiSearchResult] | None:
+        """Recherche batch dans l'index ffbbserver_competitions.
+
+        Args:
+            names: Liste de termes de recherche.
+            filter: Filtres Meilisearch (ex: ``['sexe = "Masculin"']``).
+            sort: Tri.
+            limit: Nombre max de resultats par query (defaut: 10).
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            Liste de CompetitionsMultiSearchResult (un par query) ou None.
+        """
         if not names:
             return None
 
@@ -201,6 +321,21 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
         limit: int | None = 10,
         cached_session: CachedSession | None = None,
     ) -> CompetitionsMultiSearchResult | None:
+        """Recherche textuelle dans l'index ffbbserver_competitions.
+
+        Les hits contiennent categorie, organisateur, saison en objets denormalises.
+        ``int(hit.id)`` → ``get_competition()``.
+
+        Args:
+            name: Terme de recherche (None pour tout lister).
+            filter: Filtre Meilisearch (ex: ``['sexe = "Masculin"']``).
+            sort: Tri.
+            limit: Nombre max de resultats (defaut: 10).
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            CompetitionsMultiSearchResult ou None.
+        """
         results = self.search_multiple_competitions(
             [name],
             filter=filter,
@@ -220,6 +355,18 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
         limit: int | None = 10,
         cached_session: CachedSession | None = None,
     ) -> list[SallesMultiSearchResult] | None:
+        """Recherche batch dans l'index ffbbserver_salles.
+
+        Args:
+            names: Liste de termes de recherche.
+            filter: Filtres Meilisearch (ex: ``['commune.departement = "75"']``).
+            sort: Tri.
+            limit: Nombre max de resultats par query (defaut: 10).
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            Liste de SallesMultiSearchResult (un par query) ou None.
+        """
         if not names:
             return None
 
@@ -239,6 +386,21 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
         limit: int | None = 10,
         cached_session: CachedSession | None = None,
     ) -> SallesMultiSearchResult | None:
+        """Recherche textuelle dans l'index ffbbserver_salles.
+
+        Les hits contiennent commune (Commune), geo (Geo) embarques.
+        ``int(hit.id)`` → ``get_salle()``.
+
+        Args:
+            name: Terme de recherche (None pour tout lister).
+            filter: Filtre Meilisearch.
+            sort: Tri.
+            limit: Nombre max de resultats (defaut: 10).
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            SallesMultiSearchResult ou None.
+        """
         results = self.search_multiple_salles(
             [name],
             filter=filter,
@@ -258,6 +420,18 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
         limit: int | None = 10,
         cached_session: CachedSession | None = None,
     ) -> list[TournoisMultiSearchResult] | None:
+        """Recherche batch dans l'index ffbbserver_tournois.
+
+        Args:
+            names: Liste de termes de recherche.
+            filter: Filtres Meilisearch (ex: ``['sexe = "Masculin"']``).
+            sort: Tri.
+            limit: Nombre max de resultats par query (defaut: 10).
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            Liste de TournoisMultiSearchResult (un par query) ou None.
+        """
         if not names:
             return None
 
@@ -279,6 +453,21 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
         limit: int | None = 10,
         cached_session: CachedSession | None = None,
     ) -> TournoisMultiSearchResult | None:
+        """Recherche textuelle dans l'index ffbbserver_tournois.
+
+        Les hits contiennent commune, geo, sexe embarques.
+        ``int(hit.id)`` → ``get_tournoi()``.
+
+        Args:
+            name: Terme de recherche (None pour tout lister).
+            filter: Filtre Meilisearch.
+            sort: Tri.
+            limit: Nombre max de resultats (defaut: 10).
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            TournoisMultiSearchResult ou None.
+        """
         results = self.search_multiple_tournois(
             [name],
             filter=filter,
@@ -298,6 +487,18 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
         limit: int | None = 10,
         cached_session: CachedSession | None = None,
     ) -> list[PratiquesMultiSearchResult] | None:
+        """Recherche batch dans l'index ffbbnational_pratiques.
+
+        Args:
+            names: Liste de termes de recherche.
+            filter: Filtres Meilisearch (ex: ``['type = "basket"']``).
+            sort: Tri.
+            limit: Nombre max de resultats par query (defaut: 10).
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            Liste de PratiquesMultiSearchResult (un par query) ou None.
+        """
         if not names:
             return None
 
@@ -319,6 +520,20 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
         limit: int | None = 10,
         cached_session: CachedSession | None = None,
     ) -> PratiquesMultiSearchResult | None:
+        """Recherche textuelle dans l'index ffbbnational_pratiques.
+
+        ``int(hit.id)`` correspond au PK Directus pour ``list_pratiques()``.
+
+        Args:
+            name: Terme de recherche (None pour tout lister).
+            filter: Filtre Meilisearch.
+            sort: Tri.
+            limit: Nombre max de resultats (defaut: 10).
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            PratiquesMultiSearchResult ou None.
+        """
         results = self.search_multiple_pratiques(
             [name],
             filter=filter,
@@ -338,6 +553,18 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
         limit: int | None = 10,
         cached_session: CachedSession | None = None,
     ) -> list[EngagementsMultiSearchResult] | None:
+        """Recherche batch dans l'index ffbbserver_engagements (~105k hits).
+
+        Args:
+            names: Liste de termes de recherche.
+            filter: Filtres Meilisearch (ex: ``['niveau.code = "SEN"']``).
+            sort: Tri.
+            limit: Nombre max de resultats par query (defaut: 10).
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            Liste de EngagementsMultiSearchResult (un par query) ou None.
+        """
         if not names:
             return None
 
@@ -361,6 +588,21 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
         limit: int | None = 10,
         cached_session: CachedSession | None = None,
     ) -> EngagementsMultiSearchResult | None:
+        """Recherche textuelle dans l'index ffbbserver_engagements.
+
+        Les hits contiennent idCompetition, niveau, geo embarques.
+        ``int(hit.id)`` → ``get_engagement()``.
+
+        Args:
+            name: Terme de recherche (None pour tout lister).
+            filter: Filtre Meilisearch (ex: ``['niveau.code = "SEN"']``).
+            sort: Tri.
+            limit: Nombre max de resultats (defaut: 10).
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            EngagementsMultiSearchResult ou None.
+        """
         results = self.search_multiple_engagements(
             [name],
             filter=filter,
@@ -380,6 +622,18 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
         limit: int | None = 10,
         cached_session: CachedSession | None = None,
     ) -> list[FormationsMultiSearchResult] | None:
+        """Recherche batch dans l'index ffbbserver_formations (~90 hits).
+
+        Args:
+            names: Liste de termes de recherche (None pour tout lister).
+            filter: Filtres Meilisearch (ex: ``['mode = "presentiel"']``).
+            sort: Tri.
+            limit: Nombre max de resultats par query (defaut: 10).
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            Liste de FormationsMultiSearchResult (un par query) ou None.
+        """
         if not names:
             return None
 
@@ -403,6 +657,21 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
         limit: int | None = 10,
         cached_session: CachedSession | None = None,
     ) -> FormationsMultiSearchResult | None:
+        """Recherche textuelle dans l'index ffbbserver_formations.
+
+        Petit index (~90 hits). ``hit.id`` est un str (UUID Directus)
+        → ``get_formation(hit.id)`` (pas de conversion int).
+
+        Args:
+            name: Terme de recherche (None pour tout lister).
+            filter: Filtre Meilisearch.
+            sort: Tri.
+            limit: Nombre max de resultats (defaut: 10).
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            FormationsMultiSearchResult ou None.
+        """
         results = self.search_multiple_formations(
             [name],
             filter=filter,
@@ -654,7 +923,18 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
         self,
         cached_session: CachedSession | None = None,
     ) -> dict[str, MeilisearchIndexSettings]:
-        """Get settings for all known FFBB Meilisearch indexes."""
+        """Recupere les settings de tous les index FFBB connus (9 index).
+
+        Itere sur ``MEILISEARCH_INDEX_UIDS`` et appelle ``get_index_settings()``
+        pour chacun. Les settings incluent filterableAttributes, sortableAttributes,
+        searchableAttributes, etc.
+
+        Args:
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            Dict {index_uid: MeilisearchIndexSettings} pour chaque index accessible.
+        """
         from .config import MEILISEARCH_INDEX_UIDS
 
         result: dict[str, MeilisearchIndexSettings] = {}

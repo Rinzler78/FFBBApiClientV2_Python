@@ -66,10 +66,23 @@ from .models.tournois_fields import TournoisFields
 
 
 class ApiFFBBAppClient(DirectusClient):
-    """FFBB-specific Directus API client.
+    """Client REST Directus pour l'API FFBB.
 
-    Extends DirectusClient with FFBB business endpoints:
-    competitions, organismes, rencontres, salles, terrains, etc.
+    Accede aux collections Directus via des endpoints REST parametres par des
+    ``fields[]`` qui controlent la morphologie de la reponse :
+
+    - **FK-only** (int brut) : necessite un appel supplementaire pour resoudre
+    - **Embedded** (dot notation) : objets expandus inline par Directus
+
+    Collections : organismes, competitions, poules, engagements, rencontres,
+    salles, terrains, tournois, entraineurs, formations, communes, officiels,
+    pratiques, saisons, lives.
+
+    Methodes :
+        - 12x ``get_*`` : recuperation par ID (single item)
+        - 10x ``list_*`` : liste paginee avec filter/sort/search
+        - 10x ``list_all_*`` : pagination automatique exhaustive
+        - ``get_lives()``, ``get_saisons()``, ``get_asset_url()``
     """
 
     def __init__(
@@ -95,7 +108,16 @@ class ApiFFBBAppClient(DirectusClient):
     # --- Asset URLs ---
 
     def get_asset_url(self, file_id: str | UUID) -> str:
-        """Build the URL for a Directus file asset."""
+        """Construit l'URL de telechargement d'un fichier Directus.
+
+        Utilise pour resoudre les FK de type UUID (logo, photo, image).
+
+        Args:
+            file_id: UUID du fichier (str ou UUID).
+
+        Returns:
+            URL complete de l'asset Directus.
+        """
         return f"{self.url}{ENDPOINT_ASSETS}{file_id}"
 
     # --- Single-item endpoints ---
@@ -103,7 +125,17 @@ class ApiFFBBAppClient(DirectusClient):
     def get_lives(
         self, cached_session: CachedSession | None = None
     ) -> list[Live] | None:
-        """Retrieves a list of live events."""
+        """Recupere les matchs en direct.
+
+        FK a resoudre dans chaque Live : match_id (int) → ``get_rencontre()``.
+        Embedded : clock, external_id, team_engagement_home/out.
+
+        Args:
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            Liste de Live ou None si aucun match en cours.
+        """
         url = f"{self.url}{ENDPOINT_LIVES}"
         return HttpHelper.catch_result(
             lambda: lives_from_dict(self._get_json(url, cached_session))
@@ -115,7 +147,23 @@ class ApiFFBBAppClient(DirectusClient):
         deep_rencontres_limit: int | None = 1000,
         cached_session: CachedSession | None = None,
     ) -> GetCompetitionResponse | None:
-        """Retrieves detailed information about a competition."""
+        """Recupere une competition par son ID Directus.
+
+        Utilise CompetitionFields. Le parametre ``deep`` controle la limite
+        des rencontres nestees dans phases.poules.rencontres.
+
+        FK a resoudre : saison (int), competition_origine (int),
+        idCompetitionPere (int), organisateur (int), logo (UUID), poules (list[int]).
+        Embedded : categorie, typeCompetitionGenerique, phases (hybride).
+
+        Args:
+            competition_id: ID numerique de la competition.
+            deep_rencontres_limit: Limite Directus pour les rencontres nestees.
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            GetCompetitionResponse ou None si non trouve.
+        """
         params: dict[str, Any] = {}
         if deep_rencontres_limit is not None:
             params["deep[phases][poules][rencontres][_limit]"] = str(
@@ -138,7 +186,26 @@ class ApiFFBBAppClient(DirectusClient):
         deep_classements_limit: int | None = 100000,
         cached_session: CachedSession | None = None,
     ) -> GetPouleResponse | None:
-        """Retrieves detailed information about a poule."""
+        """Recupere une poule par son ID Directus.
+
+        Utilise PouleFields. Parametres ``deep`` pour rencontres et classements.
+
+        FK a resoudre : id_competition (int), rencontres (list[int]),
+        engagements (list[int]).
+        Embedded hybride : classements (list[TeamRanking]) contient des FK
+        implicites (organisme_id, id_engagement).
+
+        Args:
+            poule_id: ID numerique de la poule.
+            deep_rencontres_limit: Limite pour rencontres nestees.
+            deep_rencontres_filter_saison_actif: Filtre saison active.
+            deep_rencontres_sort: Champ de tri des rencontres.
+            deep_classements_limit: Limite pour classements nestes.
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            GetPouleResponse ou None si non trouve.
+        """
         params: dict[str, Any] = {}
         if deep_rencontres_limit is not None:
             params["deep[rencontres][_limit]"] = str(deep_rencontres_limit)
@@ -161,7 +228,17 @@ class ApiFFBBAppClient(DirectusClient):
         filter_criteria: str | None = '{"actif":{"_eq":true}}',
         cached_session: CachedSession | None = None,
     ) -> list[GetSaisonsResponse]:
-        """Retrieves list of seasons."""
+        """Recupere la liste des saisons.
+
+        Feuille terminale — aucune FK a resoudre.
+
+        Args:
+            filter_criteria: Filtre JSON Directus. Defaut : saisons actives.
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            Liste de GetSaisonsResponse (vide si aucun resultat).
+        """
         params: dict[str, Any] = {}
         if filter_criteria:
             params["filter"] = filter_criteria
@@ -179,7 +256,22 @@ class ApiFFBBAppClient(DirectusClient):
         organisme_id: int,
         cached_session: CachedSession | None = None,
     ) -> GetOrganismeResponse | None:
-        """Retrieves detailed information about an organisme."""
+        """Recupere un organisme par son ID Directus.
+
+        Utilise OrganismeFields.
+
+        FK a resoudre : commune (int), salle (int), saison (int),
+        organisme_id_pere (int), engagements (list[int]),
+        competitions (list[int]), organismes_fils (list[int]), logo (UUID).
+        Embedded : cartographie, membres, offres_pratiques, labellisation.
+
+        Args:
+            organisme_id: ID numerique de l'organisme.
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            GetOrganismeResponse ou None si non trouve.
+        """
         data = self._get_item(
             f"{ENDPOINT_ORGANISMES}/{organisme_id}",
             fields=OrganismeFields.get_fields(),
@@ -203,7 +295,18 @@ class ApiFFBBAppClient(DirectusClient):
         rencontre_id: int,
         cached_session: CachedSession | None = None,
     ) -> GetRencontresResponse | None:
-        """Retrieves a rencontre by ID."""
+        """Recupere une rencontre par son ID Directus.
+
+        Utilise RencontresFields. 100% FK-only : competitionId, idEngagementEquipe1/2,
+        idOrganismeEquipe1/2, idPoule, saison, salle (tous int).
+
+        Args:
+            rencontre_id: ID numerique de la rencontre.
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            GetRencontresResponse ou None si non trouve.
+        """
         data = self._get_item(
             f"{ENDPOINT_RENCONTRES}/{rencontre_id}",
             fields=RencontresFields.get_fields(),
@@ -216,7 +319,18 @@ class ApiFFBBAppClient(DirectusClient):
         salle_id: int,
         cached_session: CachedSession | None = None,
     ) -> GetSallesResponse | None:
-        """Retrieves a salle by ID."""
+        """Recupere une salle par son ID Directus.
+
+        FK a resoudre : commune (int).
+        Embedded : cartographie (Cartographie).
+
+        Args:
+            salle_id: ID numerique de la salle.
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            GetSallesResponse ou None si non trouve.
+        """
         data = self._get_item(
             f"{ENDPOINT_SALLES}/{salle_id}",
             fields=SallesFields.get_fields(),
@@ -229,7 +343,18 @@ class ApiFFBBAppClient(DirectusClient):
         terrain_id: int,
         cached_session: CachedSession | None = None,
     ) -> GetTerrainsResponse | None:
-        """Retrieves a terrain by ID."""
+        """Recupere un terrain par son ID Directus.
+
+        FK a resoudre : commune (int).
+        Embedded : natureSol (NatureSol), cartographie (Cartographie).
+
+        Args:
+            terrain_id: ID numerique du terrain.
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            GetTerrainsResponse ou None si non trouve.
+        """
         data = self._get_item(
             f"{ENDPOINT_TERRAINS}/{terrain_id}",
             fields=TerrainsFields.get_fields(),
@@ -242,7 +367,18 @@ class ApiFFBBAppClient(DirectusClient):
         tournoi_id: int,
         cached_session: CachedSession | None = None,
     ) -> GetTournoisResponse | None:
-        """Retrieves a tournoi by ID."""
+        """Recupere un tournoi par son ID Directus.
+
+        FK a resoudre : commune (int).
+        Embedded : cartographie (Cartographie), document_flyer (DocumentFlyer).
+
+        Args:
+            tournoi_id: ID numerique du tournoi.
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            GetTournoisResponse ou None si non trouve.
+        """
         data = self._get_item(
             f"{ENDPOINT_TOURNOIS}/{tournoi_id}",
             fields=TournoisFields.get_fields(),
@@ -255,7 +391,23 @@ class ApiFFBBAppClient(DirectusClient):
         engagement_id: int,
         cached_session: CachedSession | None = None,
     ) -> GetEngagementsResponse | None:
-        """Retrieves an engagement by ID."""
+        """Recupere un engagement par son ID Directus.
+
+        Utilise EngagementsFields.
+
+        FK a resoudre : idCompetition (int), idOrganisme (int),
+        idOrganismeCtc (int), idPoule (int), entraineur (int),
+        entraineurAdjoint (int), logo/photo/logo_genius (UUID),
+        rencontres_domiciles (list[int]), rencontres_exterieur (list[int]).
+        Embedded : niveau (Categorie), positions (list[EngagementPosition]).
+
+        Args:
+            engagement_id: ID numerique de l'engagement.
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            GetEngagementsResponse ou None si non trouve.
+        """
         data = self._get_item(
             f"{ENDPOINT_ENGAGEMENTS}/{engagement_id}",
             fields=EngagementsFields.get_fields(),
@@ -268,7 +420,18 @@ class ApiFFBBAppClient(DirectusClient):
         formation_id: str,
         cached_session: CachedSession | None = None,
     ) -> GetFormationsResponse | None:
-        """Retrieves a formation by ID."""
+        """Recupere une formation par son ID Directus (str, pas int).
+
+        FK a resoudre : image (UUID).
+        Embedded : domain (Folder), theme (Folder).
+
+        Args:
+            formation_id: ID string (UUID) de la formation.
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            GetFormationsResponse ou None si non trouve.
+        """
         data = self._get_item(
             f"{ENDPOINT_FORMATIONS}/{formation_id}",
             fields=FormationsFields.get_fields(),
@@ -281,7 +444,18 @@ class ApiFFBBAppClient(DirectusClient):
         entraineur_id: int,
         cached_session: CachedSession | None = None,
     ) -> GetEntraineursResponse | None:
-        """Retrieves an entraineur by ID."""
+        """Recupere un entraineur par son ID Directus (idLicence).
+
+        FK a resoudre : commune (int).
+        Feuille terminale — pas d'embedded complexe.
+
+        Args:
+            entraineur_id: ID numerique (licence) de l'entraineur.
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            GetEntraineursResponse ou None si non trouve.
+        """
         data = self._get_item(
             f"{ENDPOINT_ENTRAINEURS}/{entraineur_id}",
             fields=EntraineursFields.get_fields(),
@@ -312,7 +486,15 @@ class ApiFFBBAppClient(DirectusClient):
         limit: int = 10,
         cached_session: CachedSession | None = None,
     ) -> list[GetCompetitionResponse | None]:
-        """Lists competitions."""
+        """Liste les competitions (paginee).
+
+        Args:
+            limit: Nombre max d'items (defaut: 10).
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            Liste de GetCompetitionResponse.
+        """
         data = self._list_items(
             ENDPOINT_COMPETITIONS,
             fields=CompetitionFields.get_fields(),
@@ -330,7 +512,19 @@ class ApiFFBBAppClient(DirectusClient):
         search: str | None = None,
         cached_session: CachedSession | None = None,
     ) -> list[GetRencontresResponse]:
-        """Lists rencontres."""
+        """Liste les rencontres (paginee) avec filtres optionnels.
+
+        Args:
+            limit: Nombre max d'items (defaut: 10).
+            filter_criteria: Filtre JSON Directus (ex: ``'{"joue":{"_eq":true}}'``).
+            sort: Champs de tri (ex: ``["date_rencontre"]``).
+            offset: Offset pour la pagination.
+            search: Recherche plein-texte Directus.
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            Liste de GetRencontresResponse.
+        """
         data = self._list_items(
             ENDPOINT_RENCONTRES,
             fields=RencontresFields.get_fields(),
@@ -350,7 +544,19 @@ class ApiFFBBAppClient(DirectusClient):
         search: str | None = None,
         cached_session: CachedSession | None = None,
     ) -> list[GetSallesResponse]:
-        """Lists salles."""
+        """Liste les salles (paginee) avec filtres optionnels.
+
+        Args:
+            limit: Nombre max d'items.
+            filter_criteria: Filtre JSON Directus.
+            sort: Champs de tri.
+            offset: Offset pagination.
+            search: Recherche plein-texte.
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            Liste de GetSallesResponse.
+        """
         data = self._list_items(
             ENDPOINT_SALLES,
             fields=SallesFields.get_fields(),
@@ -370,7 +576,19 @@ class ApiFFBBAppClient(DirectusClient):
         search: str | None = None,
         cached_session: CachedSession | None = None,
     ) -> list[GetTerrainsResponse]:
-        """Lists terrains."""
+        """Liste les terrains (paginee) avec filtres optionnels.
+
+        Args:
+            limit: Nombre max d'items.
+            filter_criteria: Filtre JSON Directus.
+            sort: Champs de tri.
+            offset: Offset pagination.
+            search: Recherche plein-texte.
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            Liste de GetTerrainsResponse.
+        """
         data = self._list_items(
             ENDPOINT_TERRAINS,
             fields=TerrainsFields.get_fields(),
@@ -390,7 +608,19 @@ class ApiFFBBAppClient(DirectusClient):
         search: str | None = None,
         cached_session: CachedSession | None = None,
     ) -> list[GetTournoisResponse]:
-        """Lists tournois."""
+        """Liste les tournois (paginee) avec filtres optionnels.
+
+        Args:
+            limit: Nombre max d'items.
+            filter_criteria: Filtre JSON Directus.
+            sort: Champs de tri.
+            offset: Offset pagination.
+            search: Recherche plein-texte.
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            Liste de GetTournoisResponse.
+        """
         data = self._list_items(
             ENDPOINT_TOURNOIS,
             fields=TournoisFields.get_fields(),
@@ -410,7 +640,19 @@ class ApiFFBBAppClient(DirectusClient):
         search: str | None = None,
         cached_session: CachedSession | None = None,
     ) -> list[GetEngagementsResponse]:
-        """Lists engagements."""
+        """Liste les engagements (paginee) avec filtres optionnels.
+
+        Args:
+            limit: Nombre max d'items.
+            filter_criteria: Filtre JSON Directus (ex: ``'{"idPoule":{"_eq":123}}'``).
+            sort: Champs de tri.
+            offset: Offset pagination.
+            search: Recherche plein-texte.
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            Liste de GetEngagementsResponse.
+        """
         data = self._list_items(
             ENDPOINT_ENGAGEMENTS,
             fields=EngagementsFields.get_fields(),
@@ -430,7 +672,19 @@ class ApiFFBBAppClient(DirectusClient):
         search: str | None = None,
         cached_session: CachedSession | None = None,
     ) -> list[GetFormationsResponse]:
-        """Lists formations."""
+        """Liste les formations (paginee) avec filtres optionnels.
+
+        Args:
+            limit: Nombre max d'items.
+            filter_criteria: Filtre JSON Directus.
+            sort: Champs de tri.
+            offset: Offset pagination.
+            search: Recherche plein-texte.
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            Liste de GetFormationsResponse.
+        """
         data = self._list_items(
             ENDPOINT_FORMATIONS,
             fields=FormationsFields.get_fields(),
@@ -450,7 +704,19 @@ class ApiFFBBAppClient(DirectusClient):
         search: str | None = None,
         cached_session: CachedSession | None = None,
     ) -> list[GetEntraineursResponse]:
-        """Lists entraineurs."""
+        """Liste les entraineurs (paginee) avec filtres optionnels.
+
+        Args:
+            limit: Nombre max d'items.
+            filter_criteria: Filtre JSON Directus.
+            sort: Champs de tri.
+            offset: Offset pagination.
+            search: Recherche plein-texte.
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            Liste de GetEntraineursResponse.
+        """
         data = self._list_items(
             ENDPOINT_ENTRAINEURS,
             fields=EntraineursFields.get_fields(),
@@ -470,7 +736,23 @@ class ApiFFBBAppClient(DirectusClient):
         search: str | None = None,
         cached_session: CachedSession | None = None,
     ) -> list[GetCommunesResponse]:
-        """Lists communes."""
+        """Liste les communes (paginee) avec filtres optionnels.
+
+        Feuille terminale — pas de FK a resoudre dans les items.
+        Utilisee pour resoudre les FK commune des autres entites :
+        ``list_communes(filter_criteria='{"id":{"_eq":N}}')``.
+
+        Args:
+            limit: Nombre max d'items.
+            filter_criteria: Filtre JSON Directus (ex: ``'{"id":{"_eq":42}}'``).
+            sort: Champs de tri.
+            offset: Offset pagination.
+            search: Recherche plein-texte (ex: ``"Paris"``).
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            Liste de GetCommunesResponse.
+        """
         data = self._list_items(
             ENDPOINT_COMMUNES,
             fields=CommunesFields.get_fields(),
@@ -490,7 +772,21 @@ class ApiFFBBAppClient(DirectusClient):
         search: str | None = None,
         cached_session: CachedSession | None = None,
     ) -> list[GetOfficielsResponse]:
-        """Lists officiels."""
+        """Liste les officiels (paginee) avec filtres optionnels.
+
+        Feuille terminale — pas de FK a resoudre.
+
+        Args:
+            limit: Nombre max d'items.
+            filter_criteria: Filtre JSON Directus.
+            sort: Champs de tri.
+            offset: Offset pagination.
+            search: Recherche plein-texte.
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            Liste de GetOfficielsResponse.
+        """
         data = self._list_items(
             ENDPOINT_OFFICIELS,
             fields=OfficielsFields.get_fields(),
@@ -510,7 +806,21 @@ class ApiFFBBAppClient(DirectusClient):
         search: str | None = None,
         cached_session: CachedSession | None = None,
     ) -> list[GetPratiquesResponse]:
-        """Lists pratiques."""
+        """Liste les pratiques (paginee) avec filtres optionnels.
+
+        Feuille terminale — pas de FK a resoudre.
+
+        Args:
+            limit: Nombre max d'items.
+            filter_criteria: Filtre JSON Directus.
+            sort: Champs de tri.
+            offset: Offset pagination.
+            search: Recherche plein-texte.
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            Liste de GetPratiquesResponse.
+        """
         data = self._list_items(
             ENDPOINT_PRATIQUES,
             fields=PratiquesFields.get_fields(),
@@ -532,7 +842,19 @@ class ApiFFBBAppClient(DirectusClient):
         max_items: int = 10000,
         cached_session: CachedSession | None = None,
     ) -> list[GetRencontresResponse]:
-        """Retrieves all rencontres with automatic pagination."""
+        """Recupere toutes les rencontres avec pagination automatique.
+
+        Args:
+            filter_criteria: Filtre JSON Directus.
+            sort: Champs de tri.
+            search: Recherche plein-texte.
+            page_size: Taille de page (defaut: 100).
+            max_items: Nombre max total d'items (defaut: 10000).
+            cached_session: Session HTTP cache optionnelle.
+
+        Returns:
+            Liste complete de GetRencontresResponse.
+        """
         return self._fetch_all_pages(
             endpoint=ENDPOINT_RENCONTRES,
             fields=RencontresFields.get_fields(),

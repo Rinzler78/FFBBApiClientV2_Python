@@ -36,7 +36,7 @@ FFBBApiClientV2_Python
     Modern Python client library for FFBB (French Basketball Federation) APIs
 
 
-**558 tests** | **95%+ coverage** | **MyPy strict** | **Python 3.10+** | **9 Meilisearch indexes**
+**1700+ tests** | **96%+ branch coverage** | **MyPy strict** | **Python 3.10+** | **9 Meilisearch indexes**
 
 ffbb_api_client_v2 is a modern Python client library for interacting with the French Basketball Federation (FFBB) APIs.
 It provides a comprehensive interface to retrieve information about clubs, teams, competitions, matches, seasons, and more.
@@ -292,7 +292,7 @@ API Reference
 Testing
 =======
 
-The library includes comprehensive test coverage: **558 unit tests, 95%+ coverage**.
+The library includes comprehensive test coverage: **1700+ unit tests, 96%+ branch coverage**.
 
 .. code-block:: bash
 
@@ -313,6 +313,8 @@ Interactive notebooks and scripts are available in the ``examples/`` directory:
 - ``examples/simple_rating_notebook.ipynb`` - Elo rating analysis for a championship
 - ``examples/projection_notebook.ipynb`` - End-of-season projection
 - ``examples/basketball_dashboard.py`` - Interactive Streamlit dashboard
+- ``examples/user_journeys.py`` - End-to-end user journey examples
+- ``docs/api_architecture.md`` - API architecture and data model documentation
 
 Licence
 =======
