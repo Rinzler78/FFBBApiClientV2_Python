@@ -35,12 +35,10 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from requests_cache import CachedSession as RawCachedSession
+
 import ffbb_api_client_v2.directus_ffbb.config as _directus_config
 import ffbb_api_client_v2.meilisearch_ffbb.config as _meili_config
-from ffbb_api_client_v2._http.client import (
-    HttpClient,
-    url_with_params,
-)
 from ffbb_api_client_v2.config import (
     MEILISEARCH_BASE_URL,
     MEILISEARCH_ENDPOINT_MULTI_SEARCH,
@@ -48,10 +46,7 @@ from ffbb_api_client_v2.config import (
 from ffbb_api_client_v2.directus.client import DEFAULT_USER_AGENT
 from ffbb_api_client_v2.directus_ffbb.config import (
     API_FFBB_BASE_URL,
-)
-from ffbb_api_client_v2.facade.token_manager import TokenManager
-from ffbb_api_client_v2.utils.cache_manager import (
-    ThreadSafeCachedSession as CachedSession,
+    ENDPOINT_CONFIGURATION,
 )
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -148,7 +143,7 @@ logger = logging.getLogger(__name__)
 MEILI_BATCH_SIZE = 1000  # MeiliSearch supports large batches
 MEILI_MAX_HITS = 5000
 REST_PAGE_SIZE = 1000  # large pages = fewer HTTP round-trips
-REST_MAX_ITEMS = 5000
+REST_MAX_ITEMS = 100_000  # collect as much data as possible
 REST_RETRY_MAX = 3  # retry 502/504 errors
 REST_RETRY_BACKOFF = 5.0  # seconds initial backoff for retries
 REST_PARALLEL_WORKERS = os.cpu_count() or 8  # use all CPU threads
@@ -164,29 +159,160 @@ MODEL_DIRS = [
 
 
 # ---------------------------------------------------------------------------
-# Cache setup — thread-local sessions with WAL mode
+# FK chain map — cross-endpoint relations for deeper discovery
 # ---------------------------------------------------------------------------
-_thread_local = threading.local()
+FK_CHAIN_MAP: dict[tuple[str, str], str] = {
+    # (source_endpoint, fk_json_key) -> target_endpoint
+    ("rencontres", "competitionId"): "competitions",
+    ("rencontres", "idOrganismeEquipe1"): "organismes",
+    ("rencontres", "idOrganismeEquipe2"): "organismes",
+    ("rencontres", "idPoule"): "poules",
+    ("rencontres", "salle"): "salles",
+    ("rencontres", "saison"): "saisons",
+    ("competitions", "saison"): "saisons",
+    ("competitions", "organisateur"): "organismes",
+    ("competitions", "competition_origine"): "competitions",
+    ("engagements", "idCompetition"): "competitions",
+    ("engagements", "idOrganisme"): "organismes",
+    ("engagements", "idPoule"): "poules",
+    ("organismes", "commune"): "communes",
+    ("organismes", "salle"): "salles",
+    ("organismes", "organisme_id_pere"): "organismes",
+    ("poules", "id_competition"): "competitions",
+    ("tournois", "commune"): "communes",
+}
 
 
-def get_cached_session() -> CachedSession:
-    """Return a thread-local sqlite-backed cached session.
+# ---------------------------------------------------------------------------
+# RawHttpClient — direct HTTP using requests + requests_cache
+# ---------------------------------------------------------------------------
+class RawHttpClient:
+    """HTTP client using requests directly (not the lib's HttpClient).
 
-    Each thread gets ONE session (reused across all requests in that thread).
-    WAL mode enables concurrent reads across threads without lock contention.
-    POST is allowed for MeiliSearch multi-search requests.
+    Uses requests_cache with SQLite WAL for thread-safe caching.
     """
-    if not hasattr(_thread_local, "session"):
-        cache_path = DATA_DIR / "discover_types_cache"
-        cache_path.parent.mkdir(parents=True, exist_ok=True)
-        _thread_local.session = CachedSession(
-            str(cache_path),
-            backend="sqlite",
-            expire_after=CACHE_TTL,
-            allowable_methods=("GET", "POST"),
-            wal=True,
-        )
-    return _thread_local.session
+
+    def __init__(self, cache_dir: Path, cache_ttl: int = CACHE_TTL):
+        self._cache_dir = cache_dir
+        self._cache_ttl = cache_ttl
+        self._thread_local = threading.local()
+
+    def _get_session(self) -> RawCachedSession:
+        """Return a thread-local cached session."""
+        if not hasattr(self._thread_local, "session"):
+            cache_path = self._cache_dir / "discover_types_cache"
+            cache_path.parent.mkdir(parents=True, exist_ok=True)
+            self._thread_local.session = RawCachedSession(
+                str(cache_path),
+                backend="sqlite",
+                expire_after=self._cache_ttl,
+                allowable_methods=("GET", "POST"),
+                wal=True,
+            )
+        return self._thread_local.session
+
+    @staticmethod
+    def build_url(
+        base: str, endpoint: str, params: dict[str, Any] | None = None
+    ) -> str:
+        """Build URL with [] not encoded (Directus returns 403 on %5B%5D)."""
+        url = f"{base}{endpoint}"
+        if not params:
+            return url
+        parts: list[str] = []
+        for key, val in params.items():
+            if isinstance(val, list):
+                for v in val:
+                    parts.append(f"{key}={v}")
+            elif val is not None:
+                parts.append(f"{key}={val}")
+        return f"{url}?{'&'.join(parts)}"
+
+    def get_json(
+        self,
+        url: str,
+        headers: dict[str, str],
+        timeout: int = 60,
+        max_retries: int = REST_RETRY_MAX,
+        backoff: float = REST_RETRY_BACKOFF,
+    ) -> dict[str, Any] | list[Any] | None:
+        """GET with retry on 502/504, skip on 403/404."""
+        session = self._get_session()
+        for attempt in range(max_retries + 1):
+            try:
+                response = session.get(url, headers=headers, timeout=timeout)
+                cached = getattr(response, "from_cache", False)
+                logger.debug(
+                    "  [cache %s] GET %s",
+                    "HIT" if cached else "MISS",
+                    url[:120],
+                )
+                status = response.status_code
+                if status in (403, 404):
+                    logger.debug("  [%d] GET %s — skipped", status, url[:100])
+                    return None
+                if status >= 500:
+                    raise RuntimeError(f"HTTP {status}")
+                response.raise_for_status()
+                return response.json()
+            except Exception as exc:
+                exc_str = str(exc)
+                is_retryable = any(
+                    code in exc_str for code in ("502", "504", "timed out")
+                )
+                if is_retryable and attempt < max_retries:
+                    wait = backoff * (2**attempt)
+                    logger.warning(
+                        "GET %s failed (attempt %d/%d): %s — retrying in %.0fs",
+                        url[:100],
+                        attempt + 1,
+                        max_retries + 1,
+                        exc,
+                        wait,
+                    )
+                    time.sleep(wait)
+                else:
+                    logger.warning("GET %s failed: %s", url[:100], exc)
+                    return None
+        return None
+
+    def post_json(
+        self,
+        url: str,
+        headers: dict[str, str],
+        payload: dict[str, Any],
+        timeout: int = 60,
+    ) -> dict[str, Any] | None:
+        """POST for MeiliSearch multi-search."""
+        session = self._get_session()
+        try:
+            response = session.post(url, headers=headers, json=payload, timeout=timeout)
+            cached = getattr(response, "from_cache", False)
+            logger.debug(
+                "  [cache %s] POST %s",
+                "HIT" if cached else "MISS",
+                url[:100],
+            )
+            response.raise_for_status()
+            return response.json()
+        except Exception as exc:
+            logger.warning("POST %s failed: %s", url[:100], exc)
+            return None
+
+    def acquire_tokens(self) -> tuple[str, str]:
+        """Get API + MeiliSearch tokens from env vars or /items/configuration."""
+        api = os.getenv("API_FFBB_APP_BEARER_TOKEN")
+        meili = os.getenv("MEILISEARCH_BEARER_TOKEN")
+        if api and meili:
+            return api, meili
+
+        url = f"{API_FFBB_BASE_URL}{ENDPOINT_CONFIGURATION}"
+        session = self._get_session()
+        resp = session.get(url, headers={"user-agent": DEFAULT_USER_AGENT}, timeout=30)
+        resp.raise_for_status()
+        data = resp.json()
+        actual = data.get("data", data)
+        return actual["key_dh"], actual["key_ms"]
 
 
 # ---------------------------------------------------------------------------
@@ -590,13 +716,14 @@ NAME_TYPE_HINTS: list[tuple[re.Pattern[str], str, str]] = [
         "from_datetime",
     ),
     (
-        re.compile(r"(^focal_point_|^latitude$|^longitude$|_x$|_y$|^tarif|_hours$)"),
+        re.compile(r"(^focal_point_|^latitude$|^longitude$|_x$|_y$|^tarif)"),
         "float | None",
         "from_float",
     ),
     (
         re.compile(
-            r"(^numero|^nb_|_count$|^position$|^ordre$|^age_|^duration$"
+            r"(^numero_journee$|^numero_equipe$|^numero_equ$|^numeroJournee$|^numeroEquipe$"
+            r"|^nb_|_count$|^position$|^ordre$|^age_|^duration$"
             r"|^sort$|_prevu$|^capacite|^filesize$|^width$|^height$)"
         ),
         "int | None",
@@ -639,10 +766,12 @@ class PathStats:
     list_element_types: dict[str, int] = field(default_factory=dict)
     list_element_key_sets: list[frozenset[str]] = field(default_factory=list)
     unique_str_values: set[str] = field(default_factory=set)
+    all_values: set[Any] = field(default_factory=set)
 
-    MAX_SAMPLES = 10
-    MAX_KEY_SETS = 20
-    MAX_UNIQUE_STR = 500
+    MAX_SAMPLES = 50
+    MAX_KEY_SETS = 50
+    MAX_UNIQUE_STR = 2000
+    MAX_ALL_VALUES = 50_000
 
     def add_value(self, value: Any) -> None:
         self.total += 1
@@ -656,6 +785,11 @@ class PathStats:
             self.samples.append(value)
         if isinstance(value, str) and len(self.unique_str_values) < self.MAX_UNIQUE_STR:
             self.unique_str_values.add(value)
+
+        # Track all hashable values for better inference
+        if isinstance(value, (str, int, float, bool)):
+            if len(self.all_values) < self.MAX_ALL_VALUES:
+                self.all_values.add(value)
 
         if isinstance(value, dict) and len(self.dict_key_sets) < self.MAX_KEY_SETS:
             self.dict_key_sets.append(frozenset(value.keys()))
@@ -698,6 +832,13 @@ class PathStats:
         else:
             self.unique_str_values = set(list(merged_str)[: self.MAX_UNIQUE_STR])
 
+        # Merge all_values
+        merged_all = self.all_values | other.all_values
+        if len(merged_all) <= self.MAX_ALL_VALUES:
+            self.all_values = merged_all
+        else:
+            self.all_values = set(list(merged_all)[: self.MAX_ALL_VALUES])
+
     def to_dict(self) -> dict[str, Any]:
         safe_samples = []
         for s in self.samples:
@@ -726,6 +867,8 @@ class PathStats:
         if self.unique_str_values:
             result["unique_str_values"] = sorted(self.unique_str_values)
             result["unique_str_count"] = len(self.unique_str_values)
+        if self.all_values:
+            result["all_values_count"] = len(self.all_values)
         return result
 
 
@@ -785,6 +928,7 @@ UUID_RE = re.compile(
     r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
     re.IGNORECASE,
 )
+DURATION_RE = re.compile(r"^\d+h\d{2}$")
 
 
 @dataclass
@@ -843,12 +987,7 @@ class TypeInferrer:
             if stats.non_none_count > 0:
                 inferred_type, converter = self._infer_from_observed(stats, prop)
                 method = "data"
-                if inferred_type == "str | None":
-                    hint = infer_from_name(prop.python_name)
-                    if hint:
-                        inferred_type, converter_fn = hint
-                        converter = f'{converter_fn}(obj, "{prop.json_key}")'
-                        method = "name_hint"
+                # No fallback to name_hint: observed data primes over field name
             else:
                 hint = infer_from_name(prop.python_name)
                 if hint:
@@ -1022,13 +1161,12 @@ class TypeInferrer:
 
         if len(type_counts) == 1:
             type_name = next(iter(type_counts))
-            return self._infer_single(type_name, stats.samples, prop.json_key)
+            return self._infer_single(type_name, stats, prop.json_key)
 
         type_parts: list[str] = []
         converter_parts: list[str] = []
         for tn in sorted(type_counts.keys()):
-            type_samples = [s for s in stats.samples if type(s).__name__ == tn]
-            py_type, conv = self._infer_single(tn, type_samples, prop.json_key)
+            py_type, conv = self._infer_single(tn, stats, prop.json_key)
             py_type = py_type.replace(" | None", "")
             type_parts.append(py_type)
             converter_parts.append(conv.split("(")[0])
@@ -1041,10 +1179,10 @@ class TypeInferrer:
 
     @staticmethod
     def _infer_single(
-        type_name: str, samples: list[Any], json_key: str
+        type_name: str, stats: PathStats, json_key: str
     ) -> tuple[str, str]:
         if type_name == "str":
-            return TypeInferrer._refine_str(samples, json_key)
+            return TypeInferrer._refine_str(stats, json_key)
         if type_name == "int":
             return "int | None", f'from_int(obj, "{json_key}")'
         if type_name == "float":
@@ -1058,50 +1196,271 @@ class TypeInferrer:
         return f"{type_name} | None", "# unknown type"
 
     @staticmethod
-    def _refine_str(samples: list[Any], json_key: str) -> tuple[str, str]:
-        str_samples = [s for s in samples if isinstance(s, str)]
-        if not str_samples:
+    def _refine_str(stats: PathStats, json_key: str) -> tuple[str, str]:
+        # Use all_values (complete set) for better inference
+        str_values = {v for v in stats.all_values if isinstance(v, str)}
+        if not str_values:
+            # Fallback to samples if all_values is empty
+            str_values = {s for s in stats.samples if isinstance(s, str)}
+        if not str_values:
             return "str | None", f'from_str(obj, "{json_key}")'
 
-        dt_matches = sum(1 for s in str_samples if ISO_DATETIME_RE.match(s))
-        if dt_matches == len(str_samples):
+        if all(ISO_DATETIME_RE.match(s) for s in str_values):
             return "datetime | None", f'from_datetime(obj, "{json_key}")'
 
-        uuid_matches = sum(1 for s in str_samples if UUID_RE.match(s))
-        if uuid_matches == len(str_samples):
+        if all(UUID_RE.match(s) for s in str_values):
             return "UUID | None", f'from_uuid(obj, "{json_key}")'
+
+        if all(DURATION_RE.match(s) for s in str_values):
+            return "timedelta | None", f'from_duration(obj, "{json_key}")'
 
         return "str | None", f'from_str(obj, "{json_key}")'
 
 
 # ---------------------------------------------------------------------------
-# RawDataCollector — cached HTTP calls, returns items in-memory
+# CollectionResult — output of data collection operations
 # ---------------------------------------------------------------------------
-class RawDataCollector:
-    """Makes cached HTTP calls to MeiliSearch and REST APIs.
+@dataclass
+class CollectionResult:
+    """Result of a single data collection operation."""
 
-    Each public method creates its own thread-local CachedSession
-    for thread safety (SQLite connections are not shareable across threads).
-    """
+    name: str
+    source: str  # "rest" or "meili"
+    filepath: str
+    prefix: str
+    count: int
 
-    def __init__(self, api_token: str, meili_token: str) -> None:
-        self.api_headers = {
+
+def _deduplicate_items(items_list: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Deduplicate by ID, preferring items with more keys (deeper)."""
+    by_id: dict[str, dict[str, Any]] = {}
+    for item in items_list:
+        item_id = str(item.get("id", id(item)))
+        if item_id in by_id:
+            if len(item) > len(by_id[item_id]):
+                by_id[item_id] = item
+        else:
+            by_id[item_id] = item
+    return list(by_id.values())
+
+
+# ---------------------------------------------------------------------------
+# WaveCollector — 3-wave data collection with FK chaining
+# ---------------------------------------------------------------------------
+class WaveCollector:
+    """Collect data in 3 waves: lists, single-items, FK chains."""
+
+    def __init__(
+        self,
+        http: RawHttpClient,
+        endpoints_dir: Path,
+        workers: int,
+        endpoint_fields_map: dict[str, list[str]],
+        endpoint_map: dict[str, str],
+        meili_index_uids: list[str],
+    ):
+        self.http = http
+        self.endpoints_dir = endpoints_dir
+        self.workers = workers
+        self.endpoint_fields_map = endpoint_fields_map
+        self.endpoint_map = endpoint_map
+        self.meili_index_uids = meili_index_uids
+        self.collected_ids: dict[str, set[str]] = {}
+
+    def collect_all(
+        self,
+        api_token: str,
+        meili_token: str,
+        *,
+        skip_deep: bool = False,
+    ) -> list[CollectionResult]:
+        """Run all collection waves."""
+        api_headers = {
             "user-agent": DEFAULT_USER_AGENT,
             "Authorization": f"Bearer {api_token}",
         }
-        self.meili_headers = {
+        meili_headers = {
             "user-agent": DEFAULT_USER_AGENT,
             "Authorization": f"Bearer {meili_token}",
             "Content-Type": "application/json",
-            "Accept-Encoding": "gzip, deflate",  # avoid brotli decode errors
+            "Accept-Encoding": "gzip, deflate",
         }
-        self.meili_url = f"{MEILISEARCH_BASE_URL}{MEILISEARCH_ENDPOINT_MULTI_SEARCH}"
 
-    # -- MeiliSearch --------------------------------------------------------
+        # Wave 1: lists + MeiliSearch
+        logger.info(
+            "Wave 1: Fetch all lists + MeiliSearch (ThreadPool, %d workers)...",
+            self.workers,
+        )
+        t_w1 = time.monotonic()
+        wave1 = self._wave1_fetch_lists(api_headers, meili_headers)
+        self._extract_ids(wave1)
+        logger.info(
+            "Wave 1 done in %.1fs — %d endpoints, IDs: %s",
+            time.monotonic() - t_w1,
+            len(wave1),
+            {k: len(v) for k, v in self.collected_ids.items()},
+        )
 
-    def collect_meili_items(self, index_uid: str) -> list[dict[str, Any]]:
-        """Paginate a MeiliSearch index, return all hits in memory."""
-        session = get_cached_session()
+        if skip_deep:
+            logger.info("Wave 2+3 skipped (--no-chained)")
+            return wave1
+
+        # Wave 2: single-item fetches for all collected IDs
+        logger.info(
+            "Wave 2: Single-item fetches (ThreadPool, %d workers)...", self.workers
+        )
+        t_w2 = time.monotonic()
+        wave2 = self._wave2_single_item_fetches(api_headers)
+        all_results = wave1 + wave2
+        logger.info(
+            "Wave 2 done in %.1fs — %d endpoints fetched",
+            time.monotonic() - t_w2,
+            len(wave2),
+        )
+
+        # Wave 3+: FK chain resolution loop
+        logger.info("Wave 3+: FK chain resolution...")
+        t_w3 = time.monotonic()
+        fk_to_resolve = self._extract_fk_ids(all_results)
+        wave_num = 3
+        while fk_to_resolve:
+            logger.info(
+                "  Wave %d: %s FKs to resolve",
+                wave_num,
+                {k: len(v) for k, v in fk_to_resolve.items()},
+            )
+            wave_n = self._wave_fk_resolve(api_headers, fk_to_resolve, wave_num)
+            if not wave_n:
+                logger.info("  Wave %d: no new items — stopping", wave_num)
+                break
+            all_results.extend(wave_n)
+            fk_to_resolve = self._extract_fk_ids(wave_n)
+            wave_num += 1
+
+        logger.info(
+            "Wave 3+ done in %.1fs — %d total FK waves",
+            time.monotonic() - t_w3,
+            wave_num - 3,
+        )
+        return all_results
+
+    # -- Wave 1 -------------------------------------------------------------
+
+    def _wave1_fetch_lists(
+        self,
+        api_headers: dict[str, str],
+        meili_headers: dict[str, str],
+    ) -> list[CollectionResult]:
+        """Fetch all paginated REST endpoints + MeiliSearch + specials."""
+        results: list[CollectionResult] = []
+        special_endpoints = {"lives", "configuration", "saisons"}
+
+        with ThreadPoolExecutor(max_workers=self.workers) as ex:
+            futures: dict[Any, str] = {}
+
+            # Paginated REST endpoints
+            for name, path in sorted(self.endpoint_map.items()):
+                if name in special_endpoints:
+                    continue
+                futures[
+                    ex.submit(self._fetch_rest_paginated, path, name, api_headers)
+                ] = name
+
+            # MeiliSearch indexes
+            for uid in self.meili_index_uids:
+                futures[ex.submit(self._fetch_meili_index, uid, meili_headers)] = uid
+
+            # Special endpoints
+            for special_name in sorted(special_endpoints):
+                ep = self.endpoint_map.get(special_name)
+                if not ep:
+                    continue
+                futures[
+                    ex.submit(self._fetch_rest_special, ep, special_name, api_headers)
+                ] = special_name
+
+            for future in as_completed(futures):
+                ep_name = futures[future]
+                try:
+                    result = future.result()
+                    if result:
+                        results.append(result)
+                except Exception as exc:
+                    logger.error("  [fail] %s: %s", ep_name, exc)
+
+        return results
+
+    def _fetch_rest_paginated(
+        self, endpoint: str, name: str, headers: dict[str, str]
+    ) -> CollectionResult | None:
+        """Fetch + save a paginated REST endpoint."""
+        fields = self.endpoint_fields_map.get(name)
+        if fields:
+            logger.info("  [%s] using %d defined fields", name, len(fields))
+        else:
+            logger.warning("  [%s] no fields definition found, using wildcard", name)
+            fields = ["*.*"]
+
+        t_start = time.monotonic()
+        seen_ids: set[str] = set()
+        items: list[dict[str, Any]] = []
+        offset = 0
+        page = 0
+
+        while len(items) < REST_MAX_ITEMS:
+            params: dict[str, Any] = {"limit": REST_PAGE_SIZE, "offset": offset}
+            if fields:
+                params["fields[]"] = fields
+            url = RawHttpClient.build_url(API_FFBB_BASE_URL, endpoint, params)
+            resp = self.http.get_json(url, headers)
+            if not resp:
+                break
+
+            data = resp.get("data", resp) if isinstance(resp, dict) else resp
+            if isinstance(data, list):
+                if not data:
+                    break
+                for item in data:
+                    item_id = str(item.get("id", ""))
+                    if item_id and item_id in seen_ids:
+                        continue
+                    if item_id:
+                        seen_ids.add(item_id)
+                    items.append(item)
+                if page == 0 or (page + 1) % 10 == 0 or len(data) < REST_PAGE_SIZE:
+                    logger.info(
+                        "  [%s] page %d — %d items (total: %d)",
+                        name,
+                        page + 1,
+                        len(data),
+                        len(items),
+                    )
+                if len(data) < REST_PAGE_SIZE:
+                    break
+            elif isinstance(data, dict):
+                items.append(data)
+                break
+            else:
+                break
+
+            offset += REST_PAGE_SIZE
+            page += 1
+
+        t_fetch = time.monotonic() - t_start
+        if not items:
+            logger.info("  [%s] fetch: %.1fs — 0 items", name, t_fetch)
+            return None
+
+        filepath = self.endpoints_dir / f"rest_{name}.json"
+        self._save_items(filepath, items)
+        logger.info("  [%s] %d items — fetch=%.1fs", name, len(items), t_fetch)
+        return CollectionResult(name, "rest", str(filepath), f"rest/{name}", len(items))
+
+    def _fetch_meili_index(
+        self, index_uid: str, headers: dict[str, str]
+    ) -> CollectionResult | None:
+        """Fetch + save a MeiliSearch index."""
+        meili_url = f"{MEILISEARCH_BASE_URL}{MEILISEARCH_ENDPOINT_MULTI_SEARCH}"
         offset = 0
         all_hits: list[dict[str, Any]] = []
         t_start = time.monotonic()
@@ -1116,24 +1475,8 @@ class RawDataCollector:
                     }
                 ]
             }
-            try:
-                response = session.post(
-                    self.meili_url,
-                    headers=self.meili_headers,
-                    json=payload,
-                    timeout=60,
-                )
-                cached = getattr(response, "from_cache", False)
-                logger.debug(
-                    "  [cache %s] POST %s offset=%d",
-                    "HIT" if cached else "MISS",
-                    index_uid,
-                    offset,
-                )
-                HttpClient.check_response_errors(response)
-                resp = HttpClient.to_json_from_response(response)
-            except Exception as exc:
-                logger.warning("[%s] offset=%d failed: %s", index_uid, offset, exc)
+            resp = self.http.post_json(meili_url, headers, payload)
+            if not resp:
                 break
 
             results = resp.get("results", [])
@@ -1159,159 +1502,292 @@ class RawDataCollector:
                 break
             offset += MEILI_BATCH_SIZE
 
-        return all_hits
+        t_fetch = time.monotonic() - t_start
+        if not all_hits:
+            logger.info("  [%s] fetch: %.1fs — 0 hits", index_uid, t_fetch)
+            return None
 
-    # -- REST ---------------------------------------------------------------
+        filepath = self.endpoints_dir / f"meili_{index_uid}.json"
+        self._save_items(filepath, all_hits)
+        logger.info("  [%s] %d hits — fetch=%.1fs", index_uid, len(all_hits), t_fetch)
+        return CollectionResult(
+            index_uid,
+            "meili",
+            str(filepath),
+            f"meilisearch/{index_uid}/hits[]",
+            len(all_hits),
+        )
 
-    def _rest_get(
-        self,
-        url: str,
-        session: CachedSession,
-        timeout: int = 60,
-    ) -> dict[str, Any] | None:
-        for attempt in range(REST_RETRY_MAX + 1):
-            try:
-                response = session.get(url, headers=self.api_headers, timeout=timeout)
-                cached = getattr(response, "from_cache", False)
-                logger.info(
-                    "  [cache %s] GET %s", "HIT" if cached else "MISS", url[:100]
-                )
-                HttpClient.check_response_errors(response)
-                return HttpClient.to_json_from_response(response)
-            except Exception as exc:
-                exc_str = str(exc)
-                is_retryable = any(
-                    code in exc_str for code in ("502", "504", "timed out")
-                )
-                if is_retryable and attempt < REST_RETRY_MAX:
-                    wait = REST_RETRY_BACKOFF * (2**attempt)
-                    logger.warning(
-                        "REST GET %s failed (attempt %d/%d): %s — retrying in %.0fs",
-                        url,
-                        attempt + 1,
-                        REST_RETRY_MAX + 1,
-                        exc,
-                        wait,
-                    )
-                    time.sleep(wait)
-                else:
-                    logger.warning("REST GET %s failed: %s", url, exc)
-                    return None
-        return None
-
-    def collect_rest_items(
-        self,
-        endpoint: str,
-        fields: list[str] | None = None,
-    ) -> list[dict[str, Any]]:
-        """Paginate a REST endpoint, return all items in memory (deduplicated)."""
-        session = get_cached_session()
-        seen_ids: set[str] = set()
-        items: list[dict[str, Any]] = []
-        offset = 0
-        page = 0
+    def _fetch_rest_special(
+        self, endpoint: str, name: str, headers: dict[str, str]
+    ) -> CollectionResult | None:
+        """Fetch + save a special endpoint (lives, configuration, saisons)."""
+        fields = self.endpoint_fields_map.get(name, ["*.*"])
         t_start = time.monotonic()
 
-        while len(items) < REST_MAX_ITEMS:
-            params: dict[str, Any] = {"limit": REST_PAGE_SIZE, "offset": offset}
+        if name == "lives":
+            url = f"{API_FFBB_BASE_URL}{endpoint}"
+            resp = self.http.get_json(url, headers)
+            if not resp:
+                return None
+            items = resp if isinstance(resp, list) else [resp]
+        else:
+            params: dict[str, Any] = {}
             if fields:
                 params["fields[]"] = fields
-            base_url = f"{API_FFBB_BASE_URL}{endpoint}"
-            url = url_with_params(base_url, params)
-
-            resp = self._rest_get(url, session)
+            url = RawHttpClient.build_url(API_FFBB_BASE_URL, endpoint, params)
+            resp = self.http.get_json(url, headers)
             if not resp:
-                break
-
-            data = resp.get("data", resp)
+                return None
+            data = resp.get("data", resp) if isinstance(resp, dict) else resp
             if isinstance(data, list):
-                if not data:
-                    break
-                for item in data:
-                    item_id = str(item.get("id", ""))
-                    if item_id and item_id in seen_ids:
-                        continue
-                    if item_id:
-                        seen_ids.add(item_id)
-                    items.append(item)
-                elapsed = time.monotonic() - t_start
-                if page == 0 or (page + 1) % 10 == 0 or len(data) < REST_PAGE_SIZE:
-                    logger.info(
-                        "  [%s] page %d — %d items (total: %d) — %.1fs",
-                        endpoint,
-                        page + 1,
-                        len(data),
-                        len(items),
-                        elapsed,
-                    )
-                if len(data) < REST_PAGE_SIZE:
-                    break
+                items = data
             elif isinstance(data, dict):
-                items.append(data)
-                break
+                items = [data]
             else:
-                break
+                items = []
 
-            offset += REST_PAGE_SIZE
-            page += 1
+        t_fetch = time.monotonic() - t_start
+        if not items:
+            logger.info("  [%s] fetch: %.1fs — 0 items", name, t_fetch)
+            return None
 
-        return items
+        filepath = self.endpoints_dir / f"rest_{name}.json"
+        self._save_items(filepath, items)
+        logger.info("  [%s] %d items — fetch=%.1fs", name, len(items), t_fetch)
+        return CollectionResult(name, "rest", str(filepath), f"rest/{name}", len(items))
 
-    def collect_rest_single(
-        self, endpoint: str, fields: list[str] | None = None
-    ) -> list[dict[str, Any]]:
-        """Fetch a single-page endpoint."""
-        session = get_cached_session()
-        base_url = f"{API_FFBB_BASE_URL}{endpoint}"
-        params: dict[str, Any] = {}
-        if fields:
-            params["fields[]"] = fields
-        url = url_with_params(base_url, params) if params else base_url
+    # -- Wave 2 -------------------------------------------------------------
 
-        resp = self._rest_get(url, session)
-        if not resp:
-            return []
+    def _wave2_single_item_fetches(
+        self, headers: dict[str, str]
+    ) -> list[CollectionResult]:
+        """Fetch individual items by ID for each REST endpoint."""
+        results: list[CollectionResult] = []
 
-        data = resp.get("data", resp)
-        if isinstance(data, list):
-            return data
-        if isinstance(data, dict):
-            return [data]
-        return []
+        # Only REST endpoints with collected IDs
+        endpoints_with_ids = [
+            (name, ids)
+            for name, ids in self.collected_ids.items()
+            if name in self.endpoint_map and ids
+        ]
 
-    CHAINED_SAMPLE_SIZE = 50
+        if not endpoints_with_ids:
+            return results
 
-    def collect_rest_chained(
+        with ThreadPoolExecutor(max_workers=self.workers) as ex:
+            futures: dict[Any, str] = {}
+            for name, ids in endpoints_with_ids:
+                futures[
+                    ex.submit(
+                        self._fetch_single_items,
+                        name,
+                        sorted(ids),
+                        headers,
+                    )
+                ] = name
+
+            for future in as_completed(futures):
+                ep_name = futures[future]
+                try:
+                    result = future.result()
+                    if result:
+                        results.append(result)
+                except Exception as exc:
+                    logger.error("  [wave2-fail] %s: %s", ep_name, exc)
+
+        return results
+
+    def _fetch_single_items(
         self,
-        endpoint: str,
+        name: str,
         item_ids: list[str],
-        fields: list[str] | None = None,
-    ) -> list[dict[str, Any]]:
-        """Fetch individual items by ID for deeper field discovery."""
-        session = get_cached_session()
-        fields = fields or ["*.*"]
+        headers: dict[str, str],
+    ) -> CollectionResult | None:
+        """Fetch individual items by ID for one endpoint."""
+        endpoint = self.endpoint_map[name]
+        fields = self.endpoint_fields_map.get(name, ["*.*"])
         items: list[dict[str, Any]] = []
-        for item_id in item_ids[: self.CHAINED_SAMPLE_SIZE]:
+
+        for item_id in item_ids:
             params: dict[str, Any] = {"fields[]": fields}
-            base_url = f"{API_FFBB_BASE_URL}{endpoint}/{item_id}"
-            url = url_with_params(base_url, params)
-            resp = self._rest_get(url, session)
+            url = RawHttpClient.build_url(
+                API_FFBB_BASE_URL, f"{endpoint}/{item_id}", params
+            )
+            resp = self.http.get_json(url, headers)
             if resp:
-                data = resp.get("data", resp)
+                data = resp.get("data", resp) if isinstance(resp, dict) else resp
                 if isinstance(data, dict):
                     items.append(data)
-        return items
 
-    def collect_lives(self, endpoint: str) -> list[dict[str, Any]]:
-        """Fetch the lives endpoint."""
-        session = get_cached_session()
-        url = f"{API_FFBB_BASE_URL}{endpoint}"
-        resp = self._rest_get(url, session)
-        if not resp:
-            return []
-        if isinstance(resp, list):
-            return resp
-        return [resp]
+        if not items:
+            return None
+
+        filepath = self.endpoints_dir / f"rest_{name}_single.json"
+        self._save_items(filepath, items)
+        logger.info(
+            "  [wave2] [%s] %d/%d items fetched", name, len(items), len(item_ids)
+        )
+
+        # Register newly discovered IDs
+        for item in items:
+            item_id = str(item.get("id", ""))
+            if item_id:
+                self.collected_ids.setdefault(name, set()).add(item_id)
+
+        return CollectionResult(name, "rest", str(filepath), f"rest/{name}", len(items))
+
+    # -- Wave 3+: FK chain resolution --------------------------------------
+
+    def _extract_fk_ids(self, results: list[CollectionResult]) -> dict[str, set[str]]:
+        """Scan results for FK IDs that need resolution."""
+        fk_to_resolve: dict[str, set[str]] = {}
+
+        for result in results:
+            if result.source != "rest":
+                continue
+
+            try:
+                with open(result.filepath, encoding="utf-8") as f:
+                    items = json.load(f)
+            except Exception:
+                continue
+
+            if not isinstance(items, list):
+                continue
+
+            for item in items:
+                if not isinstance(item, dict):
+                    continue
+                for (src_ep, fk_key), target_ep in FK_CHAIN_MAP.items():
+                    if result.name != src_ep:
+                        continue
+                    value = item.get(fk_key)
+                    fk_id = self._extract_fk_id(value)
+                    if fk_id is None:
+                        continue
+                    # Skip if already collected
+                    if fk_id in self.collected_ids.get(target_ep, set()):
+                        continue
+                    # Skip if target endpoint not configured
+                    if target_ep not in self.endpoint_map:
+                        continue
+                    fk_to_resolve.setdefault(target_ep, set()).add(fk_id)
+
+        return fk_to_resolve
+
+    @staticmethod
+    def _extract_fk_id(value: Any) -> str | None:
+        """Extract ID from a FK value. None if null or expanded object."""
+        if value is None:
+            return None
+        if isinstance(value, (int, float)):
+            return str(int(value))
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+        # If it's a dict (expanded object), skip — data already present
+        return None
+
+    def _wave_fk_resolve(
+        self,
+        headers: dict[str, str],
+        fk_to_resolve: dict[str, set[str]],
+        wave_num: int,
+    ) -> list[CollectionResult]:
+        """Fetch FK-referenced items in parallel."""
+        results: list[CollectionResult] = []
+
+        with ThreadPoolExecutor(max_workers=self.workers) as ex:
+            futures: dict[Any, str] = {}
+            for target_ep, ids in fk_to_resolve.items():
+                futures[
+                    ex.submit(
+                        self._fetch_fk_items,
+                        target_ep,
+                        sorted(ids),
+                        headers,
+                        wave_num,
+                    )
+                ] = target_ep
+
+            for future in as_completed(futures):
+                ep_name = futures[future]
+                try:
+                    result = future.result()
+                    if result:
+                        results.append(result)
+                except Exception as exc:
+                    logger.error("  [fk-fail] %s: %s", ep_name, exc)
+
+        return results
+
+    def _fetch_fk_items(
+        self,
+        name: str,
+        item_ids: list[str],
+        headers: dict[str, str],
+        wave_num: int,
+    ) -> CollectionResult | None:
+        """Fetch FK-referenced items for one target endpoint."""
+        endpoint = self.endpoint_map[name]
+        fields = self.endpoint_fields_map.get(name, ["*.*"])
+        items: list[dict[str, Any]] = []
+
+        for item_id in item_ids:
+            params: dict[str, Any] = {"fields[]": fields}
+            url = RawHttpClient.build_url(
+                API_FFBB_BASE_URL, f"{endpoint}/{item_id}", params
+            )
+            resp = self.http.get_json(url, headers)
+            if resp:
+                data = resp.get("data", resp) if isinstance(resp, dict) else resp
+                if isinstance(data, dict):
+                    items.append(data)
+                    fk_id = str(data.get("id", item_id))
+                    self.collected_ids.setdefault(name, set()).add(fk_id)
+
+        if not items:
+            return None
+
+        filepath = self.endpoints_dir / f"rest_{name}_fk_hop{wave_num}.json"
+        self._save_items(filepath, items)
+        logger.info(
+            "  [wave%d] [%s] %d/%d FK items fetched",
+            wave_num,
+            name,
+            len(items),
+            len(item_ids),
+        )
+        return CollectionResult(name, "rest", str(filepath), f"rest/{name}", len(items))
+
+    # -- ID extraction ------------------------------------------------------
+
+    def _extract_ids(self, results: list[CollectionResult]) -> None:
+        """Extract and register IDs from collection results."""
+        for result in results:
+            if result.source != "rest":
+                continue
+            try:
+                with open(result.filepath, encoding="utf-8") as f:
+                    items = json.load(f)
+            except Exception:
+                continue
+            if not isinstance(items, list):
+                continue
+            ids: set[str] = set()
+            for item in items:
+                if isinstance(item, dict) and "id" in item:
+                    ids.add(str(item["id"]))
+            if ids:
+                self.collected_ids.setdefault(result.name, set()).update(ids)
+
+    # -- Helpers ------------------------------------------------------------
+
+    @staticmethod
+    def _save_items(filepath: Path, items: list[dict[str, Any]]) -> None:
+        """Save items to a JSON file."""
+        with open(filepath, "w", encoding="utf-8") as f:
+            json.dump(items, f, indent=2, default=str, ensure_ascii=False)
 
 
 # ---------------------------------------------------------------------------
@@ -1506,7 +1982,7 @@ def main() -> None:
     parser.add_argument(
         "--no-chained",
         action="store_true",
-        help="Skip Phase 1.5 (single-item chained fetches for deeper discovery)",
+        help="Skip Wave 2+3 (single-item + FK chain fetches for deeper discovery)",
     )
     args = parser.parse_args()
 
@@ -1516,6 +1992,9 @@ def main() -> None:
     logger.info("=== Type Discovery Script ===")
     logger.info("  workers=%d, cache_ttl=%ds", args.workers, CACHE_TTL)
     DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+    # Initialize raw HTTP client
+    http = RawHttpClient(DATA_DIR)
 
     # Handle --clear-cache
     if args.clear_cache:
@@ -1531,14 +2010,12 @@ def main() -> None:
     # -----------------------------------------------------------------------
     logger.info("Phase 0: Token fetch + AST scan + config discovery (parallel)...")
 
-    # These are independent — run them all in parallel
     with ThreadPoolExecutor(max_workers=3) as ex:
-        future_tokens = ex.submit(TokenManager.get_tokens)
+        future_tokens = ex.submit(http.acquire_tokens)
         future_ast = ex.submit(scan_source_combined, MODEL_DIRS)
         future_configs = ex.submit(_discover_configs_and_mappings)
 
-        tokens = future_tokens.result()
-        api_token, meili_token = tokens.api_token, tokens.meilisearch_token
+        api_token, meili_token = future_tokens.result()
         logger.info("  Tokens acquired")
 
         ast_result = future_ast.result()
@@ -1563,7 +2040,7 @@ def main() -> None:
             len(endpoint_fields_map),
         )
 
-    list(meili_index_map.values())
+    meili_to_fetch = list(meili_index_map.values())
 
     # Log scanned properties
     for prop in incorrect_props:
@@ -1582,29 +2059,13 @@ def main() -> None:
         if prop.category in ("dict_any", "list_any", "list_dict_any", "any_none"):
             record_whole_keys.add(prop.json_key)
 
-    # Build ALL endpoint lists — no filtering, fetch everything
-    special_endpoints = {"lives", "configuration", "saisons"}
-    paginated_endpoints: list[tuple[str, str]] = [
-        (path, name)
-        for name, path in sorted(endpoint_map.items())
-        if name not in special_endpoints
-    ]
-    meili_to_fetch = list(meili_index_map.values())
-
-    logger.info(
-        "  Will fetch: %d REST paginated + %d specials + %d MeiliSearch",
-        len(paginated_endpoints),
-        len(set(special_endpoints) & set(endpoint_map)),
-        len(meili_to_fetch),
-    )
-
     # -----------------------------------------------------------------------
-    # Phase 1: Fetch ALL endpoints in parallel, save per-endpoint files
+    # Phase 1: Wave-based collection (Wave 1 + 2 + 3+)
     # -----------------------------------------------------------------------
     endpoints_dir = DATA_DIR / "endpoints"
     endpoints_dir.mkdir(parents=True, exist_ok=True)
 
-    # Check cache status before starting
+    # Check cache status
     cache_db = DATA_DIR / "discover_types_cache.sqlite"
     if cache_db.exists():
         cache_size_mb = cache_db.stat().st_size / (1024 * 1024)
@@ -1612,230 +2073,39 @@ def main() -> None:
     else:
         logger.info("  Cache empty — first run will fetch from network")
 
-    collector = RawDataCollector(api_token, meili_token)
     t0 = time.monotonic()
-    collection_stats: dict[str, Any] = {"rest": {}, "meilisearch": {}}
 
     flattened_dir = DATA_DIR / "flattened"
     flattened_dir.mkdir(parents=True, exist_ok=True)
 
-    def _save_endpoint_items(
-        source: str, name: str, items: list[dict[str, Any]]
-    ) -> None:
-        """Save deduplicated items to a per-endpoint JSON file."""
-        filepath = endpoints_dir / f"{source}_{name}.json"
-        with open(filepath, "w", encoding="utf-8") as f:
-            json.dump(items, f, indent=2, default=str, ensure_ascii=False)
-
-    def _pipeline_rest(
-        endpoint: str, name: str
-    ) -> tuple[str, str, str, str, int] | None:
-        """Fetch + save REST items. Returns (name, file_tag, filepath, prefix, count)."""
-        fields = endpoint_fields_map.get(name)
-        if fields:
-            logger.info("  [%s] using %d defined fields", name, len(fields))
-        else:
-            logger.warning("  [%s] no fields definition found, using wildcard", name)
-            fields = ["*.*"]
-
-        t_start = time.monotonic()
-        items = collector.collect_rest_items(endpoint, fields)
-        t_fetch = time.monotonic() - t_start
-        if not items:
-            logger.info("  [%s] fetch: %.1fs — 0 items", name, t_fetch)
-            return None
-        collection_stats["rest"][name] = len(items)
-
-        t_start = time.monotonic()
-        _save_endpoint_items("rest", name, items)
-        t_save = time.monotonic() - t_start
-
-        filepath = str(endpoints_dir / f"rest_{name}.json")
-        logger.info(
-            "  [%s] %d items — fetch=%.1fs save=%.1fs",
-            name,
-            len(items),
-            t_fetch,
-            t_save,
-        )
-        return name, "rest", filepath, f"rest/{name}", len(items)
-
-    def _pipeline_meili(
-        index_uid: str,
-    ) -> tuple[str, str, str, str, int] | None:
-        """Fetch + save MeiliSearch hits. Returns (name, file_tag, filepath, prefix, count)."""
-        t_start = time.monotonic()
-        hits = collector.collect_meili_items(index_uid)
-        t_fetch = time.monotonic() - t_start
-        if not hits:
-            logger.info("  [%s] fetch: %.1fs — 0 hits", index_uid, t_fetch)
-            return None
-        collection_stats["meilisearch"][index_uid] = len(hits)
-
-        t_start = time.monotonic()
-        _save_endpoint_items("meili", index_uid, hits)
-        t_save = time.monotonic() - t_start
-
-        filepath = str(endpoints_dir / f"meili_{index_uid}.json")
-        logger.info(
-            "  [%s] %d hits — fetch=%.1fs save=%.1fs",
-            index_uid,
-            len(hits),
-            t_fetch,
-            t_save,
-        )
-        return (
-            index_uid,
-            "meili",
-            filepath,
-            f"meilisearch/{index_uid}/hits[]",
-            len(hits),
-        )
-
-    def _pipeline_rest_special(
-        endpoint: str, name: str, fetch_fn: str
-    ) -> tuple[str, str, str, str, int] | None:
-        """Fetch + save special endpoint. Returns (name, file_tag, filepath, prefix, count)."""
-        fields = endpoint_fields_map.get(name, ["*.*"])
-
-        t_start = time.monotonic()
-        if fetch_fn == "list":
-            items = collector.collect_rest_single(endpoint, fields)
-        elif fetch_fn == "lives":
-            items = collector.collect_lives(endpoint)
-        else:
-            items = []
-        t_fetch = time.monotonic() - t_start
-        if not items:
-            logger.info("  [%s] fetch: %.1fs — 0 items", name, t_fetch)
-            return None
-        collection_stats["rest"][name] = len(items)
-
-        t_start = time.monotonic()
-        _save_endpoint_items("rest", name, items)
-        t_save = time.monotonic() - t_start
-
-        filepath = str(endpoints_dir / f"rest_{name}.json")
-        logger.info(
-            "  [%s] %d items — fetch=%.1fs save=%.1fs",
-            name,
-            len(items),
-            t_fetch,
-            t_save,
-        )
-        return name, "rest", filepath, f"rest/{name}", len(items)
-
-    logger.info(
-        "Phase 1: Fetch + save ALL endpoints (ThreadPool, %d workers)...",
-        args.workers,
+    collector = WaveCollector(
+        http=http,
+        endpoints_dir=endpoints_dir,
+        workers=args.workers,
+        endpoint_fields_map=endpoint_fields_map,
+        endpoint_map=endpoint_map,
+        meili_index_uids=meili_to_fetch,
     )
 
-    fetch_results: list[tuple[str, str, str, str, int]] = []
-
-    with ThreadPoolExecutor(max_workers=args.workers) as ex:
-        futures: dict[Any, str] = {}
-
-        # All paginated REST endpoints
-        for endpoint, name in paginated_endpoints:
-            futures[ex.submit(_pipeline_rest, endpoint, name)] = name
-
-        # All MeiliSearch indexes
-        for uid in meili_to_fetch:
-            futures[ex.submit(_pipeline_meili, uid)] = uid
-
-        # All special endpoints
-        for special_name in sorted(special_endpoints):
-            ep = endpoint_map.get(special_name)
-            if not ep:
-                continue
-            fetch_fn = "lives" if special_name == "lives" else "list"
-            futures[ex.submit(_pipeline_rest_special, ep, special_name, fetch_fn)] = (
-                special_name
-            )
-
-        for future in as_completed(futures):
-            ep_name = futures[future]
-            try:
-                result = future.result()
-                if result:
-                    fetch_results.append(result)
-                    r_name, _, _, _, r_count = result
-                    logger.info(
-                        "  [fetched] %s — %d items (%.1fs elapsed)",
-                        r_name,
-                        r_count,
-                        time.monotonic() - t0,
-                    )
-                else:
-                    logger.warning("  [skip] %s: no data", ep_name)
-            except Exception as exc:
-                logger.error("  [fail] %s: %s", ep_name, exc)
+    fetch_results = collector.collect_all(
+        api_token, meili_token, skip_deep=args.no_chained
+    )
 
     t_fetch_phase = time.monotonic() - t0
-    logger.info(
-        "Phase 1 done in %.1fs — %d endpoints fetched, files saved to %s",
-        t_fetch_phase,
-        len(fetch_results),
-        endpoints_dir,
-    )
 
-    # -----------------------------------------------------------------------
-    # Phase 1.5: Chained single-item fetches for deeper field discovery
-    # -----------------------------------------------------------------------
-    t_chained_start = time.monotonic()
-    if args.no_chained:
-        logger.info("Phase 1.5: Skipped (--no-chained)")
-    else:
-        # Identify REST endpoints that were fetched
-        rest_results = [
-            (r_name, filepath, prefix)
-            for r_name, file_tag, filepath, prefix, _ in fetch_results
-            if file_tag == "rest"
-        ]
-        logger.info(
-            "Phase 1.5: Chained single-item fetches for %d REST endpoints...",
-            len(rest_results),
+    # Build collection_stats from results
+    collection_stats: dict[str, Any] = {"rest": {}, "meilisearch": {}}
+    for result in fetch_results:
+        bucket = "meilisearch" if result.source == "meili" else "rest"
+        collection_stats[bucket][result.name] = (
+            collection_stats[bucket].get(result.name, 0) + result.count
         )
 
-        for r_name, filepath, prefix in rest_results:
-            # Read saved JSON to extract IDs
-            try:
-                with open(filepath, encoding="utf-8") as f:
-                    saved_items = json.load(f)
-            except Exception:
-                continue
-            if not isinstance(saved_items, list) or not saved_items:
-                continue
-            item_ids = [
-                str(item["id"])
-                for item in saved_items[:50]
-                if isinstance(item, dict) and "id" in item
-            ]
-            if not item_ids:
-                continue
-
-            # Find the endpoint path for this name
-            ep_path = endpoint_map.get(r_name)
-            if not ep_path:
-                continue
-
-            chained_items = collector.collect_rest_chained(ep_path, item_ids)
-            if chained_items:
-                chained_filepath = endpoints_dir / f"rest_{r_name}_chained.json"
-                with open(chained_filepath, "w", encoding="utf-8") as f:
-                    json.dump(
-                        chained_items, f, indent=2, default=str, ensure_ascii=False
-                    )
-                fetch_results.append(
-                    (r_name, "rest", str(chained_filepath), prefix, len(chained_items))
-                )
-                logger.info(
-                    "  [%s] chained: %d items fetched",
-                    r_name,
-                    len(chained_items),
-                )
-
-    t_chained = time.monotonic() - t_chained_start
+    logger.info(
+        "Phase 1 done in %.1fs — %d collection results",
+        t_fetch_phase,
+        len(fetch_results),
+    )
 
     # -----------------------------------------------------------------------
     # Phase 2: Flatten from files (ProcessPoolExecutor, true multi-core)
@@ -1849,22 +2119,69 @@ def main() -> None:
         flatten_workers,
     )
 
+    # Deduplicate items across waves for same endpoint before flattening
+    # Group results by (source, name) and merge items
+    items_by_key: dict[tuple[str, str], list[str]] = {}
+    for r in fetch_results:
+        key = (r.source, r.name)
+        items_by_key.setdefault(key, []).append(r.filepath)
+
+    deduped_results: list[CollectionResult] = []
+    for (source, name), filepaths in items_by_key.items():
+        if len(filepaths) == 1:
+            # Single file — find the original result
+            for r in fetch_results:
+                if r.filepath == filepaths[0]:
+                    deduped_results.append(r)
+                    break
+        else:
+            # Multiple files for same endpoint — merge and deduplicate
+            all_items: list[dict[str, Any]] = []
+            for fp in filepaths:
+                try:
+                    with open(fp, encoding="utf-8") as f:
+                        items = json.load(f)
+                    if isinstance(items, list):
+                        all_items.extend(items)
+                except Exception:
+                    continue
+            if all_items:
+                deduped = _deduplicate_items(all_items)
+                merged_filepath = endpoints_dir / f"{source}_{name}_merged.json"
+                with open(merged_filepath, "w", encoding="utf-8") as f:
+                    json.dump(deduped, f, indent=2, default=str, ensure_ascii=False)
+                prefix = (
+                    f"rest/{name}" if source == "rest" else f"meilisearch/{name}/hits[]"
+                )
+                deduped_results.append(
+                    CollectionResult(
+                        name, source, str(merged_filepath), prefix, len(deduped)
+                    )
+                )
+                logger.info(
+                    "  [dedup] %s/%s: %d items -> %d deduped",
+                    source,
+                    name,
+                    len(all_items),
+                    len(deduped),
+                )
+
     per_endpoint_paths: list[tuple[str, dict[str, PathStats]]] = []
     flat_dir_str = str(flattened_dir)
 
     with ProcessPoolExecutor(max_workers=flatten_workers) as pool:
         future_to_name: dict[Any, str] = {}
-        for r_name, file_tag, filepath, prefix, _ in fetch_results:
+        for r in deduped_results:
             fut = pool.submit(
                 _flatten_from_file,
-                filepath,
-                prefix,
+                r.filepath,
+                r.prefix,
                 record_whole_keys,
                 flat_dir_str,
-                file_tag,
-                r_name,
+                r.source,
+                r.name,
             )
-            future_to_name[fut] = r_name
+            future_to_name[fut] = r.name
 
         for fut in as_completed(future_to_name):
             ep_name = future_to_name[fut]
@@ -2017,9 +2334,6 @@ def main() -> None:
             continue
 
         # Confidence scoring
-        # High: 2-10 values with >100 observations
-        # Medium: 2-10 values with 10-100 obs, or 11-30 with >100
-        # Low: 31-50 values, or <100 observations
         if n_values <= 10 and stats.non_none_count >= 100:
             confidence = "high"
         elif (n_values <= 10 and stats.non_none_count >= 10) or (
@@ -2035,12 +2349,10 @@ def main() -> None:
         python_attr: str | None = None
         module_path: str | None = None
 
-        # Parse the json_path to find prefix + field
         for pfx, sig in prefix_to_sig.items():
             pfx_dot = f"{pfx}."
             if path.startswith(pfx_dot):
                 remainder = path[len(pfx_dot) :]
-                # Only match top-level keys (no nested dots)
                 if "." not in remainder and "[]" not in remainder:
                     json_key = remainder
                     python_class = sig.class_name
@@ -2050,11 +2362,9 @@ def main() -> None:
                     )
                     break
 
-        # Suggest enum name from python_attr or json_key
         base_name = python_attr or (json_key and _camel_to_snake(json_key))
         suggested_enum_name: str | None = None
         if base_name:
-            # e.g. "type_competition" -> "TypeCompetition"
             parts = base_name.split("_")
             suggested_enum_name = "".join(p.capitalize() for p in parts)
 
@@ -2096,11 +2406,9 @@ def main() -> None:
     t_missing_start = time.monotonic()
     logger.info("Phase 7: Detecting missing fields in models...")
 
-    # Build class_name -> (prefix, json_keys) from signatures + prefix maps
     missing_fields_report: list[dict[str, Any]] = []
 
     for sig in ast_result.signatures:
-        # Determine prefix for this class
         prefix: str | None = None
         if sig.class_name in rest_class_to_prefix:
             prefix = rest_class_to_prefix[sig.class_name]
@@ -2111,21 +2419,18 @@ def main() -> None:
         if not prefix:
             continue
 
-        # Collect observed top-level keys under this prefix
         prefix_dot = f"{prefix}."
         observed_keys: set[str] = set()
         for path in combined_flattener.paths:
             if not path.startswith(prefix_dot):
                 continue
             rest = path[len(prefix_dot) :]
-            # Top-level only: no dot, no [] in remainder
             if "." not in rest and "[]" not in rest:
                 observed_keys.add(rest)
 
         if not observed_keys:
             continue
 
-        # Compare with model's known keys
         model_keys = set(sig.json_keys)
         missing_in_model = sorted(observed_keys - model_keys)
         missing_in_api = sorted(model_keys - observed_keys)
@@ -2137,7 +2442,6 @@ def main() -> None:
                 "prefix": prefix,
             }
             if missing_in_model:
-                # Enrich with observed type info + actionable suggestions
                 missing_details = []
                 for key in missing_in_model:
                     full_path = f"{prefix}.{key}"
@@ -2152,7 +2456,6 @@ def main() -> None:
                         detail["total"] = stats.total
                         detail["none_count"] = stats.none_count
                         detail["nullable"] = stats.none_count > 0
-                        # Detect relations (nested dict or list of dicts)
                         has_nested = any(
                             p.startswith(f"{full_path}.")
                             for p in combined_flattener.paths
@@ -2165,7 +2468,6 @@ def main() -> None:
                                 and bool(stats.list_element_key_sets)
                             )
                         )
-                        # Suggested type + converter
                         suggested_type, suggested_converter = _json_type_to_python(
                             stats.types,
                             stats.none_count,
@@ -2186,7 +2488,6 @@ def main() -> None:
                         detail["is_relation"] = False
                         detail["suggested_type"] = "str | None"
                         detail["suggested_converter"] = f'from_str(obj, "{key}")'
-                    # Annotation to add (ready to paste)
                     detail["suggested_annotation"] = (
                         f"{python_attr}: {detail['suggested_type']} = None"
                         if "None" in detail["suggested_type"]
@@ -2195,7 +2496,6 @@ def main() -> None:
                     missing_details.append(detail)
                 entry["missing_in_model"] = missing_details
             if missing_in_api:
-                # Enrich missing_in_api with python attr and line number
                 missing_api_details = []
                 for key in missing_in_api:
                     python_attr = sig.json_to_python.get(key, _camel_to_snake(key))
@@ -2292,8 +2592,7 @@ def main() -> None:
     total_time = time.monotonic() - t0
     logger.info("=== Timing Summary ===")
     logger.info("  Phase 0 (tokens+AST+config):   included in Phase 1")
-    logger.info("  Phase 1 (fetch+save, Thread):  %.1fs", t_fetch_phase)
-    logger.info("  Phase 1.5 (chained fetches):   %.1fs", t_chained)
+    logger.info("  Phase 1 (wave collection):     %.1fs", t_fetch_phase)
     logger.info("  Phase 2 (flatten, Process):    %.1fs", t_flatten)
     logger.info("  Phase 3 (merge paths):         %.2fs", t_merge)
     logger.info("  Phase 4 (type inference):      %.2fs", t_infer)

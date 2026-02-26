@@ -7,6 +7,7 @@ from uuid import UUID
 
 from ...models.categorie import Categorie
 from ...models.engagement_position import EngagementPosition
+from ...models.team_ranking import TeamRanking
 from ...utils.converter_utils import (
     from_bool,
     from_datetime,
@@ -63,7 +64,7 @@ class GetEngagementsResponse:
     url_competition: str | None = None
     # Embedded objects
     niveau: Categorie | None = None
-    classement: list[dict[str, Any]] | None = None
+    classement: list[TeamRanking] | None = None
     positions: list[EngagementPosition] = field(default_factory=list)
     date_created: datetime | None = None
     date_updated: datetime | None = None
@@ -80,6 +81,7 @@ class GetEngagementsResponse:
 
         domiciles_raw = data.get("rencontres_domiciles", []) or []
         exterieur_raw = data.get("rencontres_exterieur", []) or []
+        classement_raw = from_list(TeamRanking.from_dict, data, "classement")
 
         return cls(
             id=from_str(data, "id") or "",
@@ -131,9 +133,7 @@ class GetEngagementsResponse:
             url_competition=from_str(data, "url_competition"),
             niveau=from_obj(Categorie.from_dict, data, "niveau"),
             classement=(
-                data.get("classement")
-                if isinstance(data.get("classement"), list)
-                else None
+                [c for c in classement_raw if c is not None] if classement_raw else None
             ),
             positions=from_list(EngagementPosition.from_dict, data, "positions") or [],
             date_created=from_datetime(data, "date_created"),

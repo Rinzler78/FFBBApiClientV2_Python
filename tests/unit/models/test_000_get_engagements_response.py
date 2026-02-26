@@ -12,6 +12,7 @@ from ffbb_api_client_v2.directus_ffbb.models.get_engagements_response import (
 )
 from ffbb_api_client_v2.models.categorie import Categorie
 from ffbb_api_client_v2.models.engagement_position import EngagementPosition
+from ffbb_api_client_v2.models.team_ranking import TeamRanking
 
 SAMPLE_DATA: dict[str, Any] = {
     "id": "200000005137866",
@@ -186,8 +187,11 @@ class TestGetEngagementsResponse(unittest.TestCase):
         result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
         assert result is not None
         self.assertIsInstance(result.classement, list)
+        assert result.classement is not None
         self.assertEqual(len(result.classement), 1)
-        self.assertEqual(result.classement[0]["position"], "3")
+        self.assertIsInstance(result.classement[0], TeamRanking)
+        self.assertEqual(result.classement[0].position, 3)
+        self.assertEqual(result.classement[0].points, 29)
 
     def test_022_field_entraineur(self) -> None:
         result = GetEngagementsResponse.from_dict(SAMPLE_DATA)

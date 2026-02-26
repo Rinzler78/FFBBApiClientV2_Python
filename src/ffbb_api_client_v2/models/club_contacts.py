@@ -1,20 +1,18 @@
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass, field
 
 from ..directus_ffbb.models.get_organisme_response import GetOrganismeResponse
 from .code_fonction import CODE_FONCTION_TO_CONTACT_ROLE
 from .contact_info import ContactInfo
 from .contact_role import ContactRole
-
-_PHONE_PATTERN = re.compile(r"[^0-9+]")
+from .phone_number import PhoneNumber
 
 
 def _normalize_phone(raw: str | None) -> str:
     if not raw:
         return ""
-    return _PHONE_PATTERN.sub("", raw.strip())
+    return str(PhoneNumber(raw))
 
 
 def _sanitize_name(name: str | None) -> str:

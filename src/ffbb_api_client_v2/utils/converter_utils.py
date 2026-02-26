@@ -9,6 +9,7 @@ from uuid import UUID
 
 if TYPE_CHECKING:
     from ..models.categorie_code import CategorieCode
+    from ..models.phone_number import PhoneNumber
 
 import dateutil.parser
 
@@ -315,3 +316,25 @@ def from_uuid(obj: dict, key: str) -> UUID | None:
     except ValueError:
         logger.warning("from_uuid(%r): invalid UUID %r", key, x)
         return None
+
+
+def from_phone(obj: dict, key: str) -> PhoneNumber | None:
+    """Parse a phone number string into a PhoneNumber (normalized digits + '+')."""
+    from ..models.phone_number import PhoneNumber
+
+    x = obj.get(key)
+    if x is None:
+        return None
+    if isinstance(x, str):
+        if not x.strip():
+            return None
+        return PhoneNumber(x)
+    if isinstance(x, (int, float)) and not isinstance(x, bool):
+        return PhoneNumber(str(int(x)))
+    logger.warning(
+        "from_phone(%r): unexpected type %s (value: %.100r)",
+        key,
+        type(x).__name__,
+        x,
+    )
+    return None

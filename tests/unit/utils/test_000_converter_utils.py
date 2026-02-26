@@ -8,6 +8,7 @@ from datetime import datetime, time
 from enum import Enum
 from uuid import UUID
 
+from ffbb_api_client_v2.models.phone_number import PhoneNumber
 from ffbb_api_client_v2.utils.converter_utils import (
     from_bool,
     from_datetime,
@@ -16,6 +17,7 @@ from ffbb_api_client_v2.utils.converter_utils import (
     from_int,
     from_list,
     from_obj,
+    from_phone,
     from_str,
     from_time,
     from_timestamp,
@@ -405,6 +407,56 @@ class TestFromTimestamp(unittest.TestCase):
 
     def test_072_whitespace_string(self) -> None:
         self.assertIsNone(from_timestamp({"k": "   "}, "k"))
+
+
+# ==========================================================================
+# from_phone
+# ==========================================================================
+
+
+class TestFromPhone(unittest.TestCase):
+    def test_000_str_returns_phone_number(self) -> None:
+        result = from_phone({"k": "01 23 45 67 89"}, "k")
+        self.assertIsInstance(result, PhoneNumber)
+        self.assertEqual(result, "0123456789")
+
+    def test_001_none_returns_none(self) -> None:
+        self.assertIsNone(from_phone({"k": None}, "k"))
+
+    def test_002_missing_key_returns_none(self) -> None:
+        self.assertIsNone(from_phone({}, "k"))
+
+    def test_003_empty_string_returns_none(self) -> None:
+        self.assertIsNone(from_phone({"k": ""}, "k"))
+
+    def test_004_whitespace_returns_none(self) -> None:
+        self.assertIsNone(from_phone({"k": "   "}, "k"))
+
+    def test_005_int_returns_phone_number(self) -> None:
+        result = from_phone({"k": 123456789}, "k")
+        self.assertIsInstance(result, PhoneNumber)
+        self.assertEqual(result, "123456789")
+
+    def test_006_float_returns_phone_number(self) -> None:
+        result = from_phone({"k": 123456789.0}, "k")
+        self.assertIsInstance(result, PhoneNumber)
+        self.assertEqual(result, "123456789")
+
+    def test_007_bool_warns(self) -> None:
+        with self.assertLogs(LOGGER_NAME, level=logging.WARNING) as cm:
+            result = from_phone({"k": True}, "k")
+        self.assertIsNone(result)
+        self.assertTrue(any("unexpected type" in msg for msg in cm.output))
+
+    def test_008_international_format(self) -> None:
+        result = from_phone({"k": "+33 6 12 34 56 78"}, "k")
+        self.assertIsInstance(result, PhoneNumber)
+        self.assertEqual(result, "+33612345678")
+
+    def test_009_preserves_raw(self) -> None:
+        result = from_phone({"k": "01.23.45.67.89"}, "k")
+        assert result is not None
+        self.assertEqual(result.raw, "01.23.45.67.89")
 
 
 if __name__ == "__main__":
