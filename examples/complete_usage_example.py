@@ -89,16 +89,28 @@ def demo_competition_details(client: FFBBAPIClientV2, org_id: int) -> None:
         print("No engagements found.")
         return
 
-    print(f"Organisme '{organisme.nom}' has {len(organisme.engagements)} engagements:")
-    for eng in organisme.engagements[:5]:
-        comp = eng.id_competition
-        if comp:
-            print(f"  - {comp.nom} (sexe={comp.sexe}, type={comp.type_competition})")
+    # Resolve engagement FK IDs to full objects
+    eng_ids = [e for e in organisme.engagements if isinstance(e, int)]
+    if not eng_ids:
+        print("No engagement IDs to resolve.")
+        return
+
+    engagements = client.list_engagements_by_ids(eng_ids)
+    print(f"Organisme '{organisme.nom}' has {len(engagements)} engagements:")
+
+    for eng in engagements[:5]:
+        if eng.idCompetition:
+            comp = client.get_competition(eng.idCompetition)
+            if comp:
+                print(
+                    f"  - {comp.nom} (sexe={comp.sexe}, "
+                    f"type={comp.type_competition})"
+                )
 
     # Try to get details for the first competition with an ID
-    for eng in organisme.engagements:
-        if eng.id_competition and eng.id_competition.id:
-            comp_id = int(eng.id_competition.id)
+    for eng in engagements:
+        if eng.idCompetition:
+            comp_id = eng.idCompetition
             print(f"\nFetching competition details for ID {comp_id}...")
             competition = client.get_competition(comp_id)
             if competition:

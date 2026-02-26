@@ -15,19 +15,16 @@ import json
 import os
 import sys
 
-from ffbb_api_client_v2._http.client import (
-    http_get_json,
-    url_with_params,
-)
+from ffbb_api_client_v2._http.client import HttpClient
 
 API_BASE_URL = "https://api.ffbb.com/"
 DEFAULT_USER_AGENT = "okhttp/4.12.0"
 
 
 def get_headers() -> dict[str, str]:
-    token = os.environ.get("API_FFBB_BEARER_TOKEN")
+    token = os.environ.get("API_FFBB_APP_BEARER_TOKEN")
     if not token:
-        print("ERROR: Set API_FFBB_BEARER_TOKEN environment variable")
+        print("ERROR: Set API_FFBB_APP_BEARER_TOKEN environment variable")
         sys.exit(1)
     return {
         "Authorization": f"Bearer {token}",
@@ -41,7 +38,7 @@ def test_feature(name: str, url: str, headers: dict[str, str]) -> dict | None:
     print(f"Testing: {name}")
     print(f"URL: {url[:120]}...")
     try:
-        result = http_get_json(url, headers)
+        result = HttpClient.http_get_json(url, headers)
         if isinstance(result, dict):
             if "errors" in result:
                 print(f"  FAILED: {result['errors']}")
@@ -74,7 +71,7 @@ def main() -> None:
     print("#" * 60)
 
     # aggregate count
-    url = url_with_params(
+    url = HttpClient.url_with_params(
         f"{API_BASE_URL}items/rencontres",
         {"aggregate[count]": "*", "limit": "1"},
     )
@@ -82,7 +79,7 @@ def main() -> None:
     results["aggregate_count"] = "OK" if r and "errors" not in r else "FAILED"
 
     # aggregate countDistinct
-    url = url_with_params(
+    url = HttpClient.url_with_params(
         f"{API_BASE_URL}items/rencontres",
         {"aggregate[countDistinct]": "id", "limit": "1"},
     )
@@ -90,7 +87,7 @@ def main() -> None:
     results["aggregate_countDistinct"] = "OK" if r and "errors" not in r else "FAILED"
 
     # groupBy
-    url = url_with_params(
+    url = HttpClient.url_with_params(
         f"{API_BASE_URL}items/rencontres",
         {"groupBy[]": "saison", "aggregate[count]": "*", "limit": "5"},
     )
@@ -98,7 +95,7 @@ def main() -> None:
     results["groupBy"] = "OK" if r and "errors" not in r else "FAILED"
 
     # limit=-1 (fetch all)
-    url = url_with_params(
+    url = HttpClient.url_with_params(
         f"{API_BASE_URL}items/saisons",
         {"limit": "-1", "fields[]": ["id", "libelle"]},
     )
@@ -106,7 +103,7 @@ def main() -> None:
     results["limit_minus_1"] = "OK" if r and "errors" not in r else "FAILED"
 
     # Temporal functions: year() in filter
-    url = url_with_params(
+    url = HttpClient.url_with_params(
         f"{API_BASE_URL}items/rencontres",
         {
             "filter": '{"year(date_rencontre)":{"_eq":2025}}',
@@ -118,7 +115,7 @@ def main() -> None:
     results["temporal_year"] = "OK" if r and "errors" not in r else "FAILED"
 
     # alias
-    url = url_with_params(
+    url = HttpClient.url_with_params(
         f"{API_BASE_URL}items/organismes/1",
         {
             "alias[active_competitions]": "competitions",
@@ -129,7 +126,7 @@ def main() -> None:
     results["alias"] = "OK" if r and "errors" not in r else "FAILED"
 
     # export=json
-    url = url_with_params(
+    url = HttpClient.url_with_params(
         f"{API_BASE_URL}items/saisons",
         {"export": "json", "limit": "2", "fields[]": ["id", "libelle"]},
     )
@@ -137,7 +134,7 @@ def main() -> None:
     results["export_json"] = "OK" if r else "FAILED"
 
     # backlink=false with wildcard
-    url = url_with_params(
+    url = HttpClient.url_with_params(
         f"{API_BASE_URL}items/organismes/1",
         {"fields[]": ["*.*"], "backlink": "false"},
     )
@@ -145,7 +142,7 @@ def main() -> None:
     results["backlink_false"] = "OK" if r and "errors" not in r else "FAILED"
 
     # page-based pagination
-    url = url_with_params(
+    url = HttpClient.url_with_params(
         f"{API_BASE_URL}items/saisons",
         {
             "page": "1",

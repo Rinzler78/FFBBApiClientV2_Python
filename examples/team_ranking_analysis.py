@@ -7,7 +7,11 @@ ranking table display, team stats, and match history analysis.
 Usage: python examples/team_ranking_analysis.py
 """
 
+from datetime import datetime
+
 from ffbb_api_client_v2 import FFBBAPIClientV2, TokenManager
+
+_EPOCH = datetime(1970, 1, 1)
 
 
 def create_client() -> FFBBAPIClientV2:
@@ -41,23 +45,32 @@ def find_team_and_poule(
         if not organisme or not organisme.engagements:
             continue
 
-        for eng in organisme.engagements:
-            comp = eng.id_competition
-            if not comp or not eng.id_poule:
+        # Resolve engagement FK IDs to full objects
+        eng_ids = [e for e in organisme.engagements if isinstance(e, int)]
+        if not eng_ids:
+            continue
+        engagements = client.list_engagements_by_ids(eng_ids)
+
+        for eng in engagements:
+            if not eng.idCompetition or not eng.idPoule:
+                continue
+
+            # Resolve competition FK to get details
+            comp = client.get_competition(eng.idCompetition)
+            if not comp:
                 continue
 
             # Look for a Seniors Masculins competition
             categorie_code = comp.categorie.code if comp.categorie else ""
             is_seniors = categorie_code in ("S", "SEN", "SENIOR")
             is_masc = comp.sexe == "M"
-            has_poule = eng.id_poule is not None
 
-            if is_seniors and is_masc and has_poule:
-                poule_id = int(eng.id_poule.id)
+            if is_seniors and is_masc:
+                poule_id = eng.idPoule
                 print(f"\nFound: {organisme.nom}")
                 print(f"  Competition: {comp.nom} (sexe={comp.sexe})")
                 print(f"  Poule ID: {poule_id}")
-                return organisme.nom, poule_id
+                return organisme.nom or "Unknown", poule_id
 
     # Fallback: try any competition with a poule
     print("\nNo Seniors Masculins found, trying any competition with a poule...")
@@ -67,13 +80,21 @@ def find_team_and_poule(
         organisme = client.get_organisme(int(hit.id))
         if not organisme or not organisme.engagements:
             continue
-        for eng in organisme.engagements:
-            if eng.id_poule and eng.id_competition:
-                poule_id = int(eng.id_poule.id)
+
+        eng_ids = [e for e in organisme.engagements if isinstance(e, int)]
+        if not eng_ids:
+            continue
+        engagements = client.list_engagements_by_ids(eng_ids)
+
+        for eng in engagements:
+            if eng.idPoule and eng.idCompetition:
+                comp = client.get_competition(eng.idCompetition)
+                comp_name = comp.nom if comp else f"Competition #{eng.idCompetition}"
+                poule_id = eng.idPoule
                 print(f"\nFound: {organisme.nom}")
-                print(f"  Competition: {eng.id_competition.nom}")
+                print(f"  Competition: {comp_name}")
                 print(f"  Poule ID: {poule_id}")
-                return organisme.nom, poule_id
+                return organisme.nom or "Unknown", poule_id
 
     print("No team with a poule found.")
     return None
@@ -121,32 +142,47 @@ def display_ranking_table(client: FFBBAPIClientV2, poule_id: int) -> None:
     print("3. Match History")
     print("=" * 60)
 
-    played = [r for r in poule.rencontres if r.joue]
-    upcoming = [r for r in poule.rencontres if not r.joue]
+    # poule.rencontres is list[int] (FK IDs) — resolve via batch helper
+    rencontres = client.list_rencontres_by_poule(poule_id)
+
+    played = [r for r in rencontres if r.joue]
+    upcoming = [r for r in rencontres if not r.joue]
 
     print(f"\nPlayed matches: {len(played)}")
     print(f"Upcoming matches: {len(upcoming)}")
 
     if played:
-        # Sort by date
-        played_sorted = sorted(played, key=lambda m: m.date_rencontre, reverse=True)
+        # Sort by date (handle None dates)
+        played_sorted = sorted(
+            played,
+            key=lambda m: m.date_rencontre or _EPOCH,
+            reverse=True,
+        )
 
         print("\nLast 10 results:")
         print(f"  {'Date':<12} | {'Home':<25} | {'Score':^9} | {'Away':<25}")
         print("  " + "-" * 80)
 
         for match in played_sorted[:10]:
-            date_str = match.date_rencontre.strftime("%Y-%m-%d")
+            date_str = (
+                match.date_rencontre.strftime("%Y-%m-%d")
+                if match.date_rencontre
+                else "N/A"
+            )
             home = match.nomEquipe1[:25] if match.nomEquipe1 else "?"
             away = match.nomEquipe2[:25] if match.nomEquipe2 else "?"
             score = f"{match.resultatEquipe1}-{match.resultatEquipe2}"
             print(f"  {date_str:<12} | {home:<25} | {score:^9} | {away:<25}")
 
     if upcoming:
-        upcoming_sorted = sorted(upcoming, key=lambda m: m.date_rencontre)
+        upcoming_sorted = sorted(upcoming, key=lambda m: m.date_rencontre or _EPOCH)
         print("\nNext 5 upcoming matches:")
         for match in upcoming_sorted[:5]:
-            date_str = match.date_rencontre.strftime("%Y-%m-%d")
+            date_str = (
+                match.date_rencontre.strftime("%Y-%m-%d")
+                if match.date_rencontre
+                else "TBD"
+            )
             print(f"  {date_str} : {match.nomEquipe1} vs {match.nomEquipe2}")
 
     # Team stats summary

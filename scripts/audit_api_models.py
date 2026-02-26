@@ -28,11 +28,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from ffbb_api_client_v2._http.client import (
-    http_get_json,
-    http_post_json,
-    url_with_params,
-)
+from ffbb_api_client_v2._http.client import HttpClient
 from ffbb_api_client_v2.config import (
     MEILISEARCH_BASE_URL,
     MEILISEARCH_ENDPOINT_MULTI_SEARCH,
@@ -58,15 +54,15 @@ from ffbb_api_client_v2.directus_ffbb.models.get_saisons_response import (
     GetSaisonsResponse,
 )
 from ffbb_api_client_v2.facade.token_manager import TokenManager
-from ffbb_api_client_v2.models.competitions_hit import CompetitionsHit
-from ffbb_api_client_v2.models.engagements_hit import EngagementsHit
-from ffbb_api_client_v2.models.formations_hit import FormationsHit
-from ffbb_api_client_v2.models.organismes_hit import OrganismesHit
-from ffbb_api_client_v2.models.pratiques_hit import PratiquesHit
-from ffbb_api_client_v2.models.rencontres_hit import RencontresHit
-from ffbb_api_client_v2.models.salles_hit import SallesHit
-from ffbb_api_client_v2.models.terrains_hit import TerrainsHit
-from ffbb_api_client_v2.models.tournois_hit import TournoisHit
+from ffbb_api_client_v2.meilisearch_ffbb.models.competitions_hit import CompetitionsHit
+from ffbb_api_client_v2.meilisearch_ffbb.models.engagements_hit import EngagementsHit
+from ffbb_api_client_v2.meilisearch_ffbb.models.formations_hit import FormationsHit
+from ffbb_api_client_v2.meilisearch_ffbb.models.organismes_hit import OrganismesHit
+from ffbb_api_client_v2.meilisearch_ffbb.models.pratiques_hit import PratiquesHit
+from ffbb_api_client_v2.meilisearch_ffbb.models.rencontres_hit import RencontresHit
+from ffbb_api_client_v2.meilisearch_ffbb.models.salles_hit import SallesHit
+from ffbb_api_client_v2.meilisearch_ffbb.models.terrains_hit import TerrainsHit
+from ffbb_api_client_v2.meilisearch_ffbb.models.tournois_hit import TournoisHit
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
@@ -547,7 +543,7 @@ class ApiFieldCollector:
 
         payload = {"queries": [{"indexUid": index_uid, "limit": 20, "offset": 0}]}
         try:
-            resp = http_post_json(
+            resp = HttpClient.http_post_json(
                 self.meili_url, self.meili_headers, data=payload, timeout=30
             )
         except Exception as exc:
@@ -588,9 +584,11 @@ class ApiFieldCollector:
             return set()
 
         base_url = f"{API_FFBB_BASE_URL}{path}"
-        url = url_with_params(base_url, {"fields[]": ["*.*.*.*.*"], "limit": "1"})
+        url = HttpClient.url_with_params(
+            base_url, {"fields[]": ["*.*.*.*.*"], "limit": "1"}
+        )
         try:
-            resp = http_get_json(url, self.api_headers, timeout=30)
+            resp = HttpClient.http_get_json(url, self.api_headers, timeout=30)
         except Exception as exc:
             logger.warning("  Fresh fetch %s failed: %s", endpoint_name, exc)
             return set()

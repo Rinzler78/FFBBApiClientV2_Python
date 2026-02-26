@@ -15,7 +15,7 @@ import json
 import os
 import sys
 
-from ffbb_api_client_v2._http.client import http_post_json
+from ffbb_api_client_v2._http.client import HttpClient
 
 MEILISEARCH_URL = "https://meilisearch-prod.ffbb.app/"
 DEFAULT_USER_AGENT = "okhttp/4.12.0"
@@ -41,7 +41,7 @@ def test_feature(
     print(f"Testing: {name}")
     try:
         url = f"{MEILISEARCH_URL}{endpoint}"
-        result = http_post_json(url, headers, body)
+        result = HttpClient.http_post_json(url, headers, body)
         if isinstance(result, dict):
             if "code" in result and "type" in result:
                 print(f"  FAILED: {result.get('message', 'Unknown error')}")
@@ -226,9 +226,7 @@ def main() -> None:
     print(f"\n{'='*60}")
     print("Testing: Meilisearch version")
     try:
-        from ffbb_api_client_v2._http.client import http_get_json
-
-        version_result = http_get_json(f"{MEILISEARCH_URL}version", headers)
+        version_result = HttpClient.http_get_json(f"{MEILISEARCH_URL}version", headers)
         if version_result and "pkgVersion" in version_result:
             print(f"  Meilisearch version: {version_result['pkgVersion']}")
             results["version"] = version_result["pkgVersion"]

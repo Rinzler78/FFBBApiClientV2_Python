@@ -22,7 +22,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from ffbb_api_client_v2._http.client import http_post_json
+from ffbb_api_client_v2._http.client import HttpClient
 from ffbb_api_client_v2.config import (
     MEILISEARCH_BASE_URL,
     MEILISEARCH_ENDPOINT_MULTI_SEARCH,
@@ -123,7 +123,7 @@ def test_index_exists(
         ]
     }
     try:
-        result = http_post_json(url, headers, data)
+        result = HttpClient.http_post_json(url, headers, data)
         if not result:
             return {"exists": False, "error": "empty_response"}
 

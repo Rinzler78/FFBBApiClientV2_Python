@@ -7,6 +7,8 @@ and retrieving active seasons.
 Usage: python examples/quick_start.py
 """
 
+import json
+
 from ffbb_api_client_v2 import FFBBAPIClientV2, TokenManager
 
 
@@ -56,12 +58,20 @@ def main() -> None:
     print(f"Phone:     {organisme.telephone}")
     print(f"Email:     {organisme.mail}")
     print(f"Website:   {organisme.url_site_web}")
-    if organisme.commune:
-        print(
-            f"City:      {organisme.commune.libelle} ({organisme.commune.code_postal})"
+
+    # organisme.commune is an int FK ID from Directus — resolve it
+    if isinstance(organisme.commune, int):
+        communes = client.list_communes(
+            filter_criteria=json.dumps({"id": {"_eq": organisme.commune}})
         )
-    if organisme.salle:
-        print(f"Venue:     {organisme.salle.libelle}")
+        if communes:
+            c = communes[0]
+            print(f"City:      {c.libelle} ({c.codePostal})")
+    # organisme.salle is also an int FK ID
+    if isinstance(organisme.salle, int):
+        salle = client.get_salle(organisme.salle)
+        if salle:
+            print(f"Venue:     {salle.libelle}")
     print(f"Members:   {len(organisme.membres)}")
     print(f"Engagements: {len(organisme.engagements)}")
 

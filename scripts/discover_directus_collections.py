@@ -23,10 +23,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from ffbb_api_client_v2._http.client import (
-    http_get,
-    url_with_params,
-)
+from ffbb_api_client_v2._http.client import HttpClient
 from ffbb_api_client_v2.directus.client import DEFAULT_USER_AGENT
 from ffbb_api_client_v2.directus_ffbb.config import (
     API_FFBB_BASE_URL,
@@ -138,7 +135,7 @@ def try_introspection_endpoint(
     """Try a Directus introspection endpoint. Returns (status_code, json_or_None)."""
     url = f"{base_url}{path}"
     try:
-        response = http_get(url, headers)
+        response = HttpClient.http_get(url, headers)
         status = response.status_code
         if status == 200:
             return status, response.json()
@@ -250,12 +247,12 @@ def probe_collection(
     base_url: str, headers: dict[str, str], collection: str
 ) -> dict[str, Any]:
     """Probe a single collection via GET /items/{collection}?limit=1&fields[]=*.*."""
-    url = url_with_params(
+    url = HttpClient.url_with_params(
         f"{base_url}items/{collection}",
         {"limit": "1", "fields[]": ["*.*"]},
     )
     try:
-        response = http_get(url, headers)
+        response = HttpClient.http_get(url, headers)
         status = response.status_code
 
         if status == 200:

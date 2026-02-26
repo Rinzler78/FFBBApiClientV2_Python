@@ -23,10 +23,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from ffbb_api_client_v2._http.client import (
-    HttpClient,
-    url_with_params,
-)
+from ffbb_api_client_v2._http.client import HttpClient
 from ffbb_api_client_v2.directus.client import DEFAULT_USER_AGENT
 from ffbb_api_client_v2.directus_ffbb.config import (
     API_FFBB_BASE_URL,
@@ -344,7 +341,7 @@ def fetch_with_depth(
     if extra_params:
         params.update(extra_params)
 
-    final_url = url_with_params(url, params)
+    final_url = HttpClient.url_with_params(url, params)
     logger.info(f"{tag}   GET {final_url}")
     t0 = time.monotonic()
     try:

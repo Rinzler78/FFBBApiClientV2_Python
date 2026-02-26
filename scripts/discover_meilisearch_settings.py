@@ -19,10 +19,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from ffbb_api_client_v2._http.client import (
-    http_get_json,
-    http_post_json,
-)
+from ffbb_api_client_v2._http.client import HttpClient
 from ffbb_api_client_v2.config import (
     MEILISEARCH_BASE_URL,
     MEILISEARCH_ENDPOINT_MULTI_SEARCH,
@@ -43,7 +40,7 @@ def get_index_settings(
     """Try GET /indexes/{uid}/settings."""
     url = f"{base_url}indexes/{index_uid}/settings"
     try:
-        result = http_get_json(url, headers)
+        result = HttpClient.http_get_json(url, headers)
         if isinstance(result, dict) and "message" not in result:
             return result
         logger.warning(
@@ -71,7 +68,7 @@ def get_filterable_via_facets(
         ]
     }
     try:
-        result = http_post_json(url, headers, data)
+        result = HttpClient.http_post_json(url, headers, data)
         if not result or "results" not in result:
             return None
         results = result["results"]
