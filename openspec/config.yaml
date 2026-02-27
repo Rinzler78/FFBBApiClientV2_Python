@@ -1,0 +1,24 @@
+schema: spec-driven
+context: |
+  Project: FFBBApiClientV2_Python
+  Purpose: FFBBApiClientV2_Python is a python project.
+  Tech stack: python
+  Domain context: Domain context for FFBBApiClientV2_Python; refine with business-specific details.
+  Constraints: Preserve backward compatibility, enforce quality/security gates, and follow Git Flow/worktree policy.
+  External dependencies: External APIs/services and third-party dependencies used by FFBBApiClientV2_Python.
+rules:
+  proposal:
+    - Define clean code expectations, architecture boundaries, and target design patterns.
+    - Include testing strategy (TDD scope, unit/integration/e2e coverage) and non-regression plan.
+    - Include deployment and rollback approach when runtime behavior is impacted.
+    - Include release impact, SemVer strategy, and required changelog/tag updates.
+  spec:
+    - Define coding constraints (Clean Code, SOLID, DRY, KISS, Clean Architecture).
+    - Define required quality controls: pre-commit, lint, static analysis, tests, security checks.
+    - Define measurable acceptance criteria for performance, reliability, and security.
+    - Define release/tagging constraints (annotated vMAJOR.MINOR.PATCH tag, release notes).
+  tasks:
+    - Implement in small, reviewable increments with tests-first where possible.
+    - Block completion until CI quality/security gates pass.
+    - Update documentation, changelog, and release metadata before merge/release.
+    - Capture deployment validation and rollback verification steps.
