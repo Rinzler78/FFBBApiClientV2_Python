@@ -76,3 +76,12 @@ Keep this managed block so `openspec update` can refresh the instructions.
 - Project rules may strengthen global user rules, but must never weaken them.
 - If `~/AGENTS.md` defines skills and trigger rules, load only the minimum relevant skills for the current task.
 <!-- END:GLOBAL_USER_RULES -->
+
+<!-- BEGIN:LOCAL_VALIDATION_PROCESS -->
+## Mandatory Local Validation Process (Managed)
+
+- Before every commit, run: `bash scripts/validate-local.sh`.
+- The validation script must execute full-project checks (not file-scoped checks only).
+- No commit/push is allowed if this validation fails.
+- A pre-push Git hook must enforce this script automatically.
+<!-- END:LOCAL_VALIDATION_PROCESS -->
