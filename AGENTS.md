@@ -67,3 +67,12 @@ Keep this managed block so `openspec update` can refresh the instructions.
 5. Wait for CI/PR checks.
 6. If a check fails, fix on the same branch and loop back to step 2 until all checks are green.
 <!-- END:DELIVERY_SEQUENCE_RULES -->
+
+<!-- BEGIN:GLOBAL_USER_RULES -->
+## Global User Rules Inheritance (Managed)
+
+- Apply user-level rules from `~/AGENTS.md` when this file exists.
+- Apply user-level governance from `~/.claude/CLAUDE.md`.
+- Project rules may strengthen global user rules, but must never weaken them.
+- If `~/AGENTS.md` defines skills and trigger rules, load only the minimum relevant skills for the current task.
+<!-- END:GLOBAL_USER_RULES -->
