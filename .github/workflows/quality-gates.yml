@@ -1,0 +1,53 @@
+name: Quality Gates
+
+on:
+  pull_request:
+    branches: [develop, master]
+  push:
+    branches: [develop, master]
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Python checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f .pre-commit-config.yaml ]; then
+            python -m pip install --upgrade pip
+            python -m pip install pre-commit pylint pyright
+            python -m pip install -e .
+            echo "$HOME/.local/bin" >> $GITHUB_PATH
+            pre-commit run --all-files --show-diff-on-failure
+          elif [ -f pyproject.toml ] || ls *.py >/dev/null 2>&1; then
+            python -m pip install --upgrade pip
+            python -m pip install ruff pytest
+            ruff check .
+            ruff format --check .
+            pytest -q
+          fi
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
