@@ -44,7 +44,27 @@ fi
 
 # Security gate parity with CI (mandatory when CI has security scanning).
 if command -v gitleaks >/dev/null 2>&1; then
-  gitleaks detect --source . --no-banner --redact
+  if command -v git >/dev/null 2>&1 && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    base_ref="${GITLEAKS_BASE_REF:-origin/develop}"
+    head_sha="$(git rev-parse HEAD)"
+    if git rev-parse --verify "$base_ref" >/dev/null 2>&1; then
+      base_sha=""
+      if base_sha="$(git merge-base "$base_ref" "$head_sha" 2>/dev/null)"; then
+        :
+      else
+        base_sha=""
+      fi
+      if [ -n "$base_sha" ]; then
+        gitleaks detect --no-banner --redact --log-opts="--no-merges --first-parent ${base_sha}^..${head_sha}"
+      else
+        gitleaks detect --source . --no-banner --redact
+      fi
+    else
+      gitleaks detect --source . --no-banner --redact
+    fi
+  else
+    gitleaks detect --source . --no-banner --redact
+  fi
 else
   echo "[validate-local] Missing gitleaks in PATH. Install gitleaks to satisfy local/CI security parity." >&2
   exit 1
