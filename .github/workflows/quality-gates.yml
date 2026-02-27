@@ -28,6 +28,7 @@ jobs:
           if [ -f .pre-commit-config.yaml ]; then
             python -m pip install --upgrade pip
             python -m pip install pre-commit pylint pyright
+            python -m pip install -e .
             echo "$HOME/.local/bin" >> $GITHUB_PATH
             pre-commit run --all-files --show-diff-on-failure
           elif [ -f pyproject.toml ] || ls *.py >/dev/null 2>&1; then

@@ -4,6 +4,9 @@ set -euo pipefail
 echo "[validate-local] Running full local validation..."
 
 if command -v pre-commit >/dev/null 2>&1 && [ -f .pre-commit-config.yaml ]; then
+  if command -v python >/dev/null 2>&1 && [ -f setup.cfg ]; then
+    python -m pip install -e .
+  fi
   pre-commit run --all-files --show-diff-on-failure
 fi
 
