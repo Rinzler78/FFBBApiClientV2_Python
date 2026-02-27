@@ -50,4 +50,28 @@ else
   exit 1
 fi
 
+# Replay GitHub workflows locally using act for environment parity.
+if [ -d .github/workflows ]; then
+  if ! command -v act >/dev/null 2>&1; then
+    echo "[validate-local] Missing act in PATH. Install act to replay CI workflows locally." >&2
+    exit 1
+  fi
+  if ! command -v docker >/dev/null 2>&1; then
+    echo "[validate-local] Missing docker in PATH. Docker is required by act." >&2
+    exit 1
+  fi
+
+  ACT_SECRET_ARGS=()
+  if [ -f .secrets.act ]; then
+    ACT_SECRET_ARGS=(--secret-file .secrets.act)
+  fi
+
+  if [ -f .github/workflows/quality-gates.yml ]; then
+    act pull_request -W .github/workflows/quality-gates.yml "${ACT_SECRET_ARGS[@]}"
+  fi
+  if [ -f .github/workflows/ci.yml ]; then
+    act pull_request -W .github/workflows/ci.yml "${ACT_SECRET_ARGS[@]}"
+  fi
+fi
+
 echo "[validate-local] Validation completed successfully."
