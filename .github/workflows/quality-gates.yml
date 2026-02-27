@@ -20,7 +20,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if [ -f pyproject.toml ] || ls *.py >/dev/null 2>&1; then
+          if [ -f .pre-commit-config.yaml ]; then
+            python -m pip install --upgrade pip
+            python -m pip install pre-commit pylint pyright
+            echo "$HOME/.local/bin" >> $GITHUB_PATH
+            pre-commit run --all-files --show-diff-on-failure
+          elif [ -f pyproject.toml ] || ls *.py >/dev/null 2>&1; then
             python -m pip install --upgrade pip
             python -m pip install ruff pytest
             ruff check .
@@ -38,3 +43,5 @@ jobs:
 
       - name: gitleaks
         uses: gitleaks/gitleaks-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
