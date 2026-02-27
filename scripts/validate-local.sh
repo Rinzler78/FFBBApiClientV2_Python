@@ -81,16 +81,19 @@ if [ -d .github/workflows ]; then
     exit 1
   fi
 
-  ACT_SECRET_ARGS=()
-  if [ -f .secrets.act ]; then
-    ACT_SECRET_ARGS=(--secret-file .secrets.act)
-  fi
-
   if [ -f .github/workflows/quality-gates.yml ]; then
-    act pull_request -W .github/workflows/quality-gates.yml "${ACT_SECRET_ARGS[@]}"
+    if [ -f .secrets.act ]; then
+      act pull_request -W .github/workflows/quality-gates.yml --secret-file .secrets.act
+    else
+      act pull_request -W .github/workflows/quality-gates.yml
+    fi
   fi
   if [ -f .github/workflows/ci.yml ]; then
-    act pull_request -W .github/workflows/ci.yml "${ACT_SECRET_ARGS[@]}"
+    if [ -f .secrets.act ]; then
+      act pull_request -W .github/workflows/ci.yml --secret-file .secrets.act
+    else
+      act pull_request -W .github/workflows/ci.yml
+    fi
   fi
 fi
 
