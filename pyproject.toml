@@ -53,3 +53,22 @@ addopts = "-v --tb=short"
 source = ["src"]
 branch = true
 parallel = true
+
+[tool.coverage.report]
+fail_under = 85
+skip_covered = true
+show_missing = true
+
+[tool.interrogate]
+ignore-init-method = true
+ignore-init-module = true
+ignore-magic = true
+ignore-module = true
+ignore-nested-functions = true
+ignore-nested-classes = true
+ignore-private = true
+ignore-semiprivate = true
+ignore-property-decorators = true
+exclude = ["tests", "scripts", "examples", "docs", "build", "dist"]
+fail-under = 0
+verbose = 1

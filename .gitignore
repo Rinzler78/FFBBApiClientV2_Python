@@ -56,6 +56,13 @@ MANIFEST
 http_cache.sqlite
 http_cache.db
 .claude*
+!.claude/
+!.claude/**
+.claude/settings.local.json
+.claude/worktrees/
+.claude/.pending-validation
+.claude/*.log
+.claude/cache/
 .hive-mind
 uv.lock
 data/type_discovery_raw.json

@@ -89,6 +89,7 @@ repos:
     types: [python]
     exclude: ^(tests|scripts|examples)/
 
+
 # Check for misspells in documentation files:
 # - repo: https://github.com/codespell-project/codespell
 #   rev: v2.2.5

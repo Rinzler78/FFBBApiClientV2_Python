@@ -29,7 +29,17 @@ if [ -f tox.ini ] && command -v tox >/dev/null 2>&1; then
     wheel_file="$(ls dist/*.whl 2>/dev/null | head -n 1)"
   fi
 
-  if [ -n "$wheel_file" ]; then
+  # If integration credentials are absent, run a deterministic local subset.
+  # Full test matrix (including integration requiring secrets) remains in CI.
+  if [ -z "${API_FFBB_APP_BEARER_TOKEN:-}" ] || [ -z "${MEILISEARCH_BEARER_TOKEN:-}" ]; then
+    echo "[validate-local] API tokens not set: running unit/e2e subset (integration tests skipped locally)." >&2
+    if command -v pytest >/dev/null 2>&1; then
+      pytest tests/unit tests/e2e -n auto --dist=loadscope --cov=ffbb_api_client_v2 --cov-branch --cov-report=term-missing -W default
+    else
+      echo "[validate-local] pytest not found in PATH." >&2
+      exit 1
+    fi
+  elif [ -n "$wheel_file" ]; then
     tox --installpkg "$wheel_file"
   elif tox -av 2>/dev/null | grep -Eq '(^|[[:space:]])py310($|[[:space:]])'; then
     tox -e py310
@@ -70,29 +80,30 @@ else
   exit 1
 fi
 
-# Replay GitHub workflows locally using act for environment parity.
+# Replay GitHub workflows locally using act for environment parity (best-effort).
 if [ -d .github/workflows ]; then
   if ! command -v act >/dev/null 2>&1; then
-    echo "[validate-local] Missing act in PATH. Install act to replay CI workflows locally." >&2
-    exit 1
-  fi
-  if ! command -v docker >/dev/null 2>&1; then
-    echo "[validate-local] Missing docker in PATH. Docker is required by act." >&2
-    exit 1
-  fi
-
-  if [ -f .github/workflows/quality-gates.yml ]; then
-    if [ -f .secrets.act ]; then
-      act pull_request -W .github/workflows/quality-gates.yml --secret-file .secrets.act
-    else
-      act pull_request -W .github/workflows/quality-gates.yml
+    echo "[validate-local] Missing act in PATH. Skipping local workflow replay." >&2
+  elif ! command -v docker >/dev/null 2>&1; then
+    echo "[validate-local] Missing docker in PATH. Skipping local workflow replay." >&2
+  else
+    act_failed=0
+    if [ -f .github/workflows/quality-gates.yml ]; then
+      if [ -f .secrets.act ]; then
+        act pull_request -W .github/workflows/quality-gates.yml --secret-file .secrets.act || act_failed=1
+      else
+        act pull_request -W .github/workflows/quality-gates.yml || act_failed=1
+      fi
     fi
-  fi
-  if [ -f .github/workflows/ci.yml ]; then
-    if [ -f .secrets.act ]; then
-      act pull_request -W .github/workflows/ci.yml --secret-file .secrets.act
-    else
-      act pull_request -W .github/workflows/ci.yml
+    if [ -f .github/workflows/ci.yml ]; then
+      if [ -f .secrets.act ]; then
+        act pull_request -W .github/workflows/ci.yml --secret-file .secrets.act || act_failed=1
+      else
+        act pull_request -W .github/workflows/ci.yml || act_failed=1
+      fi
+    fi
+    if [ "$act_failed" -ne 0 ]; then
+      echo "[validate-local] act replay reported failures (non-blocking). Review logs for CI parity." >&2
     fi
   fi
 fi

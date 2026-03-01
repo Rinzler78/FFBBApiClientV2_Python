@@ -1,10 +1,14 @@
 # Project Context
 
 ## Purpose
-FFBBApiClientV2_Python is a python project.
+Modern Python client library for FFBB APIs, exposing a typed dual-backend facade over Directus REST and Meilisearch.
 
 ## Tech Stack
-- python
+- Python 3.10+
+- requests, requests-cache
+- python-dateutil, python-dotenv
+- pytest, tox, pre-commit
+- Directus REST API and Meilisearch API backends
 
 ## Project Conventions
 
@@ -12,7 +16,7 @@ FFBBApiClientV2_Python is a python project.
 FFBBApiClientV2_Python enforces Clean Code, SOLID, DRY, and KISS through pre-commit and CI quality gates.
 
 ### Architecture Patterns
-Use explicit architecture boundaries (Clean Architecture) and documented design patterns per module.
+Use explicit architecture boundaries (Clean Architecture) and a dual-backend facade pattern (Directus + Meilisearch) per domain entity.
 
 ### Testing Strategy
 Use TDD by default for new behavior and keep unit/integration/e2e coverage aligned with risk.
@@ -21,13 +25,15 @@ Use TDD by default for new behavior and keep unit/integration/e2e coverage align
 Git Flow with master/develop, feature branches in dedicated worktrees, and Conventional Commits.
 
 ## Domain Context
-Domain context for FFBBApiClientV2_Python; refine with business-specific details.
+FFBB basketball entities: organismes, clubs, salles, terrains, competitions, engagements, rencontres, joueurs, entraineurs, and saisons.
 
 ## Important Constraints
-Preserve backward compatibility, enforce quality/security gates, and follow Git Flow/worktree policy.
+Preserve backward compatibility of the public client API, enforce quality/security gates, and follow Git Flow with linked worktrees.
 
 ## External Dependencies
-External APIs/services and third-party dependencies used by FFBBApiClientV2_Python.
+- FFBB Directus REST API
+- FFBB Meilisearch API
+- PyPI dependencies: requests, requests-cache, python-dateutil, python-dotenv
 
 <!-- BEGIN:OPENSPEC_DELIVERY_RULES -->
 ## Delivery Rules (Managed)

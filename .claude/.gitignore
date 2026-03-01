@@ -1,0 +1,8 @@
+# Local runtime artifacts (must stay unversioned)
+settings.local.json
+.pending-validation
+worktrees/
+projects/
+memory/
+cache/
+*.log
