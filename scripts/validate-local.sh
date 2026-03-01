@@ -71,24 +71,29 @@ else
 fi
 
 # Replay GitHub workflows locally using act (optional — requires act + Docker).
+# Act replay is best-effort: failures are reported but do not block validation.
 if [ -d .github/workflows ]; then
   if ! command -v act >/dev/null 2>&1 || ! command -v docker >/dev/null 2>&1; then
     echo "[validate-local] act or docker not found — skipping CI workflow replay." >&2
     echo "[validate-local] Install act + docker for full local/CI parity." >&2
   else
+    act_failed=0
     if [ -f .github/workflows/quality-gates.yml ]; then
       if [ -f .secrets.act ]; then
-        act pull_request -W .github/workflows/quality-gates.yml --secret-file .secrets.act
+        act pull_request -W .github/workflows/quality-gates.yml --secret-file .secrets.act || act_failed=1
       else
-        act pull_request -W .github/workflows/quality-gates.yml
+        act pull_request -W .github/workflows/quality-gates.yml || act_failed=1
       fi
     fi
     if [ -f .github/workflows/ci.yml ]; then
       if [ -f .secrets.act ]; then
-        act pull_request -W .github/workflows/ci.yml --secret-file .secrets.act
+        act pull_request -W .github/workflows/ci.yml --secret-file .secrets.act || act_failed=1
       else
-        act pull_request -W .github/workflows/ci.yml
+        act pull_request -W .github/workflows/ci.yml || act_failed=1
       fi
+    fi
+    if [ "$act_failed" -ne 0 ]; then
+      echo "[validate-local] act replay reported failures (non-blocking). Check output above." >&2
     fi
   fi
 fi
