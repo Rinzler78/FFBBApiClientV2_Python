@@ -98,5 +98,4 @@ repos:
 - repo: https://github.com/gitleaks/gitleaks
   rev: v8.30.0
   hooks:
-  - id: gitleaks-system
-    pass_filenames: false
+  - id: gitleaks
