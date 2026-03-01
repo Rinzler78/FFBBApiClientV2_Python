@@ -1,0 +1,78 @@
+schema: tooling-banks-by-type-v1
+owner: "project-FFBBApiClientV2_Python"
+
+sources_by_type:
+
+  mcps:
+    - name: sequential-thinking
+      scope: project
+      status: enabled
+      reason: "Declared in .claude/CLAUDE.md as allowed project MCP. Activated on-demand per session — no .mcp.json entry needed."
+
+  memories:
+    - name: serena-memory-tools
+      scope: project
+      status: excluded
+      reason: "Memory-bank-strategy policy: Byterover is the sole durable memory bank. Serena memory tools (write_memory, read_memory, list_memories, delete_memory) excluded in .serena/project.yml."
+
+  plugins:
+    - name: context7@claude-plugins-official
+      scope: user
+      status: enabled
+      reason: "External documentation retrieval. Enabled at user scope in ~/.claude/settings.json."
+    - name: serena@claude-plugins-official
+      scope: user
+      status: enabled
+      reason: "Semantic code navigation and editing. Enabled at user scope in ~/.claude/settings.json."
+    - name: github@claude-plugins-official
+      scope: user
+      status: enabled
+      reason: "GitHub integration for PRs, issues, and code review. Enabled at user scope."
+    - name: code-review@claude-plugins-official
+      scope: user
+      status: enabled
+      reason: "Automated code review support. Enabled at user scope."
+    - name: security-guidance@claude-plugins-official
+      scope: user
+      status: enabled
+      reason: "Security guidance for safe coding patterns. Enabled at user scope."
+    - name: commit-commands@claude-plugins-official
+      scope: user
+      status: enabled
+      reason: "Git commit workflow commands. Enabled at user scope."
+    - name: pyright-lsp@claude-plugins-official
+      scope: user
+      status: enabled
+      reason: "Python type checking via Pyright LSP. Enabled at user scope."
+
+  agents:
+    - name: workflow-orchestration
+      scope: global-optional
+      status: skipped
+      reason: "Covered by project-orchestrator agent + project-governance skill."
+    - name: awesome-agent-skills
+      scope: global-optional
+      status: skipped
+      reason: "Catalogue reference only. 7 project-specific agents already defined in .claude/agents/."
+
+  skills:
+    - name: anthropics-skills
+      scope: global
+      status: skipped
+      reason: "Covered by project-governance + python-quality skills and 4 OpenSpec skills in .claude/skills/."
+    - name: awesome-agent-skills
+      scope: global-optional
+      status: skipped
+      reason: "Catalogue reference only. Project skills are self-contained."
+
+  hooks:
+    - name: workflow-orchestration
+      scope: global-optional
+      status: skipped
+      reason: "Covered by pre-delivery-check.sh hook and settings.local.json hook configuration."
+
+  commands:
+    - name: workflow-orchestration
+      scope: global
+      status: skipped
+      reason: "Covered by 3 project commands, 4 opsx commands, and 3 utility commands in .claude/commands/."

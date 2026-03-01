@@ -70,29 +70,25 @@ else
   exit 1
 fi
 
-# Replay GitHub workflows locally using act for environment parity.
+# Replay GitHub workflows locally using act (optional — requires act + Docker).
 if [ -d .github/workflows ]; then
-  if ! command -v act >/dev/null 2>&1; then
-    echo "[validate-local] Missing act in PATH. Install act to replay CI workflows locally." >&2
-    exit 1
-  fi
-  if ! command -v docker >/dev/null 2>&1; then
-    echo "[validate-local] Missing docker in PATH. Docker is required by act." >&2
-    exit 1
-  fi
-
-  if [ -f .github/workflows/quality-gates.yml ]; then
-    if [ -f .secrets.act ]; then
-      act pull_request -W .github/workflows/quality-gates.yml --secret-file .secrets.act
-    else
-      act pull_request -W .github/workflows/quality-gates.yml
+  if ! command -v act >/dev/null 2>&1 || ! command -v docker >/dev/null 2>&1; then
+    echo "[validate-local] act or docker not found — skipping CI workflow replay." >&2
+    echo "[validate-local] Install act + docker for full local/CI parity." >&2
+  else
+    if [ -f .github/workflows/quality-gates.yml ]; then
+      if [ -f .secrets.act ]; then
+        act pull_request -W .github/workflows/quality-gates.yml --secret-file .secrets.act
+      else
+        act pull_request -W .github/workflows/quality-gates.yml
+      fi
     fi
-  fi
-  if [ -f .github/workflows/ci.yml ]; then
-    if [ -f .secrets.act ]; then
-      act pull_request -W .github/workflows/ci.yml --secret-file .secrets.act
-    else
-      act pull_request -W .github/workflows/ci.yml
+    if [ -f .github/workflows/ci.yml ]; then
+      if [ -f .secrets.act ]; then
+        act pull_request -W .github/workflows/ci.yml --secret-file .secrets.act
+      else
+        act pull_request -W .github/workflows/ci.yml
+      fi
     fi
   fi
 fi

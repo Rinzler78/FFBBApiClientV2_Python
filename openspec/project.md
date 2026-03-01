@@ -1,10 +1,15 @@
 # Project Context
 
 ## Purpose
-FFBBApiClientV2_Python is a python project.
+Modern Python client library for the FFBB (French Basketball Federation) APIs. Provides a dual-backend facade over Directus REST and Meilisearch endpoints with type-safe models, flexible field selection, and comprehensive testing.
 
 ## Tech Stack
-- python
+- Python 3.10+
+- requests / requests-cache (HTTP + caching)
+- python-dateutil, python-dotenv (utilities)
+- Directus REST API backend
+- Meilisearch search backend
+- pytest, tox, pre-commit (dev tooling)
 
 ## Project Conventions
 
@@ -12,22 +17,24 @@ FFBBApiClientV2_Python is a python project.
 FFBBApiClientV2_Python enforces Clean Code, SOLID, DRY, and KISS through pre-commit and CI quality gates.
 
 ### Architecture Patterns
-Use explicit architecture boundaries (Clean Architecture) and documented design patterns per module.
+Dual-backend facade pattern: each FFBB entity can be queried via Directus REST or Meilisearch. Use explicit architecture boundaries (Clean Architecture) and documented design patterns per module.
 
 ### Testing Strategy
-Use TDD by default for new behavior and keep unit/integration/e2e coverage aligned with risk.
+Use TDD by default for new behavior and keep unit/integration/e2e coverage aligned with risk. Contract tests validate API response schemas.
 
 ### Git Workflow
 Git Flow with master/develop, feature branches in dedicated worktrees, and Conventional Commits.
 
 ## Domain Context
-Domain context for FFBBApiClientV2_Python; refine with business-specific details.
+FFBB basketball domain entities: organismes, clubs, salles, terrains, competitions, engagements, rencontres, joueurs, entraineurs, saisons. The client exposes typed models for each entity and supports dual-backend queries (Directus for structured data, Meilisearch for full-text search).
 
 ## Important Constraints
-Preserve backward compatibility, enforce quality/security gates, and follow Git Flow/worktree policy.
+Preserve backward compatibility of the public API surface. Enforce quality/security gates and follow Git Flow/worktree policy. Both API backends may evolve independently.
 
 ## External Dependencies
-External APIs/services and third-party dependencies used by FFBBApiClientV2_Python.
+- FFBB Directus REST API (primary structured data source)
+- FFBB Meilisearch instance (full-text search)
+- PyPI dependencies: requests, requests-cache, python-dateutil, python-dotenv
 
 <!-- BEGIN:OPENSPEC_DELIVERY_RULES -->
 ## Delivery Rules (Managed)

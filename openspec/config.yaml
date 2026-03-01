@@ -1,11 +1,11 @@
 schema: spec-driven
 context: |
   Project: FFBBApiClientV2_Python
-  Purpose: FFBBApiClientV2_Python is a python project.
-  Tech stack: python
-  Domain context: Domain context for FFBBApiClientV2_Python; refine with business-specific details.
-  Constraints: Preserve backward compatibility, enforce quality/security gates, and follow Git Flow/worktree policy.
-  External dependencies: External APIs/services and third-party dependencies used by FFBBApiClientV2_Python.
+  Purpose: Modern Python client library for the FFBB (French Basketball Federation) APIs with dual-backend facade (Directus REST + Meilisearch).
+  Tech stack: Python 3.10+, requests, requests-cache, python-dateutil, python-dotenv, Directus, Meilisearch
+  Domain context: FFBB basketball entities (organismes, clubs, salles, terrains, competitions, engagements, rencontres, joueurs, entraineurs, saisons) with typed models and dual-backend query pattern.
+  Constraints: Preserve backward compatibility of the public API surface, enforce quality/security gates, and follow Git Flow/worktree policy.
+  External dependencies: FFBB Directus REST API, FFBB Meilisearch instance, PyPI deps (requests, requests-cache, python-dateutil, python-dotenv).
 rules:
   proposal:
     - Define clean code expectations, architecture boundaries, and target design patterns.
