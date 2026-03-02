@@ -1,5 +1,30 @@
 # Release Notes - FFBB API Client V2
 
+## Version 1.4.0 (2026-02-18)
+
+### Major Changes
+
+#### **Simplified Field Management**
+- **BREAKING**: `QueryFieldsManager` is now an abstract base class (ABC) with a single `get_fields()` abstract method
+- **BREAKING**: All 14 `*Fields` classes now inherit from `QueryFieldsManager` and expose a single `get_fields()` method (replaces `get_default_fields()`, `get_detailed_fields()`, `get_basic_fields()`)
+- **BREAKING**: `FieldSet` enum reduced to `DEFAULT` only — `BASIC`, `DETAILED`, and `WILDCARD` removed
+- **BREAKING**: `WILDCARD` class constant removed from all `*Fields` classes
+- Default field lists now return all fields (content of former `get_detailed_fields()`), including member personal data for `OrganismeFields`
+
+### Migration from v1.3.0
+
+| Change | Before (v1.3.0) | After (v1.4.0) |
+|--------|-----------------|-----------------|
+| Field method | `QueryFieldsManager.get_X_fields()` | `XFields.get_fields()` |
+| FieldSet enum | `FieldSet.BASIC` / `FieldSet.DETAILED` / `FieldSet.WILDCARD` | `FieldSet.DEFAULT` only |
+| WILDCARD constant | `OrganismeFields.WILDCARD` | Removed — use `FieldSet.DEFAULT` |
+
+### Testing
+
+- **1700+ unit tests** with 96%+ branch coverage
+
+---
+
 ## Version 1.3.0 (2026-02-10)
 
 ### 🚀 Major Features & Improvements
@@ -356,7 +381,7 @@ python3.10 --version
 
 ### API Response Objects
 ```python
-# Before v2.1.0
+# Before v1.1.0
 organisme = client.get_organisme(123)
 name = organisme['nom']  # Dictionary access
 
@@ -367,10 +392,10 @@ name = organisme.nom  # Object attribute access
 
 ### Field Selection
 ```python
-# Before v2.1.0
+# Before v1.1.0
 fields = ["id", "nom", "code"]  # Manual field lists
 
-# After v2.1.0
+# After v1.1.0
 from ffbb_api_client_v2.models.query_fields import QueryFieldsManager, FieldSet
 fields = QueryFieldsManager.get_organisme_fields(FieldSet.BASIC)
 ```
