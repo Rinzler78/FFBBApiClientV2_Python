@@ -1,0 +1,111 @@
+schema: tooling-decisions-v1
+project: FFBBApiClientV2_Python
+updated: "2026-03-02"
+
+decisions:
+
+  # --- Agents ---
+  - type: agent
+    name: api-contract-guardian
+    status: installed
+    reason: >
+      Validates API client contract stability and response mapping.
+      Domain-specific to this FFBB API client project.
+    date: "2026-03-02"
+
+  - type: agent
+    name: python-reviewer
+    status: installed
+    reason: >
+      Reviews Python implementation quality and regressions.
+      Stack-specific, not duplicated by global agents.
+    date: "2026-03-02"
+
+  - type: agent
+    name: release-manager-lite
+    status: installed
+    reason: >
+      Lightweight release readiness checks for this library.
+      Runs on haiku for cost efficiency.
+    date: "2026-03-02"
+
+  - type: agent
+    name: project-cost-optimizer
+    status: rejected
+    reason: >
+      Duplicates global token-cost-optimizer agent.
+      Removed to avoid redundancy.
+    date: "2026-03-02"
+
+  - type: agent
+    name: project-orchestrator
+    status: rejected
+    reason: >
+      Duplicates global orchestrator-planner agent.
+      Removed to avoid redundancy.
+    date: "2026-03-02"
+
+  - type: agent
+    name: project-code-reviewer
+    status: rejected
+    reason: >
+      Duplicates global code-reviewer agent.
+      Removed to avoid redundancy.
+    date: "2026-03-02"
+
+  - type: agent
+    name: project-test-guardian
+    status: rejected
+    reason: >
+      Duplicates global test-strategist agent.
+      Removed to avoid redundancy.
+    date: "2026-03-02"
+
+  # --- MCP ---
+  - type: mcp
+    name: sequential-thinking
+    status: installed
+    reason: >
+      Project-specific MCP for complex reasoning tasks.
+      Does not duplicate any global MCP.
+    date: "2026-03-02"
+
+  - type: mcp
+    name: memory-local
+    status: rejected
+    reason: >
+      Violates MCP policy: byterover-mcp is the designated
+      cross-project durable memory bank. No project-local memory MCP allowed.
+    date: "2026-03-02"
+
+  # --- Skills ---
+  - type: skill
+    name: openspec-propose
+    status: installed
+    reason: >
+      OpenSpec methodology is mandatory per governance.
+      Required for structured change proposals.
+    date: "2026-03-02"
+
+  - type: skill
+    name: openspec-apply-change
+    status: installed
+    reason: Required for OpenSpec implementation workflow.
+    date: "2026-03-02"
+
+  - type: skill
+    name: worktree-deliver
+    status: installed
+    reason: >
+      Required for Git worktree-based delivery workflow
+      per branching policy.
+    date: "2026-03-02"
+
+  # --- Plugins ---
+  - type: plugin
+    name: pyright-lsp
+    status: rejected-at-project
+    reason: >
+      Already enabled at global/user scope.
+      Removed from project settings to avoid duplication.
+    date: "2026-03-02"

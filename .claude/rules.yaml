@@ -1,0 +1,69 @@
+schema: development-rules-v1
+scope: project
+inherits: ~/.claude/rules/base.yaml
+
+language:
+  name: python
+  version: ">=3.10"
+
+code_style:
+  formatter: black
+  linter: ruff
+  max_line_length: 140
+  type_hints: required_on_public_apis
+  type_checker:
+    - mypy
+    - pyright
+  naming:
+    classes: PascalCase
+    functions: snake_case
+    constants: UPPER_SNAKE_CASE
+    private: _prefixed
+  imports:
+    sorter: isort
+    style: black-compatible
+  patterns:
+    - prefer dataclasses or attrs for data models
+    - use Optional[T] or T | None for nullable types
+    - avoid bare except; catch specific exceptions
+
+domain:
+  api_models:
+    - all public models must match upstream FFBB API contract
+    - field names follow API naming (camelCase mapped to snake_case)
+  backward_compatibility:
+    - public API surface changes require contract tests
+    - deprecation before removal (minimum 1 minor version)
+  caching:
+    - requests_cache for HTTP caching
+    - cache configuration must be user-controllable
+
+testing:
+  framework: pytest
+  coverage:
+    tool: pytest-cov
+    branch_minimum: 96
+  layers:
+    - unit: business logic, model parsing
+    - contract: API endpoint response structure
+    - integration: real API calls (marker-gated)
+  markers:
+    - unit
+    - integration
+    - slow
+    - e2e
+
+docstrings:
+  style: google
+  required_on: public classes and functions
+
+packaging:
+  build_system: setuptools
+  version_scheme: setuptools_scm
+  scaffold: pyscaffold
+
+delivery:
+  commits: conventional-commits
+  branching: git-flow
+  pre_commit: mandatory
+  ci: github-actions
