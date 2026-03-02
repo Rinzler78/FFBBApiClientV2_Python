@@ -83,7 +83,11 @@ read_only: false
 #  * `think_about_task_adherence`: Thinking tool for determining whether the agent is still on track with the current task.
 #  * `think_about_whether_you_are_done`: Thinking tool for determining whether the task is truly completed.
 #  * `write_memory`: Writes a named memory (for future reference) to Serena's project-specific memory store.
-excluded_tools: []
+excluded_tools:
+  - write_memory
+  - read_memory
+  - list_memories
+  - delete_memory
 
 # list of tools to include that would otherwise be disabled (particularly optional tools that are disabled by default)
 included_optional_tools: []
