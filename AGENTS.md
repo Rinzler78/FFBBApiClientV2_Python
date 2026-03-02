@@ -20,6 +20,8 @@ Keep this managed block so `openspec update` can refresh the instructions.
 ## Project Engineering Rules (Managed)
 
 ### Coding Rules
+- Development rules: user baseline `~/.claude/rules/base.yaml` + project `@/.claude/rules.yaml`.
+- All agents must consult these rules during code generation and review.
 - Apply Clean Code principles: small cohesive units, explicit naming, no dead code.
 - Apply SOLID, DRY, and KISS by default.
 - Keep clear Clean Architecture boundaries (domain/application/infrastructure).
