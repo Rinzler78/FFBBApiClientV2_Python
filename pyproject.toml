@@ -42,13 +42,6 @@ disable = [
 # Ignore generated model files for certain checks
 ignore-patterns = ["test_.*"]
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
-addopts = "-v --tb=short"
-
 [tool.coverage.run]
 source = ["src"]
 branch = true
