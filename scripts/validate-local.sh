@@ -44,6 +44,10 @@ fi
 
 # Security gate parity with CI (mandatory when CI has security scanning).
 if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks_cfg=""
+  if [ -f .gitleaks.toml ]; then
+    gitleaks_cfg="-c .gitleaks.toml"
+  fi
   if command -v git >/dev/null 2>&1 && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
     base_ref="${GITLEAKS_BASE_REF:-origin/develop}"
     head_sha="$(git rev-parse HEAD)"
@@ -55,15 +59,15 @@ if command -v gitleaks >/dev/null 2>&1; then
         base_sha=""
       fi
       if [ -n "$base_sha" ]; then
-        gitleaks detect --no-banner --redact --log-opts="--no-merges --first-parent ${base_sha}^..${head_sha}"
+        gitleaks detect --no-banner --redact $gitleaks_cfg --log-opts="--no-merges --first-parent ${base_sha}^..${head_sha}"
       else
-        gitleaks detect --source . --no-banner --redact
+        gitleaks detect --source . --no-banner --redact $gitleaks_cfg
       fi
     else
-      gitleaks detect --source . --no-banner --redact
+      gitleaks detect --source . --no-banner --redact $gitleaks_cfg
     fi
   else
-    gitleaks detect --source . --no-banner --redact
+    gitleaks detect --source . --no-banner --redact $gitleaks_cfg
   fi
 else
   echo "[validate-local] Missing gitleaks in PATH. Install gitleaks to satisfy local/CI security parity." >&2
@@ -71,28 +75,39 @@ else
 fi
 
 # Replay GitHub workflows locally using act for environment parity.
+# Worktrees are incompatible with act: Docker containers cannot follow the
+# .git file reference to the main repo, causing git, setuptools_scm, and
+# pre-commit to fail. In worktrees, skip act replay since the local checks
+# above (pre-commit + tox + gitleaks) already cover the same gates.
+# Full act replay runs from the main repo checkout.
 if [ -d .github/workflows ]; then
-  if ! command -v act >/dev/null 2>&1; then
-    echo "[validate-local] Missing act in PATH. Install act to replay CI workflows locally." >&2
-    exit 1
-  fi
-  if ! command -v docker >/dev/null 2>&1; then
-    echo "[validate-local] Missing docker in PATH. Docker is required by act." >&2
-    exit 1
-  fi
-
-  if [ -f .github/workflows/quality-gates.yml ]; then
-    if [ -f .secrets.act ]; then
-      act pull_request -W .github/workflows/quality-gates.yml --secret-file .secrets.act
-    else
-      act pull_request -W .github/workflows/quality-gates.yml
+  git_common="$(git rev-parse --git-common-dir 2>/dev/null || true)"
+  if [ -n "$git_common" ] && [ "$git_common" != ".git" ]; then
+    echo "[validate-local] Worktree detected — skipping act replay (Docker cannot resolve worktree .git references)."
+    echo "[validate-local] Local checks (pre-commit + tox + gitleaks) passed. Run act from the main repo for full CI replay."
+  else
+    if ! command -v act >/dev/null 2>&1; then
+      echo "[validate-local] Missing act in PATH. Install act to replay CI workflows locally." >&2
+      exit 1
     fi
-  fi
-  if [ -f .github/workflows/ci.yml ]; then
-    if [ -f .secrets.act ]; then
-      act pull_request -W .github/workflows/ci.yml --secret-file .secrets.act
-    else
-      act pull_request -W .github/workflows/ci.yml
+    if ! command -v docker >/dev/null 2>&1; then
+      echo "[validate-local] Missing docker in PATH. Docker is required by act." >&2
+      exit 1
+    fi
+
+    if [ -f .github/workflows/quality-gates.yml ]; then
+      if [ -f .secrets.act ]; then
+        act pull_request -W .github/workflows/quality-gates.yml --secret-file .secrets.act
+      else
+        act pull_request -W .github/workflows/quality-gates.yml
+      fi
+    fi
+    if [ -f .github/workflows/ci.yml ]; then
+      if [ -f .secrets.act ]; then
+        act pull_request -W .github/workflows/ci.yml --secret-file .secrets.act
+      else
+        act pull_request -W .github/workflows/ci.yml
+      fi
     fi
   fi
 fi

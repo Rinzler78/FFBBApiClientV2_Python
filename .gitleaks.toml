@@ -1,0 +1,12 @@
+[extend]
+# Extend the default gitleaks rules
+
+# Known false positives in historical commits:
+# - scripts/discover_types.py: variable names api_token/meili_token flagged as generic-api-key
+# - tests/test_secure_logging.py: fake test tokens for logging tests (file since removed)
+[allowlist]
+description = "Known false positives: variable names and test fixtures"
+paths = [
+  '''scripts/discover_types\.py''',
+  '''tests/test_secure_logging\.py''',
+]
