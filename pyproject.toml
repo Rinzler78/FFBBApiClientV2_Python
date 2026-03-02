@@ -42,6 +42,11 @@ disable = [
 # Ignore generated model files for certain checks
 ignore-patterns = ["test_.*"]
 
+[tool.commitizen]
+version_provider = "scm"
+tag_format = "v$version"
+update_changelog_on_bump = false
+
 [tool.coverage.run]
 source = ["src"]
 branch = true
