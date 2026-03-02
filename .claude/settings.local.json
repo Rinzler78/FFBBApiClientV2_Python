@@ -31,7 +31,7 @@
       "WebFetch(domain:mkdocstrings.github.io)",
       "WebFetch(domain:git-cliff.org)",
       "WebFetch(domain:devtoolhub.com)",
-      "Bash(ls /Users/bleclereperso/.claude/checks/*.md | wc -l && echo \"---\" && ls /Users/bleclereperso/.claude/checks/*.md)",
+      "Bash(ls ~/.claude/checks/*.md | wc -l && echo \"---\" && ls ~/.claude/checks/*.md)",
       "Bash(python3 -c \"import yaml; [yaml.safe_load\\(open\\(f\\)\\) for f in ['.github/workflows/ci.yml', '.github/workflows/quality-gates.yml', '.github/release.yml', '.readthedocs.yaml']]; print\\('YAML OK'\\)\")"
     ],
     "deny": [
