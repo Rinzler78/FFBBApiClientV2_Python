@@ -53,6 +53,7 @@ It provides a comprehensive interface to retrieve information about clubs, teams
 What's New
 ==========
 
+- **v1.4.0**: Simplified field management (single ``FieldSet.DEFAULT``), ``QueryFieldsManager`` is now an ABC, all ``*Fields`` classes expose ``get_fields()``
 - **v1.3.0**: Simplified Directus API (``fields`` removed, typed deep params), 2 new Meilisearch indexes (engagements, formations), ``filter``/``sort``/``limit`` on all 18 search methods, corrected TerrainsHit/TournoisHit models
 - **v1.2.0**: TokenManager with automatic token resolution from FFBB public endpoint
 - **Basketball analytics notebooks** for Elo rating and season projection
@@ -263,7 +264,8 @@ If you prefer to use environment variables, set these in your ``.env`` file:
     tokens = TokenManager.get_tokens()  # From cache
 
     # Force refresh (v1.2.0+)
-    tokens = TokenManager.get_tokens(use_cache=False)
+    from ffbb_api_client_v2.utils.cache_manager import CacheConfig
+    tokens = TokenManager.get_tokens(cache_config=CacheConfig(enabled=False))
 
     # Clear cache (use CacheManager directly in v1.2.0+)
     from ffbb_api_client_v2.utils.cache_manager import CacheManager
@@ -315,6 +317,11 @@ Interactive notebooks and scripts are available in the ``examples/`` directory:
 - ``examples/basketball_dashboard.py`` - Interactive Streamlit dashboard
 - ``examples/user_journeys.py`` - End-to-end user journey examples
 - ``docs/api_architecture.md`` - API architecture and data model documentation
+
+Contributing
+============
+
+Contributions are welcome! See `CONTRIBUTING.rst <https://github.com/Rinzler78/FFBBApiClientV2_Python/blob/master/CONTRIBUTING.rst>`_ for development setup, branching conventions, and the pull request workflow.
 
 Licence
 =======
