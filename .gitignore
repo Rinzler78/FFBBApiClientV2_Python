@@ -55,7 +55,11 @@ MANIFEST
 .env
 http_cache.sqlite
 http_cache.db
-.claude*
+.claude/worktrees/
+.claude/plans/
+.claude/cache/
+.claude/CLAUDE.roadmap.md
+.claude/CLAUDE.specifications.md
 .hive-mind
 uv.lock
 data/type_discovery_raw.json
