@@ -7,6 +7,7 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
+import datetime
 import os
 import sys
 import shutil
@@ -88,7 +89,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "ffbb_api_client_v2"
-copyright = "2025, Rinzler78"
+copyright = f"2025-{datetime.datetime.now().year}, Rinzler78"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -274,11 +275,6 @@ python_version = ".".join(map(str, sys.version_info[0:2]))
 intersphinx_mapping = {
     "sphinx": ("https://www.sphinx-doc.org/en/master", None),
     "python": ("https://docs.python.org/" + python_version, None),
-    "matplotlib": ("https://matplotlib.org", None),
-    "numpy": ("https://numpy.org/doc/stable", None),
-    "sklearn": ("https://scikit-learn.org/stable", None),
-    "pandas": ("https://pandas.pydata.org/pandas-docs/stable", None),
-    "scipy": ("https://docs.scipy.org/doc/scipy/reference", None),
     "setuptools": ("https://setuptools.pypa.io/en/stable/", None),
     "pyscaffold": ("https://pyscaffold.org/en/stable", None),
 }

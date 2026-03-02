@@ -1,7 +1,3 @@
-# GitHub Actions configuration **EXAMPLE**,
-# MODIFY IT ACCORDING TO YOUR NEEDS!
-# Reference: https://docs.github.com/en/actions
-
 name: tests
 
 on:
@@ -9,7 +5,7 @@ on:
     # Avoid using all the resources/limits available by checking only
     # relevant branches and tags. Other branches can be checked via PRs.
     # branches: [main]
-    tags: ['v[0-9]*', '[0-9]+.[0-9]+*']  # Match tags that resemble a version
+    tags: ['v[0-9]+.[0-9]+.[0-9]+*']  # Match SemVer tags only
   pull_request:  # Run in every PR
   workflow_dispatch:  # Allow manually triggering the workflow
   schedule:
@@ -91,7 +87,7 @@ jobs:
         run: pipx run coverage lcov -o coverage.lcov
       - name: Upload partial coverage report
         continue-on-error: true
-        uses: coverallsapp/github-action@master
+        uses: coverallsapp/github-action@v2
         with:
           path-to-lcov: coverage.lcov
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -104,7 +100,7 @@ jobs:
     steps:
       - name: Finalize coverage report
         continue-on-error: true
-        uses: coverallsapp/github-action@master
+        uses: coverallsapp/github-action@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel-finished: true
@@ -131,3 +127,8 @@ jobs:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
         run: pipx run tox -e publish
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: dist/*

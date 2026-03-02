@@ -476,6 +476,7 @@ class Test021RawMeilisearchConversion(unittest.TestCase):
         query: str = "Paris",
         facets: list[str] | None = None,
         limit: int = 3,
+        max_retries: int = 3,
     ) -> dict[str, Any]:
         """Helper: performs raw multi-search and returns the first result dict."""
         q: dict[str, Any] = {
@@ -486,12 +487,21 @@ class Test021RawMeilisearchConversion(unittest.TestCase):
         if facets:
             q["facets"] = facets
         payload = {"queries": [q]}
-        resp = requests.post(self.url, headers=self.headers, json=payload, timeout=15)
-        resp.raise_for_status()
-        data = resp.json()
-        results = data.get("results", [])
-        self.assertGreater(len(results), 0, f"No results for {index_uid}")
-        return results[0]
+        last_error: Exception | None = None
+        for attempt in range(max_retries):
+            try:
+                resp = requests.post(
+                    self.url, headers=self.headers, json=payload, timeout=15
+                )
+                resp.raise_for_status()
+                data = resp.json()
+                results = data.get("results", [])
+                self.assertGreater(len(results), 0, f"No results for {index_uid}")
+                return results[0]
+            except (requests.ConnectionError, requests.Timeout) as exc:
+                last_error = exc
+                time.sleep(1.0 * (attempt + 1))
+        raise last_error  # type: ignore[misc]
 
     # -- test_010: competitions search ------------------------------------
 

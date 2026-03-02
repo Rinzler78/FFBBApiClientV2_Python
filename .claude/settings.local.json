@@ -22,7 +22,17 @@
       "WebFetch(domain:github.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
       "WebFetch(domain:api.github.com)",
-      "mcp__serena__activate_project"
+      "mcp__serena__activate_project",
+      "Bash(git tag -l --sort=-version:refname | xargs -I{} git cat-file -t refs/tags/{} 2>/dev/null | sort | uniq -c)",
+      "WebFetch(domain:setuptools-scm.readthedocs.io)",
+      "WebFetch(domain:www.pyopensci.org)",
+      "WebFetch(domain:commitizen-tools.github.io)",
+      "WebFetch(domain:docs.readthedocs.com)",
+      "WebFetch(domain:mkdocstrings.github.io)",
+      "WebFetch(domain:git-cliff.org)",
+      "WebFetch(domain:devtoolhub.com)",
+      "Bash(ls ~/.claude/checks/*.md | wc -l && echo \"---\" && ls ~/.claude/checks/*.md)",
+      "Bash(python3 -c \"import yaml; [yaml.safe_load\\(open\\(f\\)\\) for f in ['.github/workflows/ci.yml', '.github/workflows/quality-gates.yml', '.github/release.yml', '.readthedocs.yaml']]; print\\('YAML OK'\\)\")"
     ],
     "deny": [
       "Bash(rm -rf:*)",

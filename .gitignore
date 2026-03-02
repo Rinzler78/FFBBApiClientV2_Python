@@ -58,7 +58,6 @@ http_cache.db
 .claude/worktrees/
 .claude/plans/
 .claude/cache/
-.claude/CLAUDE.roadmap.md
 .claude/CLAUDE.specifications.md
 .hive-mind
 uv.lock
