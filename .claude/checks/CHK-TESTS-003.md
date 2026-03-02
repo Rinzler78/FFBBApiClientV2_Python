@@ -14,13 +14,13 @@ evidence:
       exists: true
     - file: "tox.ini"
       contains_all: ["pytest", "--cov", "--cov-branch"]
-    - file: "pyproject.toml"
+    - file: "pytest.ini"
       contains_all: ["testpaths"]
 recommendations:
   - key: test_coverage_enforced
-    summary: "Ensure tox runs pytest with branch coverage on src/ffbb_api_client_v2"
+    summary: "Ensure tox runs pytest with branch coverage on src/ffbb_api_client_v2. Test config lives in pytest.ini (canonical source)."
     source: "AGENTS.md testing rules"
-    target_files: ["tox.ini", "pyproject.toml"]
+    target_files: ["tox.ini", "pytest.ini"]
 validation_criteria:
   required:
     - "tox -e py310 exits 0 with branch coverage reported"
@@ -28,7 +28,7 @@ validation_criteria:
     - "test"
 tags: ["quality", "testing", "coverage", "python"]
 owner: "project"
-version: 1
+version: 2
 ---
 
 ## Intent

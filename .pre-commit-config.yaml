@@ -89,6 +89,12 @@ repos:
     types: [python]
     exclude: ^(tests|scripts|examples)/
 
+- repo: https://github.com/commitizen-tools/commitizen
+  rev: v4.4.1
+  hooks:
+  - id: commitizen
+    stages: [commit-msg]
+
 # Check for misspells in documentation files:
 # - repo: https://github.com/codespell-project/codespell
 #   rev: v2.2.5

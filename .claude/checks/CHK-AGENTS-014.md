@@ -18,7 +18,7 @@ recommendations:
   - key: agent_definitions_enriched
     summary: "Each agent file should be >10 lines with domain-specific prompts, tool restrictions, and operational procedures"
     source: "project governance agent optimization"
-    target_files: [".claude/agents/api-contract-guardian.md", ".claude/agents/python-reviewer.md", ".claude/agents/release-manager-lite.md", ".claude/agents/project-orchestrator.md", ".claude/agents/project-code-reviewer.md", ".claude/agents/project-test-guardian.md", ".claude/agents/project-cost-optimizer.md"]
+    target_files: [".claude/agents/api-contract-guardian.md", ".claude/agents/python-reviewer.md", ".claude/agents/release-manager-lite.md"]
 validation_criteria:
   required:
     - "Each agent file is >10 lines with actionable instructions"

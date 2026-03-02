@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git:*)",
+      "Bash(pip:*)",
+      "Bash(python:*)",
+      "Bash(pytest:*)",
+      "Bash(ruff:*)",
+      "Bash(black:*)",
+      "Bash(mypy:*)",
+      "Bash(pre-commit:*)",
+      "Bash(gitleaks:*)",
+      "Bash(tox:*)",
+      "Bash(gh:*)",
+      "Bash(bash scripts/:*)",
+      "Bash(bash ~/scripts/:*)",
+      "Bash(~/.claude/bin/:*)",
+      "Edit",
+      "Write",
+      "MultiEdit",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:api.github.com)",
+      "mcp__serena__activate_project"
+    ],
+    "deny": [
+      "Bash(rm -rf:*)",
+      "Bash(curl:*)",
+      "Bash(wget:*)",
+      "Bash(eval:*)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "hooks": {},
+  "enabledPlugins": {}
+}
