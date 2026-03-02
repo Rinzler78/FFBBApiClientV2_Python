@@ -101,6 +101,25 @@ decisions:
       per branching policy.
     date: "2026-03-02"
 
+  # --- Hooks ---
+  - type: hook
+    name: PostToolUse-auto-format
+    status: delegated-to-global
+    reason: >
+      PostToolUse hook (ruff/black auto-format on .py files) is defined
+      at global user scope (~/.claude/settings.json). Project
+      settings.local.json hooks are intentionally empty to avoid
+      duplication per CHK-HOOKS-015 and quality_hooks_scope_delegation.
+    date: "2026-03-02"
+
+  - type: hook
+    name: PreToolUse-secret-scan
+    status: delegated-to-global
+    reason: >
+      PreToolUse secret scan hook is defined at global user scope.
+      Not duplicated at project level.
+    date: "2026-03-02"
+
   # --- Plugins ---
   - type: plugin
     name: pyright-lsp
