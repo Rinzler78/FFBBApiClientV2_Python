@@ -24,13 +24,21 @@ from __future__ import annotations
 
 import argparse
 import logging
+import re
 import sys
 import time
 import traceback
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
 
-from ffbb_api_client_v2 import FFBBAPIClientV2, TokenManager
+# Ensure local src/ takes precedence over editable installs
+_SCRIPT_DIR = Path(__file__).resolve().parent
+_SRC_DIR = str(_SCRIPT_DIR.parent / "src")
+if _SRC_DIR not in sys.path:
+    sys.path.insert(0, _SRC_DIR)
+
+from ffbb_api_client_v2 import FFBBAPIClientV2, TokenManager  # noqa: E402
 
 # Logger targeted by all from_* helpers
 _CONVERTER_LOGGER = "ffbb_api_client_v2.utils.converter_utils"
@@ -67,6 +75,90 @@ class WarningCollector(logging.Handler):
         self._records.clear()
         return msgs
 
+    def drain_grouped(self) -> list[tuple[str, int, list[str]]]:
+        """Return deduplicated warnings as (signature, count, example_values).
+
+        Groups warnings by a normalized signature (function + key + error kind),
+        counts occurrences, and collects distinct concrete values seen.
+        """
+        msgs = [self.format(r) for r in self._records]
+        self._records.clear()
+
+        groups: dict[str, list[str]] = {}
+        for msg in msgs:
+            sig = _warning_signature(msg)
+            groups.setdefault(sig, []).append(msg)
+
+        result: list[tuple[str, int, list[str]]] = []
+        for sig, occurrences in groups.items():
+            distinct_values = _extract_distinct_values(occurrences)
+            result.append((sig, len(occurrences), distinct_values))
+        result.sort(key=lambda x: -x[1])
+        return result
+
+
+# Regex patterns for normalizing warning messages into signatures
+_RE_CANNOT_PARSE = re.compile(r"(from_int\('[^']+'\): cannot parse )'[^']*'( as int)")
+_RE_UNEXPECTED_TYPE = re.compile(
+    r"(from_int\('[^']+'\): unexpected type \w+) \(value: [^)]*\)"
+)
+_RE_FROM_OBJ = re.compile(r"(from_obj\('[^']+'\): expected dict or None, got \w+)")
+_RE_UNKNOWN_ENUM = re.compile(r"(from_enum\([^,]+, '[^']+'\): unknown value )'([^']*)'")
+_RE_FROM_UUID = re.compile(r"(from_uuid\('[^']+'\): invalid UUID) '.{0,80}")
+_RE_FROM_STR = re.compile(r"(from_str\('[^']+'\): cannot convert \w+ to str)")
+_RE_PARSE_VALUE = re.compile(r"cannot parse '([^']*)' as int")
+_RE_ENUM_VALUE = re.compile(r"unknown value '([^']*)'")
+_RE_UUID_VALUE = re.compile(r"invalid UUID '([^']{0,40})")
+
+
+def _warning_signature(msg: str) -> str:
+    """Normalize a warning message into a stable signature for grouping."""
+    m = _RE_CANNOT_PARSE.search(msg)
+    if m:
+        return f"{m.group(1)}<value>{m.group(2)}"
+    m = _RE_UNEXPECTED_TYPE.search(msg)
+    if m:
+        return m.group(1)
+    m = _RE_FROM_OBJ.search(msg)
+    if m:
+        return m.group(1)
+    m = _RE_UNKNOWN_ENUM.search(msg)
+    if m:
+        return f"{m.group(1)}'{m.group(2)}'"
+    m = _RE_FROM_UUID.search(msg)
+    if m:
+        return f"{m.group(1)} <value>"
+    m = _RE_FROM_STR.search(msg)
+    if m:
+        return m.group(1)
+    # Fallback: truncate to prevent huge output from blob values
+    return msg[:120]
+
+
+def _extract_distinct_values(messages: list[str], max_vals: int = 5) -> list[str]:
+    """Extract distinct concrete values from a group of similar warnings."""
+    _value_patterns = [_RE_PARSE_VALUE, _RE_ENUM_VALUE, _RE_UUID_VALUE]
+    values: list[str] = []
+    seen: set[str] = set()
+    for msg in messages:
+        v = None
+        for pat in _value_patterns:
+            m = pat.search(msg)
+            if m:
+                v = m.group(1)
+                break
+        if v is None:
+            continue
+        # Truncate very long values (e.g. base64 blobs)
+        if len(v) > 40:
+            v = v[:40] + "..."
+        if v not in seen:
+            seen.add(v)
+            values.append(v)
+        if len(values) >= max_vals:
+            break
+    return values
+
 
 @dataclass
 class ExceptionRecord:
@@ -84,13 +176,22 @@ class CheckResult:
     """Aggregated result for a single check."""
 
     label: str
-    warnings: list[str] = field(default_factory=list)
+    # Each entry: (signature, count, example_values)
+    warning_groups: list[tuple[str, int, list[str]]] = field(default_factory=list)
     exceptions: list[ExceptionRecord] = field(default_factory=list)
     records_parsed: int = 0
 
     @property
+    def total_warnings(self) -> int:
+        return sum(count for _, count, _ in self.warning_groups)
+
+    @property
+    def distinct_warnings(self) -> int:
+        return len(self.warning_groups)
+
+    @property
     def has_issues(self) -> bool:
-        return bool(self.warnings or self.exceptions)
+        return bool(self.warning_groups or self.exceptions)
 
 
 @dataclass
@@ -102,7 +203,11 @@ class SectionResult:
 
     @property
     def total_warnings(self) -> int:
-        return sum(len(c.warnings) for c in self.checks)
+        return sum(c.total_warnings for c in self.checks)
+
+    @property
+    def distinct_warnings(self) -> int:
+        return sum(c.distinct_warnings for c in self.checks)
 
     @property
     def total_exceptions(self) -> int:
@@ -199,28 +304,37 @@ def _safe_call(
         return None, record
 
 
+_MAX_GROUPS_DISPLAYED = 10
+
+
 def _report_check(check: CheckResult) -> None:
-    """Print check result line."""
+    """Print check result line with deduplicated warnings."""
     parts = []
-    if check.warnings:
-        parts.append(f"{len(check.warnings)} warn")
+    if check.warning_groups:
+        parts.append(
+            f"{check.total_warnings} warn ({check.distinct_warnings} distinct)"
+        )
     if check.exceptions:
         parts.append(f"{len(check.exceptions)} exc")
 
     if parts:
-        status = "WARN"
         detail = ", ".join(parts)
-        print(f"  {status}  {check.label}: {detail}  ({check.records_parsed} records)")
-        for w in check.warnings[:10]:
-            print(f"        [W] {w}")
-        if len(check.warnings) > 10:
-            print(f"        ... and {len(check.warnings) - 10} more warnings")
-        for e in check.exceptions[:10]:
+        print(f"  WARN  {check.label}: {detail}  ({check.records_parsed} records)")
+        for sig, count, examples in check.warning_groups[:_MAX_GROUPS_DISPLAYED]:
+            print(f"        [W] x{count:<5} {sig}")
+            if examples:
+                vals = ", ".join(repr(v) for v in examples[:5])
+                print(f"                   values: [{vals}]")
+        remaining = len(check.warning_groups) - _MAX_GROUPS_DISPLAYED
+        if remaining > 0:
+            print(f"        ... and {remaining} more distinct warning types")
+        for e in check.exceptions[:_MAX_GROUPS_DISPLAYED]:
             print(f"        [E] {e.exception_type}: {e.message}")
             if e.context:
                 print(f"            context: {e.context}")
-        if len(check.exceptions) > 10:
-            print(f"        ... and {len(check.exceptions) - 10} more exceptions")
+        remaining_exc = len(check.exceptions) - _MAX_GROUPS_DISPLAYED
+        if remaining_exc > 0:
+            print(f"        ... and {remaining_exc} more exceptions")
     else:
         print(f"  OK    {check.label}  ({check.records_parsed} records)")
 
@@ -403,7 +517,7 @@ def run_section_a(
                 check.exceptions.append(exc)
             else:
                 check.records_parsed += _count_hits(result)
-        check.warnings = collector.drain()
+        check.warning_groups = collector.drain_grouped()
         _report_check(check)
         section.checks.append(check)
         time.sleep(_RATE_DELAY)
@@ -439,7 +553,7 @@ def run_section_b(
             check.exceptions.append(exc)
         else:
             check.records_parsed = _count_hits(result)
-        check.warnings = collector.drain()
+        check.warning_groups = collector.drain_grouped()
         _report_check(check)
         section.checks.append(check)
         time.sleep(_RATE_DELAY)
@@ -484,7 +598,7 @@ def run_section_c(
             elif result is not None:
                 check.records_parsed += 1
             time.sleep(_RATE_DELAY)
-        check.warnings = collector.drain()
+        check.warning_groups = collector.drain_grouped()
         _report_check(check)
         section.checks.append(check)
 
@@ -543,7 +657,7 @@ def run_section_d(
             check.exceptions.append(exc)
         else:
             check.records_parsed = _count_hits(result)
-        check.warnings = collector.drain()
+        check.warning_groups = collector.drain_grouped()
         _report_check(check)
         section.checks.append(check)
         time.sleep(_RATE_DELAY)
@@ -557,40 +671,44 @@ def run_section_d(
 def _print_summary(sections: list[SectionResult]) -> int:
     """Print final summary table. Returns total issue count."""
     total_warnings = sum(s.total_warnings for s in sections)
+    total_distinct = sum(s.distinct_warnings for s in sections)
     total_exceptions = sum(s.total_exceptions for s in sections)
     total_records = sum(s.total_records for s in sections)
-    total_issues = total_warnings + total_exceptions
+    total_issues = total_distinct + total_exceptions
 
-    print("\n" + "=" * 64)
-    print(f"{'Section':<35} {'Records':>8} {'Warns':>6} {'Excpts':>6}")
-    print("-" * 64)
+    print("\n" + "=" * 72)
+    print(
+        f"{'Section':<35} {'Records':>8} " f"{'Warns':>6} {'Distinct':>8} {'Excpts':>6}"
+    )
+    print("-" * 72)
     for s in sections:
         marker = " *" if s.has_issues else ""
         print(
             f"  {s.name:<33} {s.total_records:>8} "
-            f"{s.total_warnings:>6} {s.total_exceptions:>6}{marker}"
+            f"{s.total_warnings:>6} {s.distinct_warnings:>8} "
+            f"{s.total_exceptions:>6}{marker}"
         )
-    print("-" * 64)
+    print("-" * 72)
     print(
         f"  {'TOTAL':<33} {total_records:>8} "
-        f"{total_warnings:>6} {total_exceptions:>6}"
+        f"{total_warnings:>6} {total_distinct:>8} {total_exceptions:>6}"
     )
-    print("=" * 64)
+    print("=" * 72)
 
     if total_issues == 0:
         print("ALL CHECKS PASSED - no conversion warnings or exceptions detected")
     else:
-        if total_warnings:
+        if total_distinct:
             print(
-                f"WARNINGS: {total_warnings} - "
-                "unhandled enum values or unexpected types in API data."
+                f"WARNINGS: {total_warnings} occurrences across "
+                f"{total_distinct} distinct issue(s)"
             )
         if total_exceptions:
             print(
                 f"EXCEPTIONS: {total_exceptions} - "
                 "runtime errors during model parsing."
             )
-    print("=" * 64)
+    print("=" * 72)
     return total_issues
 
 
@@ -613,7 +731,9 @@ def main() -> None:
     )
 
     collector = WarningCollector()
-    logging.getLogger(_CONVERTER_LOGGER).addHandler(collector)
+    conv_logger = logging.getLogger(_CONVERTER_LOGGER)
+    conv_logger.addHandler(collector)
+    conv_logger.propagate = False  # prevent duplicate output to stderr
 
     run_sections = args.section.upper() if args.section else "ABCD"
     sections: list[SectionResult] = []
@@ -632,7 +752,8 @@ def main() -> None:
     if "D" in run_sections:
         sections.append(run_section_d(client, collector))
 
-    logging.getLogger(_CONVERTER_LOGGER).removeHandler(collector)
+    conv_logger.removeHandler(collector)
+    conv_logger.propagate = True  # restore default
 
     total_issues = _print_summary(sections)
     sys.exit(1 if total_issues > 0 else 0)
