@@ -1,7 +1,7 @@
 # Project Context
 
 ## Purpose
-FFBBApiClientV2_Python is a python project.
+Python client library for the FFBB (Federation Francaise de Basketball) API v2. Provides a unified facade over Directus REST API (14 collections) and Meilisearch full-text search (9 indexes) for accessing French basketball data: clubs, teams, competitions, matches, venues, coaches, tournaments, and more.
 
 ## Tech Stack
 - python
@@ -21,13 +21,13 @@ Use TDD by default for new behavior and keep unit/integration/e2e coverage align
 Git Flow with master/develop, feature branches in dedicated worktrees, and Conventional Commits.
 
 ## Domain Context
-Domain context for FFBBApiClientV2_Python; refine with business-specific details.
+French basketball federation data ecosystem. The API serves club management, competition tracking, match scheduling, venue/court geolocation, coach/official registries, 3x3 tournaments, and training/formation catalogs. Data is accessed via dual backends: Directus (relational, FK-based) and Meilisearch (denormalized, full-text + geo-spatial search). Token-based authentication with automatic token management via TokenManager.
 
 ## Important Constraints
 Preserve backward compatibility, enforce quality/security gates, and follow Git Flow/worktree policy.
 
 ## External Dependencies
-External APIs/services and third-party dependencies used by FFBBApiClientV2_Python.
+FFBB Directus REST API (https://api.ffbb.app/), FFBB Meilisearch instance, requests, requests-cache (HTTP caching), python-dateutil, python-dotenv.
 
 <!-- BEGIN:OPENSPEC_DELIVERY_RULES -->
 ## Delivery Rules (Managed)

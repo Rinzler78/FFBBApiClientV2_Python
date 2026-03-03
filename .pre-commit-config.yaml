@@ -95,6 +95,12 @@ repos:
   - id: commitizen
     stages: [commit-msg]
 
+- repo: https://github.com/gitleaks/gitleaks
+  rev: v8.21.2
+  hooks:
+  - id: gitleaks
+    args: ['--redact', '-c', '.gitleaks.toml']
+
 # Check for misspells in documentation files:
 # - repo: https://github.com/codespell-project/codespell
 #   rev: v2.2.5
