@@ -26,7 +26,7 @@ class GetEngagementsResponse:
     nomEquipe: str | None = None
     nomUsuel: str | None = None
     nomOfficiel: str | None = None
-    numeroEquipe: int | None = None
+    numeroEquipe: str | None = None
     codeAbrege: str | None = None
     clubPro: bool | None = None
     position: int | None = None
@@ -89,7 +89,7 @@ class GetEngagementsResponse:
             nomEquipe=from_str(data, "nomEquipe"),
             nomUsuel=from_str(data, "nomUsuel"),
             nomOfficiel=from_str(data, "nomOfficiel"),
-            numeroEquipe=from_int(data, "numeroEquipe"),
+            numeroEquipe=from_str(data, "numeroEquipe"),
             codeAbrege=from_str(data, "codeAbrege"),
             clubPro=from_bool(data, "clubPro"),
             position=from_int(data, "position"),
