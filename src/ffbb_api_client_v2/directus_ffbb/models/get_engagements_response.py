@@ -43,7 +43,7 @@ class GetEngagementsResponse:
     # FK-only: Directus file UUIDs
     logo: UUID | None = None
     logo_genius: UUID | None = None
-    photo: UUID | None = None
+    photo: str | None = None
     # FK-only: lists
     rencontres_domiciles: list[int | Any] = field(default_factory=list)
     rencontres_exterieur: list[int | Any] = field(default_factory=list)
@@ -104,7 +104,7 @@ class GetEngagementsResponse:
             entraineurAdjoint=from_int(data, "entraineurAdjoint"),
             logo=from_uuid(data, "logo"),
             logo_genius=from_uuid(data, "logo_genius"),
-            photo=from_uuid(data, "photo"),
+            photo=from_str(data, "photo"),
             rencontres_domiciles=(
                 domiciles_raw if isinstance(domiciles_raw, list) else []
             ),

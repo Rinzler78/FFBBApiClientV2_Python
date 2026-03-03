@@ -8,7 +8,6 @@ from ...models.cartographie import Cartographie
 from ...utils.converter_utils import (
     from_datetime,
     from_float,
-    from_int,
     from_obj,
     from_str,
     from_timestamp,
@@ -51,8 +50,8 @@ class GetPratiquesResponse:
     cartographie: Cartographie | None = None
     latitude: float | None = None
     longitude: float | None = None
-    nombre_personnes: int | None = None
-    nombre_seances: int | None = None
+    nombre_personnes: str | None = None
+    nombre_seances: str | None = None
     public: str | None = None
     objectif: str | None = None
     site_web: str | None = None
@@ -106,8 +105,8 @@ class GetPratiquesResponse:
             cartographie=from_obj(Cartographie.from_dict, data, "cartographie"),
             latitude=from_float(data, "latitude"),
             longitude=from_float(data, "longitude"),
-            nombre_personnes=from_int(data, "nombre_personnes"),
-            nombre_seances=from_int(data, "nombre_seances"),
+            nombre_personnes=from_str(data, "nombre_personnes"),
+            nombre_seances=from_str(data, "nombre_seances"),
             public=data.get("public"),  # Keep as raw
             objectif=data.get("objectif"),  # Keep as raw
             site_web=data.get("site_web"),  # Keep as raw

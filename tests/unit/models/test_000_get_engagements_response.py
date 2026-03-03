@@ -321,7 +321,7 @@ class TestGetEngagementsResponse(unittest.TestCase):
     def test_040_field_photo(self) -> None:
         result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertIsInstance(result.photo, UUID)
+        self.assertIsInstance(result.photo, str)
 
     def test_041_field_id_organisme_ctc(self) -> None:
         result = GetEngagementsResponse.from_dict(SAMPLE_DATA)

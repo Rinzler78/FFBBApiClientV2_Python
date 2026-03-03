@@ -38,7 +38,7 @@ class GetTournoisResponse:
     commune: int | None = None
     cartographie: Cartographie | None = None
     tournoiTypes3x3: list[int] = field(default_factory=list)
-    document_flyer: DocumentFlyer | None = None
+    document_flyer: DocumentFlyer | str | None = None
     categorieChampionnat3x3Id: str | None = None
     categorieChampionnat3x3Libelle: str | None = None
     date_created: datetime | None = None
@@ -79,7 +79,11 @@ class GetTournoisResponse:
             tournoiTypes3x3=[
                 int(x) for x in (data.get("tournoiTypes3x3") or []) if x is not None
             ],
-            document_flyer=from_obj(DocumentFlyer.from_dict, data, "document_flyer"),
+            document_flyer=(
+                DocumentFlyer.from_dict(data["document_flyer"])
+                if isinstance(data.get("document_flyer"), dict)
+                else from_str(data, "document_flyer")
+            ),
             categorieChampionnat3x3Id=data.get(
                 "categorieChampionnat3x3Id"
             ),  # Keep as raw
