@@ -3,10 +3,10 @@ Tests additionnels pour le module CompetitionDetail pour atteindre 90% de couver
 """
 
 import unittest
+from uuid import UUID
 
 from ffbb_api_client_v2.models.categorie import Categorie
 from ffbb_api_client_v2.models.competition_detail import CompetitionDetail
-from ffbb_api_client_v2.models.logo import Logo
 from ffbb_api_client_v2.models.organisateur import Organisateur
 from ffbb_api_client_v2.models.saison import Saison
 from ffbb_api_client_v2.models.type_competition_enum import TypeCompetitionEnum
@@ -20,11 +20,11 @@ class Test141CompetitionDetailAdditional(unittest.TestCase):
 
     def test_001_competition_ref_full_initialization(self):
         """Test d'initialisation complète de CompetitionDetail avec toutes les propriétés"""
-        logo = Logo(id=None)
-        saison = Saison(code="saison123")
-        organisateur = Organisateur(id="org123", nom="Organisateur Test")
+        logo = UUID("a1b2c3d4-e5f6-7890-abcd-ef1234567890")
+        saison = Saison(code="2024")
+        organisateur = Organisateur(id="org123", nom="Org Test")
         type_comp_gen = TypeCompetitionGenerique(
-            type_competition_generique_id="type123", logo=Logo()
+            type_competition_generique_id="type123", logo=None
         )
         categorie = Categorie(categorie_id="cat123", libelle="Catégorie Test")
 
@@ -90,10 +90,10 @@ class Test141CompetitionDetailAdditional(unittest.TestCase):
             "competition_origine_nom": "District Test",
             "competition_origine_niveau": 2,
             "typeCompetition": "Coupe",
-            "logo": {"id": "logo123"},
-            "saison": {"id": "saison123", "nom": "Saison 2023"},
+            "logo": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+            "saison": {"code": "2024"},
             "idCompetitionPere": "parent456",
-            "organisateur": {"id": "org123", "nom": "Organisateur Test"},
+            "organisateur": {"id": "org123", "nom": "Org Test"},
             "typeCompetitionGenerique": {"id": "type123", "libelle": "Type Test"},
             "categorie": {"id": "cat123", "libelle": "Catégorie Test"},
         }
@@ -140,11 +140,11 @@ class Test141CompetitionDetailAdditional(unittest.TestCase):
 
     def test_005_competition_ref_to_dict_full(self):
         """Test de la méthode to_dict avec toutes les propriétés définies"""
-        logo = Logo(id=None)
-        saison = Saison(code="saison123")
-        organisateur = Organisateur(id="org123", nom="Organisateur Test")
+        logo = UUID("a1b2c3d4-e5f6-7890-abcd-ef1234567890")
+        saison = Saison(code="2024")
+        organisateur = Organisateur(id="org123", nom="Org Test")
         type_comp_gen = TypeCompetitionGenerique(
-            type_competition_generique_id="type123", logo=Logo()
+            type_competition_generique_id="type123", logo=None
         )
         categorie = Categorie(categorie_id="cat123", libelle="Catégorie Test")
 
@@ -265,10 +265,10 @@ class Test141CompetitionDetailAdditional(unittest.TestCase):
             "competition_origine_nom": "Ligue Test",
             "competition_origine_niveau": 1,
             "typeCompetition": "Championnat",
-            "logo": {"id": "logo123"},
-            "saison": {"id": "saison123", "nom": "Saison 2023"},
+            "logo": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+            "saison": {"code": "2024"},
             "idCompetitionPere": "parent123",
-            "organisateur": {"id": "org123", "nom": "Organisateur Test"},
+            "organisateur": {"id": "org123", "nom": "Org Test"},
             "typeCompetitionGenerique": {"id": "type123", "libelle": "Type Test"},
             "categorie": {"id": "cat123", "libelle": "Catégorie Test"},
         }

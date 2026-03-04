@@ -6,7 +6,6 @@ from typing import Any
 
 from ...models.clock import Clock
 from ...models.engagement_equipe import EngagementEquipe
-from ...models.external_rencontre import ExternalRencontre
 from ...utils.converter_utils import (
     from_datetime,
     from_int,
@@ -41,7 +40,7 @@ class Live:
     match_status: str | None = None
     team_name_home: str | None = None
     team_name_out: str | None = None
-    external_id: ExternalRencontre | None = None
+    external_id: str | None = None
     team_engagement_home: EngagementEquipe | None = None
     team_engagement_out: EngagementEquipe | None = None
 
@@ -73,7 +72,7 @@ class Live:
         match_status = from_str(obj, "matchStatus")
         team_name_home = from_str(obj, "teamName_home")
         team_name_out = from_str(obj, "teamName_out")
-        external_id = from_obj(ExternalRencontre.from_dict, obj, "externalId")
+        external_id = from_str(obj, "externalId")
         team_engagement_home = from_obj(
             EngagementEquipe.from_dict, obj, "teamEngagement_home"
         )
@@ -161,7 +160,7 @@ class Live:
         if self.team_name_out is not None:
             result["teamName_out"] = self.team_name_out
         if self.external_id is not None:
-            result["externalId"] = self.external_id.to_dict()
+            result["externalId"] = self.external_id
         if self.team_engagement_home is not None:
             result["teamEngagement_home"] = self.team_engagement_home.to_dict()
         if self.team_engagement_out is not None:

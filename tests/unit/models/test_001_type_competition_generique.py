@@ -23,10 +23,7 @@ class Test039TypeCompetitionGenerique(unittest.TestCase):
             TypeCompetitionGenerique,
             {
                 "id": "tcg-001",
-                "logo": {
-                    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-                    "gradient_color": "#003366",
-                },
+                "logo": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
             },
         )
 

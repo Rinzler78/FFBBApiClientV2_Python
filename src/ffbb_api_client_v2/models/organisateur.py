@@ -9,7 +9,6 @@ from ..utils.converter_utils import (
     from_bool,
     from_datetime,
     from_list,
-    from_obj,
     from_str,
     from_uuid,
 )
@@ -29,7 +28,7 @@ class Organisateur:
     mail: str | None = None
     nom: str | None = None
     nom_club_pro: str | None = None
-    organisme_id_pere: Organisateur | None = None
+    organisme_id_pere: str | None = None
     salle: str | None = None
     telephone: str | None = None
     type: str | None = None
@@ -66,7 +65,7 @@ class Organisateur:
         mail = from_str(obj, "mail")
         nom = from_str(obj, "nom")
         nom_club_pro = from_str(obj, "nomClubPro")
-        organisme_id_pere = from_obj(Organisateur.from_dict, obj, "organisme_id_pere")
+        organisme_id_pere = from_str(obj, "organisme_id_pere")
         salle = from_str(obj, "salle")
         telephone = from_str(obj, "telephone")
         type = from_str(obj, "type")
@@ -148,7 +147,7 @@ class Organisateur:
         if self.nom_club_pro is not None:
             result["nomClubPro"] = self.nom_club_pro
         if self.organisme_id_pere is not None:
-            result["organisme_id_pere"] = self.organisme_id_pere.to_dict()
+            result["organisme_id_pere"] = self.organisme_id_pere
         if self.salle is not None:
             result["salle"] = self.salle
         if self.telephone is not None:

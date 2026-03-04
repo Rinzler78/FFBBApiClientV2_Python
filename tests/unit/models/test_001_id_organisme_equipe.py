@@ -25,10 +25,7 @@ class Test031IdOrganismeEquipe(unittest.TestCase):
                 "nom_simple": None,
                 "code": "0750001",
                 "nomClubPro": None,
-                "logo": {
-                    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-                    "gradient_color": "#0055AA",
-                },
+                "logo": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
             },
         )
 

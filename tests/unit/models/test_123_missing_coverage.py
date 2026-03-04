@@ -509,25 +509,24 @@ class TestLive(unittest.TestCase):
     def test_043_to_dict_ot_scores_and_nested(self) -> None:
         from ffbb_api_client_v2.directus_ffbb.models.live import Live
         from ffbb_api_client_v2.models.engagement_equipe import EngagementEquipe
-        from ffbb_api_client_v2.models.external_rencontre import ExternalRencontre
 
         obj = Live(
             score_ot1_home=10,
             score_ot2_home=5,
             score_ot1_out=8,
             score_ot2_out=3,
-            external_id=ExternalRencontre(nom_equipe1="Team A", nom_equipe2="Team B"),
-            team_engagement_home=EngagementEquipe(nom_officiel="Home Team"),
-            team_engagement_out=EngagementEquipe(nom_officiel="Away Team"),
+            external_id="ext-123",
+            team_engagement_home=EngagementEquipe(nom="eng-home"),
+            team_engagement_out=EngagementEquipe(nom="eng-away"),
         )
         d = obj.to_dict()
         self.assertEqual(d["score_ot1_home"], 10)
         self.assertEqual(d["score_ot2_home"], 5)
         self.assertEqual(d["score_ot1_out"], 8)
         self.assertEqual(d["score_ot2_out"], 3)
-        self.assertEqual(d["externalId"]["nomEquipe1"], "Team A")
-        self.assertEqual(d["teamEngagement_home"]["nomOfficiel"], "Home Team")
-        self.assertEqual(d["teamEngagement_out"]["nomOfficiel"], "Away Team")
+        self.assertEqual(d["externalId"], "ext-123")
+        self.assertEqual(d["teamEngagement_home"]["nom"], "eng-home")
+        self.assertEqual(d["teamEngagement_out"]["nom"], "eng-away")
 
 
 # ===========================================================================

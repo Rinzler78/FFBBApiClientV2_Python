@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any
+from uuid import UUID
 
-from ..utils.converter_utils import from_enum, from_obj, from_str
+from ..utils.converter_utils import from_enum, from_obj, from_str, from_uuid
 from .categorie import Categorie
-from .logo import Logo
 from .type_competition_enum import TypeCompetitionEnum
 from .type_competition_generique import TypeCompetitionGenerique
 
@@ -20,7 +20,7 @@ class CompetitionBase:
     sexe: str | None = None
     competition_origine_nom: str | None = None
     type_competition: TypeCompetitionEnum | None = None
-    logo: Logo | None = None
+    logo: UUID | None = None
     categorie: Categorie | None = None
     type_competition_generique: TypeCompetitionGenerique | None = None
 
@@ -34,7 +34,7 @@ class CompetitionBase:
             "sexe": from_str(obj, "sexe"),
             "competition_origine_nom": from_str(obj, "competition_origine_nom"),
             "type_competition": from_enum(TypeCompetitionEnum, obj, "typeCompetition"),
-            "logo": from_obj(Logo.from_dict, obj, "logo"),
+            "logo": from_uuid(obj, "logo"),
             "categorie": from_obj(Categorie.from_dict, obj, "categorie"),
             "type_competition_generique": from_obj(
                 TypeCompetitionGenerique.from_dict,
@@ -59,7 +59,7 @@ class CompetitionBase:
         if self.type_competition is not None:
             result["typeCompetition"] = self.type_competition.value
         if self.logo is not None:
-            result["logo"] = self.logo.to_dict()
+            result["logo"] = str(self.logo)
         if self.categorie is not None:
             result["categorie"] = self.categorie.to_dict()
         if self.type_competition_generique is not None:

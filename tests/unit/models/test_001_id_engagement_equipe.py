@@ -22,10 +22,7 @@ class Test030IdEngagementEquipe(unittest.TestCase):
             {
                 "id": "eng-001",
                 "nomUsuel": "Paris BC",
-                "logo": {
-                    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-                    "gradient_color": "#FF0000",
-                },
+                "logo": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
             },
         )
 

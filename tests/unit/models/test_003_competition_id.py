@@ -33,19 +33,9 @@ class Test044CompetitionId(unittest.TestCase):
                 "logo": None,
                 "categorie": {"code": "SE", "libelle": "Seniors", "ordre": 1},
                 "typeCompetitionGenerique": {
-                    "logo": {
-                        "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-                        "gradient_color": "#003366",
-                    }
+                    "logo": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
                 },
-                "competition_origine": {
-                    "id": "co-001",
-                    "code": "D1M",
-                    "nom": "Origine D1",
-                    "typeCompetition": "DIV",
-                    "categorie": {"ordre": 1},
-                    "typeCompetitionGenerique": None,
-                },
+                "competition_origine": "co-001",
                 "nomExtended": "D1 Masculine Seniors",
             },
         )

@@ -148,7 +148,7 @@ class TestExternalIDToDictCoverage(unittest.TestCase):
     """external_id.py -- cover to_dict branches for CompetitionID and ExternalRencontre."""
 
     def test_007_competition_id_to_dict(self) -> None:
-        from ffbb_api_client_v2.models.external_rencontre import ExternalCompetition
+        from ffbb_api_client_v2.models.external_competition import ExternalCompetition
         from ffbb_api_client_v2.models.type_competition_enum import TypeCompetitionEnum
 
         c = ExternalCompetition(
@@ -164,54 +164,28 @@ class TestExternalIDToDictCoverage(unittest.TestCase):
         self.assertEqual(d["typeCompetition"], "Championnat")
 
     def test_008_external_id_to_dict_all_fields(self) -> None:
-        from ffbb_api_client_v2.models.external_rencontre import (
-            ExternalCompetition,
-            ExternalRencontre,
-        )
-        from ffbb_api_client_v2.models.organisme_equipe import OrganismeEquipe
-        from ffbb_api_client_v2.models.poule import Poule
+        from ffbb_api_client_v2.models.external_rencontre import ExternalRencontre
         from ffbb_api_client_v2.models.salle import Salle
 
-        comp = ExternalCompetition(
-            code="NM1", nom="Nationale 1", sexe="M", type_competition=None
-        )
-        org1 = OrganismeEquipe(
-            id="o1",
-            nom="Club A",
-            nom_simple=None,
-            code="CA",
-            nom_club_pro=None,
-            logo=None,
-        )
-        org2 = OrganismeEquipe(
-            id="o2",
-            nom="Club B",
-            nom_simple=None,
-            code="CB",
-            nom_club_pro=None,
-            logo=None,
-        )
-        salle = Salle.from_dict({"libelle": "Salle X", "adresse": "1 rue"})
-        poule = Poule(id="p1", nom="Poule A")
         ext = ExternalRencontre(
             nom_equipe1="Eq1",
             nom_equipe2="Eq2",
             numero_journee=5,
-            competition_id=comp,
-            id_organisme_equipe1=org1,
-            id_organisme_equipe2=org2,
-            salle=salle,
-            id_poule=poule,
+            competition_id="NM1",
+            id_organisme_equipe1="o1",
+            id_organisme_equipe2="o2",
+            salle=Salle(id="salle-x"),
+            id_poule="p1",
         )
         d = ext.to_dict()
         self.assertEqual(d["nomEquipe1"], "Eq1")
         self.assertEqual(d["nomEquipe2"], "Eq2")
         self.assertEqual(d["numeroJournee"], "5")
-        self.assertEqual(d["competitionId"]["code"], "NM1")
-        self.assertIn("idOrganismeEquipe1", d)
-        self.assertIn("idOrganismeEquipe2", d)
-        self.assertEqual(d["salle"]["libelle"], "Salle X")
-        self.assertEqual(d["idPoule"]["id"], "p1")
+        self.assertEqual(d["competitionId"], "NM1")
+        self.assertEqual(d["idOrganismeEquipe1"], "o1")
+        self.assertEqual(d["idOrganismeEquipe2"], "o2")
+        self.assertEqual(d["salle"]["id"], "salle-x")
+        self.assertEqual(d["idPoule"], "p1")
 
 
 class TestDocumentFlyerToDictCoverage(unittest.TestCase):
@@ -219,6 +193,9 @@ class TestDocumentFlyerToDictCoverage(unittest.TestCase):
 
     def test_009_to_dict_populated_fields(self) -> None:
         from ffbb_api_client_v2.models.document_flyer import DocumentFlyer
+        from ffbb_api_client_v2.models.document_flyer_type_enum import (
+            DocumentFlyerTypeEnum,
+        )
         from ffbb_api_client_v2.models.folder import Folder
         from ffbb_api_client_v2.models.source_enum import SourceEnum
 
@@ -231,7 +208,7 @@ class TestDocumentFlyerToDictCoverage(unittest.TestCase):
             filename_disk="file.pdf",
             filename_download="file.pdf",
             title="Flyer",
-            type="image/jpeg",
+            type=DocumentFlyerTypeEnum.IMAGE_JPEG,
             uploaded_on=now,
             modified_on=now,
             filesize=1024,
@@ -240,8 +217,8 @@ class TestDocumentFlyerToDictCoverage(unittest.TestCase):
             source=SourceEnum.FFBB_SERVEUR,
             gradient_color="#fff",
             md5="abc123def456",
-            newsbridge_labels=["label1"],
-            newsbridge_persons=["person1"],
+            newsbridge_labels="label1",
+            newsbridge_persons="person1",
             folder=folder,
         )
         d = doc.to_dict()
@@ -259,7 +236,7 @@ class TestDocumentFlyerToDictCoverage(unittest.TestCase):
         self.assertEqual(d["source"], SourceEnum.FFBB_SERVEUR.value)
         self.assertEqual(d["gradient_color"], "#fff")
         self.assertIn("md5", d)
-        self.assertEqual(d["newsbridge_labels"], ["label1"])
+        self.assertEqual(d["newsbridge_labels"], "label1")
         self.assertIn("newsbridge_persons", d)
         self.assertEqual(d["folder"]["name"], "docs")
 
@@ -769,8 +746,8 @@ class TestEmptyToDictBranches(unittest.TestCase):
         # All None-typed fields -> empty dict
         self.assertEqual(d, {})
 
-    def test_030_organisme_id_pere_with_nested_organisme(self) -> None:
-        """Cover the organisme_id_pere nested field + more to_dict branches."""
+    def test_030_organisme_id_pere_with_str_value(self) -> None:
+        """Cover the organisme_id_pere field (now str) + more to_dict branches."""
         from ffbb_api_client_v2.models.organisateur import Organisateur
 
         data = {
@@ -786,37 +763,7 @@ class TestEmptyToDictBranches(unittest.TestCase):
             "mail": None,
             "nom": None,
             "nomClubPro": None,
-            "organisme_id_pere": {
-                "adresse": "nested addr",
-                "adresseClubPro": None,
-                "cartographie": None,
-                "code": "N01",
-                "commune": None,
-                "communeClubPro": None,
-                "date_created": None,
-                "date_updated": None,
-                "id": "99",
-                "mail": None,
-                "nom": "Nested Org",
-                "nomClubPro": None,
-                "organisme_id_pere": None,
-                "salle": None,
-                "telephone": None,
-                "type": None,
-                "type_association": None,
-                "urlSiteWeb": None,
-                "logo": None,
-                "nom_simple": None,
-                "dateAffiliation": None,
-                "saison_en_cours": None,
-                "entreprise": None,
-                "handibasket": None,
-                "omnisport": None,
-                "horsAssociation": None,
-                "offresPratiques": None,
-                "engagements": None,
-                "labellisation": None,
-            },
+            "organisme_id_pere": "99",
             "salle": None,
             "telephone": None,
             "type": None,
@@ -836,10 +783,10 @@ class TestEmptyToDictBranches(unittest.TestCase):
         }
         obj = Organisateur.from_dict(data)
         self.assertIsNotNone(obj.organisme_id_pere)
-        self.assertEqual(obj.organisme_id_pere.nom, "Nested Org")
+        self.assertEqual(obj.organisme_id_pere, "99")
         d = obj.to_dict()
         self.assertIn("organisme_id_pere", d)
-        self.assertEqual(d["organisme_id_pere"]["code"], "N01")
+        self.assertEqual(d["organisme_id_pere"], "99")
 
     def test_031_organisme_id_pere_empty_to_dict(self) -> None:
         """Cover all False branches in Organisateur.to_dict."""

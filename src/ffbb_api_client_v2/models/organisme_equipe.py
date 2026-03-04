@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any
+from uuid import UUID
 
-from ..utils.converter_utils import from_obj, from_str
-from .logo import Logo
+from ..utils.converter_utils import from_str, from_uuid
 
 
 @dataclass
@@ -14,24 +14,18 @@ class OrganismeEquipe:
     nom_simple: str | None = None
     code: str | None = None
     nom_club_pro: str | None = None
-    logo: Logo | None = None
+    logo: UUID | None = None
 
     @staticmethod
     def from_dict(obj: Any) -> OrganismeEquipe:
         assert isinstance(obj, dict)
-        id = from_str(obj, "id")
-        nom = from_str(obj, "nom")
-        nom_simple = from_str(obj, "nom_simple")
-        code = from_str(obj, "code")
-        nom_club_pro = from_str(obj, "nomClubPro")
-        logo = from_obj(Logo.from_dict, obj, "logo")
         return OrganismeEquipe(
-            id=id,
-            nom=nom,
-            nom_simple=nom_simple,
-            code=code,
-            nom_club_pro=nom_club_pro,
-            logo=logo,
+            id=from_str(obj, "id"),
+            nom=from_str(obj, "nom"),
+            nom_simple=from_str(obj, "nom_simple"),
+            code=from_str(obj, "code"),
+            nom_club_pro=from_str(obj, "nomClubPro"),
+            logo=from_uuid(obj, "logo"),
         )
 
     def to_dict(self) -> dict:
@@ -47,5 +41,5 @@ class OrganismeEquipe:
         if self.nom_club_pro is not None:
             result["nomClubPro"] = self.nom_club_pro
         if self.logo is not None:
-            result["logo"] = self.logo.to_dict()
+            result["logo"] = str(self.logo)
         return result

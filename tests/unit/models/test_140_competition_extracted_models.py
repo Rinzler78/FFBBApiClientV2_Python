@@ -105,17 +105,17 @@ class TestOrganismeEquipe(unittest.TestCase):
 
     def test_011_from_dict_with_logo(self) -> None:
         uuid_str = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
-        data = {"logo": {"id": uuid_str}}
+        data = {"logo": uuid_str}
         oe = OrganismeEquipe.from_dict(data)
         self.assertIsNotNone(oe.logo)
-        self.assertEqual(oe.logo.id, UUID(uuid_str))
+        self.assertEqual(oe.logo, UUID(uuid_str))
 
     def test_033_from_dict_empty(self) -> None:
         oe = OrganismeEquipe.from_dict({})
         self.assertIsNone(oe.logo)
 
     def test_035_round_trip(self) -> None:
-        data = {"logo": {"id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"}}
+        data = {"logo": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"}
         obj1 = OrganismeEquipe.from_dict(data)
         obj2 = OrganismeEquipe.from_dict(obj1.to_dict())
         self.assertEqual(obj1.to_dict(), obj2.to_dict())
@@ -131,7 +131,7 @@ class TestEngagementEquipe(unittest.TestCase):
             "nomOfficiel": "CLUB TEST OFFICIEL",
             "nomUsuel": "CT",
             "codeAbrege": "CT1",
-            "logo": {"id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"},
+            "logo": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
         }
         ee = EngagementEquipe.from_dict(data)
         self.assertEqual(ee.id, "ee-001")
@@ -234,15 +234,11 @@ class TestCompetitionRencontre(unittest.TestCase):
             "nomEquipe1": "Club A",
             "nomEquipe2": "Club B",
             "date_rencontre": "2024-11-15T20:00:00+00:00",
-            "idOrganismeEquipe1": {
-                "logo": {"id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"}
-            },
-            "idOrganismeEquipe2": {
-                "logo": {"id": "b2c3d4e5-f6a7-8901-bcde-f12345678901"}
-            },
-            "idEngagementEquipe1": {"id": "ee-001", "nom": "CLUB A"},
-            "idEngagementEquipe2": {"id": "ee-002", "nom": "CLUB B"},
-            "salle": {"id": "salle-001", "libelle": "Gymnase Central"},
+            "idOrganismeEquipe1": "org-001",
+            "idOrganismeEquipe2": "org-002",
+            "idEngagementEquipe1": "ee-001",
+            "idEngagementEquipe2": "ee-002",
+            "salle": {"id": "salle-001", "libelle": "Salle Test"},
             "officiels": [
                 {
                     "ordre": 1,

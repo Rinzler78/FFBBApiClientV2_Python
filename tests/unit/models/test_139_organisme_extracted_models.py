@@ -277,19 +277,15 @@ class TestOrganismeEngagement(unittest.TestCase):
     def test_026_from_dict_full(self) -> None:
         data = {
             "id": "eng-001",
-            "idPoule": {"id": "poule-001"},
-            "idCompetition": {
-                "id": "comp-001",
-                "nom": "Regionale 2 Masculine",
-                "code": "R2M",
-            },
+            "idPoule": "poule-001",
+            "idCompetition": "comp-001",
         }
         eng = OrganismeEngagement.from_dict(data)
         self.assertEqual(eng.id, "eng-001")
         self.assertIsNotNone(eng.id_poule)
-        self.assertEqual(eng.id_poule.id, "poule-001")
+        self.assertEqual(eng.id_poule, "poule-001")
         self.assertIsNotNone(eng.id_competition)
-        self.assertEqual(eng.id_competition.nom, "Regionale 2 Masculine")
+        self.assertEqual(eng.id_competition, "comp-001")
 
     def test_027_from_dict_empty(self) -> None:
         eng = OrganismeEngagement.from_dict({})
@@ -305,12 +301,8 @@ class TestOrganismeEngagement(unittest.TestCase):
     def test_031_round_trip(self) -> None:
         data = {
             "id": "eng-001",
-            "idPoule": {"id": "poule-001"},
-            "idCompetition": {
-                "id": "comp-001",
-                "nom": "Regionale 2",
-                "code": "R2",
-            },
+            "idPoule": "poule-001",
+            "idCompetition": "comp-001",
         }
         obj1 = OrganismeEngagement.from_dict(data)
         obj2 = OrganismeEngagement.from_dict(obj1.to_dict())
@@ -330,10 +322,10 @@ class TestCompetitionDetail(unittest.TestCase):
             "competition_origine_nom": "Championnat Regional",
             "competition_origine_niveau": 2,
             "typeCompetition": "Championnat",
-            "logo": {"id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"},
+            "logo": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
             "saison": {"code": "2024"},
             "idCompetitionPere": "comp-parent",
-            "organisateur": {"type": "COMITE"},
+            "organisateur": {"id": "COMITE", "nom": "Comite"},
             "typeCompetitionGenerique": {"logo": None},
             "categorie": {"code": "SEN", "ordre": 10},
         }

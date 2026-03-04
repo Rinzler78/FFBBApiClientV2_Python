@@ -61,10 +61,8 @@ from ffbb_api_client_v2.models.cartographie import Cartographie
 from ffbb_api_client_v2.models.commune import Commune
 from ffbb_api_client_v2.models.document_flyer import DocumentFlyer
 from ffbb_api_client_v2.models.engagement_equipe import EngagementEquipe
-from ffbb_api_client_v2.models.external_rencontre import (
-    ExternalCompetition,
-    ExternalRencontre,
-)
+from ffbb_api_client_v2.models.external_competition import ExternalCompetition
+from ffbb_api_client_v2.models.external_rencontre import ExternalRencontre
 from ffbb_api_client_v2.models.folder import Folder
 from ffbb_api_client_v2.models.geo import Geo
 from ffbb_api_client_v2.models.logo import Logo
@@ -361,19 +359,14 @@ class Test022ToDictRoundTrip(unittest.TestCase):
         )
 
     def test_015_external_id(self) -> None:
-        """ExternalRencontre with nested CompetitionID, numeroJournee."""
+        """ExternalRencontre with scalar FK fields, numeroJournee."""
         self._assert_stable(
             ExternalRencontre,
             {
                 "nomEquipe1": "Team A",
                 "nomEquipe2": "Team B",
                 "numeroJournee": "5",
-                "competitionId": {
-                    "code": "C001",
-                    "nom": "Championnat",
-                    "sexe": "M",
-                    "typeCompetition": "CHAMP",
-                },
+                "competitionId": "C001",
                 "idOrganismeEquipe1": None,
                 "idOrganismeEquipe2": None,
                 "salle": None,
@@ -382,17 +375,14 @@ class Test022ToDictRoundTrip(unittest.TestCase):
         )
 
     def test_016_team_engagement(self) -> None:
-        """EngagementEquipe with nested Logo."""
+        """EngagementEquipe with UUID logo."""
         self._assert_stable(
             EngagementEquipe,
             {
                 "nomOfficiel": "Paris BC Officiel",
                 "nomUsuel": "Paris BC",
                 "codeAbrege": "PBC",
-                "logo": {
-                    "id": "d4e5f6a7-b8c9-0123-4567-89abcdef0123",
-                    "gradient_color": "#FF0000",
-                },
+                "logo": "d4e5f6a7-b8c9-0123-4567-89abcdef0123",
             },
         )
 
