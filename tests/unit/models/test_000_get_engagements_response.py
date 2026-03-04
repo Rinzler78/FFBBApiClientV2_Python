@@ -20,7 +20,7 @@ SAMPLE_DATA: dict[str, Any] = {
     "nomEquipe": "Equipe 1",
     "nomUsuel": "CA MANTES",
     "nomOfficiel": "CA MANTES LA VILLE BASKET",
-    "numeroEquipe": "1",  # string in API, converted to int by from_int
+    "numeroEquipe": "1",
     "codeAbrege": "MAN",
     "clubPro": False,
     "position": 3,
@@ -138,7 +138,7 @@ class TestGetEngagementsResponse(unittest.TestCase):
     def test_012_field_numero_equipe(self) -> None:
         result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertEqual(result.numeroEquipe, 1)
+        self.assertEqual(result.numeroEquipe, "1")
 
     def test_013_field_code_abrege(self) -> None:
         result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
@@ -321,7 +321,7 @@ class TestGetEngagementsResponse(unittest.TestCase):
     def test_040_field_photo(self) -> None:
         result = GetEngagementsResponse.from_dict(SAMPLE_DATA)
         assert result is not None
-        self.assertIsInstance(result.photo, UUID)
+        self.assertIsInstance(result.photo, str)
 
     def test_041_field_id_organisme_ctc(self) -> None:
         result = GetEngagementsResponse.from_dict(SAMPLE_DATA)

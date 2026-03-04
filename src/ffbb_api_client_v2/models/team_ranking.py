@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from ..utils.converter_utils import from_bool, from_float, from_int, from_obj, from_str
+from ..utils.converter_utils import from_bool, from_float, from_int, from_str
 from .ranking_engagement import RankingEngagement
 
 
@@ -12,7 +12,7 @@ class TeamRanking:
 
     # Required fields first
     id: str
-    id_engagement: RankingEngagement | None
+    id_engagement: RankingEngagement | str | None
     position: int
     points: int
     match_joues: int
@@ -50,7 +50,13 @@ class TeamRanking:
         if not isinstance(data, dict):
             return None
 
-        id_engagement = from_obj(RankingEngagement.from_dict, data, "idEngagement")
+        id_engagement_raw = data.get("idEngagement")
+        if isinstance(id_engagement_raw, dict):
+            id_engagement = RankingEngagement.from_dict(id_engagement_raw)
+        elif isinstance(id_engagement_raw, (str, int)):
+            id_engagement = str(id_engagement_raw)
+        else:
+            id_engagement = None
 
         # Handle organisme data
         organisme_data = data.get("organisme", {})

@@ -11,7 +11,6 @@ from ...models.geo import Geo
 from ...models.id_poule import IDPoule
 from ...utils.converter_utils import (
     from_bool,
-    from_int,
     from_obj,
     from_str,
 )
@@ -43,7 +42,7 @@ class EngagementsHit(Hit):
     nom_officiel: str | None = None
     nom_organisme: str | None = None
     nom_usuel: str | None = None
-    numero_equipe: int | None = None
+    numero_equipe: str | None = None
     thumbnail: str | None = None
     gradient_color: str | None = None
     geo: Geo | None = None
@@ -87,7 +86,7 @@ class EngagementsHit(Hit):
         nom_officiel = from_str(obj, "nomOfficiel")
         nom_organisme = from_str(obj, "nomOrganisme")
         nom_usuel = from_str(obj, "nomUsuel")
-        numero_equipe = from_int(obj, "numeroEquipe")
+        numero_equipe = from_str(obj, "numeroEquipe")
         thumbnail = from_str(obj, "thumbnail")
         gradient_color = from_str(obj, "gradient_color")
         geo = from_obj(Geo.from_dict, obj, "_geo")

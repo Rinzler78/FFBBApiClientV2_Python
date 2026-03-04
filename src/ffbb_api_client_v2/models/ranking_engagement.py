@@ -14,7 +14,7 @@ class RankingEngagement:
     nom_usuel: str | None = None
     code_abrege: str | None = None
     numero_equ: int | None = None
-    numero_equipe: int | None = None
+    numero_equipe: str | None = None
     logo_id: str | None = None
     logo_gradient: str | None = None
 
@@ -37,7 +37,7 @@ class RankingEngagement:
             nom_usuel=from_str(data, "nomUsuel"),
             code_abrege=from_str(data, "codeAbrege"),
             numero_equ=from_int(data, "numeroEqu"),
-            numero_equipe=from_int(data, "numeroEquipe"),
+            numero_equipe=from_str(data, "numeroEquipe"),
             logo_id=logo_id,
             logo_gradient=logo_gradient,
         )

@@ -15,3 +15,4 @@ class Label(Enum):
     DÉCOUVERTE_MICRO_BASKET = "Découverte Micro Basket"
     EMPTY = ""
     MICRO_BASKET = "Micro Basket"
+    MICRO_BASKET_DÉCOUVERTE = "Micro Basket / Découverte"

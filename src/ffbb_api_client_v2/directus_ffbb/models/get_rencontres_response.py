@@ -33,8 +33,8 @@ class GetRencontresResponse:
     forfaitEquipe2: bool | None = None
     defautEquipe1: bool | None = None
     defautEquipe2: bool | None = None
-    penaliteEquipe1: int | None = None
-    penaliteEquipe2: int | None = None
+    penaliteEquipe1: bool | None = None
+    penaliteEquipe2: bool | None = None
     handicap1: int | None = None
     handicap2: int | None = None
     remise: bool | None = None
@@ -90,8 +90,8 @@ class GetRencontresResponse:
             forfaitEquipe2=from_bool(data, "forfaitEquipe2"),
             defautEquipe1=from_bool(data, "defautEquipe1"),
             defautEquipe2=from_bool(data, "defautEquipe2"),
-            penaliteEquipe1=from_int(data, "penaliteEquipe1"),
-            penaliteEquipe2=from_int(data, "penaliteEquipe2"),
+            penaliteEquipe1=from_bool(data, "penaliteEquipe1"),
+            penaliteEquipe2=from_bool(data, "penaliteEquipe2"),
             handicap1=from_int(data, "handicap1"),
             handicap2=from_int(data, "handicap2"),
             remise=from_bool(data, "remise"),
