@@ -340,7 +340,7 @@ class Test001QueryFieldsCounts(unittest.TestCase):
         )
 
         fields = OrganismeFields.get_fields()
-        self.assertEqual(len(fields), 55)
+        self.assertEqual(len(fields), 63)
         # No duplicates
         self.assertEqual(len(fields), len(set(fields)))
 

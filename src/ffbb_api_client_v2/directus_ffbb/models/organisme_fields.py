@@ -33,6 +33,16 @@ class OrganismeFields(QueryFieldsManager):
     ENGAGEMENTS = "engagements"
     COMPETITIONS = "competitions"
 
+    # Additional basic fields
+    DATE_AFFILIATION = "dateAffiliation"
+    ENTREPRISE = "entreprise"
+    HANDIBASKET = "handibasket"
+    HORS_ASSOCIATION = "horsAssociation"
+    LOGO_BASE64 = "logo_base64"
+    OMNISPORT = "omnisport"
+    SAISON_EN_COURS = "saison_en_cours"
+    URL_COMPETITION = "url_competition"
+
     # Organismes fils (list of int IDs)
     ORGANISMES_FILS = "organismes_fils"
 
@@ -114,6 +124,15 @@ class OrganismeFields(QueryFieldsManager):
             cls.LOGO,
             cls.ENGAGEMENTS,
             cls.COMPETITIONS,
+            # Additional basic fields
+            cls.DATE_AFFILIATION,
+            cls.ENTREPRISE,
+            cls.HANDIBASKET,
+            cls.HORS_ASSOCIATION,
+            cls.LOGO_BASE64,
+            cls.OMNISPORT,
+            cls.SAISON_EN_COURS,
+            cls.URL_COMPETITION,
             # Organismes fils
             cls.ORGANISMES_FILS,
             # Cartographie
