@@ -47,26 +47,26 @@ from ffbb_api_client_v2.meilisearch_ffbb.models.engagements_facet_distribution i
     EngagementsFacetDistribution,
 )
 from ffbb_api_client_v2.meilisearch_ffbb.models.engagements_hit import EngagementsHit
-from ffbb_api_client_v2.models.age_group import AgeGroup
+from ffbb_api_client_v2.models.age_group_enum import AgeGroupEnum
 from ffbb_api_client_v2.models.categorie_code import CategorieCode
 from ffbb_api_client_v2.models.contact_info import ContactInfo
-from ffbb_api_client_v2.models.echelon import Echelon
-from ffbb_api_client_v2.models.sexe import Sexe
+from ffbb_api_client_v2.models.echelon_enum import EchelonEnum
+from ffbb_api_client_v2.models.sexe_enum import SexeEnum
 
 logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
 logging.getLogger("ffbb_api_client_v2.utils.converter_utils").setLevel(logging.ERROR)
 
 # Echelons considered pro-level (top-tier competitions)
-PRO_ECHELONS: frozenset[Echelon] = frozenset(
-    {Echelon.PRO, Echelon.LIGUE_FEMININE, Echelon.BASKET_FAUTEUIL}
+PRO_ECHELONS: frozenset[EchelonEnum] = frozenset(
+    {EchelonEnum.PRO, EchelonEnum.LIGUE_FEMININE, EchelonEnum.BASKET_FAUTEUIL}
 )
 
 # Echelons considered national-level
-NATIONAL_ECHELONS: frozenset[Echelon] = frozenset({Echelon.NATIONAL})
+NATIONAL_ECHELONS: frozenset[EchelonEnum] = frozenset({EchelonEnum.NATIONAL})
 
 # All echelons we accept
-ACCEPTED_ECHELONS: frozenset[Echelon] = PRO_ECHELONS | NATIONAL_ECHELONS
+ACCEPTED_ECHELONS: frozenset[EchelonEnum] = PRO_ECHELONS | NATIONAL_ECHELONS
 
 # Display labels and sort priority, derived from the sets above
 NIVEAU_LABELS = {
@@ -95,20 +95,20 @@ NIVEAU_PRIORITY = {
     "Autre": 9,
 }
 
-# Map Echelon enum members to classification labels
-_ECHELON_TO_LABEL: dict[Echelon, str] = {
-    Echelon.PRO: "PRO",
-    Echelon.LIGUE_FEMININE: "PRO",
-    Echelon.BASKET_FAUTEUIL: "PRO",
-    Echelon.NATIONAL: "NATIONAL",
-    Echelon.PRE_NATIONAL: "PRE_NATIONAL",
-    Echelon.EXCELLENCE: "EXCELLENCE",
-    Echelon.REGION: "REGIONAL",
-    Echelon.PRE_REGIONAL: "PRE_REGIONAL",
-    Echelon.FEDERAL: "FEDERAL",
-    Echelon.DEPARTEMENT: "DEPARTEMENTAL",
-    Echelon.ASSOCIATION_REGIONALE: "ASSOCIATION_REGIONALE",
-    Echelon.ASSOCIATION_DEPARTEMENTALE: "ASSOCIATION_DEPARTEMENTALE",
+# Map EchelonEnum enum members to classification labels
+_ECHELON_TO_LABEL: dict[EchelonEnum, str] = {
+    EchelonEnum.PRO: "PRO",
+    EchelonEnum.LIGUE_FEMININE: "PRO",
+    EchelonEnum.BASKET_FAUTEUIL: "PRO",
+    EchelonEnum.NATIONAL: "NATIONAL",
+    EchelonEnum.PRE_NATIONAL: "PRE_NATIONAL",
+    EchelonEnum.EXCELLENCE: "EXCELLENCE",
+    EchelonEnum.REGION: "REGIONAL",
+    EchelonEnum.PRE_REGIONAL: "PRE_REGIONAL",
+    EchelonEnum.FEDERAL: "FEDERAL",
+    EchelonEnum.DEPARTEMENT: "DEPARTEMENTAL",
+    EchelonEnum.ASSOCIATION_REGIONALE: "ASSOCIATION_REGIONALE",
+    EchelonEnum.ASSOCIATION_DEPARTEMENTALE: "ASSOCIATION_DEPARTEMENTALE",
 }
 
 _MATCH_TYPE_LABELS: dict[str, str] = {
@@ -319,9 +319,9 @@ class ContactReport:
     cities: list[ReportCity]
 
     # Active filters (None = all accepted)
-    filter_echelons: frozenset[Echelon] | None = None
-    filter_age_groups: frozenset[AgeGroup] | None = None
-    filter_sexes: frozenset[Sexe] | None = None
+    filter_echelons: frozenset[EchelonEnum] | None = None
+    filter_age_groups: frozenset[AgeGroupEnum] | None = None
+    filter_sexes: frozenset[SexeEnum] | None = None
 
     @property
     def total_cities(self) -> int:
@@ -450,9 +450,9 @@ class ContactReport:
         club_infos: dict[str, _ClubInfo],
         city_geo: dict[str, _CityGeo],
         *,
-        filter_echelons: frozenset[Echelon] | None = None,
-        filter_age_groups: frozenset[AgeGroup] | None = None,
-        filter_sexes: frozenset[Sexe] | None = None,
+        filter_echelons: frozenset[EchelonEnum] | None = None,
+        filter_age_groups: frozenset[AgeGroupEnum] | None = None,
+        filter_sexes: frozenset[SexeEnum] | None = None,
     ) -> ContactReport:
         """Build a hierarchical report from flat collected rows."""
 
@@ -671,7 +671,7 @@ class ContactReport:
         f.write(f"| Position | {self.lat:.4f}, {self.lng:.4f} |\n")
         f.write(f"| Rayon | {self.radius:.0f} km |\n")
         f.write(f"| Echelons | {self._format_filter(self.filter_echelons, 'Tous')} |\n")
-        f.write(f"| Sexe | {self._format_filter(self.filter_sexes, 'Tous')} |\n")
+        f.write(f"| SexeEnum | {self._format_filter(self.filter_sexes, 'Tous')} |\n")
         f.write(
             f"| Tranches d'ages | {self._format_filter(self.filter_age_groups, 'Toutes')} |\n\n"
         )
@@ -802,16 +802,16 @@ class ContactReport:
             "Distance_km",
             "Adresse",
             "Club",
-            "Niveau",
+            "NiveauEnum",
             "Division",
             "Poule",
-            "Sexe",
+            "SexeEnum",
             "Role",
             "Nom",
             "Prenom",
             "Telephone",
             "Email",
-            "Source",
+            "SourceEnum",
         ]
         with path.open("w", encoding="utf-8-sig", newline="") as f:
             writer = csv.writer(f, delimiter=";")
@@ -991,7 +991,7 @@ class ContactReport:
                     "Tranches d'age",
                     self._format_filter(self.filter_age_groups, "Toutes"),
                 ),
-                ("Sexe", self._format_filter(self.filter_sexes, "Tous")),
+                ("SexeEnum", self._format_filter(self.filter_sexes, "Tous")),
             ]:
                 f.write(
                     "<li class='hero-fact'>"
@@ -1055,7 +1055,7 @@ class ContactReport:
                 f.write(f"<option value='{h(city_slug)}'>{h(city.ville)}</option>")
             f.write("</select></label>\n")
             f.write("<label class='control-field' for='ui-level'>")
-            f.write("<span>Niveau</span>")
+            f.write("<span>NiveauEnum</span>")
             f.write("<select id='ui-level'>")
             f.write("<option value='all'>Tous les niveaux</option>")
             f.write("<option value='pro'>Pro</option>")
@@ -3501,9 +3501,9 @@ class _TeamCompetitionSnapshot:
 
 def classify_engagement_level(
     hit: EngagementsHit,
-    accepted_echelons: frozenset[Echelon] | None = None,
-    accepted_age_groups: frozenset[AgeGroup] | None = None,
-    accepted_sexes: frozenset[Sexe] | None = None,
+    accepted_echelons: frozenset[EchelonEnum] | None = None,
+    accepted_age_groups: frozenset[AgeGroupEnum] | None = None,
+    accepted_sexes: frozenset[SexeEnum] | None = None,
     _sexes_values: frozenset[str] | None = None,
 ) -> str | None:
     """Return the level label or None (excluded).
@@ -3512,7 +3512,7 @@ def classify_engagement_level(
     Pass ``_sexes_values`` (pre-computed ``frozenset(s.value for s in accepted_sexes)``)
     to avoid rebuilding the set on every call.
     """
-    # Sexe filter
+    # SexeEnum filter
     if accepted_sexes is not None:
         accepted_values = _sexes_values or frozenset(s.value for s in accepted_sexes)
         if (hit.sexe or "") not in accepted_values:
@@ -3525,7 +3525,7 @@ def classify_engagement_level(
             if age is not None and age not in accepted_age_groups:
                 return None
 
-    # Echelon filter + label
+    # EchelonEnum filter + label
     if hit.niveau and hit.niveau.code:
         echelon = hit.niveau.code.echelon
         if accepted_echelons is not None and echelon not in accepted_echelons:
@@ -4283,8 +4283,8 @@ _MAX_WORKERS = os.cpu_count() or 8
 
 def _resolve_niveau_codes(
     facet_distribution: EngagementsFacetDistribution | None,
-    accepted_echelons: frozenset[Echelon] | None,
-    accepted_age_groups: frozenset[AgeGroup] | None,
+    accepted_echelons: frozenset[EchelonEnum] | None,
+    accepted_age_groups: frozenset[AgeGroupEnum] | None,
 ) -> list[str] | None:
     """Parse facet niveau.code distribution and return matching codes.
 
@@ -4300,7 +4300,7 @@ def _resolve_niveau_codes(
         if not cc.is_parsed:
             count = facet_distribution.niveau_code[code_str]
             logger.warning(
-                "Code niveau non reconnu: '%s' (%d engagements ignores)",
+                "CodeEnum niveau non reconnu: '%s' (%d engagements ignores)",
                 code_str,
                 count,
             )
@@ -4314,8 +4314,10 @@ def _resolve_niveau_codes(
     return matching if matching else None
 
 
-def _resolve_sexe_filter(accepted_sexes: frozenset[Sexe] | None) -> list[str] | None:
-    """Map Sexe enums to Meilisearch idCompetition.sexe filter values."""
+def _resolve_sexe_filter(
+    accepted_sexes: frozenset[SexeEnum] | None,
+) -> list[str] | None:
+    """Map SexeEnum enums to Meilisearch idCompetition.sexe filter values."""
     if accepted_sexes is None:
         return None
     return [s.value for s in accepted_sexes]
@@ -4405,15 +4407,15 @@ def main() -> None:
         nargs="+",
         default=None,
         help="Echelons to include (e.g. --echelon NATIONAL LIGUE_FEMININE). "
-        f"Valid: {', '.join(e.name for e in Echelon)}. Default: all",
+        f"Valid: {', '.join(e.name for e in EchelonEnum)}. Default: all",
     )
     parser.add_argument(
         "--sexe",
         type=str,
         nargs="+",
         default=None,
-        help="Sexe filter — use enum names (e.g. --sexe MASCULINE FEMININE). "
-        f"Valid: {', '.join(e.name for e in Sexe)}. Default: all",
+        help="SexeEnum filter — use enum names (e.g. --sexe MASCULINE FEMININE). "
+        f"Valid: {', '.join(e.name for e in SexeEnum)}. Default: all",
     )
     parser.add_argument(
         "--age-group",
@@ -4421,25 +4423,25 @@ def main() -> None:
         nargs="+",
         default=None,
         help="Age groups (e.g. --age-group SENIOR VETERAN). "
-        f"Valid: {', '.join(a.name for a in AgeGroup)}. Default: all",
+        f"Valid: {', '.join(a.name for a in AgeGroupEnum)}. Default: all",
     )
     args = parser.parse_args()
 
     slug = args.city_name.lower().replace(" ", "_")
 
     # --- Build validated filter sets from CLI args (None = accept all) ---
-    accepted_echelons: frozenset[Echelon] | None = (
-        _parse_enum_args(args.echelon, Echelon, "echelon", parser)
+    accepted_echelons: frozenset[EchelonEnum] | None = (
+        _parse_enum_args(args.echelon, EchelonEnum, "echelon", parser)
         if args.echelon
         else None
     )
-    accepted_age_groups: frozenset[AgeGroup] | None = (
-        _parse_enum_args(args.age_group, AgeGroup, "age-group", parser)
+    accepted_age_groups: frozenset[AgeGroupEnum] | None = (
+        _parse_enum_args(args.age_group, AgeGroupEnum, "age-group", parser)
         if args.age_group
         else None
     )
-    accepted_sexes: frozenset[Sexe] | None = (
-        _parse_enum_args(args.sexe, Sexe, "sexe", parser) if args.sexe else None
+    accepted_sexes: frozenset[SexeEnum] | None = (
+        _parse_enum_args(args.sexe, SexeEnum, "sexe", parser) if args.sexe else None
     )
 
     # --- Resolve city coordinates & create client ---
@@ -4601,7 +4603,9 @@ def main() -> None:
 
     # -- Phase A: Batch-fetch engagements + entraineurs --
     from ffbb_api_client_v2.models.club_contacts import ClubContacts as _CC
-    from ffbb_api_client_v2.models.contact_role import ContactRole as _ContactRole
+    from ffbb_api_client_v2.models.contact_role_enum import (
+        ContactRoleEnum as _ContactRole,
+    )
     from ffbb_api_client_v2.models.engagement_contacts import EngagementContacts as _EC
     from ffbb_api_client_v2.models.engagement_contacts import (
         extract_correspondant as _extract_correspondant,

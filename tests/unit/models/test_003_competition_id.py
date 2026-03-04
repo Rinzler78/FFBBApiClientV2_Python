@@ -1,11 +1,11 @@
-"""Round-trip tests for CompetitionID (from competition_id.py)."""
+"""Round-trip tests for Competition (from competition.py)."""
 
 from __future__ import annotations
 
 import unittest
 from typing import Any
 
-from ffbb_api_client_v2.models.competition_id import CompetitionID
+from ffbb_api_client_v2.models.competition import Competition
 
 
 class Test044CompetitionId(unittest.TestCase):
@@ -18,7 +18,7 @@ class Test044CompetitionId(unittest.TestCase):
 
     def test_000_round_trip_full(self) -> None:
         self._assert_stable(
-            CompetitionID,
+            Competition,
             {
                 "id": "comp-001",
                 "nom": "D1 Masculine",
@@ -33,26 +33,16 @@ class Test044CompetitionId(unittest.TestCase):
                 "logo": None,
                 "categorie": {"code": "SE", "libelle": "Seniors", "ordre": 1},
                 "typeCompetitionGenerique": {
-                    "logo": {
-                        "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-                        "gradient_color": "#003366",
-                    }
+                    "logo": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
                 },
-                "competition_origine": {
-                    "id": "co-001",
-                    "code": "D1M",
-                    "nom": "Origine D1",
-                    "typeCompetition": "DIV",
-                    "categorie": {"ordre": 1},
-                    "typeCompetitionGenerique": None,
-                },
+                "competition_origine": "co-001",
                 "nomExtended": "D1 Masculine Seniors",
             },
         )
 
     def test_001_round_trip_minimal(self) -> None:
         self._assert_stable(
-            CompetitionID,
+            Competition,
             {"id": "comp-002", "nom": "Coupe", "code": "CDF"},
         )
 

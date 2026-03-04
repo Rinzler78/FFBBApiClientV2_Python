@@ -24,18 +24,7 @@ class Test036Salle(unittest.TestCase):
                 "libelle": "Gymnase Central",
                 "adresse": "12 rue du Sport",
                 "adresseComplement": "Batiment B",
-                "cartographie": {
-                    "adresse": "12 rue du Sport",
-                    "codePostal": "75001",
-                    "coordonnees": None,
-                    "date_created": None,
-                    "date_updated": None,
-                    "id": "carto-001",
-                    "latitude": 48.8566,
-                    "longitude": 2.3522,
-                    "title": "Gymnase Central",
-                    "ville": "Paris",
-                },
+                "cartographie": "carto-001",
             },
         )
 

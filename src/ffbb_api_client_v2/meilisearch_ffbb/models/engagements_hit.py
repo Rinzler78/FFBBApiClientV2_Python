@@ -5,10 +5,9 @@ from typing import Any
 
 from ...meilisearch.models.hit import Hit
 from ...models.categorie import Categorie
-from ...models.competition_id_categorie import CompetitionIDCategorie
 from ...models.competition_origine import CompetitionOrigine
 from ...models.geo import Geo
-from ...models.id_poule import IDPoule
+from ...models.poule import Poule
 from ...utils.converter_utils import (
     from_bool,
     from_obj,
@@ -29,10 +28,10 @@ class EngagementsHit(Hit):
     code_ligue: str | None = None
     competitions_url: str | None = None
     id_competition: CompetitionOrigine | None = None
-    id_poule: IDPoule | None = None
+    id_poule: Poule | None = None
     logo: str | None = None
     niveau: Categorie | None = None
-    categorie: CompetitionIDCategorie | None = None
+    categorie: Categorie | None = None
     nom_club: str | None = None
     nom_club_pro: str | None = None
     nom_comite: str | None = None
@@ -73,10 +72,10 @@ class EngagementsHit(Hit):
         code_ligue = from_str(obj, "codeLigue")
         competitions_url = from_str(obj, "competitionsUrl")
         id_competition = from_obj(CompetitionOrigine.from_dict, obj, "idCompetition")
-        id_poule = from_obj(IDPoule.from_dict, obj, "idPoule")
+        id_poule = from_obj(Poule.from_dict, obj, "idPoule")
         logo = from_str(obj, "logo")
         niveau = from_obj(Categorie.from_dict, obj, "niveau")
-        categorie = from_obj(CompetitionIDCategorie.from_dict, obj, "categorie")
+        categorie = from_obj(Categorie.from_dict, obj, "categorie")
         nom_club = from_str(obj, "nomClub")
         nom_club_pro = from_str(obj, "nomClubPro")
         nom_comite = from_str(obj, "nomComite")

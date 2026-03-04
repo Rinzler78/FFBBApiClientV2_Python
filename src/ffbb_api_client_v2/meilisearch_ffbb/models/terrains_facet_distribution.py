@@ -4,23 +4,23 @@ from dataclasses import dataclass
 from typing import Any
 
 from ...meilisearch.models.facet_distribution import FacetDistribution
-from ...models.sexe_class import SexeClass
-from ...models.tournoi_type_class import TournoiTypeClass
+from ...models.sexe_facet import SexeFacet
+from ...models.tournoi_type_facet import TournoiTypeFacet
 from ...models.tournoi_types_3x3_libelle import TournoiTypes3X3Libelle
 from ...utils.converter_utils import from_obj
 
 
 @dataclass
 class TerrainsFacetDistribution(FacetDistribution):
-    sexe: SexeClass | None = None
-    tournoi_type: TournoiTypeClass | None = None
+    sexe: SexeFacet | None = None
+    tournoi_type: TournoiTypeFacet | None = None
     tournoi_types3_x3_libelle: TournoiTypes3X3Libelle | None = None
 
     @staticmethod
     def from_dict(obj: Any) -> TerrainsFacetDistribution:
         assert isinstance(obj, dict)
-        sexe = from_obj(SexeClass.from_dict, obj, "sexe")
-        tournoi_type = from_obj(TournoiTypeClass.from_dict, obj, "tournoiType")
+        sexe = from_obj(SexeFacet.from_dict, obj, "sexe")
+        tournoi_type = from_obj(TournoiTypeFacet.from_dict, obj, "tournoiType")
         tournoi_types3_x3_libelle = from_obj(
             TournoiTypes3X3Libelle.from_dict, obj, "tournoiTypes3x3.libelle"
         )

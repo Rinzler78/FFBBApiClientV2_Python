@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from .categorie_type import CategorieType
-from .niveau_type import NiveauType
+from .categorie_type_enum import CategorieTypeEnum
+from .niveau_type_enum import NiveauTypeEnum
 
 
 @dataclass
@@ -19,16 +19,16 @@ class NiveauInfo:
         zone_geographique: Zone géographique associée (regional pour ELITE)
     """
 
-    type: NiveauType
+    type: NiveauTypeEnum
     division: int | None = None
-    categorie: CategorieType | None = None
+    categorie: CategorieTypeEnum | None = None
     raw_text: str = ""
     zone_geographique: str | None = None
 
     @property
     def is_elite(self) -> bool:
         """Vérifie si c'est un niveau ELITE."""
-        return self.type == NiveauType.ELITE
+        return self.type == NiveauTypeEnum.ELITE
 
     @property
     def zone_effective(self) -> str:

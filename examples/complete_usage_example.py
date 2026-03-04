@@ -115,7 +115,7 @@ def demo_competition_details(client: FFBBAPIClientV2, org_id: int) -> None:
             competition = client.get_competition(comp_id)
             if competition:
                 print(f"  Name: {competition.nom}")
-                print(f"  Code: {competition.code}")
+                print(f"  CodeEnum: {competition.code}")
             break
 
 

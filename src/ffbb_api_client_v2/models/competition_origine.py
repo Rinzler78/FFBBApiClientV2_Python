@@ -8,9 +8,11 @@ from ..utils.converter_utils import (
     from_str,
 )
 from .competition_origine_categorie import CompetitionOrigineCategorie
-from .competition_origine_type_competition import CompetitionOrigineTypeCompetition
-from .competition_origine_type_competition_generique import (
-    CompetitionOrigineTypeCompetitionGenerique,
+from .competition_origine_type_competition_enum import (
+    CompetitionOrigineTypeCompetitionEnum,
+)
+from .type_competition_generique import (
+    TypeCompetitionGenerique,
 )
 
 
@@ -19,9 +21,9 @@ class CompetitionOrigine:
     id: str | None = None
     code: str | None = None
     nom: str | None = None
-    type_competition: CompetitionOrigineTypeCompetition | None = None
+    type_competition: CompetitionOrigineTypeCompetitionEnum | None = None
     categorie: CompetitionOrigineCategorie | None = None
-    type_competition_generique: CompetitionOrigineTypeCompetitionGenerique | None = None
+    type_competition_generique: TypeCompetitionGenerique | None = None
 
     @staticmethod
     def from_dict(obj: Any) -> CompetitionOrigine:
@@ -31,13 +33,13 @@ class CompetitionOrigine:
         nom = from_str(obj, "nom")
         tc_val = obj.get("typeCompetition")
         type_competition = (
-            CompetitionOrigineTypeCompetition.parse(tc_val)
+            CompetitionOrigineTypeCompetitionEnum.parse(tc_val)
             if tc_val is not None
             else None
         )
         categorie = from_obj(CompetitionOrigineCategorie.from_dict, obj, "categorie")
         type_competition_generique = from_obj(
-            CompetitionOrigineTypeCompetitionGenerique.from_dict,
+            TypeCompetitionGenerique.from_dict,
             obj,
             "typeCompetitionGenerique",
         )

@@ -15,9 +15,9 @@ from ..utils.converter_utils import (
     from_str,
     from_uuid,
 )
-from .document_flyer_type import DocumentFlyerType
+from .document_flyer_type_enum import DocumentFlyerTypeEnum
 from .folder import Folder
-from .source import Source
+from .source_enum import SourceEnum
 
 
 @dataclass
@@ -27,7 +27,7 @@ class DocumentFlyer:
     filename_disk: str | None = None
     filename_download: str | None = None
     title: str | None = None
-    type: DocumentFlyerType | None = None
+    type: DocumentFlyerTypeEnum | None = None
     uploaded_on: datetime | None = None
     modified_on: datetime | None = None
     charset: str | None = None
@@ -40,7 +40,7 @@ class DocumentFlyer:
     location: str | None = None
     tags: str | None = None
     metadata: FacetStats | None = None
-    source: Source | None = None
+    source: SourceEnum | None = None
     credits: str | None = None
     gradient_color: str | None = None
     md5: str | None = None
@@ -65,7 +65,7 @@ class DocumentFlyer:
         filename_disk = from_str(obj, "filename_disk")
         filename_download = from_str(obj, "filename_download")
         title = from_str(obj, "title")
-        type = from_enum(DocumentFlyerType, obj, "type")
+        type = from_enum(DocumentFlyerTypeEnum, obj, "type")
         uploaded_on = from_datetime(obj, "uploaded_on")
         modified_on = from_datetime(obj, "modified_on")
         charset = from_str(obj, "charset")
@@ -78,7 +78,7 @@ class DocumentFlyer:
         location = from_str(obj, "location")
         tags = from_str(obj, "tags")
         metadata = from_obj(FacetStats.from_dict, obj, "metadata")
-        source = from_enum(Source, obj, "source")
+        source = from_enum(SourceEnum, obj, "source")
         credits = from_str(obj, "credits")
         gradient_color = from_str(obj, "gradient_color")
         md5 = from_str(obj, "md5")

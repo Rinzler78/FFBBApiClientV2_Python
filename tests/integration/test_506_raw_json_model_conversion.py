@@ -88,10 +88,10 @@ from ffbb_api_client_v2.meilisearch_ffbb.models.terrains_facet_distribution impo
 )
 from ffbb_api_client_v2.models.game_stats_model import GameStatsModel
 from ffbb_api_client_v2.models.niveau_models import (
-    CategorieType,
+    CategorieTypeEnum,
     NiveauExtractor,
     NiveauInfo,
-    NiveauType,
+    NiveauTypeEnum,
 )
 
 # ---------------------------------------------------------------------------
@@ -775,20 +775,20 @@ class Test021FromDictEdgeCases(unittest.TestCase):
         n = NiveauExtractor.extract_niveau("D1 masculine seniors")
         self.assertIsNotNone(n)
         self.assertIsInstance(n, NiveauInfo)
-        self.assertEqual(n.type, NiveauType.DEPARTEMENTAL)
+        self.assertEqual(n.type, NiveauTypeEnum.DEPARTEMENTAL)
         self.assertEqual(n.division, 1)
 
         # Regional
         n = NiveauExtractor.extract_niveau("R2 feminine U17")
         self.assertIsNotNone(n)
-        self.assertEqual(n.type, NiveauType.REGIONAL)
+        self.assertEqual(n.type, NiveauTypeEnum.REGIONAL)
         self.assertEqual(n.division, 2)
-        self.assertEqual(n.categorie, CategorieType.U17)
+        self.assertEqual(n.categorie, CategorieTypeEnum.U17)
 
         # Elite
         n = NiveauExtractor.extract_niveau("ELITE masculine seniors")
         self.assertIsNotNone(n)
-        self.assertEqual(n.type, NiveauType.ELITE)
+        self.assertEqual(n.type, NiveauTypeEnum.ELITE)
         self.assertTrue(n.is_elite)
         self.assertEqual(n.zone_effective, "regional")
         self.assertEqual(n.zone_geographique, "regional")
@@ -796,7 +796,7 @@ class Test021FromDictEdgeCases(unittest.TestCase):
         # National
         n = NiveauExtractor.extract_niveau("NATIONAL 1 masculine")
         self.assertIsNotNone(n)
-        self.assertEqual(n.type, NiveauType.NATIONAL)
+        self.assertEqual(n.type, NiveauTypeEnum.NATIONAL)
 
         # None for unrecognized
         n = NiveauExtractor.extract_niveau("random text")
@@ -988,9 +988,9 @@ class Test021FromDictEdgeCases(unittest.TestCase):
     def test_031_niveau_info_methods(self) -> None:
         """NiveauInfo.matches_filter and properties."""
         info = NiveauInfo(
-            type=NiveauType.DEPARTEMENTAL,
+            type=NiveauTypeEnum.DEPARTEMENTAL,
             division=1,
-            categorie=CategorieType.SENIOR,
+            categorie=CategorieTypeEnum.SENIOR,
             raw_text="D1",
         )
         self.assertFalse(info.is_elite)
@@ -1001,7 +1001,7 @@ class Test021FromDictEdgeCases(unittest.TestCase):
 
         # Elite info
         elite = NiveauInfo(
-            type=NiveauType.ELITE,
+            type=NiveauTypeEnum.ELITE,
             raw_text="ELITE",
             zone_geographique="regional",
         )
@@ -1018,7 +1018,7 @@ class Test021FromDictEdgeCases(unittest.TestCase):
             {"nom": "D2 masculine seniors", "code": "XXX"}
         )
         self.assertIsNotNone(result)
-        self.assertEqual(result.type, NiveauType.DEPARTEMENTAL)
+        self.assertEqual(result.type, NiveauTypeEnum.DEPARTEMENTAL)
         self.assertEqual(result.division, 2)
 
         # Fallback to code when nom doesn't match
@@ -1026,7 +1026,7 @@ class Test021FromDictEdgeCases(unittest.TestCase):
             {"nom": "something unknown", "code": "R1 feminine"}
         )
         self.assertIsNotNone(result)
-        self.assertEqual(result.type, NiveauType.REGIONAL)
+        self.assertEqual(result.type, NiveauTypeEnum.REGIONAL)
 
         # Neither matches
         result = NiveauExtractor.extract_from_competition_data(
@@ -1122,7 +1122,7 @@ class Test021FromDictEdgeCases(unittest.TestCase):
         self.assertEqual(result.api_bearer_token, "api_token_val")
         self.assertEqual(result.meilisearch_token, "mls_token_val")
 
-    # -- test_035: Live.from_dict with TeamEngagement ----------------------
+    # -- test_035: Live.from_dict with EngagementEquipe ----------------------
 
     def test_035_live_with_team_engagement(self) -> None:
         """Live.from_dict with nested teamEngagement data."""
@@ -1151,37 +1151,18 @@ class Test021FromDictEdgeCases(unittest.TestCase):
         self.assertIsNotNone(live.team_engagement_out)
         self.assertEqual(live.team_engagement_out.nom_officiel, "Lyon BC Officiel")
 
-    # -- test_036: Live.from_dict with ExternalID --------------------------
+    # -- test_036: Live.from_dict with ExternalRencontre --------------------------
 
     def test_036_live_with_external_id(self) -> None:
-        """Live.from_dict with nested externalId data."""
+        """Live.from_dict with scalar externalId (FK string)."""
         data: dict[str, Any] = {
             "matchId": "200",
             "clock": "0:0:0",
-            "externalId": {
-                "nomEquipe1": "Team A",
-                "nomEquipe2": "Team B",
-                "numeroJournee": "5",
-                "competitionId": {
-                    "code": "C001",
-                    "nom": "Championnat",
-                    "sexe": "M",
-                    "typeCompetition": "CHAMP",
-                },
-                "idOrganismeEquipe1": None,
-                "idOrganismeEquipe2": None,
-                "salle": None,
-                "idPoule": None,
-            },
+            "externalId": "ext-rencontre-42",
         }
         live = Live.from_dict(data)
         self.assertIsNotNone(live.external_id)
-        self.assertEqual(live.external_id.nom_equipe1, "Team A")
-        self.assertEqual(live.external_id.nom_equipe2, "Team B")
-        self.assertEqual(live.external_id.numero_journee, 5)
-        self.assertIsNotNone(live.external_id.competition_id)
-        self.assertEqual(live.external_id.competition_id.code, "C001")
-        self.assertEqual(live.external_id.competition_id.sexe, "M")
+        self.assertEqual(live.external_id, "ext-rencontre-42")
 
 
 if __name__ == "__main__":

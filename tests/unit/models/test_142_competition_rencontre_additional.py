@@ -6,13 +6,9 @@ import unittest
 from datetime import datetime
 
 from ffbb_api_client_v2.models.competition_rencontre import CompetitionRencontre
-from ffbb_api_client_v2.models.engagement_equipe import EngagementEquipe
 from ffbb_api_client_v2.models.fonction import Fonction
-from ffbb_api_client_v2.models.game_stats_model import GameStatsModel
-from ffbb_api_client_v2.models.logo import Logo
 from ffbb_api_client_v2.models.officiel import Officiel
 from ffbb_api_client_v2.models.officiel_personne import OfficielPersonne
-from ffbb_api_client_v2.models.organisme_equipe import OrganismeEquipe
 from ffbb_api_client_v2.models.salle import Salle
 
 
@@ -21,12 +17,6 @@ class Test142CompetitionRencontreAdditional(unittest.TestCase):
 
     def test_001_competition_rencontre_full_initialization(self):
         """Test d'initialisation complète de CompetitionRencontre avec toutes les propriétés"""
-        organisme_equipe1 = OrganismeEquipe(logo=Logo())
-        organisme_equipe2 = OrganismeEquipe(logo=Logo())
-        gs_id = GameStatsModel(match_id="gs123")
-        engagement_equipe1 = EngagementEquipe(id="eng123", nom="Engagement 1")
-        engagement_equipe2 = EngagementEquipe(id="eng456", nom="Engagement 2")
-        salle = Salle(id="salle123", libelle="Salle Test")
         officiel = Officiel(
             ordre=1,
             fonction=Fonction(libelle="Arbitre"),
@@ -47,12 +37,12 @@ class Test142CompetitionRencontreAdditional(unittest.TestCase):
             nom_equipe1="Équipe A",
             nom_equipe2="Équipe B",
             date_rencontre=date_rencontre,
-            id_organisme_equipe1=organisme_equipe1,
-            id_organisme_equipe2=organisme_equipe2,
-            gs_id=gs_id,
-            id_engagement_equipe1=engagement_equipe1,
-            id_engagement_equipe2=engagement_equipe2,
-            salle=salle,
+            id_organisme_equipe1="org123",
+            id_organisme_equipe2="org456",
+            gs_id="gs123",
+            id_engagement_equipe1="eng123",
+            id_engagement_equipe2="eng456",
+            salle=Salle(id="salle123", libelle="Salle Test"),
             officiels=[officiel],
         )
 
@@ -67,12 +57,12 @@ class Test142CompetitionRencontreAdditional(unittest.TestCase):
         assert rencontre.nom_equipe1 == "Équipe A"
         assert rencontre.nom_equipe2 == "Équipe B"
         assert rencontre.date_rencontre == date_rencontre
-        assert rencontre.id_organisme_equipe1 == organisme_equipe1
-        assert rencontre.id_organisme_equipe2 == organisme_equipe2
-        assert rencontre.gs_id == gs_id
-        assert rencontre.id_engagement_equipe1 == engagement_equipe1
-        assert rencontre.id_engagement_equipe2 == engagement_equipe2
-        assert rencontre.salle == salle
+        assert rencontre.id_organisme_equipe1 == "org123"
+        assert rencontre.id_organisme_equipe2 == "org456"
+        assert rencontre.gs_id == "gs123"
+        assert rencontre.id_engagement_equipe1 == "eng123"
+        assert rencontre.id_engagement_equipe2 == "eng456"
+        assert rencontre.salle is not None
         assert len(rencontre.officiels) == 1
         assert rencontre.officiels[0] == officiel
 
@@ -113,12 +103,12 @@ class Test142CompetitionRencontreAdditional(unittest.TestCase):
             "nomEquipe1": "Équipe A",
             "nomEquipe2": "Équipe B",
             "date_rencontre": "2023-04-15T14:30:00",
-            "idOrganismeEquipe1": {"id": "org123", "nom": "Équipe 1"},
-            "idOrganismeEquipe2": {"id": "org456", "nom": "Équipe 2"},
-            "gsId": {"id": "gs123"},
-            "idEngagementEquipe1": {"id": "eng123", "nom": "Engagement 1"},
-            "idEngagementEquipe2": {"id": "eng456", "nom": "Engagement 2"},
-            "salle": {"id": "salle123", "nom": "Salle Test"},
+            "idOrganismeEquipe1": "org123",
+            "idOrganismeEquipe2": "org456",
+            "gsId": "gs123",
+            "idEngagementEquipe1": "eng123",
+            "idEngagementEquipe2": "eng456",
+            "salle": {"id": "salle123", "libelle": "Salle Test"},
             "officiels": [{"id": "off123", "nom": "Officiel Test"}],
         }
 
@@ -170,12 +160,6 @@ class Test142CompetitionRencontreAdditional(unittest.TestCase):
 
     def test_005_competition_rencontre_to_dict_full(self):
         """Test de la méthode to_dict avec toutes les propriétés définies"""
-        organisme_equipe1 = OrganismeEquipe(logo=Logo())
-        organisme_equipe2 = OrganismeEquipe(logo=Logo())
-        gs_id = GameStatsModel(match_id="gs123")
-        engagement_equipe1 = EngagementEquipe(id="eng123", nom="Engagement 1")
-        engagement_equipe2 = EngagementEquipe(id="eng456", nom="Engagement 2")
-        salle = Salle(id="salle123", libelle="Salle Test")
         officiel = Officiel(
             ordre=1,
             fonction=Fonction(libelle="Arbitre"),
@@ -196,12 +180,12 @@ class Test142CompetitionRencontreAdditional(unittest.TestCase):
             nom_equipe1="Équipe A",
             nom_equipe2="Équipe B",
             date_rencontre=date_rencontre,
-            id_organisme_equipe1=organisme_equipe1,
-            id_organisme_equipe2=organisme_equipe2,
-            gs_id=gs_id,
-            id_engagement_equipe1=engagement_equipe1,
-            id_engagement_equipe2=engagement_equipe2,
-            salle=salle,
+            id_organisme_equipe1="org123",
+            id_organisme_equipe2="org456",
+            gs_id="gs123",
+            id_engagement_equipe1="eng123",
+            id_engagement_equipe2="eng456",
+            salle=Salle(id="salle123", libelle="Salle Test"),
             officiels=[officiel],
         )
 
@@ -299,12 +283,12 @@ class Test142CompetitionRencontreAdditional(unittest.TestCase):
             "nomEquipe1": "Équipe A",
             "nomEquipe2": "Équipe B",
             "date_rencontre": "2023-04-15T14:30:00",
-            "idOrganismeEquipe1": {"id": "org123", "nom": "Équipe 1"},
-            "idOrganismeEquipe2": {"id": "org456", "nom": "Équipe 2"},
-            "gsId": {"id": "gs123"},
-            "idEngagementEquipe1": {"id": "eng123", "nom": "Engagement 1"},
-            "idEngagementEquipe2": {"id": "eng456", "nom": "Engagement 2"},
-            "salle": {"id": "salle123", "nom": "Salle Test"},
+            "idOrganismeEquipe1": "org123",
+            "idOrganismeEquipe2": "org456",
+            "gsId": "gs123",
+            "idEngagementEquipe1": "eng123",
+            "idEngagementEquipe2": "eng456",
+            "salle": {"id": "salle123", "libelle": "Salle Test"},
             "officiels": [{"id": "off123", "nom": "Officiel Test"}],
         }
 

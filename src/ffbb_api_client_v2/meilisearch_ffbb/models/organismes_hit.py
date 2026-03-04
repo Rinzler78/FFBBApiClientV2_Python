@@ -9,7 +9,7 @@ from ...models.cartographie import Cartographie
 from ...models.commune import Commune
 from ...models.geo import Geo
 from ...models.logo import Logo
-from ...models.organisme_id_pere import OrganismeIDPere
+from ...models.organisateur import Organisateur
 from ...models.type_association import TypeAssociation
 from ...utils.converter_utils import (
     from_bool,
@@ -39,7 +39,7 @@ class OrganismesHit(Hit):
     offres_pratiques: list[str] | None = None
     labellisation: list[str] | None = None
     cartographie: Cartographie | None = None
-    organisme_id_pere: OrganismeIDPere | None = None
+    organisme_id_pere: Organisateur | None = None
     commune: Commune | None = None
     commune_club_pro: Commune | None = None
     type_association: TypeAssociation | None = None
@@ -84,7 +84,7 @@ class OrganismesHit(Hit):
             labellisation = from_list(str, obj, "labellisation")
             cartographie = from_obj(Cartographie.from_dict, obj, "cartographie")
             organisme_id_pere = from_obj(
-                OrganismeIDPere.from_dict, obj, "organisme_id_pere"
+                Organisateur.from_dict, obj, "organisme_id_pere"
             )
             commune = from_obj(Commune.from_dict, obj, "commune")
             commune_club_pro = from_obj(Commune.from_dict, obj, "communeClubPro")

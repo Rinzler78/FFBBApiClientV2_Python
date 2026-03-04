@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any
+from uuid import UUID
 
-from ..utils.converter_utils import from_obj, from_str
-from .logo import Logo
+from ..utils.converter_utils import from_str, from_uuid
 
 
 @dataclass
@@ -16,7 +16,7 @@ class EngagementEquipe:
     nom_officiel: str | None = None
     nom_usuel: str | None = None
     code_abrege: str | None = None
-    logo: Logo | None = None
+    logo: UUID | None = None
 
     @staticmethod
     def from_dict(obj: Any) -> EngagementEquipe:
@@ -27,7 +27,7 @@ class EngagementEquipe:
             nom_officiel=from_str(obj, "nomOfficiel"),
             nom_usuel=from_str(obj, "nomUsuel"),
             code_abrege=from_str(obj, "codeAbrege"),
-            logo=from_obj(Logo.from_dict, obj, "logo"),
+            logo=from_uuid(obj, "logo"),
         )
 
     def to_dict(self) -> dict:
@@ -43,5 +43,5 @@ class EngagementEquipe:
         if self.code_abrege is not None:
             result["codeAbrege"] = self.code_abrege
         if self.logo is not None:
-            result["logo"] = self.logo.to_dict()
+            result["logo"] = str(self.logo)
         return result

@@ -111,7 +111,7 @@ def main():
     tests_dir = "/Users/bleclereperso/Projects/Python/FFBBApiClientV2_Python/tests"
 
     print("Extraction des modules source...")
-    print(f"Source directory: {src_dir}")
+    print(f"SourceEnum directory: {src_dir}")
     print(f"Tests directory: {tests_dir}")
     print("=" * 80)
 

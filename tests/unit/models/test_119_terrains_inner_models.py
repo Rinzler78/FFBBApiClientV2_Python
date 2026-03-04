@@ -12,7 +12,7 @@ from ffbb_api_client_v2.meilisearch_ffbb.models.terrains_facet_distribution impo
     TerrainsFacetDistribution,
 )
 from ffbb_api_client_v2.meilisearch_ffbb.models.terrains_hit import TerrainsHit
-from ffbb_api_client_v2.models.sexe_class import SexeClass
+from ffbb_api_client_v2.models.sexe_facet import SexeFacet
 from ffbb_api_client_v2.models.tournoi_types_3x3 import TournoiTypes3X3
 from ffbb_api_client_v2.models.tournoi_types_3x3_libelle import TournoiTypes3X3Libelle
 
@@ -27,7 +27,7 @@ class Test041TerrainsInnerModels(unittest.TestCase):
 
     def test_000_sexe_class_full(self) -> None:
         self._assert_stable(
-            SexeClass,
+            SexeFacet,
             {"Féminin": 5, "Masculin": 10, "Mixte": 2},
         )
 

@@ -5,19 +5,19 @@ from typing import Any
 
 from ...meilisearch.models.facet_distribution import FacetDistribution
 from ...utils.converter_utils import from_obj
-from .pratiques_type_class import PratiquesTypeClass
+from .pratiques_type_facet import PratiquesTypeFacet
 
 
 @dataclass
 class PratiquesFacetDistribution(FacetDistribution):
     label: dict[str, int] | None = None
-    type: PratiquesTypeClass | None = None
+    type: PratiquesTypeFacet | None = None
 
     @staticmethod
     def from_dict(obj: Any) -> PratiquesFacetDistribution:
         assert isinstance(obj, dict)
         label = obj.get("label")
-        type = from_obj(PratiquesTypeClass.from_dict, obj, "type")
+        type = from_obj(PratiquesTypeFacet.from_dict, obj, "type")
         return PratiquesFacetDistribution(label=label, type=type)
 
     def to_dict(self) -> dict:

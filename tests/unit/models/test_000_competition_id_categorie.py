@@ -1,11 +1,11 @@
-"""Round-trip tests for CompetitionIDCategorie."""
+"""Round-trip tests for Categorie."""
 
 from __future__ import annotations
 
 import unittest
 from typing import Any
 
-from ffbb_api_client_v2.models.competition_id_categorie import CompetitionIDCategorie
+from ffbb_api_client_v2.models.categorie import Categorie
 
 
 class Test023CompetitionIdCategorie(unittest.TestCase):
@@ -18,16 +18,16 @@ class Test023CompetitionIdCategorie(unittest.TestCase):
 
     def test_000_round_trip_full(self) -> None:
         self._assert_stable(
-            CompetitionIDCategorie,
+            Categorie,
             {"code": "U17", "libelle": "U17 Masculin", "ordre": 3},
         )
 
     def test_001_round_trip_minimal(self) -> None:
-        self._assert_stable(CompetitionIDCategorie, {"code": "SE"})
+        self._assert_stable(Categorie, {"code": "SE"})
 
     def test_002_round_trip_none_fields(self) -> None:
         self._assert_stable(
-            CompetitionIDCategorie,
+            Categorie,
             {"code": None, "libelle": None, "ordre": None},
         )
 

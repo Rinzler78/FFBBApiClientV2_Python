@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from ..utils.converter_utils import from_enum, from_str
-from .code_fonction import CodeFonction
+from .code_fonction_enum import CodeFonctionEnum
 
 
 @dataclass
@@ -19,7 +19,7 @@ class Membre:
     mail: str | None = None
     telephone_fixe: str | None = None
     telephone_portable: str | None = None
-    code_fonction: CodeFonction | None = None
+    code_fonction: CodeFonctionEnum | None = None
 
     @staticmethod
     def from_dict(obj: Any) -> Membre:
@@ -35,7 +35,7 @@ class Membre:
             mail=from_str(obj, "mail"),
             telephone_fixe=from_str(obj, "telephoneFixe"),
             telephone_portable=from_str(obj, "telephonePortable"),
-            code_fonction=from_enum(CodeFonction, obj, "codeFonction"),
+            code_fonction=from_enum(CodeFonctionEnum, obj, "codeFonction"),
         )
 
     def to_dict(self) -> dict:

@@ -8,10 +8,10 @@ from ...meilisearch.models.hit import Hit
 from ...models.affiche import Affiche
 from ...models.cartographie import Cartographie
 from ...models.geo import Geo
-from ...models.jour import Jour
-from ...models.label import Label
-from ...models.objectif import Objectif
-from ...models.pratiques_hit_type import HitType
+from ...models.jour_enum import JourEnum
+from ...models.label_enum import LabelEnum
+from ...models.objectif_enum import ObjectifEnum
+from ...models.pratiques_hit_type_enum import PratiquesHitTypeEnum
 from ...utils.converter_utils import (
     from_datetime,
     from_enum,
@@ -26,10 +26,10 @@ from ...utils.converter_utils import (
 @dataclass
 class PratiquesHit(Hit):
     titre: str | None = None
-    type: HitType | None = None
+    type: PratiquesHitTypeEnum | None = None
     adresse: str | None = None
     description: str | None = None
-    id: int | None = None
+    id: str | None = None
     date_created: datetime | None = None
     date_debut: datetime | None = None
     date_demande: int | None = None
@@ -49,8 +49,8 @@ class PratiquesHit(Hit):
     engagement: str | None = None
     horaires_seances: str | None = None
     inscriptions: str | None = None
-    jours: list[Jour] | None = None
-    label: Label | None = None
+    jours: list[JourEnum] | None = None
+    label: LabelEnum | None = None
     latitude: float | None = None
     longitude: float | None = None
     mail_demandeur: str | None = None
@@ -60,7 +60,7 @@ class PratiquesHit(Hit):
     nom_structure: str | None = None
     nombre_personnes: str | None = None
     nombre_seances: str | None = None
-    objectif: Objectif | None = None
+    objectif: ObjectifEnum | None = None
     prenom_demandeur: str | None = None
     public: str | None = None
     telephone: str | None = None
@@ -104,10 +104,10 @@ class PratiquesHit(Hit):
     def from_dict(obj: Any) -> PratiquesHit:
         assert isinstance(obj, dict)
         titre = from_str(obj, "titre")
-        type = from_enum(HitType, obj, "type")
+        type = from_enum(PratiquesHitTypeEnum, obj, "type")
         adresse = from_str(obj, "adresse")
         description = from_str(obj, "description")
-        id = from_int(obj, "id")
+        id = from_str(obj, "id")
         date_created = from_datetime(obj, "date_created")
         date_debut = from_datetime(obj, "date_debut")
         date_demande = from_int(obj, "date_demande")
@@ -127,8 +127,8 @@ class PratiquesHit(Hit):
         engagement = from_str(obj, "engagement")
         horaires_seances = from_str(obj, "horaires_seances")
         inscriptions = from_str(obj, "inscriptions")
-        jours = from_list(Jour, obj, "jours")
-        label = from_enum(Label, obj, "label")
+        jours = from_list(JourEnum, obj, "jours")
+        label = from_enum(LabelEnum, obj, "label")
         latitude = from_float(obj, "latitude")
         longitude = from_float(obj, "longitude")
         mail_demandeur = from_str(obj, "mail_demandeur")
@@ -138,7 +138,7 @@ class PratiquesHit(Hit):
         nom_structure = from_str(obj, "nom_structure")
         nombre_personnes = from_str(obj, "nombre_personnes")
         nombre_seances = from_str(obj, "nombre_seances")
-        objectif = from_enum(Objectif, obj, "objectif")
+        objectif = from_enum(ObjectifEnum, obj, "objectif")
         prenom_demandeur = from_str(obj, "prenom_demandeur")
         public = from_str(obj, "public")
         telephone = from_str(obj, "telephone")
@@ -209,7 +209,7 @@ class PratiquesHit(Hit):
         if self.description is not None:
             result["description"] = self.description
         if self.id is not None:
-            result["id"] = str(self.id)
+            result["id"] = self.id
         if self.date_created is not None:
             result["date_created"] = self.date_created.isoformat()
         if self.date_debut is not None:

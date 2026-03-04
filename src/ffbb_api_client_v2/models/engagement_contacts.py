@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from ..directus_ffbb.models.get_engagements_response import GetEngagementsResponse
 from ..directus_ffbb.models.get_entraineurs_response import GetEntraineursResponse
 from .contact_info import ContactInfo
-from .contact_role import ContactRole
+from .contact_role_enum import ContactRoleEnum
 from .phone_number import PhoneNumber
 
 
@@ -40,7 +40,7 @@ def extract_correspondant(engagement: GetEngagementsResponse) -> ContactInfo | N
     if not phone and not email:
         return None
     return ContactInfo(
-        titre=ContactRole.CORRESPONDANT_EQUIPE,
+        titre=ContactRoleEnum.CORRESPONDANT_EQUIPE,
         nom=_sanitize_name(engagement.nomCorrespondantEquipe),
         prenom="",
         telephone=phone,
@@ -50,7 +50,7 @@ def extract_correspondant(engagement: GetEngagementsResponse) -> ContactInfo | N
 
 
 def extract_entraineur_contact(
-    entraineur: GetEntraineursResponse | None, titre: ContactRole
+    entraineur: GetEntraineursResponse | None, titre: ContactRoleEnum
 ) -> ContactInfo | None:
     """Extract contact info from an entraineur."""
     if not entraineur:

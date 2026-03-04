@@ -98,9 +98,9 @@ class TestIDPouleToDictCoverage(unittest.TestCase):
     """id_poule.py -- cover to_dict nom branch."""
 
     def test_003_to_dict_with_nom(self) -> None:
-        from ffbb_api_client_v2.models.id_poule import IDPoule
+        from ffbb_api_client_v2.models.poule import Poule
 
-        p = IDPoule(id="poule-1", nom="Poule A")
+        p = Poule(id="poule-1", nom="Poule A")
         d = p.to_dict()
         self.assertEqual(d["id"], "poule-1")
         self.assertEqual(d["nom"], "Poule A")
@@ -137,25 +137,25 @@ class TestTypeClassToDictCoverage(unittest.TestCase):
     """type_class.py -- cover to_dict groupement branch."""
 
     def test_006_to_dict_with_groupement(self) -> None:
-        from ffbb_api_client_v2.models.type_class import TypeClass
+        from ffbb_api_client_v2.models.type_facet import TypeFacet
 
-        t = TypeClass(groupement=5)
+        t = TypeFacet(groupement=5)
         d = t.to_dict()
         self.assertEqual(d["Groupement"], 5)
 
 
 class TestExternalIDToDictCoverage(unittest.TestCase):
-    """external_id.py -- cover to_dict branches for CompetitionID and ExternalID."""
+    """external_id.py -- cover to_dict branches for CompetitionID and ExternalRencontre."""
 
     def test_007_competition_id_to_dict(self) -> None:
-        from ffbb_api_client_v2.models.external_id import ExternalCompetitionID
-        from ffbb_api_client_v2.models.type_competition import TypeCompetition
+        from ffbb_api_client_v2.models.external_competition import ExternalCompetition
+        from ffbb_api_client_v2.models.type_competition_enum import TypeCompetitionEnum
 
-        c = ExternalCompetitionID(
+        c = ExternalCompetition(
             code="NM1",
             nom="Nationale 1",
             sexe="Masculin",
-            type_competition=TypeCompetition.CHAMPIONNAT,
+            type_competition=TypeCompetitionEnum.CHAMPIONNAT,
         )
         d = c.to_dict()
         self.assertEqual(d["code"], "NM1")
@@ -164,54 +164,28 @@ class TestExternalIDToDictCoverage(unittest.TestCase):
         self.assertEqual(d["typeCompetition"], "Championnat")
 
     def test_008_external_id_to_dict_all_fields(self) -> None:
-        from ffbb_api_client_v2.models.external_id import (
-            ExternalCompetitionID,
-            ExternalID,
-        )
-        from ffbb_api_client_v2.models.id_organisme_equipe import IDOrganismeEquipe
-        from ffbb_api_client_v2.models.id_poule import IDPoule
+        from ffbb_api_client_v2.models.external_rencontre import ExternalRencontre
         from ffbb_api_client_v2.models.salle import Salle
 
-        comp = ExternalCompetitionID(
-            code="NM1", nom="Nationale 1", sexe="M", type_competition=None
-        )
-        org1 = IDOrganismeEquipe(
-            id="o1",
-            nom="Club A",
-            nom_simple=None,
-            code="CA",
-            nom_club_pro=None,
-            logo=None,
-        )
-        org2 = IDOrganismeEquipe(
-            id="o2",
-            nom="Club B",
-            nom_simple=None,
-            code="CB",
-            nom_club_pro=None,
-            logo=None,
-        )
-        salle = Salle.from_dict({"libelle": "Salle X", "adresse": "1 rue"})
-        poule = IDPoule(id="p1", nom="Poule A")
-        ext = ExternalID(
+        ext = ExternalRencontre(
             nom_equipe1="Eq1",
             nom_equipe2="Eq2",
             numero_journee=5,
-            competition_id=comp,
-            id_organisme_equipe1=org1,
-            id_organisme_equipe2=org2,
-            salle=salle,
-            id_poule=poule,
+            competition_id="NM1",
+            id_organisme_equipe1="o1",
+            id_organisme_equipe2="o2",
+            salle=Salle(id="salle-x"),
+            id_poule="p1",
         )
         d = ext.to_dict()
         self.assertEqual(d["nomEquipe1"], "Eq1")
         self.assertEqual(d["nomEquipe2"], "Eq2")
         self.assertEqual(d["numeroJournee"], "5")
-        self.assertEqual(d["competitionId"]["code"], "NM1")
-        self.assertIn("idOrganismeEquipe1", d)
-        self.assertIn("idOrganismeEquipe2", d)
-        self.assertEqual(d["salle"]["libelle"], "Salle X")
-        self.assertEqual(d["idPoule"]["id"], "p1")
+        self.assertEqual(d["competitionId"], "NM1")
+        self.assertEqual(d["idOrganismeEquipe1"], "o1")
+        self.assertEqual(d["idOrganismeEquipe2"], "o2")
+        self.assertEqual(d["salle"]["id"], "salle-x")
+        self.assertEqual(d["idPoule"], "p1")
 
 
 class TestDocumentFlyerToDictCoverage(unittest.TestCase):
@@ -219,9 +193,11 @@ class TestDocumentFlyerToDictCoverage(unittest.TestCase):
 
     def test_009_to_dict_populated_fields(self) -> None:
         from ffbb_api_client_v2.models.document_flyer import DocumentFlyer
-        from ffbb_api_client_v2.models.document_flyer_type import DocumentFlyerType
+        from ffbb_api_client_v2.models.document_flyer_type_enum import (
+            DocumentFlyerTypeEnum,
+        )
         from ffbb_api_client_v2.models.folder import Folder
-        from ffbb_api_client_v2.models.source import Source
+        from ffbb_api_client_v2.models.source_enum import SourceEnum
 
         uid = UUID("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee")
         now = datetime(2024, 1, 15, 10, 30, 0)
@@ -232,17 +208,17 @@ class TestDocumentFlyerToDictCoverage(unittest.TestCase):
             filename_disk="file.pdf",
             filename_download="file.pdf",
             title="Flyer",
-            type=DocumentFlyerType.IMAGE_JPEG,
+            type=DocumentFlyerTypeEnum.IMAGE_JPEG,
             uploaded_on=now,
             modified_on=now,
             filesize=1024,
             width=800,
             height=600,
-            source=Source.FFBB_SERVEUR,
+            source=SourceEnum.FFBB_SERVEUR,
             gradient_color="#fff",
             md5="abc123def456",
-            newsbridge_labels=["label1"],
-            newsbridge_persons=["person1"],
+            newsbridge_labels="label1",
+            newsbridge_persons="person1",
             folder=folder,
         )
         d = doc.to_dict()
@@ -251,27 +227,27 @@ class TestDocumentFlyerToDictCoverage(unittest.TestCase):
         self.assertEqual(d["filename_disk"], "file.pdf")
         self.assertEqual(d["filename_download"], "file.pdf")
         self.assertEqual(d["title"], "Flyer")
-        self.assertEqual(d["type"], DocumentFlyerType.IMAGE_JPEG.value)
+        self.assertEqual(d["type"], "image/jpeg")
         self.assertEqual(d["uploaded_on"], now.isoformat())
         self.assertEqual(d["modified_on"], now.isoformat())
         self.assertEqual(d["filesize"], "1024")
         self.assertEqual(d["width"], 800)
         self.assertEqual(d["height"], 600)
-        self.assertEqual(d["source"], Source.FFBB_SERVEUR.value)
+        self.assertEqual(d["source"], SourceEnum.FFBB_SERVEUR.value)
         self.assertEqual(d["gradient_color"], "#fff")
         self.assertIn("md5", d)
-        self.assertEqual(d["newsbridge_labels"], ["label1"])
+        self.assertEqual(d["newsbridge_labels"], "label1")
         self.assertIn("newsbridge_persons", d)
         self.assertEqual(d["folder"]["name"], "docs")
 
 
 class TestTournoisToDictCoverage(unittest.TestCase):
-    """multi_search_result_tournois.py -- cover SexeClass and TerrainsFacetDistribution to_dict."""
+    """multi_search_result_tournois.py -- cover SexeFacet and TerrainsFacetDistribution to_dict."""
 
     def test_010_sexe_class_to_dict(self) -> None:
-        from ffbb_api_client_v2.models.sexe_class import SexeClass
+        from ffbb_api_client_v2.models.sexe_facet import SexeFacet
 
-        s = SexeClass(feminine=3, masculine=5, mixed=2)
+        s = SexeFacet(feminine=3, masculine=5, mixed=2)
         d = s.to_dict()
         self.assertEqual(d["Féminin"], 3)
         self.assertEqual(d["Masculin"], 5)
@@ -281,11 +257,11 @@ class TestTournoisToDictCoverage(unittest.TestCase):
         from ffbb_api_client_v2.meilisearch_ffbb.models.terrains_facet_distribution import (
             TerrainsFacetDistribution,
         )
-        from ffbb_api_client_v2.models.sexe_class import SexeClass
-        from ffbb_api_client_v2.models.tournoi_type_class import TournoiTypeClass
+        from ffbb_api_client_v2.models.sexe_facet import SexeFacet
+        from ffbb_api_client_v2.models.tournoi_type_facet import TournoiTypeFacet
 
-        sexe = SexeClass(feminine=1, masculine=2, mixed=0)
-        tt = TournoiTypeClass.from_dict({"Terrain": 3})
+        sexe = SexeFacet(feminine=1, masculine=2, mixed=0)
+        tt = TournoiTypeFacet.from_dict({"Terrain": 3})
         fd = TerrainsFacetDistribution(
             sexe=sexe, tournoi_type=tt, tournoi_types3_x3_libelle=None
         )
@@ -294,12 +270,10 @@ class TestTournoisToDictCoverage(unittest.TestCase):
         self.assertIn("tournoiType", d)
 
     def test_012_tournois_hit_to_dict(self) -> None:
-        from ffbb_api_client_v2.meilisearch_ffbb.models.terrains_sexe_enum import (
-            SexeEnum,
-        )
         from ffbb_api_client_v2.meilisearch_ffbb.models.tournois_hit import TournoisHit
         from ffbb_api_client_v2.models.commune import Commune
         from ffbb_api_client_v2.models.geo import Geo
+        from ffbb_api_client_v2.models.sexe_enum import SexeEnum
         from ffbb_api_client_v2.models.tournoi_type_enum import TournoiTypeEnum
 
         now = datetime(2024, 6, 1, 12, 0, 0)
@@ -571,7 +545,7 @@ class TestOrganismeIdPereToDictCoverage(unittest.TestCase):
     """organisme_id_pere.py -- cover to_dict branches."""
 
     def test_025_to_dict_all_fields(self) -> None:
-        from ffbb_api_client_v2.models.organisme_id_pere import OrganismeIDPere
+        from ffbb_api_client_v2.models.organisateur import Organisateur
 
         data = {
             "adresse": "1 rue de Paris",
@@ -610,7 +584,7 @@ class TestOrganismeIdPereToDictCoverage(unittest.TestCase):
                 }
             ],
         }
-        obj = OrganismeIDPere.from_dict(data)
+        obj = Organisateur.from_dict(data)
         d = obj.to_dict()
         self.assertEqual(d["adresse"], "1 rue de Paris")
         self.assertEqual(d["code"], "CL01")
@@ -772,9 +746,9 @@ class TestEmptyToDictBranches(unittest.TestCase):
         # All None-typed fields -> empty dict
         self.assertEqual(d, {})
 
-    def test_030_organisme_id_pere_with_nested_organisme(self) -> None:
-        """Cover the organisme_id_pere nested field + more to_dict branches."""
-        from ffbb_api_client_v2.models.organisme_id_pere import OrganismeIDPere
+    def test_030_organisme_id_pere_with_str_value(self) -> None:
+        """Cover the organisme_id_pere field (now str) + more to_dict branches."""
+        from ffbb_api_client_v2.models.organisateur import Organisateur
 
         data = {
             "adresse": None,
@@ -789,37 +763,7 @@ class TestEmptyToDictBranches(unittest.TestCase):
             "mail": None,
             "nom": None,
             "nomClubPro": None,
-            "organisme_id_pere": {
-                "adresse": "nested addr",
-                "adresseClubPro": None,
-                "cartographie": None,
-                "code": "N01",
-                "commune": None,
-                "communeClubPro": None,
-                "date_created": None,
-                "date_updated": None,
-                "id": "99",
-                "mail": None,
-                "nom": "Nested Org",
-                "nomClubPro": None,
-                "organisme_id_pere": None,
-                "salle": None,
-                "telephone": None,
-                "type": None,
-                "type_association": None,
-                "urlSiteWeb": None,
-                "logo": None,
-                "nom_simple": None,
-                "dateAffiliation": None,
-                "saison_en_cours": None,
-                "entreprise": None,
-                "handibasket": None,
-                "omnisport": None,
-                "horsAssociation": None,
-                "offresPratiques": None,
-                "engagements": None,
-                "labellisation": None,
-            },
+            "organisme_id_pere": "99",
             "salle": None,
             "telephone": None,
             "type": None,
@@ -837,16 +781,16 @@ class TestEmptyToDictBranches(unittest.TestCase):
             "engagements": None,
             "labellisation": None,
         }
-        obj = OrganismeIDPere.from_dict(data)
+        obj = Organisateur.from_dict(data)
         self.assertIsNotNone(obj.organisme_id_pere)
-        self.assertEqual(obj.organisme_id_pere.nom, "Nested Org")
+        self.assertEqual(obj.organisme_id_pere, "99")
         d = obj.to_dict()
         self.assertIn("organisme_id_pere", d)
-        self.assertEqual(d["organisme_id_pere"]["code"], "N01")
+        self.assertEqual(d["organisme_id_pere"], "99")
 
     def test_031_organisme_id_pere_empty_to_dict(self) -> None:
-        """Cover all False branches in OrganismeIDPere.to_dict."""
-        from ffbb_api_client_v2.models.organisme_id_pere import OrganismeIDPere
+        """Cover all False branches in Organisateur.to_dict."""
+        from ffbb_api_client_v2.models.organisateur import Organisateur
 
         data = {
             "adresse": None,
@@ -879,7 +823,7 @@ class TestEmptyToDictBranches(unittest.TestCase):
             "engagements": None,
             "labellisation": None,
         }
-        obj = OrganismeIDPere.from_dict(data)
+        obj = Organisateur.from_dict(data)
         d = obj.to_dict()
         self.assertEqual(d, {})
 

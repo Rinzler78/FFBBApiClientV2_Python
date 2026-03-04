@@ -849,8 +849,8 @@ class MeilisearchFFBBClient(MeilisearchClientExtension):
             q: Optional text query.
             limit: Max results. Defaults to 5000.
             geo_sort: Sort order for distance. Defaults to NEAREST_FIRST.
-            sexes: Sexe values (e.g. ``["Masculin", "Féminin"]``).
-            niveau_codes: Niveau codes (e.g. ``["NM1", "SED1M"]``).
+            sexes: SexeEnum values (e.g. ``["Masculin", "Féminin"]``).
+            niveau_codes: NiveauEnum codes (e.g. ``["NM1", "SED1M"]``).
             cached_session: Optional cached session.
 
         Returns:

@@ -10,12 +10,12 @@ from ..utils.converter_utils import (
     from_enum,
     from_str,
 )
-from .code import Code
+from .code_enum import CodeEnum
 
 
 @dataclass
 class NatureSol:
-    code: Code | None = None
+    code: CodeEnum | None = None
     date_created: datetime | None = None
     date_updated: datetime | None = None
     id: str | None = None
@@ -25,7 +25,7 @@ class NatureSol:
     @staticmethod
     def from_dict(obj: Any) -> NatureSol:
         assert isinstance(obj, dict)
-        code = from_enum(Code, obj, "code")
+        code = from_enum(CodeEnum, obj, "code")
         date_created = from_datetime(obj, "date_created")
         date_updated = from_datetime(obj, "date_updated")
         id = from_str(obj, "id")

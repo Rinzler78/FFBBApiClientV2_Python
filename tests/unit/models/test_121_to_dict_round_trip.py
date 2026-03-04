@@ -60,13 +60,14 @@ from ffbb_api_client_v2.models.affiche import Affiche
 from ffbb_api_client_v2.models.cartographie import Cartographie
 from ffbb_api_client_v2.models.commune import Commune
 from ffbb_api_client_v2.models.document_flyer import DocumentFlyer
-from ffbb_api_client_v2.models.external_id import ExternalCompetitionID, ExternalID
+from ffbb_api_client_v2.models.engagement_equipe import EngagementEquipe
+from ffbb_api_client_v2.models.external_competition import ExternalCompetition
+from ffbb_api_client_v2.models.external_rencontre import ExternalRencontre
 from ffbb_api_client_v2.models.folder import Folder
 from ffbb_api_client_v2.models.geo import Geo
 from ffbb_api_client_v2.models.logo import Logo
 from ffbb_api_client_v2.models.nature_sol import NatureSol
-from ffbb_api_client_v2.models.organisme_id_pere import OrganismeIDPere
-from ffbb_api_client_v2.models.team_engagement import TeamEngagement
+from ffbb_api_client_v2.models.organisateur import Organisateur
 from ffbb_api_client_v2.models.type_association import TypeAssociation
 
 
@@ -116,7 +117,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
         )
 
     def test_003_nature_sol(self) -> None:
-        """NatureSol with Code enum, datetime, terrain bool-string."""
+        """NatureSol with CodeEnum enum, datetime, terrain bool-string."""
         self._assert_stable(
             NatureSol,
             {
@@ -263,9 +264,9 @@ class Test022ToDictRoundTrip(unittest.TestCase):
         )
 
     def test_011_organisme_id_pere(self) -> None:
-        """OrganismeIDPere with nested fields."""
+        """Organisateur with nested fields."""
         self._assert_stable(
-            OrganismeIDPere,
+            Organisateur,
             {
                 "adresse": "1 rue Federation",
                 "adresseClubPro": None,
@@ -358,19 +359,14 @@ class Test022ToDictRoundTrip(unittest.TestCase):
         )
 
     def test_015_external_id(self) -> None:
-        """ExternalID with nested CompetitionID, numeroJournee."""
+        """ExternalRencontre with scalar FK fields, numeroJournee."""
         self._assert_stable(
-            ExternalID,
+            ExternalRencontre,
             {
                 "nomEquipe1": "Team A",
                 "nomEquipe2": "Team B",
                 "numeroJournee": "5",
-                "competitionId": {
-                    "code": "C001",
-                    "nom": "Championnat",
-                    "sexe": "M",
-                    "typeCompetition": "CHAMP",
-                },
+                "competitionId": "C001",
                 "idOrganismeEquipe1": None,
                 "idOrganismeEquipe2": None,
                 "salle": None,
@@ -379,24 +375,21 @@ class Test022ToDictRoundTrip(unittest.TestCase):
         )
 
     def test_016_team_engagement(self) -> None:
-        """TeamEngagement with nested Logo."""
+        """EngagementEquipe with UUID logo."""
         self._assert_stable(
-            TeamEngagement,
+            EngagementEquipe,
             {
                 "nomOfficiel": "Paris BC Officiel",
                 "nomUsuel": "Paris BC",
                 "codeAbrege": "PBC",
-                "logo": {
-                    "id": "d4e5f6a7-b8c9-0123-4567-89abcdef0123",
-                    "gradient_color": "#FF0000",
-                },
+                "logo": "d4e5f6a7-b8c9-0123-4567-89abcdef0123",
             },
         )
 
     def test_017_competition_id(self) -> None:
         """CompetitionID (from external_id module) with 4 string fields."""
         self._assert_stable(
-            ExternalCompetitionID,
+            ExternalCompetition,
             {
                 "code": "PRO-A",
                 "nom": "Pro A Masculine",
@@ -429,7 +422,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
                 "dateAffiliation": None,
                 "saison_en_cours": True,
                 "offresPratiques": [10821935, 10821936],
-                "labellisation": ["Label Or"],
+                "labellisation": ["LabelEnum Or"],
                 "cartographie": {
                     "adresse": "12 rue du Sport",
                     "codePostal": "75001",
@@ -479,7 +472,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
         )
 
     def test_020_organismes_facet_distribution(self) -> None:
-        """OrganismesFacetDistribution with nested TypeClass, dict[str,int]."""
+        """OrganismesFacetDistribution with nested TypeFacet, dict[str,int]."""
         self._assert_stable(
             OrganismesFacetDistribution,
             {
@@ -497,7 +490,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
         )
 
     def test_021_competitions_hit_full(self) -> None:
-        """CompetitionsHit with Niveau/Sexe/Etat enums, nested Poule/Saison/Logo."""
+        """CompetitionsHit with NiveauEnum/SexeEnum/EtatEnum enums, nested Poule/Saison/Logo."""
         self._assert_stable(
             CompetitionsHit,
             {
@@ -635,7 +628,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
         )
 
     def test_026_rencontres_hit(self) -> None:
-        """RencontresHit with datetime, Niveau enum, nested CompetitionID."""
+        """RencontresHit with datetime, NiveauEnum enum, nested CompetitionID."""
         self._assert_stable(
             RencontresHit,
             {
@@ -676,7 +669,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
         )
 
     def test_027_pratiques_hit(self) -> None:
-        """PratiquesHit with nested TypeClass, labels."""
+        """PratiquesHit with nested TypeFacet, labels."""
         self._assert_stable(
             PratiquesHit,
             {

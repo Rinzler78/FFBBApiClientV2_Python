@@ -8,9 +8,9 @@ from __future__ import annotations
 
 import re
 
-from .age_group import AgeGroup
-from .echelon import Echelon
-from .gender import Gender
+from .age_group_enum import AgeGroupEnum
+from .echelon_enum import EchelonEnum
+from .gender_enum import GenderEnum
 
 # ---------------------------------------------------------------------------
 # Compiled regex patterns — tested in priority order
@@ -32,36 +32,48 @@ _DEP_NIV = re.compile(r"^DEP NIV(\d)([MF])$")
 
 # Special codes — non-structured names used for professional/specific leagues
 _SPECIAL_CODES: dict[str, _ParseResult] = {
-    "Betclic E": (AgeGroup.SENIOR, Echelon.PRO, None, Gender.MASCULIN, True),
-    "PROA": (AgeGroup.SENIOR, Echelon.PRO, None, Gender.MASCULIN, True),
-    "PROB": (AgeGroup.SENIOR, Echelon.PRO, None, Gender.MASCULIN, True),
+    "Betclic E": (
+        AgeGroupEnum.SENIOR,
+        EchelonEnum.PRO,
+        None,
+        GenderEnum.MASCULIN,
+        True,
+    ),
+    "PROA": (AgeGroupEnum.SENIOR, EchelonEnum.PRO, None, GenderEnum.MASCULIN, True),
+    "PROB": (AgeGroupEnum.SENIOR, EchelonEnum.PRO, None, GenderEnum.MASCULIN, True),
 }
 
-_AGE_GROUP_MAP: dict[str, AgeGroup] = {m.value: m for m in AgeGroup}
-_ECHELON_LETTER: dict[str, Echelon] = {
-    "D": Echelon.DEPARTEMENT,
-    "R": Echelon.REGION,
-    "F": Echelon.FEDERAL,
+_AGE_GROUP_MAP: dict[str, AgeGroupEnum] = {m.value: m for m in AgeGroupEnum}
+_ECHELON_LETTER: dict[str, EchelonEnum] = {
+    "D": EchelonEnum.DEPARTEMENT,
+    "R": EchelonEnum.REGION,
+    "F": EchelonEnum.FEDERAL,
 }
-_SENIOR_ECHELON_LETTER: dict[str, Echelon] = {
-    "D": Echelon.DEPARTEMENT,
-    "R": Echelon.EXCELLENCE,
-    "E": Echelon.EXCELLENCE,
+_SENIOR_ECHELON_LETTER: dict[str, EchelonEnum] = {
+    "D": EchelonEnum.DEPARTEMENT,
+    "R": EchelonEnum.EXCELLENCE,
+    "E": EchelonEnum.EXCELLENCE,
 }
-_GENDER_LETTER: dict[str, Gender] = {"M": Gender.MASCULIN, "F": Gender.FEMININ}
-_PRE_MAP: dict[str, Echelon] = {"N": Echelon.PRE_NATIONAL, "R": Echelon.PRE_REGIONAL}
+_GENDER_LETTER: dict[str, GenderEnum] = {
+    "M": GenderEnum.MASCULIN,
+    "F": GenderEnum.FEMININ,
+}
+_PRE_MAP: dict[str, EchelonEnum] = {
+    "N": EchelonEnum.PRE_NATIONAL,
+    "R": EchelonEnum.PRE_REGIONAL,
+}
 
 _ParseResult = tuple[
-    AgeGroup | None,
-    Echelon | None,
+    AgeGroupEnum | None,
+    EchelonEnum | None,
     int | None,
-    Gender | None,
+    GenderEnum | None,
     bool,
 ]
 
 
-def _resolve_age_group(code: str) -> AgeGroup | None:
-    """Resolve a U-prefix age group code (e.g. 'U13') to an AgeGroup."""
+def _resolve_age_group(code: str) -> AgeGroupEnum | None:
+    """Resolve a U-prefix age group code (e.g. 'U13') to an AgeGroupEnum."""
     return _AGE_GROUP_MAP.get(code)
 
 
@@ -106,7 +118,7 @@ def _parse(value: str) -> _ParseResult:
     m = _SENIOR_STRUCTURED.match(value)
     if m:
         return (
-            AgeGroup.SENIOR,
+            AgeGroupEnum.SENIOR,
             _SENIOR_ECHELON_LETTER[m.group(1)],
             int(m.group(2)),
             _GENDER_LETTER[m.group(3)],
@@ -117,8 +129,8 @@ def _parse(value: str) -> _ParseResult:
     m = _NATIONAL.match(value)
     if m:
         return (
-            AgeGroup.SENIOR,
-            Echelon.NATIONAL,
+            AgeGroupEnum.SENIOR,
+            EchelonEnum.NATIONAL,
             int(m.group(2)),
             _GENDER_LETTER[m.group(1)],
             True,
@@ -128,7 +140,7 @@ def _parse(value: str) -> _ParseResult:
     m = _PRE.match(value)
     if m:
         return (
-            AgeGroup.SENIOR,
+            AgeGroupEnum.SENIOR,
             _PRE_MAP[m.group(1)],
             None,
             _GENDER_LETTER[m.group(2)],
@@ -140,7 +152,7 @@ def _parse(value: str) -> _ParseResult:
     if m:
         return (
             None,
-            Echelon.ASSOCIATION_DEPARTEMENTALE,
+            EchelonEnum.ASSOCIATION_DEPARTEMENTALE,
             None,
             _GENDER_LETTER[m.group(1)],
             True,
@@ -151,7 +163,7 @@ def _parse(value: str) -> _ParseResult:
     if m:
         return (
             None,
-            Echelon.ASSOCIATION_REGIONALE,
+            EchelonEnum.ASSOCIATION_REGIONALE,
             None,
             _GENDER_LETTER[m.group(1)],
             True,
@@ -162,30 +174,30 @@ def _parse(value: str) -> _ParseResult:
     if m:
         return (
             None,
-            Echelon.LIGUE_FEMININE,
+            EchelonEnum.LIGUE_FEMININE,
             int(m.group(1)),
-            Gender.FEMININ,
+            GenderEnum.FEMININ,
             True,
         )
 
     # Senior generic: SE, SEN, S, SENIOR
     if _SENIOR_GENERIC.match(value):
-        return (AgeGroup.SENIOR, None, None, None, True)
+        return (AgeGroupEnum.SENIOR, None, None, None, True)
 
     # Veteran: VE
     if _VETERAN.match(value):
-        return (AgeGroup.VETERAN, None, None, None, True)
+        return (AgeGroupEnum.VETERAN, None, None, None, True)
 
     # Basket fauteuil: LBWL
     if _BASKET_FAUTEUIL.match(value):
-        return (None, Echelon.BASKET_FAUTEUIL, None, None, True)
+        return (None, EchelonEnum.BASKET_FAUTEUIL, None, None, True)
 
     # Departement with space: DEP NIV1F, DEP NIV2M
     m = _DEP_NIV.match(value)
     if m:
         return (
             None,
-            Echelon.DEPARTEMENT,
+            EchelonEnum.DEPARTEMENT,
             int(m.group(1)),
             _GENDER_LETTER[m.group(2)],
             True,
@@ -196,30 +208,30 @@ def _parse(value: str) -> _ParseResult:
 
 
 class CategorieCode(str):
-    """Code categorie FFBB parse en composants.
+    """CodeEnum categorie FFBB parse en composants.
 
     Herite de str pour compatibilite (==, in, hash, json).
     Accepte tout string. Parse les composants si le format est reconnu.
 
     Examples:
         >>> CategorieCode("U13D1M").age_group
-        <AgeGroup.U13: 'U13'>
+        <AgeGroupEnum.U13: 'U13'>
         >>> CategorieCode("U13D1M").echelon
-        <Echelon.DEPARTEMENT: 'D'>
+        <EchelonEnum.DEPARTEMENT: 'D'>
         >>> CategorieCode("U13D1M").division
         1
         >>> CategorieCode("U13D1M").gender
-        <Gender.MASCULIN: 'M'>
+        <GenderEnum.MASCULIN: 'M'>
         >>> CategorieCode("U13D1M") == "U13D1M"
         True
     """
 
     __slots__ = ("_age_group", "_echelon", "_division", "_gender", "_parsed")
 
-    _age_group: AgeGroup | None
-    _echelon: Echelon | None
+    _age_group: AgeGroupEnum | None
+    _echelon: EchelonEnum | None
     _division: int | None
-    _gender: Gender | None
+    _gender: GenderEnum | None
     _parsed: bool
 
     def __new__(cls, value: str) -> CategorieCode:
@@ -233,11 +245,11 @@ class CategorieCode(str):
         return instance
 
     @property
-    def age_group(self) -> AgeGroup | None:
+    def age_group(self) -> AgeGroupEnum | None:
         return self._age_group
 
     @property
-    def echelon(self) -> Echelon | None:
+    def echelon(self) -> EchelonEnum | None:
         return self._echelon
 
     @property
@@ -245,7 +257,7 @@ class CategorieCode(str):
         return self._division
 
     @property
-    def gender(self) -> Gender | None:
+    def gender(self) -> GenderEnum | None:
         return self._gender
 
     @property

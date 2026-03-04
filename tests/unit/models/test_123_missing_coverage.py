@@ -20,43 +20,37 @@ import unittest
 
 class TestTerrainsNameEnum(unittest.TestCase):
     def test_000_tournois_value(self) -> None:
-        from ffbb_api_client_v2.meilisearch_ffbb.models.terrains_name import Name
+        from ffbb_api_client_v2.meilisearch_ffbb.models.terrains_name_enum import (
+            TerrainsNameEnum as Name,
+        )
 
         self.assertEqual(Name.TOURNOIS.value, "Tournois")
 
     def test_003_from_value(self) -> None:
-        from ffbb_api_client_v2.meilisearch_ffbb.models.terrains_name import Name
+        from ffbb_api_client_v2.meilisearch_ffbb.models.terrains_name_enum import (
+            TerrainsNameEnum as Name,
+        )
 
         self.assertIs(Name("Tournois"), Name.TOURNOIS)
 
 
 class TestTerrainsStorageEnum(unittest.TestCase):
     def test_002_minio_value(self) -> None:
-        from ffbb_api_client_v2.meilisearch_ffbb.models.terrains_storage import Storage
+        from ffbb_api_client_v2.meilisearch_ffbb.models.terrains_storage_enum import (
+            TerrainsStorageEnum as Storage,
+        )
 
         self.assertEqual(Storage.MINIO.value, "minio")
 
     def test_003_from_value(self) -> None:
-        from ffbb_api_client_v2.meilisearch_ffbb.models.terrains_storage import Storage
+        from ffbb_api_client_v2.meilisearch_ffbb.models.terrains_storage_enum import (
+            TerrainsStorageEnum as Storage,
+        )
 
         self.assertIs(Storage("minio"), Storage.MINIO)
 
 
-class TestTournoisLibelleEnum(unittest.TestCase):
-    def test_004_bitume_value(self) -> None:
-        from ffbb_api_client_v2.meilisearch_ffbb.models.tournois_libelle import Libelle
-
-        self.assertEqual(Libelle.BITUME.value, "BITUME")
-
-    def test_005_beton_value(self) -> None:
-        from ffbb_api_client_v2.meilisearch_ffbb.models.tournois_libelle import Libelle
-
-        self.assertEqual(Libelle.BÉTON.value, "Béton")
-
-    def test_006_sol_synthetique_value(self) -> None:
-        from ffbb_api_client_v2.meilisearch_ffbb.models.tournois_libelle import Libelle
-
-        self.assertEqual(Libelle.SOL_SYNTHÉTIQUE.value, "Sol synthétique")
+# TestTournoisLibelleEnum removed: tournois_libelle.py was orphaned and deleted
 
 
 # ===========================================================================
@@ -299,12 +293,12 @@ class TestTerrainsFacetDistributionWithData(unittest.TestCase):
         from ffbb_api_client_v2.meilisearch_ffbb.models.terrains_facet_distribution import (
             TerrainsFacetDistribution,
         )
-        from ffbb_api_client_v2.models.sexe_class import SexeClass
-        from ffbb_api_client_v2.models.tournoi_type_class import TournoiTypeClass
+        from ffbb_api_client_v2.models.sexe_facet import SexeFacet
+        from ffbb_api_client_v2.models.tournoi_type_facet import TournoiTypeFacet
 
         obj = TerrainsFacetDistribution(
-            sexe=SexeClass(feminine=5, masculine=10, mixed=3),
-            tournoi_type=TournoiTypeClass(open_plus=2),
+            sexe=SexeFacet(feminine=5, masculine=10, mixed=3),
+            tournoi_type=TournoiTypeFacet(open_plus=2),
         )
         d = obj.to_dict()
         self.assertIn("sexe", d)
@@ -387,16 +381,16 @@ class TestDocumentFlyer(unittest.TestCase):
 
 class TestExternalCompetitionID(unittest.TestCase):
     def test_042_from_dict_empty(self) -> None:
-        from ffbb_api_client_v2.models.external_competition_id import (
-            ExternalCompetitionID,
+        from ffbb_api_client_v2.models.external_competition import (
+            ExternalCompetition,
         )
 
-        obj = ExternalCompetitionID.from_dict({})
+        obj = ExternalCompetition.from_dict({})
         self.assertEqual(obj.to_dict(), {})
 
     def test_040_roundtrip(self) -> None:
-        from ffbb_api_client_v2.models.external_competition_id import (
-            ExternalCompetitionID,
+        from ffbb_api_client_v2.models.external_competition import (
+            ExternalCompetition,
         )
 
         data = {
@@ -405,27 +399,27 @@ class TestExternalCompetitionID(unittest.TestCase):
             "sexe": "Masculin",
             "typeCompetition": "Championnat",
         }
-        obj = ExternalCompetitionID.from_dict(data)
+        obj = ExternalCompetition.from_dict(data)
         d = obj.to_dict()
         self.assertEqual(d, data)
 
 
 class TestTeamEngagement(unittest.TestCase):
     def test_042_from_dict_empty(self) -> None:
-        from ffbb_api_client_v2.models.team_engagement import TeamEngagement
+        from ffbb_api_client_v2.models.engagement_equipe import EngagementEquipe
 
-        obj = TeamEngagement.from_dict({})
+        obj = EngagementEquipe.from_dict({})
         self.assertEqual(obj.to_dict(), {})
 
     def test_040_roundtrip(self) -> None:
-        from ffbb_api_client_v2.models.team_engagement import TeamEngagement
+        from ffbb_api_client_v2.models.engagement_equipe import EngagementEquipe
 
         data = {
             "nomOfficiel": "Team A",
             "nomUsuel": "TA",
             "codeAbrege": "TA",
         }
-        obj = TeamEngagement.from_dict(data)
+        obj = EngagementEquipe.from_dict(data)
         d = obj.to_dict()
         self.assertEqual(d["nomOfficiel"], "Team A")
         self.assertEqual(d["nomUsuel"], "TA")
@@ -448,16 +442,16 @@ class TestRencontresEngagement(unittest.TestCase):
 
 class TestSexeClass(unittest.TestCase):
     def test_042_from_dict_empty(self) -> None:
-        from ffbb_api_client_v2.models.sexe_class import SexeClass
+        from ffbb_api_client_v2.models.sexe_facet import SexeFacet
 
-        obj = SexeClass.from_dict({})
+        obj = SexeFacet.from_dict({})
         self.assertEqual(obj.to_dict(), {})
 
     def test_040_roundtrip(self) -> None:
-        from ffbb_api_client_v2.models.sexe_class import SexeClass
+        from ffbb_api_client_v2.models.sexe_facet import SexeFacet
 
         data = {"Féminin": 5, "Masculin": 10, "Mixte": 3}
-        obj = SexeClass.from_dict(data)
+        obj = SexeFacet.from_dict(data)
         self.assertEqual(obj.to_dict(), data)
 
 
@@ -514,26 +508,25 @@ class TestLive(unittest.TestCase):
 
     def test_043_to_dict_ot_scores_and_nested(self) -> None:
         from ffbb_api_client_v2.directus_ffbb.models.live import Live
-        from ffbb_api_client_v2.models.external_id import ExternalID
-        from ffbb_api_client_v2.models.team_engagement import TeamEngagement
+        from ffbb_api_client_v2.models.engagement_equipe import EngagementEquipe
 
         obj = Live(
             score_ot1_home=10,
             score_ot2_home=5,
             score_ot1_out=8,
             score_ot2_out=3,
-            external_id=ExternalID(nom_equipe1="Team A", nom_equipe2="Team B"),
-            team_engagement_home=TeamEngagement(nom_officiel="Home Team"),
-            team_engagement_out=TeamEngagement(nom_officiel="Away Team"),
+            external_id="ext-123",
+            team_engagement_home=EngagementEquipe(nom="eng-home"),
+            team_engagement_out=EngagementEquipe(nom="eng-away"),
         )
         d = obj.to_dict()
         self.assertEqual(d["score_ot1_home"], 10)
         self.assertEqual(d["score_ot2_home"], 5)
         self.assertEqual(d["score_ot1_out"], 8)
         self.assertEqual(d["score_ot2_out"], 3)
-        self.assertEqual(d["externalId"]["nomEquipe1"], "Team A")
-        self.assertEqual(d["teamEngagement_home"]["nomOfficiel"], "Home Team")
-        self.assertEqual(d["teamEngagement_out"]["nomOfficiel"], "Away Team")
+        self.assertEqual(d["externalId"], "ext-123")
+        self.assertEqual(d["teamEngagement_home"]["nom"], "eng-home")
+        self.assertEqual(d["teamEngagement_out"]["nom"], "eng-away")
 
 
 # ===========================================================================
@@ -559,20 +552,18 @@ class TestCompetitionsFacetDistributionWithData(unittest.TestCase):
         from ffbb_api_client_v2.meilisearch_ffbb.models.competitions_facet_distribution import (
             CompetitionsFacetDistribution,
         )
-        from ffbb_api_client_v2.models.competition_id_type_competition import (
-            CompetitionIDTypeCompetition,
+        from ffbb_api_client_v2.models.competition_type_facet import (
+            CompetitionTypeFacet,
         )
-        from ffbb_api_client_v2.models.niveau_class import NiveauClass
-        from ffbb_api_client_v2.models.sexe_class import SexeClass
+        from ffbb_api_client_v2.models.niveau_facet import NiveauFacet
+        from ffbb_api_client_v2.models.sexe_facet import SexeFacet
 
         obj = CompetitionsFacetDistribution(
             competition_id_categorie_code={"U13": 5},
             competition_id_nom_extended={"National": 3},
-            competition_id_sexe=SexeClass(feminine=2, masculine=8),
-            competition_id_type_competition=CompetitionIDTypeCompetition(
-                championnat=10
-            ),
-            niveau=NiveauClass(départemental=4),
+            competition_id_sexe=SexeFacet(feminine=2, masculine=8),
+            competition_id_type_competition=CompetitionTypeFacet(championnat=10),
+            niveau=NiveauFacet(départemental=4),
             organisateur_id={"org1": 1},
             organisateur_nom={"FFBB": 2},
         )

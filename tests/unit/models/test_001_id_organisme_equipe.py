@@ -1,11 +1,11 @@
-"""Round-trip tests for IDOrganismeEquipe."""
+"""Round-trip tests for OrganismeEquipe."""
 
 from __future__ import annotations
 
 import unittest
 from typing import Any
 
-from ffbb_api_client_v2.models.id_organisme_equipe import IDOrganismeEquipe
+from ffbb_api_client_v2.models.organisme_equipe import OrganismeEquipe
 
 
 class Test031IdOrganismeEquipe(unittest.TestCase):
@@ -18,29 +18,26 @@ class Test031IdOrganismeEquipe(unittest.TestCase):
 
     def test_000_round_trip_full(self) -> None:
         self._assert_stable(
-            IDOrganismeEquipe,
+            OrganismeEquipe,
             {
                 "id": "org-001",
                 "nom": "Club Paris",
                 "nom_simple": None,
                 "code": "0750001",
                 "nomClubPro": None,
-                "logo": {
-                    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-                    "gradient_color": "#0055AA",
-                },
+                "logo": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
             },
         )
 
     def test_001_round_trip_minimal(self) -> None:
         self._assert_stable(
-            IDOrganismeEquipe,
+            OrganismeEquipe,
             {"id": "org-002", "nom": "Club Lyon", "nom_simple": None},
         )
 
     def test_002_round_trip_with_code(self) -> None:
         self._assert_stable(
-            IDOrganismeEquipe,
+            OrganismeEquipe,
             {
                 "id": "org-003",
                 "nom": "Club Marseille",

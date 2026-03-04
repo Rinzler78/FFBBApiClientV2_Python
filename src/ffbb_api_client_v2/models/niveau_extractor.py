@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import re
 
-from .categorie_type import CategorieType
+from .categorie_type_enum import CategorieTypeEnum
 from .niveau_info import NiveauInfo
-from .niveau_type import NiveauType
+from .niveau_type_enum import NiveauTypeEnum
 
 
 class NiveauExtractor:
@@ -12,13 +12,13 @@ class NiveauExtractor:
 
     # Patterns pour identifier les niveaux
     PATTERNS = {
-        NiveauType.ELITE: [
+        NiveauTypeEnum.ELITE: [
             r"\bELITE\b",
             r"\bÉLITE\b",
             r"\bELITE\s+MASCULIN\b",
             r"\bELITE\s+FEMININ\b",
         ],
-        NiveauType.NATIONAL: [
+        NiveauTypeEnum.NATIONAL: [
             r"\bNATIONAL\b",
             r"\bNATIONALE\b",
             r"\bN1\b",
@@ -27,7 +27,7 @@ class NiveauExtractor:
             r"\bPRE\s*NATIONAL\b",
             r"\bPRÉ\s*NATIONAL\b",
         ],
-        NiveauType.REGIONAL: [
+        NiveauTypeEnum.REGIONAL: [
             r"\bREGIONAL\b",
             r"\bRÉGIONAL\b",
             r"\bR1\b",
@@ -36,7 +36,7 @@ class NiveauExtractor:
             r"\bREGIONALE\b",
             r"^RÉGIONALE\b",  # Format simple: "Régionale masculine seniors"
         ],
-        NiveauType.DEPARTEMENTAL: [
+        NiveauTypeEnum.DEPARTEMENTAL: [
             r"\bDEPARTEMENTAL\b",
             r"\bDÉPARTEMENTAL\b",
             r"\bD1\b",
@@ -58,38 +58,38 @@ class NiveauExtractor:
     # Patterns pour les catégories
     CATEGORIE_PATTERNS = {
         # Catégories jeunes
-        CategorieType.U7: [r"\bU7\b", r"\bU-7\b"],
-        CategorieType.U9: [r"\bU9\b", r"\bU-9\b"],
-        CategorieType.U11: [r"\bU11\b", r"\bU-11\b"],
-        CategorieType.U13: [r"\bU13\b", r"\bU-13\b"],
-        CategorieType.U15: [r"\bU15\b", r"\bU-15\b"],
-        CategorieType.U17: [r"\bU17\b", r"\bU-17\b"],
-        CategorieType.U18: [r"\bU18\b", r"\bU-18\b"],
-        CategorieType.U20: [r"\bU20\b", r"\bU-20\b"],
-        CategorieType.U21: [r"\bU21\b", r"\bU-21\b"],
+        CategorieTypeEnum.U7: [r"\bU7\b", r"\bU-7\b"],
+        CategorieTypeEnum.U9: [r"\bU9\b", r"\bU-9\b"],
+        CategorieTypeEnum.U11: [r"\bU11\b", r"\bU-11\b"],
+        CategorieTypeEnum.U13: [r"\bU13\b", r"\bU-13\b"],
+        CategorieTypeEnum.U15: [r"\bU15\b", r"\bU-15\b"],
+        CategorieTypeEnum.U17: [r"\bU17\b", r"\bU-17\b"],
+        CategorieTypeEnum.U18: [r"\bU18\b", r"\bU-18\b"],
+        CategorieTypeEnum.U20: [r"\bU20\b", r"\bU-20\b"],
+        CategorieTypeEnum.U21: [r"\bU21\b", r"\bU-21\b"],
         # Catégories seniors
-        CategorieType.SENIOR: [r"\bSENIOR\b"],
-        CategorieType.SENIORS: [r"\bSENIORS\b"],
+        CategorieTypeEnum.SENIOR: [r"\bSENIOR\b"],
+        CategorieTypeEnum.SENIORS: [r"\bSENIORS\b"],
         # Catégories vétérans
-        CategorieType.VETERAN: [r"\bVETERAN\b", r"\bVÉTÉRAN\b"],
-        CategorieType.VETERANS: [r"\bVETERANS\b", r"\bVÉTÉRANS\b"],
-        CategorieType.V35: [r"\bV35\b", r"\bV-35\b"],
-        CategorieType.V40: [r"\bV40\b", r"\bV-40\b"],
-        CategorieType.V45: [r"\bV45\b", r"\bV-45\b"],
-        CategorieType.V50: [r"\bV50\b", r"\bV-50\b"],
+        CategorieTypeEnum.VETERAN: [r"\bVETERAN\b", r"\bVÉTÉRAN\b"],
+        CategorieTypeEnum.VETERANS: [r"\bVETERANS\b", r"\bVÉTÉRANS\b"],
+        CategorieTypeEnum.V35: [r"\bV35\b", r"\bV-35\b"],
+        CategorieTypeEnum.V40: [r"\bV40\b", r"\bV-40\b"],
+        CategorieTypeEnum.V45: [r"\bV45\b", r"\bV-45\b"],
+        CategorieTypeEnum.V50: [r"\bV50\b", r"\bV-50\b"],
         # Catégories spéciales (anciennes dénominations)
-        CategorieType.ESPOIR: [r"\bESPOIR\b"],
-        CategorieType.ESPOIRS: [r"\bESPOIRS\b"],
-        CategorieType.CADET: [r"\bCADET\b"],
-        CategorieType.CADETS: [r"\bCADETS\b"],
-        CategorieType.MINIME: [r"\bMINIME\b"],
-        CategorieType.MINIMES: [r"\bMINIMES\b"],
-        CategorieType.BENJAMIN: [r"\bBENJAMIN\b"],
-        CategorieType.BENJAMINS: [r"\bBENJAMINS\b"],
-        CategorieType.MINI_POUSSIN: [r"\bMINI\s*POUSSIN\b"],
-        CategorieType.MINI_POUSSINS: [r"\bMINI\s*POUSSINS\b"],
-        CategorieType.POUSSIN: [r"\bPOUSSIN\b"],
-        CategorieType.POUSSINS: [r"\bPOUSSINS\b"],
+        CategorieTypeEnum.ESPOIR: [r"\bESPOIR\b"],
+        CategorieTypeEnum.ESPOIRS: [r"\bESPOIRS\b"],
+        CategorieTypeEnum.CADET: [r"\bCADET\b"],
+        CategorieTypeEnum.CADETS: [r"\bCADETS\b"],
+        CategorieTypeEnum.MINIME: [r"\bMINIME\b"],
+        CategorieTypeEnum.MINIMES: [r"\bMINIMES\b"],
+        CategorieTypeEnum.BENJAMIN: [r"\bBENJAMIN\b"],
+        CategorieTypeEnum.BENJAMINS: [r"\bBENJAMINS\b"],
+        CategorieTypeEnum.MINI_POUSSIN: [r"\bMINI\s*POUSSIN\b"],
+        CategorieTypeEnum.MINI_POUSSINS: [r"\bMINI\s*POUSSINS\b"],
+        CategorieTypeEnum.POUSSIN: [r"\bPOUSSIN\b"],
+        CategorieTypeEnum.POUSSINS: [r"\bPOUSSINS\b"],
     }
 
     @classmethod
@@ -101,7 +101,7 @@ class NiveauExtractor:
             competition_name: Nom de la compétition
 
         Returns:
-            Objet Niveau ou None si aucun niveau n'est détecté
+            Objet NiveauEnum ou None si aucun niveau n'est détecté
         """
         if not competition_name:
             return None
@@ -147,11 +147,11 @@ class NiveauExtractor:
         if not detected_categorie:
             # Si pas de catégorie jeune détectée et que c'est une compétition, on assume SENIOR
             if not any(re.search(r"\bU\d+\b", name_upper) for _ in [1]):
-                detected_categorie = CategorieType.SENIOR
+                detected_categorie = CategorieTypeEnum.SENIOR
 
         # Déterminer la zone géographique
         zone_geo = None
-        if detected_type == NiveauType.ELITE:
+        if detected_type == NiveauTypeEnum.ELITE:
             zone_geo = "regional"  # ELITE est associé à régional
 
         return NiveauInfo(
@@ -171,7 +171,7 @@ class NiveauExtractor:
             competition_data: Dictionnaire avec les données de compétition
 
         Returns:
-            Objet Niveau ou None
+            Objet NiveauEnum ou None
         """
         if not competition_data:
             return None
@@ -200,7 +200,7 @@ def get_niveau_from_idcompetition(idcompetition) -> NiveauInfo | None:
         idcompetition: Instance de IdCompetitionModel
 
     Returns:
-        Objet Niveau ou None
+        Objet NiveauEnum ou None
     """
     if not idcompetition or not idcompetition.nom:
         return None

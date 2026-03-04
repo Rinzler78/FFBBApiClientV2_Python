@@ -1,11 +1,11 @@
-"""Round-trip tests for TournoiTypeClass."""
+"""Round-trip tests for TournoiTypeFacet."""
 
 from __future__ import annotations
 
 import unittest
 from typing import Any
 
-from ffbb_api_client_v2.models.tournoi_type_class import TournoiTypeClass
+from ffbb_api_client_v2.models.tournoi_type_facet import TournoiTypeFacet
 
 
 class Test037TournoiTypeClass(unittest.TestCase):
@@ -18,16 +18,16 @@ class Test037TournoiTypeClass(unittest.TestCase):
 
     def test_000_round_trip_full(self) -> None:
         self._assert_stable(
-            TournoiTypeClass,
+            TournoiTypeFacet,
             {"Open Plus": 3, "Open Plus Access": 1, "Open Start": 5},
         )
 
     def test_001_round_trip_partial(self) -> None:
-        self._assert_stable(TournoiTypeClass, {"Open Start": 10})
+        self._assert_stable(TournoiTypeFacet, {"Open Start": 10})
 
     def test_002_round_trip_none_fields(self) -> None:
         self._assert_stable(
-            TournoiTypeClass,
+            TournoiTypeFacet,
             {"Open Plus": None, "Open Plus Access": None, "Open Start": None},
         )
 

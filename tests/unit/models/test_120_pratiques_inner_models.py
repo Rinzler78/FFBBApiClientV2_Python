@@ -12,8 +12,8 @@ from ffbb_api_client_v2.meilisearch_ffbb.models.pratiques_facet_distribution imp
     PratiquesFacetDistribution,
 )
 from ffbb_api_client_v2.meilisearch_ffbb.models.pratiques_hit import PratiquesHit
-from ffbb_api_client_v2.meilisearch_ffbb.models.pratiques_type_class import (
-    PratiquesTypeClass as TypeClass,
+from ffbb_api_client_v2.meilisearch_ffbb.models.pratiques_type_facet import (
+    PratiquesTypeFacet as TypeFacet,
 )
 from ffbb_api_client_v2.models.affiche import Affiche
 from ffbb_api_client_v2.models.cartographie import Cartographie
@@ -31,7 +31,7 @@ class Test042PratiquesInnerModels(unittest.TestCase):
 
     def test_000_type_class_full(self) -> None:
         self._assert_stable(
-            TypeClass,
+            TypeFacet,
             {
                 "Basket Inclusif": 3,
                 "Basket Santé": 10,

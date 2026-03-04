@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from ...meilisearch.models.facet_distribution import FacetDistribution
-from ...models.sexe_class import SexeClass
+from ...models.sexe_facet import SexeFacet
 from ...utils.converter_utils import from_obj
 
 
@@ -15,7 +15,7 @@ class EngagementsFacetDistribution(FacetDistribution):
     id_competition_categorie_libelle: dict[str, int] | None = None
     id_competition_code: dict[str, int] | None = None
     id_competition_nom: dict[str, int] | None = None
-    id_competition_sexe: SexeClass | None = None
+    id_competition_sexe: SexeFacet | None = None
     id_poule_nom: dict[str, int] | None = None
     niveau_code: dict[str, int] | None = None
     niveau_libelle: dict[str, int] | None = None
@@ -28,7 +28,7 @@ class EngagementsFacetDistribution(FacetDistribution):
         id_competition_categorie_libelle = obj.get("idCompetition.categorie.libelle")
         id_competition_code = obj.get("idCompetition.code")
         id_competition_nom = obj.get("idCompetition.nom")
-        id_competition_sexe = from_obj(SexeClass.from_dict, obj, "idCompetition.sexe")
+        id_competition_sexe = from_obj(SexeFacet.from_dict, obj, "idCompetition.sexe")
         id_poule_nom = obj.get("idPoule.nom")
         niveau_code = obj.get("niveau.code")
         niveau_libelle = obj.get("niveau.libelle")

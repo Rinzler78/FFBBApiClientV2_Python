@@ -4,9 +4,9 @@ from dataclasses import dataclass
 from typing import Any
 
 from ...meilisearch.models.facet_distribution import FacetDistribution
-from ...models.competition_id_type_competition import CompetitionIDTypeCompetition
-from ...models.niveau_class import NiveauClass
-from ...models.sexe_class import SexeClass
+from ...models.competition_type_facet import CompetitionTypeFacet
+from ...models.niveau_facet import NiveauFacet
+from ...models.sexe_facet import SexeFacet
 from ...utils.converter_utils import from_obj
 
 
@@ -14,9 +14,9 @@ from ...utils.converter_utils import from_obj
 class CompetitionsFacetDistribution(FacetDistribution):
     competition_id_categorie_code: dict[str, int] | None = None
     competition_id_nom_extended: dict[str, int] | None = None
-    competition_id_sexe: SexeClass | None = None
-    competition_id_type_competition: CompetitionIDTypeCompetition | None = None
-    niveau: NiveauClass | None = None
+    competition_id_sexe: SexeFacet | None = None
+    competition_id_type_competition: CompetitionTypeFacet | None = None
+    niveau: NiveauFacet | None = None
     organisateur_id: dict[str, int] | None = None
     organisateur_nom: dict[str, int] | None = None
 
@@ -25,11 +25,11 @@ class CompetitionsFacetDistribution(FacetDistribution):
         assert isinstance(obj, dict)
         competition_id_categorie_code = obj.get("competitionId.categorie.code")
         competition_id_nom_extended = obj.get("competitionId.nomExtended")
-        competition_id_sexe = from_obj(SexeClass.from_dict, obj, "competitionId.sexe")
+        competition_id_sexe = from_obj(SexeFacet.from_dict, obj, "competitionId.sexe")
         competition_id_type_competition = from_obj(
-            CompetitionIDTypeCompetition.from_dict, obj, "competitionId.typeCompetition"
+            CompetitionTypeFacet.from_dict, obj, "competitionId.typeCompetition"
         )
-        niveau = from_obj(NiveauClass.from_dict, obj, "niveau")
+        niveau = from_obj(NiveauFacet.from_dict, obj, "niveau")
         organisateur_id = obj.get("organisateur.id")
         organisateur_nom = obj.get("organisateur.nom")
         return CompetitionsFacetDistribution(
