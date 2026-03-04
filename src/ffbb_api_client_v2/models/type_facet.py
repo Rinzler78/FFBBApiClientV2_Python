@@ -7,14 +7,14 @@ from ..utils.converter_utils import from_int
 
 
 @dataclass
-class TypeClass:
+class TypeFacet:
     groupement: int | None = None
 
     @staticmethod
-    def from_dict(obj: Any) -> TypeClass:
+    def from_dict(obj: Any) -> TypeFacet:
         assert isinstance(obj, dict)
         groupement = from_int(obj, "Groupement")
-        return TypeClass(groupement=groupement)
+        return TypeFacet(groupement=groupement)
 
     def to_dict(self) -> dict:
         result: dict = {}

@@ -13,14 +13,14 @@ from ffbb_api_client_v2.models.competition_poule import CompetitionPoule
 from ffbb_api_client_v2.models.competition_rencontre import CompetitionRencontre
 from ffbb_api_client_v2.models.engagement_equipe import EngagementEquipe
 from ffbb_api_client_v2.models.fonction import Fonction
-from ffbb_api_client_v2.models.id_organisme_equipe import IDOrganismeEquipe
 from ffbb_api_client_v2.models.officiel import Officiel
 from ffbb_api_client_v2.models.officiel_personne import OfficielPersonne
+from ffbb_api_client_v2.models.organisme_equipe import OrganismeEquipe
 from ffbb_api_client_v2.models.phase_engagement import PhaseEngagement
 from ffbb_api_client_v2.models.type_competition_enum import TypeCompetitionEnum
 
 # Aliases for backward-compat in tests
-OrganismeEquipe = IDOrganismeEquipe
+OrganismeEquipe = OrganismeEquipe
 
 
 class TestFonction(unittest.TestCase):
@@ -101,7 +101,7 @@ class TestOfficiel(unittest.TestCase):
 
 
 class TestOrganismeEquipe(unittest.TestCase):
-    """Tests for IDOrganismeEquipe model."""
+    """Tests for OrganismeEquipe model."""
 
     def test_011_from_dict_with_logo(self) -> None:
         uuid_str = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"

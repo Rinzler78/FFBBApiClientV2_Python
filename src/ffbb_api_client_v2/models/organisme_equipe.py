@@ -8,7 +8,7 @@ from .logo import Logo
 
 
 @dataclass
-class IDOrganismeEquipe:
+class OrganismeEquipe:
     id: str | None = None
     nom: str | None = None
     nom_simple: str | None = None
@@ -17,7 +17,7 @@ class IDOrganismeEquipe:
     logo: Logo | None = None
 
     @staticmethod
-    def from_dict(obj: Any) -> IDOrganismeEquipe:
+    def from_dict(obj: Any) -> OrganismeEquipe:
         assert isinstance(obj, dict)
         id = from_str(obj, "id")
         nom = from_str(obj, "nom")
@@ -25,7 +25,7 @@ class IDOrganismeEquipe:
         code = from_str(obj, "code")
         nom_club_pro = from_str(obj, "nomClubPro")
         logo = from_obj(Logo.from_dict, obj, "logo")
-        return IDOrganismeEquipe(
+        return OrganismeEquipe(
             id=id,
             nom=nom,
             nom_simple=nom_simple,

@@ -11,20 +11,20 @@ from .type_competition_enum import TypeCompetitionEnum
 
 
 @dataclass
-class ExternalCompetitionID:
+class ExternalCompetition:
     code: str | None = None
     nom: str | None = None
     sexe: str | None = None
     type_competition: TypeCompetitionEnum | None = None
 
     @staticmethod
-    def from_dict(obj: Any) -> ExternalCompetitionID:
+    def from_dict(obj: Any) -> ExternalCompetition:
         assert isinstance(obj, dict)
         code = from_str(obj, "code")
         nom = from_str(obj, "nom")
         sexe = from_str(obj, "sexe")
         type_competition = from_enum(TypeCompetitionEnum, obj, "typeCompetition")
-        return ExternalCompetitionID(
+        return ExternalCompetition(
             code=code,
             nom=nom,
             sexe=sexe,

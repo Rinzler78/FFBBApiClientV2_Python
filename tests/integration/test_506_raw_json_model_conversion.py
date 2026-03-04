@@ -1151,7 +1151,7 @@ class Test021FromDictEdgeCases(unittest.TestCase):
         self.assertIsNotNone(live.team_engagement_out)
         self.assertEqual(live.team_engagement_out.nom_officiel, "Lyon BC Officiel")
 
-    # -- test_036: Live.from_dict with ExternalID --------------------------
+    # -- test_036: Live.from_dict with ExternalRencontre --------------------------
 
     def test_036_live_with_external_id(self) -> None:
         """Live.from_dict with nested externalId data."""

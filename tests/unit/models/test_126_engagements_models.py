@@ -97,11 +97,11 @@ class TestEngagementsHit(unittest.TestCase):
             Categorie,
         )
         from ffbb_api_client_v2.models.competition_origine import CompetitionOrigine
-        from ffbb_api_client_v2.models.id_poule import IDPoule
+        from ffbb_api_client_v2.models.poule import Poule
 
         hit = EngagementsHit.from_dict(SAMPLE_HIT)
         self.assertIsInstance(hit.id_competition, CompetitionOrigine)
-        self.assertIsInstance(hit.id_poule, IDPoule)
+        self.assertIsInstance(hit.id_poule, Poule)
         self.assertIsInstance(hit.niveau, Categorie)
         self.assertIsInstance(hit.categorie, Categorie)
 

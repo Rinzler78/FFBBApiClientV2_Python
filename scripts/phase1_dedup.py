@@ -251,15 +251,15 @@ def main():
     print("  Deleted id_engagement_equipe.py")
 
     # ========================================================================
-    # 6. IDOrganismeEquipe -> IDOrganismeEquipe
-    # (IDOrganismeEquipe has only logo; IDOrganismeEquipe is superset)
+    # 6. OrganismeEquipe -> OrganismeEquipe
+    # (OrganismeEquipe has only logo; OrganismeEquipe is superset)
     # ========================================================================
-    print("\n=== 6. IDOrganismeEquipe -> IDOrganismeEquipe ===")
-    n = regex_replace_in_all(all_py, r"\bOrganismeEquipe\b(?!\.)", "IDOrganismeEquipe")
-    print(f"  Replaced IDOrganismeEquipe -> IDOrganismeEquipe in {n} files")
-    # But be careful: IDOrganismeEquipe was already replaced once (so IDOrganismeEquipe)
+    print("\n=== 6. OrganismeEquipe -> OrganismeEquipe ===")
+    n = regex_replace_in_all(all_py, r"\bOrganismeEquipe\b(?!\.)", "OrganismeEquipe")
+    print(f"  Replaced OrganismeEquipe -> OrganismeEquipe in {n} files")
+    # But be careful: OrganismeEquipe was already replaced once (so OrganismeEquipe)
     # Fix double-replacement
-    n = replace_in_all(all_py, "IDOrganismeEquipe", "IDOrganismeEquipe")
+    n = replace_in_all(all_py, "OrganismeEquipe", "OrganismeEquipe")
     print(f"  Fixed double-ID in {n} files")
     # Fix module imports
     n = replace_in_all(
@@ -276,7 +276,7 @@ def main():
         new_lines = []
         for ln in lines:
             stripped = ln.strip()
-            if "id_organisme_equipe import IDOrganismeEquipe" in stripped:
+            if "id_organisme_equipe import OrganismeEquipe" in stripped:
                 if stripped in seen:
                     continue
                 seen.add(stripped)
@@ -399,7 +399,7 @@ def main():
             "CompetitionOrigineCategorie",
             "EngagementEquipe",
             "EngagementEquipe",
-            "IDOrganismeEquipe",  # merged into IDOrganismeEquipe
+            "OrganismeEquipe",  # merged into OrganismeEquipe
             "Organisateur",
             "OrganismeId",
         ]

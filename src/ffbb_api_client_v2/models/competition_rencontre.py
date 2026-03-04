@@ -14,8 +14,8 @@ from ..utils.converter_utils import (
 )
 from .engagement_equipe import EngagementEquipe
 from .game_stats_model import GameStatsModel
-from .id_organisme_equipe import IDOrganismeEquipe
 from .officiel import Officiel
+from .organisme_equipe import OrganismeEquipe
 from .salle import Salle
 
 
@@ -32,8 +32,8 @@ class CompetitionRencontre:
     nom_equipe1: str | None = None
     nom_equipe2: str | None = None
     date_rencontre: datetime | None = None
-    id_organisme_equipe1: IDOrganismeEquipe | None = None
-    id_organisme_equipe2: IDOrganismeEquipe | None = None
+    id_organisme_equipe1: OrganismeEquipe | None = None
+    id_organisme_equipe2: OrganismeEquipe | None = None
     gs_id: GameStatsModel | None = None
     id_engagement_equipe1: EngagementEquipe | None = None
     id_engagement_equipe2: EngagementEquipe | None = None
@@ -60,10 +60,10 @@ class CompetitionRencontre:
             nom_equipe2=from_str(obj, "nomEquipe2"),
             date_rencontre=date_rencontre,
             id_organisme_equipe1=from_obj(
-                IDOrganismeEquipe.from_dict, obj, "idOrganismeEquipe1"
+                OrganismeEquipe.from_dict, obj, "idOrganismeEquipe1"
             ),
             id_organisme_equipe2=from_obj(
-                IDOrganismeEquipe.from_dict, obj, "idOrganismeEquipe2"
+                OrganismeEquipe.from_dict, obj, "idOrganismeEquipe2"
             ),
             gs_id=from_obj(GameStatsModel.from_dict, obj, "gsId"),
             id_engagement_equipe1=from_obj(

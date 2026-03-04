@@ -7,16 +7,16 @@ from ..utils.converter_utils import from_int
 
 
 @dataclass
-class NiveauClass:
+class NiveauFacet:
     départemental: int | None = None
     régional: int | None = None
 
     @staticmethod
-    def from_dict(obj: Any) -> NiveauClass:
+    def from_dict(obj: Any) -> NiveauFacet:
         assert isinstance(obj, dict)
         départemental = from_int(obj, "Départemental")
         régional = from_int(obj, "Régional")
-        return NiveauClass(départemental=départemental, régional=régional)
+        return NiveauFacet(départemental=départemental, régional=régional)
 
     def to_dict(self) -> dict:
         result: dict = {}

@@ -1,11 +1,11 @@
-"""Round-trip tests for NiveauClass."""
+"""Round-trip tests for NiveauFacet."""
 
 from __future__ import annotations
 
 import unittest
 from typing import Any
 
-from ffbb_api_client_v2.models.niveau_class import NiveauClass
+from ffbb_api_client_v2.models.niveau_facet import NiveauFacet
 
 
 class Test034NiveauClass(unittest.TestCase):
@@ -18,16 +18,16 @@ class Test034NiveauClass(unittest.TestCase):
 
     def test_000_round_trip_full(self) -> None:
         self._assert_stable(
-            NiveauClass,
+            NiveauFacet,
             {"Départemental": 5, "Régional": 2},
         )
 
     def test_001_round_trip_partial(self) -> None:
-        self._assert_stable(NiveauClass, {"Départemental": 10})
+        self._assert_stable(NiveauFacet, {"Départemental": 10})
 
     def test_002_round_trip_none_fields(self) -> None:
         self._assert_stable(
-            NiveauClass,
+            NiveauFacet,
             {"Départemental": None, "Régional": None},
         )
 

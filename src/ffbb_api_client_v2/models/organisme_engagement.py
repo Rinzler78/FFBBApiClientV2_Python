@@ -5,13 +5,13 @@ from typing import Any
 
 from ..utils.converter_utils import from_obj, from_str
 from .competition_detail import CompetitionDetail
-from .id_poule import IDPoule
+from .poule import Poule
 
 
 @dataclass
 class OrganismeEngagement:
     id: str | None = None
-    id_poule: IDPoule | None = None
+    id_poule: Poule | None = None
     id_competition: CompetitionDetail | None = None
 
     @staticmethod
@@ -19,7 +19,7 @@ class OrganismeEngagement:
         assert isinstance(obj, dict)
         return OrganismeEngagement(
             id=from_str(obj, "id"),
-            id_poule=from_obj(IDPoule.from_dict, obj, "idPoule"),
+            id_poule=from_obj(Poule.from_dict, obj, "idPoule"),
             id_competition=from_obj(CompetitionDetail.from_dict, obj, "idCompetition"),
         )
 

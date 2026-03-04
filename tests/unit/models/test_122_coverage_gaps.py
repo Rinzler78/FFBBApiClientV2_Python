@@ -98,9 +98,9 @@ class TestIDPouleToDictCoverage(unittest.TestCase):
     """id_poule.py -- cover to_dict nom branch."""
 
     def test_003_to_dict_with_nom(self) -> None:
-        from ffbb_api_client_v2.models.id_poule import IDPoule
+        from ffbb_api_client_v2.models.poule import Poule
 
-        p = IDPoule(id="poule-1", nom="Poule A")
+        p = Poule(id="poule-1", nom="Poule A")
         d = p.to_dict()
         self.assertEqual(d["id"], "poule-1")
         self.assertEqual(d["nom"], "Poule A")
@@ -137,21 +137,21 @@ class TestTypeClassToDictCoverage(unittest.TestCase):
     """type_class.py -- cover to_dict groupement branch."""
 
     def test_006_to_dict_with_groupement(self) -> None:
-        from ffbb_api_client_v2.models.type_class import TypeClass
+        from ffbb_api_client_v2.models.type_facet import TypeFacet
 
-        t = TypeClass(groupement=5)
+        t = TypeFacet(groupement=5)
         d = t.to_dict()
         self.assertEqual(d["Groupement"], 5)
 
 
 class TestExternalIDToDictCoverage(unittest.TestCase):
-    """external_id.py -- cover to_dict branches for CompetitionID and ExternalID."""
+    """external_id.py -- cover to_dict branches for CompetitionID and ExternalRencontre."""
 
     def test_007_competition_id_to_dict(self) -> None:
-        from ffbb_api_client_v2.models.external_id import ExternalCompetitionID
+        from ffbb_api_client_v2.models.external_rencontre import ExternalCompetition
         from ffbb_api_client_v2.models.type_competition_enum import TypeCompetitionEnum
 
-        c = ExternalCompetitionID(
+        c = ExternalCompetition(
             code="NM1",
             nom="Nationale 1",
             sexe="Masculin",
@@ -164,18 +164,18 @@ class TestExternalIDToDictCoverage(unittest.TestCase):
         self.assertEqual(d["typeCompetition"], "Championnat")
 
     def test_008_external_id_to_dict_all_fields(self) -> None:
-        from ffbb_api_client_v2.models.external_id import (
-            ExternalCompetitionID,
-            ExternalID,
+        from ffbb_api_client_v2.models.external_rencontre import (
+            ExternalCompetition,
+            ExternalRencontre,
         )
-        from ffbb_api_client_v2.models.id_organisme_equipe import IDOrganismeEquipe
-        from ffbb_api_client_v2.models.id_poule import IDPoule
+        from ffbb_api_client_v2.models.organisme_equipe import OrganismeEquipe
+        from ffbb_api_client_v2.models.poule import Poule
         from ffbb_api_client_v2.models.salle import Salle
 
-        comp = ExternalCompetitionID(
+        comp = ExternalCompetition(
             code="NM1", nom="Nationale 1", sexe="M", type_competition=None
         )
-        org1 = IDOrganismeEquipe(
+        org1 = OrganismeEquipe(
             id="o1",
             nom="Club A",
             nom_simple=None,
@@ -183,7 +183,7 @@ class TestExternalIDToDictCoverage(unittest.TestCase):
             nom_club_pro=None,
             logo=None,
         )
-        org2 = IDOrganismeEquipe(
+        org2 = OrganismeEquipe(
             id="o2",
             nom="Club B",
             nom_simple=None,
@@ -192,8 +192,8 @@ class TestExternalIDToDictCoverage(unittest.TestCase):
             logo=None,
         )
         salle = Salle.from_dict({"libelle": "Salle X", "adresse": "1 rue"})
-        poule = IDPoule(id="p1", nom="Poule A")
-        ext = ExternalID(
+        poule = Poule(id="p1", nom="Poule A")
+        ext = ExternalRencontre(
             nom_equipe1="Eq1",
             nom_equipe2="Eq2",
             numero_journee=5,
@@ -265,12 +265,12 @@ class TestDocumentFlyerToDictCoverage(unittest.TestCase):
 
 
 class TestTournoisToDictCoverage(unittest.TestCase):
-    """multi_search_result_tournois.py -- cover SexeClass and TerrainsFacetDistribution to_dict."""
+    """multi_search_result_tournois.py -- cover SexeFacet and TerrainsFacetDistribution to_dict."""
 
     def test_010_sexe_class_to_dict(self) -> None:
-        from ffbb_api_client_v2.models.sexe_class import SexeClass
+        from ffbb_api_client_v2.models.sexe_facet import SexeFacet
 
-        s = SexeClass(feminine=3, masculine=5, mixed=2)
+        s = SexeFacet(feminine=3, masculine=5, mixed=2)
         d = s.to_dict()
         self.assertEqual(d["Féminin"], 3)
         self.assertEqual(d["Masculin"], 5)
@@ -280,11 +280,11 @@ class TestTournoisToDictCoverage(unittest.TestCase):
         from ffbb_api_client_v2.meilisearch_ffbb.models.terrains_facet_distribution import (
             TerrainsFacetDistribution,
         )
-        from ffbb_api_client_v2.models.sexe_class import SexeClass
-        from ffbb_api_client_v2.models.tournoi_type_class import TournoiTypeClass
+        from ffbb_api_client_v2.models.sexe_facet import SexeFacet
+        from ffbb_api_client_v2.models.tournoi_type_facet import TournoiTypeFacet
 
-        sexe = SexeClass(feminine=1, masculine=2, mixed=0)
-        tt = TournoiTypeClass.from_dict({"Terrain": 3})
+        sexe = SexeFacet(feminine=1, masculine=2, mixed=0)
+        tt = TournoiTypeFacet.from_dict({"Terrain": 3})
         fd = TerrainsFacetDistribution(
             sexe=sexe, tournoi_type=tt, tournoi_types3_x3_libelle=None
         )

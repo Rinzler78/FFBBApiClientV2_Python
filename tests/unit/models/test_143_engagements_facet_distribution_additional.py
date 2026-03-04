@@ -7,7 +7,7 @@ import unittest
 from ffbb_api_client_v2.meilisearch_ffbb.models.engagements_facet_distribution import (
     EngagementsFacetDistribution,
 )
-from ffbb_api_client_v2.models.sexe_class import SexeClass
+from ffbb_api_client_v2.models.sexe_facet import SexeFacet
 
 
 class Test143EngagementsFacetDistributionAdditional(unittest.TestCase):
@@ -15,7 +15,7 @@ class Test143EngagementsFacetDistributionAdditional(unittest.TestCase):
 
     def test_001_engagements_facet_distribution_full_initialization(self):
         """Test d'initialisation complète de EngagementsFacetDistribution avec toutes les propriétés"""
-        sexe_class = SexeClass(masculine=5, feminine=3, mixed=2)
+        sexe_class = SexeFacet(masculine=5, feminine=3, mixed=2)
 
         facet_dist = EngagementsFacetDistribution(
             club_pro={"OUI": 10, "NON": 5},
@@ -109,7 +109,7 @@ class Test143EngagementsFacetDistributionAdditional(unittest.TestCase):
 
     def test_005_engagements_facet_distribution_to_dict_full(self):
         """Test de la méthode to_dict avec toutes les propriétés définies"""
-        sexe_class = SexeClass(masculine=5, feminine=3, mixed=2)
+        sexe_class = SexeFacet(masculine=5, feminine=3, mixed=2)
 
         facet_dist = EngagementsFacetDistribution(
             club_pro={"OUI": 10, "NON": 5},

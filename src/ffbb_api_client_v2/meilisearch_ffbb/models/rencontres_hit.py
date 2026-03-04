@@ -8,10 +8,10 @@ from ...meilisearch.models.hit import Hit
 from ...models.competition import Competition
 from ...models.engagement_equipe import EngagementEquipe
 from ...models.geo import Geo
-from ...models.id_organisme_equipe import IDOrganismeEquipe
-from ...models.id_poule import IDPoule
 from ...models.niveau_enum import NiveauEnum
 from ...models.organisateur import Organisateur
+from ...models.organisme_equipe import OrganismeEquipe
+from ...models.poule import Poule
 from ...models.pratique_enum import PratiqueEnum
 from ...models.saison import Saison
 from ...models.salle import Salle
@@ -39,9 +39,9 @@ class RencontresHit(Hit):
     gs_id: str | None = None
     officiels: list[str] | None = None
     competition_id: Competition | None = None
-    id_organisme_equipe1: IDOrganismeEquipe | None = None
-    id_organisme_equipe2: IDOrganismeEquipe | None = None
-    id_poule: IDPoule | None = None
+    id_organisme_equipe1: OrganismeEquipe | None = None
+    id_organisme_equipe2: OrganismeEquipe | None = None
+    id_poule: Poule | None = None
     saison: Saison | None = None
     salle: Salle | None = None
     id_engagement_equipe1: EngagementEquipe | None = None
@@ -113,12 +113,12 @@ class RencontresHit(Hit):
             officiels = from_officiels_list(obj.get("officiels"))
             competition_id = from_obj(Competition.from_dict, obj, "competitionId")
             id_organisme_equipe1 = from_obj(
-                IDOrganismeEquipe.from_dict, obj, "idOrganismeEquipe1"
+                OrganismeEquipe.from_dict, obj, "idOrganismeEquipe1"
             )
             id_organisme_equipe2 = from_obj(
-                IDOrganismeEquipe.from_dict, obj, "idOrganismeEquipe2"
+                OrganismeEquipe.from_dict, obj, "idOrganismeEquipe2"
             )
-            id_poule = from_obj(IDPoule.from_dict, obj, "idPoule")
+            id_poule = from_obj(Poule.from_dict, obj, "idPoule")
             saison = from_obj(Saison.from_dict, obj, "saison")
             salle = from_obj(Salle.from_dict, obj, "salle")
             id_engagement_equipe1 = from_obj(

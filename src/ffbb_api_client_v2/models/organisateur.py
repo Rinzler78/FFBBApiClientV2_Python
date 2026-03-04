@@ -13,8 +13,8 @@ from ..utils.converter_utils import (
     from_str,
     from_uuid,
 )
-from .id_poule import IDPoule
 from .labellisation_item import LabellisationItem
+from .poule import Poule
 
 
 @dataclass
@@ -44,7 +44,7 @@ class Organisateur:
     omnisport: bool | None = None
     hors_association: bool | None = None
     offres_pratiques: list[int] | None = None
-    engagements: list[IDPoule] | None = None
+    engagements: list[Poule] | None = None
     labellisation: list[LabellisationItem] | None = None
     membres: list[int] | None = None
     date_created: datetime | None = None
@@ -81,7 +81,7 @@ class Organisateur:
         omnisport = from_bool(obj, "omnisport")
         hors_association = from_bool(obj, "horsAssociation")
         offres_pratiques = from_list(int, obj, "offresPratiques")
-        engagements = from_list(IDPoule.from_dict, obj, "engagements")
+        engagements = from_list(Poule.from_dict, obj, "engagements")
         labellisation = from_list(LabellisationItem.from_dict, obj, "labellisation")
         membres = from_list(int, obj, "membres")
         date_created = from_datetime(obj, "date_created")

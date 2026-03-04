@@ -61,7 +61,10 @@ from ffbb_api_client_v2.models.cartographie import Cartographie
 from ffbb_api_client_v2.models.commune import Commune
 from ffbb_api_client_v2.models.document_flyer import DocumentFlyer
 from ffbb_api_client_v2.models.engagement_equipe import EngagementEquipe
-from ffbb_api_client_v2.models.external_id import ExternalCompetitionID, ExternalID
+from ffbb_api_client_v2.models.external_rencontre import (
+    ExternalCompetition,
+    ExternalRencontre,
+)
 from ffbb_api_client_v2.models.folder import Folder
 from ffbb_api_client_v2.models.geo import Geo
 from ffbb_api_client_v2.models.logo import Logo
@@ -358,9 +361,9 @@ class Test022ToDictRoundTrip(unittest.TestCase):
         )
 
     def test_015_external_id(self) -> None:
-        """ExternalID with nested CompetitionID, numeroJournee."""
+        """ExternalRencontre with nested CompetitionID, numeroJournee."""
         self._assert_stable(
-            ExternalID,
+            ExternalRencontre,
             {
                 "nomEquipe1": "Team A",
                 "nomEquipe2": "Team B",
@@ -396,7 +399,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
     def test_017_competition_id(self) -> None:
         """CompetitionID (from external_id module) with 4 string fields."""
         self._assert_stable(
-            ExternalCompetitionID,
+            ExternalCompetition,
             {
                 "code": "PRO-A",
                 "nom": "Pro A Masculine",
@@ -479,7 +482,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
         )
 
     def test_020_organismes_facet_distribution(self) -> None:
-        """OrganismesFacetDistribution with nested TypeClass, dict[str,int]."""
+        """OrganismesFacetDistribution with nested TypeFacet, dict[str,int]."""
         self._assert_stable(
             OrganismesFacetDistribution,
             {
@@ -676,7 +679,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
         )
 
     def test_027_pratiques_hit(self) -> None:
-        """PratiquesHit with nested TypeClass, labels."""
+        """PratiquesHit with nested TypeFacet, labels."""
         self._assert_stable(
             PratiquesHit,
             {

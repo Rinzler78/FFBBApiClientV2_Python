@@ -8,39 +8,39 @@ from ..utils.converter_utils import (
     from_obj,
     from_str,
 )
-from .external_competition_id import ExternalCompetitionID
-from .id_organisme_equipe import IDOrganismeEquipe
-from .id_poule import IDPoule
+from .external_competition import ExternalCompetition
+from .organisme_equipe import OrganismeEquipe
+from .poule import Poule
 from .salle import Salle
 
 
 @dataclass
-class ExternalID:
+class ExternalRencontre:
     nom_equipe1: str | None = None
     nom_equipe2: str | None = None
     numero_journee: int | None = None
-    competition_id: ExternalCompetitionID | None = None
-    id_organisme_equipe1: IDOrganismeEquipe | None = None
-    id_organisme_equipe2: IDOrganismeEquipe | None = None
+    competition_id: ExternalCompetition | None = None
+    id_organisme_equipe1: OrganismeEquipe | None = None
+    id_organisme_equipe2: OrganismeEquipe | None = None
     salle: Salle | None = None
-    id_poule: IDPoule | None = None
+    id_poule: Poule | None = None
 
     @staticmethod
-    def from_dict(obj: Any) -> ExternalID:
+    def from_dict(obj: Any) -> ExternalRencontre:
         assert isinstance(obj, dict)
         nom_equipe1 = from_str(obj, "nomEquipe1")
         nom_equipe2 = from_str(obj, "nomEquipe2")
         numero_journee = from_int(obj, "numeroJournee")
-        competition_id = from_obj(ExternalCompetitionID.from_dict, obj, "competitionId")
+        competition_id = from_obj(ExternalCompetition.from_dict, obj, "competitionId")
         id_organisme_equipe1 = from_obj(
-            IDOrganismeEquipe.from_dict, obj, "idOrganismeEquipe1"
+            OrganismeEquipe.from_dict, obj, "idOrganismeEquipe1"
         )
         id_organisme_equipe2 = from_obj(
-            IDOrganismeEquipe.from_dict, obj, "idOrganismeEquipe2"
+            OrganismeEquipe.from_dict, obj, "idOrganismeEquipe2"
         )
         salle = from_obj(Salle.from_dict, obj, "salle")
-        id_poule = from_obj(IDPoule.from_dict, obj, "idPoule")
-        return ExternalID(
+        id_poule = from_obj(Poule.from_dict, obj, "idPoule")
+        return ExternalRencontre(
             nom_equipe1=nom_equipe1,
             nom_equipe2=nom_equipe2,
             numero_journee=numero_journee,
