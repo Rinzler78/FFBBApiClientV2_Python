@@ -45,7 +45,7 @@ def test_feature(
         if isinstance(result, dict):
             if "code" in result and "type" in result:
                 print(f"  FAILED: {result.get('message', 'Unknown error')}")
-                print(f"  Code: {result.get('code')}")
+                print(f"  CodeEnum: {result.get('code')}")
                 if result.get("link"):
                     print(f"  Docs: {result.get('link')}")
                 return None

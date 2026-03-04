@@ -44,7 +44,7 @@ def workflow_club_and_venue(client: FFBBAPIClientV2) -> None:
             continue
 
         print(f"\nClub: {organisme.nom}")
-        print(f"  Code: {organisme.code}")
+        print(f"  CodeEnum: {organisme.code}")
         print(f"  Address: {organisme.adresse}")
         if isinstance(organisme.commune, int):
             communes = client.list_communes(

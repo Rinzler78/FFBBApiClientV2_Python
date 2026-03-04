@@ -9,8 +9,9 @@ from ...models.cartographie import Cartographie
 from ...models.commune import Commune
 from ...models.document_flyer import DocumentFlyer
 from ...models.geo import Geo
-from ...models.terrains_categorie_championnat_3x3_libelle import (
-    CategorieChampionnat3X3Libelle,
+from ...models.sexe_enum import SexeEnum
+from ...models.terrains_categorie_championnat_3x3_libelle_enum import (
+    CategorieChampionnat3X3LibelleEnum,
 )
 from ...models.tournoi_type_enum import TournoiTypeEnum
 from ...models.tournoi_types_3x3 import TournoiTypes3X3
@@ -22,7 +23,6 @@ from ...utils.converter_utils import (
     from_obj,
     from_str,
 )
-from .terrains_sexe_enum import SexeEnum
 
 
 @dataclass
@@ -40,7 +40,7 @@ class TournoisHit(Hit):
     age_max: int | None = None
     age_min: int | None = None
     categorie_championnat3_x3_id: int | None = None
-    categorie_championnat3_x3_libelle: CategorieChampionnat3X3Libelle | None = None
+    categorie_championnat3_x3_libelle: CategorieChampionnat3X3LibelleEnum | None = None
     debut: datetime | None = None
     fin: datetime | None = None
     mail_organisateur: str | None = None
@@ -92,7 +92,7 @@ class TournoisHit(Hit):
         age_min = from_int(obj, "ageMin")
         categorie_championnat3_x3_id = from_int(obj, "categorieChampionnat3x3Id")
         categorie_championnat3_x3_libelle = from_enum(
-            CategorieChampionnat3X3Libelle, obj, "categorieChampionnat3x3Libelle"
+            CategorieChampionnat3X3LibelleEnum, obj, "categorieChampionnat3x3Libelle"
         )
         debut = from_datetime(obj, "debut")
         fin = from_datetime(obj, "fin")

@@ -20,43 +20,37 @@ import unittest
 
 class TestTerrainsNameEnum(unittest.TestCase):
     def test_000_tournois_value(self) -> None:
-        from ffbb_api_client_v2.meilisearch_ffbb.models.terrains_name import Name
+        from ffbb_api_client_v2.meilisearch_ffbb.models.terrains_name_enum import (
+            TerrainsNameEnum as Name,
+        )
 
         self.assertEqual(Name.TOURNOIS.value, "Tournois")
 
     def test_003_from_value(self) -> None:
-        from ffbb_api_client_v2.meilisearch_ffbb.models.terrains_name import Name
+        from ffbb_api_client_v2.meilisearch_ffbb.models.terrains_name_enum import (
+            TerrainsNameEnum as Name,
+        )
 
         self.assertIs(Name("Tournois"), Name.TOURNOIS)
 
 
 class TestTerrainsStorageEnum(unittest.TestCase):
     def test_002_minio_value(self) -> None:
-        from ffbb_api_client_v2.meilisearch_ffbb.models.terrains_storage import Storage
+        from ffbb_api_client_v2.meilisearch_ffbb.models.terrains_storage_enum import (
+            TerrainsStorageEnum as Storage,
+        )
 
         self.assertEqual(Storage.MINIO.value, "minio")
 
     def test_003_from_value(self) -> None:
-        from ffbb_api_client_v2.meilisearch_ffbb.models.terrains_storage import Storage
+        from ffbb_api_client_v2.meilisearch_ffbb.models.terrains_storage_enum import (
+            TerrainsStorageEnum as Storage,
+        )
 
         self.assertIs(Storage("minio"), Storage.MINIO)
 
 
-class TestTournoisLibelleEnum(unittest.TestCase):
-    def test_004_bitume_value(self) -> None:
-        from ffbb_api_client_v2.meilisearch_ffbb.models.tournois_libelle import Libelle
-
-        self.assertEqual(Libelle.BITUME.value, "BITUME")
-
-    def test_005_beton_value(self) -> None:
-        from ffbb_api_client_v2.meilisearch_ffbb.models.tournois_libelle import Libelle
-
-        self.assertEqual(Libelle.BÉTON.value, "Béton")
-
-    def test_006_sol_synthetique_value(self) -> None:
-        from ffbb_api_client_v2.meilisearch_ffbb.models.tournois_libelle import Libelle
-
-        self.assertEqual(Libelle.SOL_SYNTHÉTIQUE.value, "Sol synthétique")
+# TestTournoisLibelleEnum removed: tournois_libelle.py was orphaned and deleted
 
 
 # ===========================================================================

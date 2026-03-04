@@ -274,7 +274,7 @@ def main():
     tests_dir = "/Users/bleclereperso/Projects/Python/FFBBApiClientV2_Python/tests"
 
     print("Analysis of source module dependencies...")
-    print(f"Source directory: {src_dir}")
+    print(f"SourceEnum directory: {src_dir}")
     print(f"Tests directory: {tests_dir}")
     print("=" * 80)
 

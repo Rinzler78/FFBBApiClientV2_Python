@@ -9,7 +9,7 @@ from typing import Any
 from ffbb_api_client_v2.directus_ffbb.models.get_organisme_response import (
     GetOrganismeResponse,
 )
-from ffbb_api_client_v2.models.code_fonction import CodeFonction
+from ffbb_api_client_v2.models.code_fonction_enum import CodeFonctionEnum
 from ffbb_api_client_v2.models.competition_ref import CompetitionRef
 from ffbb_api_client_v2.models.labellisation_item import LabellisationItem
 from ffbb_api_client_v2.models.labellisation_programme import LabellisationProgramme
@@ -65,7 +65,7 @@ class TestMembre(unittest.TestCase):
             code_postal="75001",
             telephone_fixe="01",
             telephone_portable="06",
-            code_fonction=CodeFonction.PRESIDENT,
+            code_fonction=CodeFonctionEnum.PRESIDENT,
         )
         d = membre.to_dict()
         self.assertEqual(d["codePostal"], "75001")
@@ -178,13 +178,13 @@ class TestLabellisationProgramme(unittest.TestCase):
     def test_026_from_dict_full(self) -> None:
         data = {
             "id": "lp-001",
-            "libelle": "Label Ecole de Basket",
+            "libelle": "LabelEnum Ecole de Basket",
             "labellisationLabel": "OR",
             "logo_vertical": "https://ffbb.fr/images/label_or_vertical.png",
         }
         prog = LabellisationProgramme.from_dict(data)
         self.assertEqual(prog.id, "lp-001")
-        self.assertEqual(prog.libelle, "Label Ecole de Basket")
+        self.assertEqual(prog.libelle, "LabelEnum Ecole de Basket")
         self.assertEqual(prog.labellisation_label, "OR")
         self.assertEqual(
             prog.logo_vertical, "https://ffbb.fr/images/label_or_vertical.png"
@@ -206,7 +206,7 @@ class TestLabellisationProgramme(unittest.TestCase):
     def test_031_round_trip(self) -> None:
         data = {
             "id": "lp-001",
-            "libelle": "Label Ecole de Basket",
+            "libelle": "LabelEnum Ecole de Basket",
             "labellisationLabel": "OR",
         }
         obj1 = LabellisationProgramme.from_dict(data)
@@ -224,7 +224,7 @@ class TestLabellisationItem(unittest.TestCase):
             "fin": "2025-08-31T23:59:59+00:00",
             "idLabellisationProgramme": {
                 "id": "lp-001",
-                "libelle": "Label OR",
+                "libelle": "LabelEnum OR",
             },
         }
         item = LabellisationItem.from_dict(data)
@@ -262,7 +262,7 @@ class TestLabellisationItem(unittest.TestCase):
             "fin": "2025-08-31T23:59:59+00:00",
             "idLabellisationProgramme": {
                 "id": "lp-001",
-                "libelle": "Label OR",
+                "libelle": "LabelEnum OR",
                 "labellisationLabel": "OR",
             },
         }
@@ -342,9 +342,9 @@ class TestCompetitionRef(unittest.TestCase):
         self.assertEqual(ref.nom, "Regionale 2 Masculine")
         self.assertEqual(ref.sexe, "M")
         self.assertEqual(ref.competition_origine_niveau, 2)
-        from ffbb_api_client_v2.models.type_competition import TypeCompetition
+        from ffbb_api_client_v2.models.type_competition_enum import TypeCompetitionEnum
 
-        self.assertEqual(ref.type_competition, TypeCompetition.CHAMPIONNAT)
+        self.assertEqual(ref.type_competition, TypeCompetitionEnum.CHAMPIONNAT)
         self.assertIsNotNone(ref.logo)
         self.assertIsNotNone(ref.saison)
         self.assertEqual(ref.id_competition_pere, "comp-parent")
@@ -357,11 +357,11 @@ class TestCompetitionRef(unittest.TestCase):
         self.assertIsNone(ref.nom)
 
     def test_028_to_dict_camelcase_keys(self) -> None:
-        from ffbb_api_client_v2.models.type_competition import TypeCompetition
+        from ffbb_api_client_v2.models.type_competition_enum import TypeCompetitionEnum
 
         ref = CompetitionRef(
             id="comp-001",
-            type_competition=TypeCompetition.CHAMPIONNAT,
+            type_competition=TypeCompetitionEnum.CHAMPIONNAT,
             competition_origine_niveau=2,
             id_competition_pere="comp-parent",
         )
@@ -454,7 +454,7 @@ class TestGetOrganismeResponseExtracted(unittest.TestCase):
                     "fin": "2025-08-31T23:59:59+00:00",
                     "idLabellisationProgramme": {
                         "id": "lp-001",
-                        "libelle": "Label OR",
+                        "libelle": "LabelEnum OR",
                     },
                 }
             ],

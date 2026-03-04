@@ -149,13 +149,13 @@ class TestExternalIDToDictCoverage(unittest.TestCase):
 
     def test_007_competition_id_to_dict(self) -> None:
         from ffbb_api_client_v2.models.external_id import ExternalCompetitionID
-        from ffbb_api_client_v2.models.type_competition import TypeCompetition
+        from ffbb_api_client_v2.models.type_competition_enum import TypeCompetitionEnum
 
         c = ExternalCompetitionID(
             code="NM1",
             nom="Nationale 1",
             sexe="Masculin",
-            type_competition=TypeCompetition.CHAMPIONNAT,
+            type_competition=TypeCompetitionEnum.CHAMPIONNAT,
         )
         d = c.to_dict()
         self.assertEqual(d["code"], "NM1")
@@ -219,9 +219,11 @@ class TestDocumentFlyerToDictCoverage(unittest.TestCase):
 
     def test_009_to_dict_populated_fields(self) -> None:
         from ffbb_api_client_v2.models.document_flyer import DocumentFlyer
-        from ffbb_api_client_v2.models.document_flyer_type import DocumentFlyerType
+        from ffbb_api_client_v2.models.document_flyer_type_enum import (
+            DocumentFlyerTypeEnum,
+        )
         from ffbb_api_client_v2.models.folder import Folder
-        from ffbb_api_client_v2.models.source import Source
+        from ffbb_api_client_v2.models.source_enum import SourceEnum
 
         uid = UUID("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee")
         now = datetime(2024, 1, 15, 10, 30, 0)
@@ -232,13 +234,13 @@ class TestDocumentFlyerToDictCoverage(unittest.TestCase):
             filename_disk="file.pdf",
             filename_download="file.pdf",
             title="Flyer",
-            type=DocumentFlyerType.IMAGE_JPEG,
+            type=DocumentFlyerTypeEnum.IMAGE_JPEG,
             uploaded_on=now,
             modified_on=now,
             filesize=1024,
             width=800,
             height=600,
-            source=Source.FFBB_SERVEUR,
+            source=SourceEnum.FFBB_SERVEUR,
             gradient_color="#fff",
             md5="abc123def456",
             newsbridge_labels=["label1"],
@@ -251,13 +253,13 @@ class TestDocumentFlyerToDictCoverage(unittest.TestCase):
         self.assertEqual(d["filename_disk"], "file.pdf")
         self.assertEqual(d["filename_download"], "file.pdf")
         self.assertEqual(d["title"], "Flyer")
-        self.assertEqual(d["type"], DocumentFlyerType.IMAGE_JPEG.value)
+        self.assertEqual(d["type"], DocumentFlyerTypeEnum.IMAGE_JPEG.value)
         self.assertEqual(d["uploaded_on"], now.isoformat())
         self.assertEqual(d["modified_on"], now.isoformat())
         self.assertEqual(d["filesize"], "1024")
         self.assertEqual(d["width"], 800)
         self.assertEqual(d["height"], 600)
-        self.assertEqual(d["source"], Source.FFBB_SERVEUR.value)
+        self.assertEqual(d["source"], SourceEnum.FFBB_SERVEUR.value)
         self.assertEqual(d["gradient_color"], "#fff")
         self.assertIn("md5", d)
         self.assertEqual(d["newsbridge_labels"], ["label1"])
@@ -294,12 +296,10 @@ class TestTournoisToDictCoverage(unittest.TestCase):
         self.assertIn("tournoiType", d)
 
     def test_012_tournois_hit_to_dict(self) -> None:
-        from ffbb_api_client_v2.meilisearch_ffbb.models.terrains_sexe_enum import (
-            SexeEnum,
-        )
         from ffbb_api_client_v2.meilisearch_ffbb.models.tournois_hit import TournoisHit
         from ffbb_api_client_v2.models.commune import Commune
         from ffbb_api_client_v2.models.geo import Geo
+        from ffbb_api_client_v2.models.sexe_enum import SexeEnum
         from ffbb_api_client_v2.models.tournoi_type_enum import TournoiTypeEnum
 
         now = datetime(2024, 6, 1, 12, 0, 0)

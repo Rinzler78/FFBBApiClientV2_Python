@@ -12,8 +12,8 @@ from ffbb_api_client_v2.models.club_contacts import (
     extract_club_info,
     extract_membres_contacts,
 )
-from ffbb_api_client_v2.models.code_fonction import CodeFonction
-from ffbb_api_client_v2.models.contact_role import ContactRole
+from ffbb_api_client_v2.models.code_fonction_enum import CodeFonctionEnum
+from ffbb_api_client_v2.models.contact_role_enum import ContactRoleEnum
 from ffbb_api_client_v2.models.membre import Membre
 
 
@@ -30,7 +30,7 @@ class Test162ExtractClubInfo(unittest.TestCase):
         contact = extract_club_info(org)
         self.assertIsNotNone(contact)
         assert contact is not None
-        self.assertEqual(contact.titre, ContactRole.CLUB)
+        self.assertEqual(contact.titre, ContactRoleEnum.CLUB)
         self.assertEqual(contact.nom, "BC Lille")
         self.assertEqual(contact.telephone, "0320123456")
         self.assertEqual(contact.email, "contact@bclille.fr")
@@ -79,26 +79,26 @@ class Test162ExtractMembresContacts(unittest.TestCase):
                     prenom="jean",
                     telephone_portable="06 12 34 56 78",
                     mail="jean@example.com",
-                    code_fonction=CodeFonction.PRESIDENT,
+                    code_fonction=CodeFonctionEnum.PRESIDENT,
                 ),
                 Membre(
                     id="M2",
                     nom="martin",
                     prenom="paul",
                     telephone_fixe="03 20 00 00 00",
-                    code_fonction=CodeFonction.CORRESPONDANT,
+                    code_fonction=CodeFonctionEnum.CORRESPONDANT,
                 ),
             ],
         )
         contacts = extract_membres_contacts(org)
         self.assertEqual(len(contacts), 2)
-        self.assertEqual(contacts[0].titre, ContactRole.PRESIDENT)
+        self.assertEqual(contacts[0].titre, ContactRoleEnum.PRESIDENT)
         self.assertEqual(contacts[0].nom, "Dupont")
         self.assertEqual(contacts[0].prenom, "Jean")
         self.assertEqual(contacts[0].telephone, "0612345678")
         self.assertEqual(contacts[0].email, "jean@example.com")
         self.assertEqual(contacts[0].source, "directus:get_organisme:membre")
-        self.assertEqual(contacts[1].titre, ContactRole.CORRESPONDANT_CLUB)
+        self.assertEqual(contacts[1].titre, ContactRoleEnum.CORRESPONDANT_CLUB)
         self.assertEqual(contacts[1].nom, "Martin")
 
     def test_001_extract_membres_no_contact_info(self) -> None:
@@ -129,7 +129,7 @@ class Test162ExtractMembresContacts(unittest.TestCase):
         )
         contacts = extract_membres_contacts(org)
         self.assertEqual(len(contacts), 1)
-        self.assertEqual(contacts[0].titre, ContactRole.MEMBRE)
+        self.assertEqual(contacts[0].titre, ContactRoleEnum.MEMBRE)
 
     def test_004_extract_membres_email_only(self) -> None:
         org = GetOrganismeResponse(
@@ -140,7 +140,7 @@ class Test162ExtractMembresContacts(unittest.TestCase):
                     id="M5",
                     nom="email_only",
                     mail="only@example.com",
-                    code_fonction=CodeFonction.REFERENT_SECURITE,
+                    code_fonction=CodeFonctionEnum.REFERENT_SECURITE,
                 ),
             ],
         )

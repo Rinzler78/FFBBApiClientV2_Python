@@ -82,7 +82,7 @@ from ..models.club_contacts import (
     extract_club_info,
     extract_membres_contacts,
 )
-from ..models.contact_role import ContactRole
+from ..models.contact_role_enum import ContactRoleEnum
 from ..models.engagement_contacts import (
     EngagementContacts,
     extract_correspondant,
@@ -1422,7 +1422,7 @@ class FFBBAPIClientV2:
             ent = self.get_entraineur(
                 engagement.entraineur, cached_session=cached_session
             )
-            entraineur = extract_entraineur_contact(ent, ContactRole.ENTRAINEUR)
+            entraineur = extract_entraineur_contact(ent, ContactRoleEnum.ENTRAINEUR)
 
         entraineur_adj = None
         if engagement.entraineurAdjoint:
@@ -1430,7 +1430,7 @@ class FFBBAPIClientV2:
                 engagement.entraineurAdjoint, cached_session=cached_session
             )
             entraineur_adj = extract_entraineur_contact(
-                adj, ContactRole.ENTRAINEUR_ADJOINT
+                adj, ContactRoleEnum.ENTRAINEUR_ADJOINT
             )
 
         return EngagementContacts(engagement, correspondant, entraineur, entraineur_adj)

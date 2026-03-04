@@ -53,7 +53,7 @@ def main() -> None:
         return
 
     print(f"Name:      {organisme.nom}")
-    print(f"Code:      {organisme.code}")
+    print(f"CodeEnum:      {organisme.code}")
     print(f"Address:   {organisme.adresse}")
     print(f"Phone:     {organisme.telephone}")
     print(f"Email:     {organisme.mail}")

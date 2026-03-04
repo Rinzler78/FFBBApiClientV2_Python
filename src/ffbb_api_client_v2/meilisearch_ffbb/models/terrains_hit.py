@@ -9,7 +9,7 @@ from ...models.cartographie import Cartographie
 from ...models.commune import Commune
 from ...models.geo import Geo
 from ...models.nature_sol import NatureSol
-from ...models.tournois_hit_type import HitType
+from ...models.tournois_hit_type_enum import TournoisHitTypeEnum
 from ...utils.converter_utils import (
     from_bool,
     from_datetime,
@@ -36,7 +36,7 @@ class TerrainsHit(Hit):
     nature_sol: NatureSol | None = None
     geo: Geo | None = None
     thumbnail: str | None = None
-    type: HitType | None = None
+    type: TournoisHitTypeEnum | None = None
     lower_nom: str | None = field(init=False, default=None, repr=False)
     lower_rue: str | None = field(init=False, default=None, repr=False)
 
@@ -61,7 +61,7 @@ class TerrainsHit(Hit):
         nature_sol = from_obj(NatureSol.from_dict, obj, "natureSol")
         geo = from_obj(Geo.from_dict, obj, "_geo")
         thumbnail = from_str(obj, "thumbnail")
-        type = from_enum(HitType, obj, "type")
+        type = from_enum(TournoisHitTypeEnum, obj, "type")
         return TerrainsHit(
             nom=nom,
             rue=rue,

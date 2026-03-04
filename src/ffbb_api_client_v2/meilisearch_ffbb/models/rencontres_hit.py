@@ -10,9 +10,9 @@ from ...models.geo import Geo
 from ...models.id_engagement_equipe import IDEngagementEquipe
 from ...models.id_organisme_equipe import IDOrganismeEquipe
 from ...models.id_poule import IDPoule
-from ...models.niveau import Niveau
+from ...models.niveau_enum import NiveauEnum
 from ...models.organisateur import Organisateur
-from ...models.pratique import Pratique
+from ...models.pratique_enum import PratiqueEnum
 from ...models.saison import Saison
 from ...models.salle import Salle
 from ...utils.converter_utils import (
@@ -28,14 +28,14 @@ from ...utils.converter_utils import (
 
 @dataclass
 class RencontresHit(Hit):
-    niveau: Niveau | None = None
+    niveau: NiveauEnum | None = None
     id: str | None = None
     date: datetime | None = None
     date_rencontre: datetime | None = None
     nom_equipe1: str | None = None
     nom_equipe2: str | None = None
     numero_journee: int | None = None
-    pratique: Pratique | None = None
+    pratique: PratiqueEnum | None = None
     gs_id: str | None = None
     officiels: list[str] | None = None
     competition_id: CompetitionID | None = None
@@ -100,7 +100,7 @@ class RencontresHit(Hit):
     def from_dict(obj: Any) -> RencontresHit:
         try:
             assert isinstance(obj, dict)
-            niveau = from_enum(Niveau, obj, "niveau")
+            niveau = from_enum(NiveauEnum, obj, "niveau")
             id = from_str(obj, "id")
             date = from_datetime(obj, "date")
             date_rencontre = from_datetime(obj, "date_rencontre")
@@ -108,7 +108,7 @@ class RencontresHit(Hit):
             nom_equipe2 = from_str(obj, "nomEquipe2")
 
             numero_journee = from_int(obj, "numeroJournee")
-            pratique = from_enum(Pratique, obj, "pratique")
+            pratique = from_enum(PratiqueEnum, obj, "pratique")
             gs_id = from_str(obj, "gsId")
             officiels = from_officiels_list(obj.get("officiels"))
             competition_id = from_obj(CompetitionID.from_dict, obj, "competitionId")

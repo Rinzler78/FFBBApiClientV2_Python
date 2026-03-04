@@ -15,7 +15,7 @@ from .competition_id_type_competition_generique import (
 )
 from .competition_origine import CompetitionOrigine
 from .logo import Logo
-from .type_competition import TypeCompetition
+from .type_competition_enum import TypeCompetitionEnum
 
 
 @dataclass
@@ -28,7 +28,7 @@ class CompetitionID:
     live_stat: bool | None = None
     publication_internet: str | None = None
     sexe: str | None = None
-    type_competition: TypeCompetition | None = None
+    type_competition: TypeCompetitionEnum | None = None
     pro: bool | None = None
     logo: Logo | None = None
     categorie: CompetitionIDCategorie | None = None
@@ -48,7 +48,7 @@ class CompetitionID:
             live_stat = from_bool(obj, "liveStat")
             publication_internet = from_str(obj, "publicationInternet")
             sexe = from_str(obj, "sexe")
-            type_competition = from_enum(TypeCompetition, obj, "typeCompetition")
+            type_competition = from_enum(TypeCompetitionEnum, obj, "typeCompetition")
             pro = from_bool(obj, "pro")
             logo = from_obj(Logo.from_dict, obj, "logo")
             categorie = from_obj(CompetitionIDCategorie.from_dict, obj, "categorie")

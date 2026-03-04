@@ -116,7 +116,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
         )
 
     def test_003_nature_sol(self) -> None:
-        """NatureSol with Code enum, datetime, terrain bool-string."""
+        """NatureSol with CodeEnum enum, datetime, terrain bool-string."""
         self._assert_stable(
             NatureSol,
             {
@@ -429,7 +429,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
                 "dateAffiliation": None,
                 "saison_en_cours": True,
                 "offresPratiques": [10821935, 10821936],
-                "labellisation": ["Label Or"],
+                "labellisation": ["LabelEnum Or"],
                 "cartographie": {
                     "adresse": "12 rue du Sport",
                     "codePostal": "75001",
@@ -497,7 +497,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
         )
 
     def test_021_competitions_hit_full(self) -> None:
-        """CompetitionsHit with Niveau/Sexe/Etat enums, nested Poule/Saison/Logo."""
+        """CompetitionsHit with NiveauEnum/SexeEnum/EtatEnum enums, nested Poule/Saison/Logo."""
         self._assert_stable(
             CompetitionsHit,
             {
@@ -635,7 +635,7 @@ class Test022ToDictRoundTrip(unittest.TestCase):
         )
 
     def test_026_rencontres_hit(self) -> None:
-        """RencontresHit with datetime, Niveau enum, nested CompetitionID."""
+        """RencontresHit with datetime, NiveauEnum enum, nested CompetitionID."""
         self._assert_stable(
             RencontresHit,
             {

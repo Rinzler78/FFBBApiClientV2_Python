@@ -174,7 +174,7 @@ def main() -> None:
     for uid, data in report["indexes"].items():
         print(f"\n{uid}:")
         print(
-            f"  Source: {'settings API' if data['settings_api'] == 'success' else 'facets fallback'}"
+            f"  SourceEnum: {'settings API' if data['settings_api'] == 'success' else 'facets fallback'}"
         )
         print(f"  Filterable: {data['filterable_attributes']}")
         print(f"  Sortable: {data['sortable_attributes']}")

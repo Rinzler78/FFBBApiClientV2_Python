@@ -7,7 +7,7 @@ from uuid import UUID
 
 from ...models.categorie import Categorie
 from ...models.competition_phase import CompetitionPhase
-from ...models.type_competition import TypeCompetition
+from ...models.type_competition_enum import TypeCompetitionEnum
 from ...models.type_competition_generique import TypeCompetitionGenerique
 from ...utils.converter_utils import (
     from_bool,
@@ -27,7 +27,7 @@ class GetCompetitionResponse:
     nom: str | None = None
     sexe: str | None = None
     code: str | None = None
-    type_competition: TypeCompetition | None = None
+    type_competition: TypeCompetitionEnum | None = None
     live_stat: bool | None = None
     publication_internet: str | None = None
     etat: str | None = None
@@ -73,7 +73,7 @@ class GetCompetitionResponse:
             nom=from_str(data, "nom"),
             sexe=from_str(data, "sexe"),
             code=from_str(data, "code"),
-            type_competition=from_enum(TypeCompetition, data, "typeCompetition"),
+            type_competition=from_enum(TypeCompetitionEnum, data, "typeCompetition"),
             live_stat=from_bool(data, "liveStat"),
             publication_internet=from_str(data, "publicationInternet"),
             etat=from_str(data, "etat"),

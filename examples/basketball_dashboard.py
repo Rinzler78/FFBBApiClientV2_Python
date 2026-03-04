@@ -14,12 +14,12 @@ import seaborn as sns
 import streamlit as st
 
 from ffbb_api_client_v2 import FFBBAPIClientV2, TokenManager
-from ffbb_api_client_v2.models.type_competition import TypeCompetition
+from ffbb_api_client_v2.models.type_competition_enum import TypeCompetitionEnum
 
 TEAM_NAME = "PELISSANNE BASKET AVENIR"
 COMPETITION_FILTERS: dict = {
     "sexe": "M",
-    "type_competition": TypeCompetition.CHAMPIONNAT,
+    "type_competition": TypeCompetitionEnum.CHAMPIONNAT,
 }
 
 

@@ -3,9 +3,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from ..directus_ffbb.models.get_organisme_response import GetOrganismeResponse
-from .code_fonction import CODE_FONCTION_TO_CONTACT_ROLE
+from .code_fonction_enum import CODE_FONCTION_TO_CONTACT_ROLE
 from .contact_info import ContactInfo
-from .contact_role import ContactRole
+from .contact_role_enum import ContactRoleEnum
 from .phone_number import PhoneNumber
 
 
@@ -35,7 +35,7 @@ def extract_club_info(organisme: GetOrganismeResponse) -> ContactInfo | None:
     if not phone and not email:
         return None
     return ContactInfo(
-        titre=ContactRole.CLUB,
+        titre=ContactRoleEnum.CLUB,
         nom=organisme.nom or "",
         prenom="",
         telephone=phone,
@@ -56,10 +56,10 @@ def extract_membres_contacts(organisme: GetOrganismeResponse) -> list[ContactInf
             ContactInfo(
                 titre=(
                     CODE_FONCTION_TO_CONTACT_ROLE.get(
-                        membre.code_fonction, ContactRole.MEMBRE
+                        membre.code_fonction, ContactRoleEnum.MEMBRE
                     )
                     if membre.code_fonction
-                    else ContactRole.MEMBRE
+                    else ContactRoleEnum.MEMBRE
                 ),
                 nom=_sanitize_name(membre.nom),
                 prenom=_sanitize_name(membre.prenom),

@@ -6,16 +6,16 @@ from typing import Any
 
 from ...meilisearch.models.hit import Hit
 from ...models.categorie import Categorie
-from ...models.etat import Etat
+from ...models.etat_enum import EtatEnum
 from ...models.logo import Logo
-from ...models.niveau import Niveau
+from ...models.niveau_enum import NiveauEnum
 from ...models.organisateur import Organisateur
-from ...models.phase_code import PhaseCode
+from ...models.phase_code_enum import PhaseCodeEnum
 from ...models.poule import Poule
-from ...models.publication_internet import PublicationInternet
+from ...models.publication_internet_enum import PublicationInternetEnum
 from ...models.saison import Saison
-from ...models.sexe import Sexe
-from ...models.type_competition import TypeCompetition
+from ...models.sexe_enum import SexeEnum
+from ...models.type_competition_enum import TypeCompetitionEnum
 from ...models.type_competition_generique import TypeCompetitionGenerique
 from ...utils.converter_utils import (
     from_bool,
@@ -32,22 +32,22 @@ from ...utils.converter_utils import (
 class CompetitionsHit(Hit):
     nom: str | None = None
     code: str | None = None
-    niveau: Niveau | None = None
-    type_competition: TypeCompetition | None = None
-    sexe: Sexe | None = None
+    niveau: NiveauEnum | None = None
+    type_competition: TypeCompetitionEnum | None = None
+    sexe: SexeEnum | None = None
     id: str | None = None
     creation_en_cours: bool | None = None
     date_created: datetime | None = None
     date_updated: datetime | None = None
     emarque_v2: bool | None = None
     live_stat: bool | None = None
-    publication_internet: PublicationInternet | None = None
+    publication_internet: PublicationInternetEnum | None = None
     pro: bool | None = None
     competition_origine: str | None = None
     competition_origine_niveau: int | None = None
-    phase_code: PhaseCode | None = None
+    phase_code: PhaseCodeEnum | None = None
     competition_origine_nom: str | None = None
-    etat: Etat | None = None
+    etat: EtatEnum | None = None
     poules: list[Poule] | None = None
     phases: list[str] | None = None
     categorie: Categorie | None = None
@@ -93,9 +93,9 @@ class CompetitionsHit(Hit):
             assert isinstance(obj, dict)
             nom = from_str(obj, "nom")
             code = from_str(obj, "code")
-            niveau = from_enum(Niveau, obj, "niveau")
-            type_competition = from_enum(TypeCompetition, obj, "typeCompetition")
-            sexe = from_enum(Sexe, obj, "sexe")
+            niveau = from_enum(NiveauEnum, obj, "niveau")
+            type_competition = from_enum(TypeCompetitionEnum, obj, "typeCompetition")
+            sexe = from_enum(SexeEnum, obj, "sexe")
             id = from_str(obj, "id")
             creation_en_cours = from_bool(obj, "creationEnCours")
             date_created = from_datetime(obj, "date_created")
@@ -103,14 +103,14 @@ class CompetitionsHit(Hit):
             emarque_v2 = from_bool(obj, "emarqueV2")
             live_stat = from_bool(obj, "liveStat")
             publication_internet = from_enum(
-                PublicationInternet, obj, "publicationInternet"
+                PublicationInternetEnum, obj, "publicationInternet"
             )
             pro = from_bool(obj, "pro")
             competition_origine = from_str(obj, "competition_origine")
             competition_origine_niveau = from_int(obj, "competition_origine_niveau")
-            phase_code = from_enum(PhaseCode, obj, "phase_code")
+            phase_code = from_enum(PhaseCodeEnum, obj, "phase_code")
             competition_origine_nom = from_str(obj, "competition_origine_nom")
-            etat = from_enum(Etat, obj, "etat")
+            etat = from_enum(EtatEnum, obj, "etat")
             poules = from_list(Poule.from_dict, obj, "poules")
             phases = from_list(str, obj, "phases")
             categorie = from_obj(Categorie.from_dict, obj, "categorie")

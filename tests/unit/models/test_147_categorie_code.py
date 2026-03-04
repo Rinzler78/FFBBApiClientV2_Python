@@ -9,10 +9,10 @@ from __future__ import annotations
 import json
 import unittest
 
-from ffbb_api_client_v2.models.age_group import AgeGroup
+from ffbb_api_client_v2.models.age_group_enum import AgeGroupEnum
 from ffbb_api_client_v2.models.categorie_code import CategorieCode
-from ffbb_api_client_v2.models.echelon import Echelon
-from ffbb_api_client_v2.models.gender import Gender
+from ffbb_api_client_v2.models.echelon_enum import EchelonEnum
+from ffbb_api_client_v2.models.gender_enum import GenderEnum
 
 # All 164 historical enum values for regression testing
 _ALL_HISTORICAL_VALUES = [
@@ -252,25 +252,25 @@ class TestCategorieCodeParsing(unittest.TestCase):
     # --- Youth + echelon + division + gender ---
     def test_youth_departmental(self) -> None:
         code = CategorieCode("U13D1M")
-        self.assertEqual(code.age_group, AgeGroup.U13)
-        self.assertEqual(code.echelon, Echelon.DEPARTEMENT)
+        self.assertEqual(code.age_group, AgeGroupEnum.U13)
+        self.assertEqual(code.echelon, EchelonEnum.DEPARTEMENT)
         self.assertEqual(code.division, 1)
-        self.assertEqual(code.gender, Gender.MASCULIN)
+        self.assertEqual(code.gender, GenderEnum.MASCULIN)
         self.assertTrue(code.is_parsed)
 
     def test_youth_regional(self) -> None:
         code = CategorieCode("U15R2F")
-        self.assertEqual(code.age_group, AgeGroup.U15)
-        self.assertEqual(code.echelon, Echelon.REGION)
+        self.assertEqual(code.age_group, AgeGroupEnum.U15)
+        self.assertEqual(code.echelon, EchelonEnum.REGION)
         self.assertEqual(code.division, 2)
-        self.assertEqual(code.gender, Gender.FEMININ)
+        self.assertEqual(code.gender, GenderEnum.FEMININ)
 
     def test_youth_federal(self) -> None:
         code = CategorieCode("U18F1M")
-        self.assertEqual(code.age_group, AgeGroup.U18)
-        self.assertEqual(code.echelon, Echelon.FEDERAL)
+        self.assertEqual(code.age_group, AgeGroupEnum.U18)
+        self.assertEqual(code.echelon, EchelonEnum.FEDERAL)
         self.assertEqual(code.division, 1)
-        self.assertEqual(code.gender, Gender.MASCULIN)
+        self.assertEqual(code.gender, GenderEnum.MASCULIN)
 
     def test_youth_all_divisions(self) -> None:
         for div in range(1, 5):
@@ -280,21 +280,21 @@ class TestCategorieCodeParsing(unittest.TestCase):
     # --- Youth + gender ---
     def test_youth_gender_male(self) -> None:
         code = CategorieCode("U7M")
-        self.assertEqual(code.age_group, AgeGroup.U7)
+        self.assertEqual(code.age_group, AgeGroupEnum.U7)
         self.assertIsNone(code.echelon)
         self.assertIsNone(code.division)
-        self.assertEqual(code.gender, Gender.MASCULIN)
+        self.assertEqual(code.gender, GenderEnum.MASCULIN)
         self.assertTrue(code.is_parsed)
 
     def test_youth_gender_female(self) -> None:
         code = CategorieCode("U9F")
-        self.assertEqual(code.age_group, AgeGroup.U9)
-        self.assertEqual(code.gender, Gender.FEMININ)
+        self.assertEqual(code.age_group, AgeGroupEnum.U9)
+        self.assertEqual(code.gender, GenderEnum.FEMININ)
 
     # --- Youth generic ---
     def test_youth_generic_u13(self) -> None:
         code = CategorieCode("U13")
-        self.assertEqual(code.age_group, AgeGroup.U13)
+        self.assertEqual(code.age_group, AgeGroupEnum.U13)
         self.assertIsNone(code.echelon)
         self.assertIsNone(code.division)
         self.assertIsNone(code.gender)
@@ -302,102 +302,102 @@ class TestCategorieCodeParsing(unittest.TestCase):
 
     def test_youth_generic_u7(self) -> None:
         code = CategorieCode("U7")
-        self.assertEqual(code.age_group, AgeGroup.U7)
+        self.assertEqual(code.age_group, AgeGroupEnum.U7)
 
     def test_youth_generic_u20(self) -> None:
         code = CategorieCode("U20")
-        self.assertEqual(code.age_group, AgeGroup.U20)
+        self.assertEqual(code.age_group, AgeGroupEnum.U20)
 
     # --- Senior structured ---
     def test_senior_departmental(self) -> None:
         code = CategorieCode("SED1M")
-        self.assertEqual(code.age_group, AgeGroup.SENIOR)
-        self.assertEqual(code.echelon, Echelon.DEPARTEMENT)
+        self.assertEqual(code.age_group, AgeGroupEnum.SENIOR)
+        self.assertEqual(code.echelon, EchelonEnum.DEPARTEMENT)
         self.assertEqual(code.division, 1)
-        self.assertEqual(code.gender, Gender.MASCULIN)
+        self.assertEqual(code.gender, GenderEnum.MASCULIN)
         self.assertTrue(code.is_parsed)
 
     def test_senior_excellence_regional(self) -> None:
         code = CategorieCode("SER1M")
-        self.assertEqual(code.age_group, AgeGroup.SENIOR)
-        self.assertEqual(code.echelon, Echelon.EXCELLENCE)
+        self.assertEqual(code.age_group, AgeGroupEnum.SENIOR)
+        self.assertEqual(code.echelon, EchelonEnum.EXCELLENCE)
         self.assertEqual(code.division, 1)
-        self.assertEqual(code.gender, Gender.MASCULIN)
+        self.assertEqual(code.gender, GenderEnum.MASCULIN)
 
     def test_senior_excellence_female(self) -> None:
         code = CategorieCode("SER2F")
-        self.assertEqual(code.age_group, AgeGroup.SENIOR)
-        self.assertEqual(code.echelon, Echelon.EXCELLENCE)
+        self.assertEqual(code.age_group, AgeGroupEnum.SENIOR)
+        self.assertEqual(code.echelon, EchelonEnum.EXCELLENCE)
         self.assertEqual(code.division, 2)
-        self.assertEqual(code.gender, Gender.FEMININ)
+        self.assertEqual(code.gender, GenderEnum.FEMININ)
 
     # --- National ---
     def test_national_masculine(self) -> None:
         code = CategorieCode("NM1")
-        self.assertEqual(code.age_group, AgeGroup.SENIOR)
-        self.assertEqual(code.echelon, Echelon.NATIONAL)
+        self.assertEqual(code.age_group, AgeGroupEnum.SENIOR)
+        self.assertEqual(code.echelon, EchelonEnum.NATIONAL)
         self.assertEqual(code.division, 1)
-        self.assertEqual(code.gender, Gender.MASCULIN)
+        self.assertEqual(code.gender, GenderEnum.MASCULIN)
         self.assertTrue(code.is_parsed)
 
     def test_national_feminine(self) -> None:
         code = CategorieCode("NF2")
-        self.assertEqual(code.age_group, AgeGroup.SENIOR)
-        self.assertEqual(code.echelon, Echelon.NATIONAL)
+        self.assertEqual(code.age_group, AgeGroupEnum.SENIOR)
+        self.assertEqual(code.echelon, EchelonEnum.NATIONAL)
         self.assertEqual(code.division, 2)
-        self.assertEqual(code.gender, Gender.FEMININ)
+        self.assertEqual(code.gender, GenderEnum.FEMININ)
 
     # --- Pre-national / pre-regional ---
     def test_pre_national_masculine(self) -> None:
         code = CategorieCode("PNM")
-        self.assertEqual(code.age_group, AgeGroup.SENIOR)
-        self.assertEqual(code.echelon, Echelon.PRE_NATIONAL)
+        self.assertEqual(code.age_group, AgeGroupEnum.SENIOR)
+        self.assertEqual(code.echelon, EchelonEnum.PRE_NATIONAL)
         self.assertIsNone(code.division)
-        self.assertEqual(code.gender, Gender.MASCULIN)
+        self.assertEqual(code.gender, GenderEnum.MASCULIN)
         self.assertTrue(code.is_parsed)
 
     def test_pre_national_feminine(self) -> None:
         code = CategorieCode("PNF")
-        self.assertEqual(code.echelon, Echelon.PRE_NATIONAL)
-        self.assertEqual(code.gender, Gender.FEMININ)
+        self.assertEqual(code.echelon, EchelonEnum.PRE_NATIONAL)
+        self.assertEqual(code.gender, GenderEnum.FEMININ)
 
     def test_pre_regional_masculine(self) -> None:
         code = CategorieCode("PRM")
-        self.assertEqual(code.echelon, Echelon.PRE_REGIONAL)
-        self.assertEqual(code.gender, Gender.MASCULIN)
+        self.assertEqual(code.echelon, EchelonEnum.PRE_REGIONAL)
+        self.assertEqual(code.gender, GenderEnum.MASCULIN)
 
     def test_pre_regional_feminine(self) -> None:
         code = CategorieCode("PRF")
-        self.assertEqual(code.echelon, Echelon.PRE_REGIONAL)
-        self.assertEqual(code.gender, Gender.FEMININ)
+        self.assertEqual(code.echelon, EchelonEnum.PRE_REGIONAL)
+        self.assertEqual(code.gender, GenderEnum.FEMININ)
 
     # --- Association regionale ---
     def test_areg_masculine(self) -> None:
         code = CategorieCode("AREGM")
         self.assertIsNone(code.age_group)
-        self.assertEqual(code.echelon, Echelon.ASSOCIATION_REGIONALE)
+        self.assertEqual(code.echelon, EchelonEnum.ASSOCIATION_REGIONALE)
         self.assertIsNone(code.division)
-        self.assertEqual(code.gender, Gender.MASCULIN)
+        self.assertEqual(code.gender, GenderEnum.MASCULIN)
         self.assertTrue(code.is_parsed)
 
     def test_areg_feminine(self) -> None:
         code = CategorieCode("AREGF")
-        self.assertEqual(code.echelon, Echelon.ASSOCIATION_REGIONALE)
-        self.assertEqual(code.gender, Gender.FEMININ)
+        self.assertEqual(code.echelon, EchelonEnum.ASSOCIATION_REGIONALE)
+        self.assertEqual(code.gender, GenderEnum.FEMININ)
 
     # --- Ligue Feminine ---
     def test_ligue_feminine(self) -> None:
         code = CategorieCode("LF2")
         self.assertIsNone(code.age_group)
-        self.assertEqual(code.echelon, Echelon.LIGUE_FEMININE)
+        self.assertEqual(code.echelon, EchelonEnum.LIGUE_FEMININE)
         self.assertEqual(code.division, 2)
-        self.assertEqual(code.gender, Gender.FEMININ)
+        self.assertEqual(code.gender, GenderEnum.FEMININ)
         self.assertTrue(code.is_parsed)
 
     # --- Senior generic ---
     def test_senior_se(self) -> None:
         code = CategorieCode("SE")
-        self.assertEqual(code.age_group, AgeGroup.SENIOR)
+        self.assertEqual(code.age_group, AgeGroupEnum.SENIOR)
         self.assertIsNone(code.echelon)
         self.assertIsNone(code.division)
         self.assertIsNone(code.gender)
@@ -405,23 +405,23 @@ class TestCategorieCodeParsing(unittest.TestCase):
 
     def test_senior_sen(self) -> None:
         code = CategorieCode("SEN")
-        self.assertEqual(code.age_group, AgeGroup.SENIOR)
+        self.assertEqual(code.age_group, AgeGroupEnum.SENIOR)
         self.assertTrue(code.is_parsed)
 
     def test_senior_s(self) -> None:
         code = CategorieCode("S")
-        self.assertEqual(code.age_group, AgeGroup.SENIOR)
+        self.assertEqual(code.age_group, AgeGroupEnum.SENIOR)
         self.assertTrue(code.is_parsed)
 
     def test_senior_full_word(self) -> None:
         code = CategorieCode("SENIOR")
-        self.assertEqual(code.age_group, AgeGroup.SENIOR)
+        self.assertEqual(code.age_group, AgeGroupEnum.SENIOR)
         self.assertTrue(code.is_parsed)
 
     # --- Veteran ---
     def test_veteran(self) -> None:
         code = CategorieCode("VE")
-        self.assertEqual(code.age_group, AgeGroup.VETERAN)
+        self.assertEqual(code.age_group, AgeGroupEnum.VETERAN)
         self.assertIsNone(code.echelon)
         self.assertIsNone(code.division)
         self.assertIsNone(code.gender)
@@ -431,7 +431,7 @@ class TestCategorieCodeParsing(unittest.TestCase):
     def test_basket_fauteuil(self) -> None:
         code = CategorieCode("LBWL")
         self.assertIsNone(code.age_group)
-        self.assertEqual(code.echelon, Echelon.BASKET_FAUTEUIL)
+        self.assertEqual(code.echelon, EchelonEnum.BASKET_FAUTEUIL)
         self.assertIsNone(code.division)
         self.assertIsNone(code.gender)
         self.assertTrue(code.is_parsed)
@@ -485,62 +485,62 @@ class TestCategorieCodeAllHistoricalValues(unittest.TestCase):
 
 
 class TestAgeGroup(unittest.TestCase):
-    """AgeGroup enum."""
+    """AgeGroupEnum enum."""
 
     def test_values(self) -> None:
-        self.assertEqual(AgeGroup.U7, "U7")
-        self.assertEqual(AgeGroup.U9, "U9")
-        self.assertEqual(AgeGroup.U11, "U11")
-        self.assertEqual(AgeGroup.U13, "U13")
-        self.assertEqual(AgeGroup.U15, "U15")
-        self.assertEqual(AgeGroup.U17, "U17")
-        self.assertEqual(AgeGroup.U18, "U18")
-        self.assertEqual(AgeGroup.U20, "U20")
-        self.assertEqual(AgeGroup.U21, "U21")
-        self.assertEqual(AgeGroup.SENIOR, "SE")
-        self.assertEqual(AgeGroup.VETERAN, "VE")
+        self.assertEqual(AgeGroupEnum.U7, "U7")
+        self.assertEqual(AgeGroupEnum.U9, "U9")
+        self.assertEqual(AgeGroupEnum.U11, "U11")
+        self.assertEqual(AgeGroupEnum.U13, "U13")
+        self.assertEqual(AgeGroupEnum.U15, "U15")
+        self.assertEqual(AgeGroupEnum.U17, "U17")
+        self.assertEqual(AgeGroupEnum.U18, "U18")
+        self.assertEqual(AgeGroupEnum.U20, "U20")
+        self.assertEqual(AgeGroupEnum.U21, "U21")
+        self.assertEqual(AgeGroupEnum.SENIOR, "SE")
+        self.assertEqual(AgeGroupEnum.VETERAN, "VE")
 
     def test_str_subclass(self) -> None:
-        self.assertIsInstance(AgeGroup.U13, str)
+        self.assertIsInstance(AgeGroupEnum.U13, str)
 
     def test_member_count(self) -> None:
-        self.assertEqual(len(AgeGroup), 11)
+        self.assertEqual(len(AgeGroupEnum), 11)
 
 
 class TestEchelon(unittest.TestCase):
-    """Echelon enum."""
+    """EchelonEnum enum."""
 
     def test_values(self) -> None:
-        self.assertEqual(Echelon.DEPARTEMENT, "D")
-        self.assertEqual(Echelon.REGION, "R")
-        self.assertEqual(Echelon.FEDERAL, "F")
-        self.assertEqual(Echelon.NATIONAL, "N")
-        self.assertEqual(Echelon.PRE_NATIONAL, "PN")
-        self.assertEqual(Echelon.PRE_REGIONAL, "PR")
-        self.assertEqual(Echelon.EXCELLENCE, "E")
-        self.assertEqual(Echelon.LIGUE_FEMININE, "LF")
-        self.assertEqual(Echelon.ASSOCIATION_REGIONALE, "AREG")
-        self.assertEqual(Echelon.BASKET_FAUTEUIL, "LBWL")
+        self.assertEqual(EchelonEnum.DEPARTEMENT, "D")
+        self.assertEqual(EchelonEnum.REGION, "R")
+        self.assertEqual(EchelonEnum.FEDERAL, "F")
+        self.assertEqual(EchelonEnum.NATIONAL, "N")
+        self.assertEqual(EchelonEnum.PRE_NATIONAL, "PN")
+        self.assertEqual(EchelonEnum.PRE_REGIONAL, "PR")
+        self.assertEqual(EchelonEnum.EXCELLENCE, "E")
+        self.assertEqual(EchelonEnum.LIGUE_FEMININE, "LF")
+        self.assertEqual(EchelonEnum.ASSOCIATION_REGIONALE, "AREG")
+        self.assertEqual(EchelonEnum.BASKET_FAUTEUIL, "LBWL")
 
     def test_str_subclass(self) -> None:
-        self.assertIsInstance(Echelon.DEPARTEMENT, str)
+        self.assertIsInstance(EchelonEnum.DEPARTEMENT, str)
 
     def test_member_count(self) -> None:
-        self.assertEqual(len(Echelon), 12)
+        self.assertEqual(len(EchelonEnum), 12)
 
 
 class TestGender(unittest.TestCase):
-    """Gender enum."""
+    """GenderEnum enum."""
 
     def test_values(self) -> None:
-        self.assertEqual(Gender.MASCULIN, "M")
-        self.assertEqual(Gender.FEMININ, "F")
+        self.assertEqual(GenderEnum.MASCULIN, "M")
+        self.assertEqual(GenderEnum.FEMININ, "F")
 
     def test_str_subclass(self) -> None:
-        self.assertIsInstance(Gender.MASCULIN, str)
+        self.assertIsInstance(GenderEnum.MASCULIN, str)
 
     def test_member_count(self) -> None:
-        self.assertEqual(len(Gender), 2)
+        self.assertEqual(len(GenderEnum), 2)
 
 
 class TestFromCategorieCode(unittest.TestCase):

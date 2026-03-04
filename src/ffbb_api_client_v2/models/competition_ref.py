@@ -9,7 +9,7 @@ from .logo import Logo
 from .niveau_models import NiveauInfo, get_niveau_from_idcompetition
 from .organisateur import Organisateur
 from .saison import Saison
-from .type_competition import TypeCompetition
+from .type_competition_enum import TypeCompetitionEnum
 from .type_competition_generique import TypeCompetitionGenerique
 
 
@@ -24,7 +24,7 @@ class CompetitionRef:
     competition_origine: str | None = None
     competition_origine_nom: str | None = None
     competition_origine_niveau: int | None = None
-    type_competition: TypeCompetition | None = None
+    type_competition: TypeCompetitionEnum | None = None
     logo: Logo | None = None
     saison: Saison | None = None
     id_competition_pere: str | None = None
@@ -48,7 +48,7 @@ class CompetitionRef:
             competition_origine=from_str(obj, "competition_origine"),
             competition_origine_nom=from_str(obj, "competition_origine_nom"),
             competition_origine_niveau=from_int(obj, "competition_origine_niveau"),
-            type_competition=from_enum(TypeCompetition, obj, "typeCompetition"),
+            type_competition=from_enum(TypeCompetitionEnum, obj, "typeCompetition"),
             logo=from_obj(Logo.from_dict, obj, "logo"),
             saison=from_obj(Saison.from_dict, obj, "saison"),
             id_competition_pere=from_str(obj, "idCompetitionPere"),
