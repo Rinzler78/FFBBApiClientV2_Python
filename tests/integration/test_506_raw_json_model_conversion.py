@@ -826,7 +826,7 @@ class Test021FromDictEdgeCases(unittest.TestCase):
         self.assertEqual(eng.nom_usuel, "Paris BC")
         self.assertEqual(eng.code_abrege, "PBC")
         self.assertEqual(eng.numero_equ, 1)
-        self.assertEqual(eng.numero_equipe, 1)
+        self.assertEqual(eng.numero_equipe, "001")
         self.assertEqual(eng.logo_id, "logo-123")
         self.assertEqual(eng.logo_gradient, "#FF0000")
 
