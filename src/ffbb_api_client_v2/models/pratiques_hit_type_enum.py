@@ -7,3 +7,4 @@ class PratiquesHitTypeEnum(Enum):
     BASKET_TONIK = "Basket Tonik"
     CENTRE_GÉNÉRATION_BASKET = "Centre Génération Basket"
     MICRO_BASKET = "Micro Basket"
+    POINT = "Point"

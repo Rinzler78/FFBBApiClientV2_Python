@@ -8,6 +8,8 @@ class TypeCompetitionEnum(Enum):
     CHAMPIONNAT_3_X3 = "Championnat 3x3"
     COUPE = "Coupe"
     DIV = "DIV"
+    DIV_3X3 = "DIV 3x3"
+    PLAT = "PLAT"
     PLATEAU = "Plateau"
 
     @classmethod

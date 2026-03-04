@@ -219,9 +219,6 @@ class TestDocumentFlyerToDictCoverage(unittest.TestCase):
 
     def test_009_to_dict_populated_fields(self) -> None:
         from ffbb_api_client_v2.models.document_flyer import DocumentFlyer
-        from ffbb_api_client_v2.models.document_flyer_type_enum import (
-            DocumentFlyerTypeEnum,
-        )
         from ffbb_api_client_v2.models.folder import Folder
         from ffbb_api_client_v2.models.source_enum import SourceEnum
 
@@ -234,7 +231,7 @@ class TestDocumentFlyerToDictCoverage(unittest.TestCase):
             filename_disk="file.pdf",
             filename_download="file.pdf",
             title="Flyer",
-            type=DocumentFlyerTypeEnum.IMAGE_JPEG,
+            type="image/jpeg",
             uploaded_on=now,
             modified_on=now,
             filesize=1024,
@@ -253,7 +250,7 @@ class TestDocumentFlyerToDictCoverage(unittest.TestCase):
         self.assertEqual(d["filename_disk"], "file.pdf")
         self.assertEqual(d["filename_download"], "file.pdf")
         self.assertEqual(d["title"], "Flyer")
-        self.assertEqual(d["type"], DocumentFlyerTypeEnum.IMAGE_JPEG.value)
+        self.assertEqual(d["type"], "image/jpeg")
         self.assertEqual(d["uploaded_on"], now.isoformat())
         self.assertEqual(d["modified_on"], now.isoformat())
         self.assertEqual(d["filesize"], "1024")

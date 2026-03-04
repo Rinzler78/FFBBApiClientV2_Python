@@ -15,7 +15,6 @@ from ..utils.converter_utils import (
     from_str,
     from_uuid,
 )
-from .document_flyer_type_enum import DocumentFlyerTypeEnum
 from .folder import Folder
 from .source_enum import SourceEnum
 
@@ -27,7 +26,7 @@ class DocumentFlyer:
     filename_disk: str | None = None
     filename_download: str | None = None
     title: str | None = None
-    type: DocumentFlyerTypeEnum | None = None
+    type: str | None = None
     uploaded_on: datetime | None = None
     modified_on: datetime | None = None
     charset: str | None = None
@@ -65,7 +64,7 @@ class DocumentFlyer:
         filename_disk = from_str(obj, "filename_disk")
         filename_download = from_str(obj, "filename_download")
         title = from_str(obj, "title")
-        type = from_enum(DocumentFlyerTypeEnum, obj, "type")
+        type = from_str(obj, "type")
         uploaded_on = from_datetime(obj, "uploaded_on")
         modified_on = from_datetime(obj, "modified_on")
         charset = from_str(obj, "charset")
@@ -144,7 +143,7 @@ class DocumentFlyer:
         if self.title is not None:
             result["title"] = self.title
         if self.type is not None:
-            result["type"] = self.type.value
+            result["type"] = self.type
         if self.uploaded_on is not None:
             result["uploaded_on"] = self.uploaded_on.isoformat()
         if self.modified_on is not None:

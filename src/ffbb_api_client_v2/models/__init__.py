@@ -37,7 +37,6 @@ from .contact_role_enum import ContactRoleEnum
 from .coordonnees import Coordonnees
 from .coordonnees_type_enum import CoordonneesTypeEnum
 from .document_flyer import DocumentFlyer
-from .document_flyer_type_enum import DocumentFlyerTypeEnum
 from .echelon_enum import EchelonEnum
 from .engagement_contacts import (
     EngagementContacts,
@@ -124,7 +123,6 @@ __all__ = [
     "Coordonnees",
     "CoordonneesTypeEnum",
     "DocumentFlyer",
-    "DocumentFlyerTypeEnum",
     "EngagementContacts",
     "EngagementEquipe",
     "EchelonEnum",
