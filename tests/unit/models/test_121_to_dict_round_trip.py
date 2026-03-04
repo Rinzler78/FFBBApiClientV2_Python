@@ -60,13 +60,13 @@ from ffbb_api_client_v2.models.affiche import Affiche
 from ffbb_api_client_v2.models.cartographie import Cartographie
 from ffbb_api_client_v2.models.commune import Commune
 from ffbb_api_client_v2.models.document_flyer import DocumentFlyer
+from ffbb_api_client_v2.models.engagement_equipe import EngagementEquipe
 from ffbb_api_client_v2.models.external_id import ExternalCompetitionID, ExternalID
 from ffbb_api_client_v2.models.folder import Folder
 from ffbb_api_client_v2.models.geo import Geo
 from ffbb_api_client_v2.models.logo import Logo
 from ffbb_api_client_v2.models.nature_sol import NatureSol
-from ffbb_api_client_v2.models.organisme_id_pere import OrganismeIDPere
-from ffbb_api_client_v2.models.team_engagement import TeamEngagement
+from ffbb_api_client_v2.models.organisateur import Organisateur
 from ffbb_api_client_v2.models.type_association import TypeAssociation
 
 
@@ -263,9 +263,9 @@ class Test022ToDictRoundTrip(unittest.TestCase):
         )
 
     def test_011_organisme_id_pere(self) -> None:
-        """OrganismeIDPere with nested fields."""
+        """Organisateur with nested fields."""
         self._assert_stable(
-            OrganismeIDPere,
+            Organisateur,
             {
                 "adresse": "1 rue Federation",
                 "adresseClubPro": None,
@@ -379,9 +379,9 @@ class Test022ToDictRoundTrip(unittest.TestCase):
         )
 
     def test_016_team_engagement(self) -> None:
-        """TeamEngagement with nested Logo."""
+        """EngagementEquipe with nested Logo."""
         self._assert_stable(
-            TeamEngagement,
+            EngagementEquipe,
             {
                 "nomOfficiel": "Paris BC Officiel",
                 "nomUsuel": "Paris BC",

@@ -93,9 +93,8 @@ class TestEngagementsHit(unittest.TestCase):
 
     def test_006_nested_dicts_deserialized(self) -> None:
         """idCompetition, idPoule, niveau, categorie are deserialized to typed models."""
-        from ffbb_api_client_v2.models.categorie import Categorie
-        from ffbb_api_client_v2.models.competition_id_categorie import (
-            CompetitionIDCategorie,
+        from ffbb_api_client_v2.models.categorie import (
+            Categorie,
         )
         from ffbb_api_client_v2.models.competition_origine import CompetitionOrigine
         from ffbb_api_client_v2.models.id_poule import IDPoule
@@ -104,7 +103,7 @@ class TestEngagementsHit(unittest.TestCase):
         self.assertIsInstance(hit.id_competition, CompetitionOrigine)
         self.assertIsInstance(hit.id_poule, IDPoule)
         self.assertIsInstance(hit.niveau, Categorie)
-        self.assertIsInstance(hit.categorie, CompetitionIDCategorie)
+        self.assertIsInstance(hit.categorie, Categorie)
 
 
 class TestEngagementsFacetDistribution(unittest.TestCase):

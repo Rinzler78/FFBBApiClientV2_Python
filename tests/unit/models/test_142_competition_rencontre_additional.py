@@ -9,10 +9,10 @@ from ffbb_api_client_v2.models.competition_rencontre import CompetitionRencontre
 from ffbb_api_client_v2.models.engagement_equipe import EngagementEquipe
 from ffbb_api_client_v2.models.fonction import Fonction
 from ffbb_api_client_v2.models.game_stats_model import GameStatsModel
+from ffbb_api_client_v2.models.id_organisme_equipe import IDOrganismeEquipe
 from ffbb_api_client_v2.models.logo import Logo
 from ffbb_api_client_v2.models.officiel import Officiel
 from ffbb_api_client_v2.models.officiel_personne import OfficielPersonne
-from ffbb_api_client_v2.models.organisme_equipe import OrganismeEquipe
 from ffbb_api_client_v2.models.salle import Salle
 
 
@@ -21,8 +21,8 @@ class Test142CompetitionRencontreAdditional(unittest.TestCase):
 
     def test_001_competition_rencontre_full_initialization(self):
         """Test d'initialisation complète de CompetitionRencontre avec toutes les propriétés"""
-        organisme_equipe1 = OrganismeEquipe(logo=Logo())
-        organisme_equipe2 = OrganismeEquipe(logo=Logo())
+        organisme_equipe1 = IDOrganismeEquipe(logo=Logo())
+        organisme_equipe2 = IDOrganismeEquipe(logo=Logo())
         gs_id = GameStatsModel(match_id="gs123")
         engagement_equipe1 = EngagementEquipe(id="eng123", nom="Engagement 1")
         engagement_equipe2 = EngagementEquipe(id="eng456", nom="Engagement 2")
@@ -170,8 +170,8 @@ class Test142CompetitionRencontreAdditional(unittest.TestCase):
 
     def test_005_competition_rencontre_to_dict_full(self):
         """Test de la méthode to_dict avec toutes les propriétés définies"""
-        organisme_equipe1 = OrganismeEquipe(logo=Logo())
-        organisme_equipe2 = OrganismeEquipe(logo=Logo())
+        organisme_equipe1 = IDOrganismeEquipe(logo=Logo())
+        organisme_equipe2 = IDOrganismeEquipe(logo=Logo())
         gs_id = GameStatsModel(match_id="gs123")
         engagement_equipe1 = EngagementEquipe(id="eng123", nom="Engagement 1")
         engagement_equipe2 = EngagementEquipe(id="eng456", nom="Engagement 2")

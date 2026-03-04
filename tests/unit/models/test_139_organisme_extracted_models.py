@@ -10,7 +10,7 @@ from ffbb_api_client_v2.directus_ffbb.models.get_organisme_response import (
     GetOrganismeResponse,
 )
 from ffbb_api_client_v2.models.code_fonction_enum import CodeFonctionEnum
-from ffbb_api_client_v2.models.competition_ref import CompetitionRef
+from ffbb_api_client_v2.models.competition_detail import CompetitionDetail
 from ffbb_api_client_v2.models.labellisation_item import LabellisationItem
 from ffbb_api_client_v2.models.labellisation_programme import LabellisationProgramme
 from ffbb_api_client_v2.models.membre import Membre
@@ -317,8 +317,8 @@ class TestOrganismeEngagement(unittest.TestCase):
         self.assertEqual(obj1.to_dict(), obj2.to_dict())
 
 
-class TestCompetitionRef(unittest.TestCase):
-    """Tests for CompetitionRef model."""
+class TestCompetitionDetail(unittest.TestCase):
+    """Tests for CompetitionDetail model."""
 
     def test_026_from_dict_full(self) -> None:
         data = {
@@ -337,7 +337,7 @@ class TestCompetitionRef(unittest.TestCase):
             "typeCompetitionGenerique": {"logo": None},
             "categorie": {"code": "SEN", "ordre": 10},
         }
-        ref = CompetitionRef.from_dict(data)
+        ref = CompetitionDetail.from_dict(data)
         self.assertEqual(ref.id, "comp-001")
         self.assertEqual(ref.nom, "Regionale 2 Masculine")
         self.assertEqual(ref.sexe, "M")
@@ -352,14 +352,14 @@ class TestCompetitionRef(unittest.TestCase):
         self.assertIsNotNone(ref.categorie)
 
     def test_027_from_dict_empty(self) -> None:
-        ref = CompetitionRef.from_dict({})
+        ref = CompetitionDetail.from_dict({})
         self.assertIsNone(ref.id)
         self.assertIsNone(ref.nom)
 
     def test_028_to_dict_camelcase_keys(self) -> None:
         from ffbb_api_client_v2.models.type_competition_enum import TypeCompetitionEnum
 
-        ref = CompetitionRef(
+        ref = CompetitionDetail(
             id="comp-001",
             type_competition=TypeCompetitionEnum.CHAMPIONNAT,
             competition_origine_niveau=2,
@@ -372,12 +372,12 @@ class TestCompetitionRef(unittest.TestCase):
         self.assertNotIn("type_competition", d)
 
     def test_029_niveau_property(self) -> None:
-        ref = CompetitionRef(nom="Regionale 2 Masculine")
+        ref = CompetitionDetail(nom="Regionale 2 Masculine")
         niveau = ref.niveau
         self.assertIsNotNone(niveau)
 
     def test_030_niveau_property_none_when_no_nom(self) -> None:
-        ref = CompetitionRef()
+        ref = CompetitionDetail()
         niveau = ref.niveau
         self.assertIsNone(niveau)
 
@@ -389,8 +389,8 @@ class TestCompetitionRef(unittest.TestCase):
             "sexe": "M",
             "typeCompetition": "Championnat",
         }
-        obj1 = CompetitionRef.from_dict(data)
-        obj2 = CompetitionRef.from_dict(obj1.to_dict())
+        obj1 = CompetitionDetail.from_dict(data)
+        obj2 = CompetitionDetail.from_dict(obj1.to_dict())
         self.assertEqual(obj1.to_dict(), obj2.to_dict())
 
 

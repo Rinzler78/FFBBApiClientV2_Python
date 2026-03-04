@@ -1,12 +1,12 @@
-"""Round-trip tests for CompetitionIDTypeCompetition."""
+"""Round-trip tests for CompetitionTypeFacet."""
 
 from __future__ import annotations
 
 import unittest
 from typing import Any
 
-from ffbb_api_client_v2.models.competition_id_type_competition import (
-    CompetitionIDTypeCompetition,
+from ffbb_api_client_v2.models.competition_type_facet import (
+    CompetitionTypeFacet,
 )
 
 
@@ -20,16 +20,16 @@ class Test025CompetitionIdTypeCompetition(unittest.TestCase):
 
     def test_000_round_trip_full(self) -> None:
         self._assert_stable(
-            CompetitionIDTypeCompetition,
+            CompetitionTypeFacet,
             {"Championnat": 8, "Coupe": 3},
         )
 
     def test_001_round_trip_partial(self) -> None:
-        self._assert_stable(CompetitionIDTypeCompetition, {"Championnat": 12})
+        self._assert_stable(CompetitionTypeFacet, {"Championnat": 12})
 
     def test_002_round_trip_none_fields(self) -> None:
         self._assert_stable(
-            CompetitionIDTypeCompetition,
+            CompetitionTypeFacet,
             {"Championnat": None, "Coupe": None},
         )
 

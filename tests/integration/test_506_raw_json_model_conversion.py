@@ -1122,7 +1122,7 @@ class Test021FromDictEdgeCases(unittest.TestCase):
         self.assertEqual(result.api_bearer_token, "api_token_val")
         self.assertEqual(result.meilisearch_token, "mls_token_val")
 
-    # -- test_035: Live.from_dict with TeamEngagement ----------------------
+    # -- test_035: Live.from_dict with EngagementEquipe ----------------------
 
     def test_035_live_with_team_engagement(self) -> None:
         """Live.from_dict with nested teamEngagement data."""

@@ -15,7 +15,6 @@ from ..utils.converter_utils import (
 )
 from .id_poule import IDPoule
 from .labellisation_item import LabellisationItem
-from .organisme_id_pere import OrganismeIDPere
 
 
 @dataclass
@@ -30,7 +29,7 @@ class Organisateur:
     mail: str | None = None
     nom: str | None = None
     nom_club_pro: str | None = None
-    organisme_id_pere: OrganismeIDPere | None = None
+    organisme_id_pere: Organisateur | None = None
     salle: str | None = None
     telephone: str | None = None
     type: str | None = None
@@ -67,9 +66,7 @@ class Organisateur:
         mail = from_str(obj, "mail")
         nom = from_str(obj, "nom")
         nom_club_pro = from_str(obj, "nomClubPro")
-        organisme_id_pere = from_obj(
-            OrganismeIDPere.from_dict, obj, "organisme_id_pere"
-        )
+        organisme_id_pere = from_obj(Organisateur.from_dict, obj, "organisme_id_pere")
         salle = from_str(obj, "salle")
         telephone = from_str(obj, "telephone")
         type = from_str(obj, "type")

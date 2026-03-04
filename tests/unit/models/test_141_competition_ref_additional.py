@@ -1,11 +1,11 @@
 """
-Tests additionnels pour le module CompetitionRef pour atteindre 90% de couverture
+Tests additionnels pour le module CompetitionDetail pour atteindre 90% de couverture
 """
 
 import unittest
 
 from ffbb_api_client_v2.models.categorie import Categorie
-from ffbb_api_client_v2.models.competition_ref import CompetitionRef
+from ffbb_api_client_v2.models.competition_detail import CompetitionDetail
 from ffbb_api_client_v2.models.logo import Logo
 from ffbb_api_client_v2.models.organisateur import Organisateur
 from ffbb_api_client_v2.models.saison import Saison
@@ -15,11 +15,11 @@ from ffbb_api_client_v2.models.type_competition_generique import (
 )
 
 
-class Test141CompetitionRefAdditional(unittest.TestCase):
-    """Tests additionnels pour le modèle CompetitionRef"""
+class Test141CompetitionDetailAdditional(unittest.TestCase):
+    """Tests additionnels pour le modèle CompetitionDetail"""
 
     def test_001_competition_ref_full_initialization(self):
-        """Test d'initialisation complète de CompetitionRef avec toutes les propriétés"""
+        """Test d'initialisation complète de CompetitionDetail avec toutes les propriétés"""
         logo = Logo(id=None)
         saison = Saison(code="saison123")
         organisateur = Organisateur(id="org123", nom="Organisateur Test")
@@ -28,7 +28,7 @@ class Test141CompetitionRefAdditional(unittest.TestCase):
         )
         categorie = Categorie(categorie_id="cat123", libelle="Catégorie Test")
 
-        competition_ref = CompetitionRef(
+        competition_ref = CompetitionDetail(
             id="comp123",
             nom="Comp Test",
             code="CT001",
@@ -61,8 +61,8 @@ class Test141CompetitionRefAdditional(unittest.TestCase):
         assert competition_ref.categorie == categorie
 
     def test_002_competition_ref_minimal_initialization(self):
-        """Test d'initialisation minimale de CompetitionRef"""
-        competition_ref = CompetitionRef()
+        """Test d'initialisation minimale de CompetitionDetail"""
+        competition_ref = CompetitionDetail()
 
         assert competition_ref.id is None
         assert competition_ref.nom is None
@@ -98,7 +98,7 @@ class Test141CompetitionRefAdditional(unittest.TestCase):
             "categorie": {"id": "cat123", "libelle": "Catégorie Test"},
         }
 
-        competition_ref = CompetitionRef.from_dict(data)
+        competition_ref = CompetitionDetail.from_dict(data)
 
         assert competition_ref.id == "comp123"
         assert competition_ref.nom == "Comp Test"
@@ -121,7 +121,7 @@ class Test141CompetitionRefAdditional(unittest.TestCase):
         """Test de la méthode from_dict avec un dictionnaire minimal"""
         data = {}
 
-        competition_ref = CompetitionRef.from_dict(data)
+        competition_ref = CompetitionDetail.from_dict(data)
 
         assert competition_ref.id is None
         assert competition_ref.nom is None
@@ -148,7 +148,7 @@ class Test141CompetitionRefAdditional(unittest.TestCase):
         )
         categorie = Categorie(categorie_id="cat123", libelle="Catégorie Test")
 
-        competition_ref = CompetitionRef(
+        competition_ref = CompetitionDetail(
             id="comp123",
             nom="Comp Test",
             code="CT001",
@@ -184,7 +184,7 @@ class Test141CompetitionRefAdditional(unittest.TestCase):
 
     def test_006_competition_ref_to_dict_minimal(self):
         """Test de la méthode to_dict avec un objet minimal"""
-        competition_ref = CompetitionRef()
+        competition_ref = CompetitionDetail()
 
         result = competition_ref.to_dict()
 
@@ -193,7 +193,7 @@ class Test141CompetitionRefAdditional(unittest.TestCase):
 
     def test_007_competition_ref_niveau_property_with_nom(self):
         """Test de la propriété niveau quand le nom est défini"""
-        competition_ref = CompetitionRef(nom="U15 Masculin Excellence")
+        competition_ref = CompetitionDetail(nom="U15 Masculin Excellence")
 
         # Le test vérifie que la propriété peut être accédée sans erreur
         niveau = competition_ref.niveau
@@ -204,7 +204,7 @@ class Test141CompetitionRefAdditional(unittest.TestCase):
 
     def test_008_competition_ref_niveau_property_without_nom(self):
         """Test de la propriété niveau quand le nom n'est pas défini"""
-        competition_ref = CompetitionRef()
+        competition_ref = CompetitionDetail()
 
         # Le test vérifie que la propriété peut être accédée sans erreur
         niveau = competition_ref.niveau
@@ -232,7 +232,7 @@ class Test141CompetitionRefAdditional(unittest.TestCase):
             "categorie": None,
         }
 
-        competition_ref = CompetitionRef.from_dict(data)
+        competition_ref = CompetitionDetail.from_dict(data)
 
         assert competition_ref.id is None
         assert competition_ref.nom is None
@@ -252,7 +252,7 @@ class Test141CompetitionRefAdditional(unittest.TestCase):
     def test_010_competition_ref_assertion_error(self):
         """Test de la méthode from_dict avec un objet non-dict (devrait lever une assertion)"""
         with self.assertRaises(AssertionError):
-            CompetitionRef.from_dict("not_a_dict")
+            CompetitionDetail.from_dict("not_a_dict")
 
     def test_011_competition_ref_round_trip(self):
         """Test de conversion depuis/depuis un dictionnaire"""
@@ -274,7 +274,7 @@ class Test141CompetitionRefAdditional(unittest.TestCase):
         }
 
         # Convertir du dictionnaire à l'objet
-        competition_ref = CompetitionRef.from_dict(original_data)
+        competition_ref = CompetitionDetail.from_dict(original_data)
 
         # Convertir de l'objet au dictionnaire
         result_data = competition_ref.to_dict()

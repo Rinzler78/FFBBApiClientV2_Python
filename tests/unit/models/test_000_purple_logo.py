@@ -1,11 +1,11 @@
-"""Round-trip tests for PurpleLogo."""
+"""Round-trip tests for Logo."""
 
 from __future__ import annotations
 
 import unittest
 from typing import Any
 
-from ffbb_api_client_v2.models.purple_logo import PurpleLogo
+from ffbb_api_client_v2.models.logo import Logo
 
 
 class Test035PurpleLogo(unittest.TestCase):
@@ -18,12 +18,12 @@ class Test035PurpleLogo(unittest.TestCase):
 
     def test_000_round_trip_with_id(self) -> None:
         self._assert_stable(
-            PurpleLogo,
+            Logo,
             {"id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"},
         )
 
     def test_001_round_trip_none_id(self) -> None:
-        self._assert_stable(PurpleLogo, {"id": None})
+        self._assert_stable(Logo, {"id": None})
 
 
 if __name__ == "__main__":

@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from ..utils.converter_utils import from_obj, from_str
-from .competition_ref import CompetitionRef
+from .competition_detail import CompetitionDetail
 from .id_poule import IDPoule
 
 
@@ -12,7 +12,7 @@ from .id_poule import IDPoule
 class OrganismeEngagement:
     id: str | None = None
     id_poule: IDPoule | None = None
-    id_competition: CompetitionRef | None = None
+    id_competition: CompetitionDetail | None = None
 
     @staticmethod
     def from_dict(obj: Any) -> OrganismeEngagement:
@@ -20,7 +20,7 @@ class OrganismeEngagement:
         return OrganismeEngagement(
             id=from_str(obj, "id"),
             id_poule=from_obj(IDPoule.from_dict, obj, "idPoule"),
-            id_competition=from_obj(CompetitionRef.from_dict, obj, "idCompetition"),
+            id_competition=from_obj(CompetitionDetail.from_dict, obj, "idCompetition"),
         )
 
     def to_dict(self) -> dict:

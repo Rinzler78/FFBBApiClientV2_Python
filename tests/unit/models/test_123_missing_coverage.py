@@ -406,20 +406,20 @@ class TestExternalCompetitionID(unittest.TestCase):
 
 class TestTeamEngagement(unittest.TestCase):
     def test_042_from_dict_empty(self) -> None:
-        from ffbb_api_client_v2.models.team_engagement import TeamEngagement
+        from ffbb_api_client_v2.models.engagement_equipe import EngagementEquipe
 
-        obj = TeamEngagement.from_dict({})
+        obj = EngagementEquipe.from_dict({})
         self.assertEqual(obj.to_dict(), {})
 
     def test_040_roundtrip(self) -> None:
-        from ffbb_api_client_v2.models.team_engagement import TeamEngagement
+        from ffbb_api_client_v2.models.engagement_equipe import EngagementEquipe
 
         data = {
             "nomOfficiel": "Team A",
             "nomUsuel": "TA",
             "codeAbrege": "TA",
         }
-        obj = TeamEngagement.from_dict(data)
+        obj = EngagementEquipe.from_dict(data)
         d = obj.to_dict()
         self.assertEqual(d["nomOfficiel"], "Team A")
         self.assertEqual(d["nomUsuel"], "TA")
@@ -508,8 +508,8 @@ class TestLive(unittest.TestCase):
 
     def test_043_to_dict_ot_scores_and_nested(self) -> None:
         from ffbb_api_client_v2.directus_ffbb.models.live import Live
+        from ffbb_api_client_v2.models.engagement_equipe import EngagementEquipe
         from ffbb_api_client_v2.models.external_id import ExternalID
-        from ffbb_api_client_v2.models.team_engagement import TeamEngagement
 
         obj = Live(
             score_ot1_home=10,
@@ -517,8 +517,8 @@ class TestLive(unittest.TestCase):
             score_ot1_out=8,
             score_ot2_out=3,
             external_id=ExternalID(nom_equipe1="Team A", nom_equipe2="Team B"),
-            team_engagement_home=TeamEngagement(nom_officiel="Home Team"),
-            team_engagement_out=TeamEngagement(nom_officiel="Away Team"),
+            team_engagement_home=EngagementEquipe(nom_officiel="Home Team"),
+            team_engagement_out=EngagementEquipe(nom_officiel="Away Team"),
         )
         d = obj.to_dict()
         self.assertEqual(d["score_ot1_home"], 10)
@@ -553,8 +553,8 @@ class TestCompetitionsFacetDistributionWithData(unittest.TestCase):
         from ffbb_api_client_v2.meilisearch_ffbb.models.competitions_facet_distribution import (
             CompetitionsFacetDistribution,
         )
-        from ffbb_api_client_v2.models.competition_id_type_competition import (
-            CompetitionIDTypeCompetition,
+        from ffbb_api_client_v2.models.competition_type_facet import (
+            CompetitionTypeFacet,
         )
         from ffbb_api_client_v2.models.niveau_class import NiveauClass
         from ffbb_api_client_v2.models.sexe_class import SexeClass
@@ -563,9 +563,7 @@ class TestCompetitionsFacetDistributionWithData(unittest.TestCase):
             competition_id_categorie_code={"U13": 5},
             competition_id_nom_extended={"National": 3},
             competition_id_sexe=SexeClass(feminine=2, masculine=8),
-            competition_id_type_competition=CompetitionIDTypeCompetition(
-                championnat=10
-            ),
+            competition_id_type_competition=CompetitionTypeFacet(championnat=10),
             niveau=NiveauClass(départemental=4),
             organisateur_id={"org1": 1},
             organisateur_nom={"FFBB": 2},

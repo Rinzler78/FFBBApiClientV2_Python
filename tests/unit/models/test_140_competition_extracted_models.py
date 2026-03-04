@@ -13,12 +13,14 @@ from ffbb_api_client_v2.models.competition_poule import CompetitionPoule
 from ffbb_api_client_v2.models.competition_rencontre import CompetitionRencontre
 from ffbb_api_client_v2.models.engagement_equipe import EngagementEquipe
 from ffbb_api_client_v2.models.fonction import Fonction
+from ffbb_api_client_v2.models.id_organisme_equipe import IDOrganismeEquipe
 from ffbb_api_client_v2.models.officiel import Officiel
 from ffbb_api_client_v2.models.officiel_personne import OfficielPersonne
-from ffbb_api_client_v2.models.organisme_equipe import OrganismeEquipe
-from ffbb_api_client_v2.models.organisme_id import OrganismeId
 from ffbb_api_client_v2.models.phase_engagement import PhaseEngagement
 from ffbb_api_client_v2.models.type_competition_enum import TypeCompetitionEnum
+
+# Aliases for backward-compat in tests
+OrganismeEquipe = IDOrganismeEquipe
 
 
 class TestFonction(unittest.TestCase):
@@ -99,7 +101,7 @@ class TestOfficiel(unittest.TestCase):
 
 
 class TestOrganismeEquipe(unittest.TestCase):
-    """Tests for OrganismeEquipe model."""
+    """Tests for IDOrganismeEquipe model."""
 
     def test_011_from_dict_with_logo(self) -> None:
         uuid_str = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
@@ -173,21 +175,11 @@ class TestEngagementEquipe(unittest.TestCase):
 
 
 class TestOrganismeId(unittest.TestCase):
-    """Tests for OrganismeId model."""
+    """Tests for OrganismeId (removed - PhaseEngagement.id_organisme is now str)."""
 
-    def test_018_from_dict(self) -> None:
-        oi = OrganismeId.from_dict({"id": "org-001"})
-        self.assertEqual(oi.id, "org-001")
-
-    def test_033_from_dict_empty(self) -> None:
-        oi = OrganismeId.from_dict({})
-        self.assertIsNone(oi.id)
-
-    def test_035_round_trip(self) -> None:
-        data = {"id": "org-001"}
-        obj1 = OrganismeId.from_dict(data)
-        obj2 = OrganismeId.from_dict(obj1.to_dict())
-        self.assertEqual(obj1.to_dict(), obj2.to_dict())
+    def test_018_phase_engagement_id_organisme_is_str(self) -> None:
+        pe = PhaseEngagement.from_dict({"id": "pe-001", "idOrganisme": "org-001"})
+        self.assertEqual(pe.id_organisme, "org-001")
 
 
 class TestPhaseEngagement(unittest.TestCase):
@@ -196,12 +188,11 @@ class TestPhaseEngagement(unittest.TestCase):
     def test_032_from_dict_full(self) -> None:
         data = {
             "id": "pe-001",
-            "idOrganisme": {"id": "org-001"},
+            "idOrganisme": "org-001",
         }
         pe = PhaseEngagement.from_dict(data)
         self.assertEqual(pe.id, "pe-001")
-        self.assertIsNotNone(pe.id_organisme)
-        self.assertEqual(pe.id_organisme.id, "org-001")
+        self.assertEqual(pe.id_organisme, "org-001")
 
     def test_033_from_dict_empty(self) -> None:
         pe = PhaseEngagement.from_dict({})
@@ -211,7 +202,7 @@ class TestPhaseEngagement(unittest.TestCase):
     def test_034_to_dict_camelcase_keys(self) -> None:
         pe = PhaseEngagement(
             id="pe-001",
-            id_organisme=OrganismeId(id="org-001"),
+            id_organisme="org-001",
         )
         d = pe.to_dict()
         self.assertIn("idOrganisme", d)
@@ -220,7 +211,7 @@ class TestPhaseEngagement(unittest.TestCase):
     def test_035_round_trip(self) -> None:
         data = {
             "id": "pe-001",
-            "idOrganisme": {"id": "org-001"},
+            "idOrganisme": "org-001",
         }
         obj1 = PhaseEngagement.from_dict(data)
         obj2 = PhaseEngagement.from_dict(obj1.to_dict())
@@ -326,7 +317,7 @@ class TestCompetitionPoule(unittest.TestCase):
                 },
             ],
             "engagements": [
-                {"id": "pe-001", "idOrganisme": {"id": "org-001"}},
+                {"id": "pe-001", "idOrganisme": "org-001"},
             ],
         }
         poule = CompetitionPoule.from_dict(data)
@@ -348,7 +339,7 @@ class TestCompetitionPoule(unittest.TestCase):
             "id": "poule-001",
             "nom": "Poule A",
             "engagements": [
-                {"id": "pe-001", "idOrganisme": {"id": "org-001"}},
+                {"id": "pe-001", "idOrganisme": "org-001"},
             ],
         }
         obj1 = CompetitionPoule.from_dict(data)

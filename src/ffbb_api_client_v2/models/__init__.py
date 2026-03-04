@@ -20,25 +20,18 @@ from .club_contacts import ClubContacts
 from .code_enum import CodeEnum
 from .code_fonction_enum import CODE_FONCTION_TO_CONTACT_ROLE, CodeFonctionEnum
 from .commune import Commune
-from .competition_id import CompetitionID
-from .competition_id_categorie import CompetitionIDCategorie
-from .competition_id_type_competition import CompetitionIDTypeCompetition
-from .competition_id_type_competition_generique import (
-    CompetitionIDTypeCompetitionGenerique,
-)
+from .competition import Competition
+from .competition_base import CompetitionBase
+from .competition_detail import CompetitionDetail
 from .competition_origine import CompetitionOrigine
-from .competition_origine_categorie import CompetitionOrigineCategorie
 from .competition_origine_type_competition_enum import (
     CompetitionOrigineTypeCompetitionEnum,
 )
-from .competition_origine_type_competition_generique import (
-    CompetitionOrigineTypeCompetitionGenerique,
-)
 from .competition_phase import CompetitionPhase
 from .competition_poule import CompetitionPoule
-from .competition_ref import CompetitionRef
 from .competition_rencontre import CompetitionRencontre
 from .competition_type_enum import CompetitionTypeEnum
+from .competition_type_facet import CompetitionTypeFacet
 from .contact_info import ContactInfo
 from .contact_role_enum import ContactRoleEnum
 from .coordonnees import Coordonnees
@@ -57,7 +50,6 @@ from .folder import Folder
 from .fonction import Fonction
 from .gender_enum import GenderEnum
 from .geo import Geo
-from .id_engagement_equipe import IDEngagementEquipe
 from .id_organisme_equipe import IDOrganismeEquipe
 from .id_poule import IDPoule
 from .jour_enum import JourEnum
@@ -76,15 +68,11 @@ from .offre_pratique import OffrePratique, OffrePratiqueDetail
 from .organisateur import Organisateur
 from .organisateur_type_enum import OrganisateurTypeEnum
 from .organisme_engagement import OrganismeEngagement
-from .organisme_equipe import OrganismeEquipe
-from .organisme_id import OrganismeId
-from .organisme_id_pere import OrganismeIDPere
 from .phase_code_enum import PhaseCodeEnum
 from .phase_engagement import PhaseEngagement
 from .poule import Poule
 from .pratique_enum import PratiqueEnum
 from .publication_internet_enum import PublicationInternetEnum
-from .purple_logo import PurpleLogo
 from .ranking_engagement import RankingEngagement
 from .saison import Saison
 from .salle import Salle
@@ -92,7 +80,6 @@ from .sexe_class import SexeClass
 from .sexe_enum import SexeEnum
 from .source_enum import SourceEnum
 from .status_enum import StatusEnum
-from .team_engagement import TeamEngagement
 from .team_ranking import TeamRanking
 from .tournoi_type_class import TournoiTypeClass
 from .tournoi_type_enum import TournoiTypeEnum
@@ -100,7 +87,9 @@ from .type_association import TypeAssociation
 from .type_association_libelle import TypeAssociationLibelle
 from .type_class import TypeClass
 from .type_competition_enum import TypeCompetitionEnum
-from .type_competition_generique import TypeCompetitionGenerique
+from .type_competition_generique import (
+    TypeCompetitionGenerique,
+)
 from .type_enum import TypeEnum
 from .type_league_enum import TypeLeagueEnum
 
@@ -119,17 +108,17 @@ __all__ = [
     "ContactRoleEnum",
     "CodeEnum",
     "Commune",
-    "CompetitionID",
-    "CompetitionIDCategorie",
-    "CompetitionIDTypeCompetition",
-    "CompetitionIDTypeCompetitionGenerique",
+    "Competition",
+    "CompetitionBase",
+    "Categorie",
+    "CompetitionTypeFacet",
+    "TypeCompetitionGenerique",
     "CompetitionOrigine",
-    "CompetitionOrigineCategorie",
     "CompetitionOrigineTypeCompetitionEnum",
-    "CompetitionOrigineTypeCompetitionGenerique",
+    "TypeCompetitionGenerique",
     "CompetitionPhase",
     "CompetitionPoule",
-    "CompetitionRef",
+    "CompetitionDetail",
     "CompetitionRencontre",
     "CompetitionTypeEnum",
     "Coordonnees",
@@ -146,7 +135,7 @@ __all__ = [
     "Fonction",
     "GenderEnum",
     "Geo",
-    "IDEngagementEquipe",
+    "EngagementEquipe",
     "IDOrganismeEquipe",
     "IDPoule",
     "JourEnum",
@@ -166,15 +155,14 @@ __all__ = [
     "Organisateur",
     "OrganisateurTypeEnum",
     "OrganismeEngagement",
-    "OrganismeEquipe",
-    "OrganismeId",
-    "OrganismeIDPere",
+    "IDOrganismeEquipe",
+    "Organisateur",
     "PhaseCodeEnum",
     "PhaseEngagement",
     "Poule",
     "PratiqueEnum",
     "PublicationInternetEnum",
-    "PurpleLogo",
+    "Logo",
     "RankingEngagement",
     "Saison",
     "Salle",
@@ -182,7 +170,7 @@ __all__ = [
     "SexeClass",
     "SourceEnum",
     "StatusEnum",
-    "TeamEngagement",
+    "EngagementEquipe",
     "TeamRanking",
     "TournoiTypeClass",
     "TournoiTypeEnum",

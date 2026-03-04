@@ -5,9 +5,9 @@ from datetime import datetime
 from typing import Any
 
 from ...meilisearch.models.hit import Hit
-from ...models.competition_id import CompetitionID
+from ...models.competition import Competition
+from ...models.engagement_equipe import EngagementEquipe
 from ...models.geo import Geo
-from ...models.id_engagement_equipe import IDEngagementEquipe
 from ...models.id_organisme_equipe import IDOrganismeEquipe
 from ...models.id_poule import IDPoule
 from ...models.niveau_enum import NiveauEnum
@@ -38,14 +38,14 @@ class RencontresHit(Hit):
     pratique: PratiqueEnum | None = None
     gs_id: str | None = None
     officiels: list[str] | None = None
-    competition_id: CompetitionID | None = None
+    competition_id: Competition | None = None
     id_organisme_equipe1: IDOrganismeEquipe | None = None
     id_organisme_equipe2: IDOrganismeEquipe | None = None
     id_poule: IDPoule | None = None
     saison: Saison | None = None
     salle: Salle | None = None
-    id_engagement_equipe1: IDEngagementEquipe | None = None
-    id_engagement_equipe2: IDEngagementEquipe | None = None
+    id_engagement_equipe1: EngagementEquipe | None = None
+    id_engagement_equipe2: EngagementEquipe | None = None
     geo: Geo | None = None
     date_timestamp: int | None = None
     date_rencontre_timestamp: int | None = None
@@ -111,7 +111,7 @@ class RencontresHit(Hit):
             pratique = from_enum(PratiqueEnum, obj, "pratique")
             gs_id = from_str(obj, "gsId")
             officiels = from_officiels_list(obj.get("officiels"))
-            competition_id = from_obj(CompetitionID.from_dict, obj, "competitionId")
+            competition_id = from_obj(Competition.from_dict, obj, "competitionId")
             id_organisme_equipe1 = from_obj(
                 IDOrganismeEquipe.from_dict, obj, "idOrganismeEquipe1"
             )
@@ -122,10 +122,10 @@ class RencontresHit(Hit):
             saison = from_obj(Saison.from_dict, obj, "saison")
             salle = from_obj(Salle.from_dict, obj, "salle")
             id_engagement_equipe1 = from_obj(
-                IDEngagementEquipe.from_dict, obj, "idEngagementEquipe1"
+                EngagementEquipe.from_dict, obj, "idEngagementEquipe1"
             )
             id_engagement_equipe2 = from_obj(
-                IDEngagementEquipe.from_dict, obj, "idEngagementEquipe2"
+                EngagementEquipe.from_dict, obj, "idEngagementEquipe2"
             )
             geo = from_obj(Geo.from_dict, obj, "_geo")
             date_timestamp = from_int(obj, "date_timestamp")

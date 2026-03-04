@@ -1,12 +1,12 @@
-"""Round-trip tests for CompetitionIDTypeCompetitionGenerique."""
+"""Round-trip tests for TypeCompetitionGenerique."""
 
 from __future__ import annotations
 
 import unittest
 from typing import Any
 
-from ffbb_api_client_v2.models.competition_id_type_competition_generique import (
-    CompetitionIDTypeCompetitionGenerique,
+from ffbb_api_client_v2.models.type_competition_generique import (
+    TypeCompetitionGenerique,
 )
 
 
@@ -20,7 +20,7 @@ class Test026CompetitionIdTypeCompetitionGenerique(unittest.TestCase):
 
     def test_000_round_trip_with_logo(self) -> None:
         self._assert_stable(
-            CompetitionIDTypeCompetitionGenerique,
+            TypeCompetitionGenerique,
             {
                 "logo": {
                     "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
@@ -31,7 +31,7 @@ class Test026CompetitionIdTypeCompetitionGenerique(unittest.TestCase):
 
     def test_001_round_trip_no_logo(self) -> None:
         self._assert_stable(
-            CompetitionIDTypeCompetitionGenerique,
+            TypeCompetitionGenerique,
             {"logo": None},
         )
 

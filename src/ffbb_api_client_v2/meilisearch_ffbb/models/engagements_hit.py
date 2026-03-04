@@ -5,7 +5,6 @@ from typing import Any
 
 from ...meilisearch.models.hit import Hit
 from ...models.categorie import Categorie
-from ...models.competition_id_categorie import CompetitionIDCategorie
 from ...models.competition_origine import CompetitionOrigine
 from ...models.geo import Geo
 from ...models.id_poule import IDPoule
@@ -32,7 +31,7 @@ class EngagementsHit(Hit):
     id_poule: IDPoule | None = None
     logo: str | None = None
     niveau: Categorie | None = None
-    categorie: CompetitionIDCategorie | None = None
+    categorie: Categorie | None = None
     nom_club: str | None = None
     nom_club_pro: str | None = None
     nom_comite: str | None = None
@@ -76,7 +75,7 @@ class EngagementsHit(Hit):
         id_poule = from_obj(IDPoule.from_dict, obj, "idPoule")
         logo = from_str(obj, "logo")
         niveau = from_obj(Categorie.from_dict, obj, "niveau")
-        categorie = from_obj(CompetitionIDCategorie.from_dict, obj, "categorie")
+        categorie = from_obj(Categorie.from_dict, obj, "categorie")
         nom_club = from_str(obj, "nomClub")
         nom_club_pro = from_str(obj, "nomClubPro")
         nom_comite = from_str(obj, "nomComite")

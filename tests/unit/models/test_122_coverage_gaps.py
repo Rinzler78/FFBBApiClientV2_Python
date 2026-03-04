@@ -571,7 +571,7 @@ class TestOrganismeIdPereToDictCoverage(unittest.TestCase):
     """organisme_id_pere.py -- cover to_dict branches."""
 
     def test_025_to_dict_all_fields(self) -> None:
-        from ffbb_api_client_v2.models.organisme_id_pere import OrganismeIDPere
+        from ffbb_api_client_v2.models.organisateur import Organisateur
 
         data = {
             "adresse": "1 rue de Paris",
@@ -610,7 +610,7 @@ class TestOrganismeIdPereToDictCoverage(unittest.TestCase):
                 }
             ],
         }
-        obj = OrganismeIDPere.from_dict(data)
+        obj = Organisateur.from_dict(data)
         d = obj.to_dict()
         self.assertEqual(d["adresse"], "1 rue de Paris")
         self.assertEqual(d["code"], "CL01")
@@ -774,7 +774,7 @@ class TestEmptyToDictBranches(unittest.TestCase):
 
     def test_030_organisme_id_pere_with_nested_organisme(self) -> None:
         """Cover the organisme_id_pere nested field + more to_dict branches."""
-        from ffbb_api_client_v2.models.organisme_id_pere import OrganismeIDPere
+        from ffbb_api_client_v2.models.organisateur import Organisateur
 
         data = {
             "adresse": None,
@@ -837,7 +837,7 @@ class TestEmptyToDictBranches(unittest.TestCase):
             "engagements": None,
             "labellisation": None,
         }
-        obj = OrganismeIDPere.from_dict(data)
+        obj = Organisateur.from_dict(data)
         self.assertIsNotNone(obj.organisme_id_pere)
         self.assertEqual(obj.organisme_id_pere.nom, "Nested Org")
         d = obj.to_dict()
@@ -845,8 +845,8 @@ class TestEmptyToDictBranches(unittest.TestCase):
         self.assertEqual(d["organisme_id_pere"]["code"], "N01")
 
     def test_031_organisme_id_pere_empty_to_dict(self) -> None:
-        """Cover all False branches in OrganismeIDPere.to_dict."""
-        from ffbb_api_client_v2.models.organisme_id_pere import OrganismeIDPere
+        """Cover all False branches in Organisateur.to_dict."""
+        from ffbb_api_client_v2.models.organisateur import Organisateur
 
         data = {
             "adresse": None,
@@ -879,7 +879,7 @@ class TestEmptyToDictBranches(unittest.TestCase):
             "engagements": None,
             "labellisation": None,
         }
-        obj = OrganismeIDPere.from_dict(data)
+        obj = Organisateur.from_dict(data)
         d = obj.to_dict()
         self.assertEqual(d, {})
 
