@@ -1154,34 +1154,15 @@ class Test021FromDictEdgeCases(unittest.TestCase):
     # -- test_036: Live.from_dict with ExternalRencontre --------------------------
 
     def test_036_live_with_external_id(self) -> None:
-        """Live.from_dict with nested externalId data."""
+        """Live.from_dict with scalar externalId (FK string)."""
         data: dict[str, Any] = {
             "matchId": "200",
             "clock": "0:0:0",
-            "externalId": {
-                "nomEquipe1": "Team A",
-                "nomEquipe2": "Team B",
-                "numeroJournee": "5",
-                "competitionId": {
-                    "code": "C001",
-                    "nom": "Championnat",
-                    "sexe": "M",
-                    "typeCompetition": "CHAMP",
-                },
-                "idOrganismeEquipe1": None,
-                "idOrganismeEquipe2": None,
-                "salle": None,
-                "idPoule": None,
-            },
+            "externalId": "ext-rencontre-42",
         }
         live = Live.from_dict(data)
         self.assertIsNotNone(live.external_id)
-        self.assertEqual(live.external_id.nom_equipe1, "Team A")
-        self.assertEqual(live.external_id.nom_equipe2, "Team B")
-        self.assertEqual(live.external_id.numero_journee, 5)
-        self.assertIsNotNone(live.external_id.competition_id)
-        self.assertEqual(live.external_id.competition_id.code, "C001")
-        self.assertEqual(live.external_id.competition_id.sexe, "M")
+        self.assertEqual(live.external_id, "ext-rencontre-42")
 
 
 if __name__ == "__main__":
