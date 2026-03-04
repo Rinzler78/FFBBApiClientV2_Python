@@ -103,10 +103,12 @@ if [ -d .github/workflows ]; then
       fi
     fi
     if [ -f .github/workflows/ci.yml ]; then
+      # Only run the prepare job locally; test/publish jobs require GitHub
+      # artifact services. Local tests are already covered by tox above.
       if [ -f .secrets.act ]; then
-        act pull_request -W .github/workflows/ci.yml --secret-file .secrets.act
+        act pull_request -W .github/workflows/ci.yml --job prepare --secret-file .secrets.act
       else
-        act pull_request -W .github/workflows/ci.yml
+        act pull_request -W .github/workflows/ci.yml --job prepare
       fi
     fi
   fi
