@@ -14,7 +14,7 @@ class TestPouleRencontreItemModelFromDict(unittest.TestCase):
     def test_full_data(self) -> None:
         data = {
             "id": "abc-123",
-            "numero": 5,
+            "numero": "5",
             "numeroJournee": 3,
             "idPoule": "poule-1",
             "competitionId": "comp-42",
@@ -27,7 +27,7 @@ class TestPouleRencontreItemModelFromDict(unittest.TestCase):
         }
         item = PouleRencontreItemModel.from_dict(data)
         self.assertEqual(item.id, "abc-123")
-        self.assertEqual(item.numero, 5)
+        self.assertEqual(item.numero, "5")
         self.assertEqual(item.numeroJournee, 3)
         self.assertEqual(item.idPoule, "poule-1")
         self.assertEqual(item.competitionId, "comp-42")
@@ -41,7 +41,7 @@ class TestPouleRencontreItemModelFromDict(unittest.TestCase):
     def test_missing_fields_use_defaults(self) -> None:
         item = PouleRencontreItemModel.from_dict({})
         self.assertEqual(item.id, "")
-        self.assertEqual(item.numero, 0)
+        self.assertEqual(item.numero, "")
         self.assertEqual(item.numeroJournee, 0)
         self.assertEqual(item.idPoule, "")
         self.assertEqual(item.competitionId, "")
@@ -55,12 +55,12 @@ class TestPouleRencontreItemModelFromDict(unittest.TestCase):
     def test_partial_data(self) -> None:
         data = {
             "id": "x",
-            "numero": 1,
+            "numero": "1",
             "joue": False,
         }
         item = PouleRencontreItemModel.from_dict(data)
         self.assertEqual(item.id, "x")
-        self.assertEqual(item.numero, 1)
+        self.assertEqual(item.numero, "1")
         self.assertFalse(item.joue)
         self.assertEqual(item.nomEquipe1, "")
 

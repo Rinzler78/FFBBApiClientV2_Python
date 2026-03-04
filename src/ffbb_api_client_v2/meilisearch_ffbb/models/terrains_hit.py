@@ -24,7 +24,7 @@ from ...utils.converter_utils import (
 class TerrainsHit(Hit):
     nom: str | None = None
     rue: str | None = None
-    id: int | None = None
+    id: str | None = None
     acces_libre: bool | None = None
     date_created: datetime | None = None
     date_updated: datetime | None = None
@@ -49,7 +49,7 @@ class TerrainsHit(Hit):
         assert isinstance(obj, dict)
         nom = from_str(obj, "nom")
         rue = from_str(obj, "rue")
-        id = from_int(obj, "id")
+        id = from_str(obj, "id")
         acces_libre = from_bool(obj, "accesLibre")
         date_created = from_datetime(obj, "date_created")
         date_updated = from_datetime(obj, "date_updated")
@@ -87,7 +87,7 @@ class TerrainsHit(Hit):
         if self.rue is not None:
             result["rue"] = self.rue
         if self.id is not None:
-            result["id"] = str(self.id)
+            result["id"] = self.id
         if self.acces_libre is not None:
             result["accesLibre"] = self.acces_libre
         if self.date_created is not None:

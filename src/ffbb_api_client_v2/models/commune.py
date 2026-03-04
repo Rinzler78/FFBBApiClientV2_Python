@@ -6,7 +6,6 @@ from typing import Any
 
 from ..utils.converter_utils import (
     from_datetime,
-    from_int,
     from_str,
 )
 
@@ -17,7 +16,7 @@ class Commune:
     code_postal: str | None = None
     date_created: datetime | None = None
     date_updated: datetime | None = None
-    commune_id: int | None = None
+    commune_id: str | None = None
     libelle: str | None = None
     departement: str | None = None
     lower_libelle: str | None = field(init=False, default=None, repr=False)
@@ -34,7 +33,7 @@ class Commune:
         code_postal = from_str(obj, "codePostal")
         date_created = from_datetime(obj, "date_created")
         date_updated = from_datetime(obj, "date_updated")
-        commune_id = from_int(obj, "id")
+        commune_id = from_str(obj, "id")
         libelle = from_str(obj, "libelle")
         departement = from_str(obj, "departement")
         return Commune(
@@ -58,7 +57,7 @@ class Commune:
         if self.date_updated is not None:
             result["date_updated"] = self.date_updated.isoformat()
         if self.commune_id is not None:
-            result["id"] = str(self.commune_id)
+            result["id"] = self.commune_id
         if self.libelle is not None:
             result["libelle"] = self.libelle
         if self.departement is not None:

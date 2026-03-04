@@ -10,7 +10,7 @@ from ...utils.converter_utils import from_bool, from_datetime, from_int, from_st
 @dataclass
 class PouleRencontreItemModel:
     id: str
-    numero: int
+    numero: str
     numeroJournee: int
     idPoule: str
     competitionId: str
@@ -25,7 +25,7 @@ class PouleRencontreItemModel:
     def from_dict(obj: Any) -> PouleRencontreItemModel:
         assert isinstance(obj, dict)
         id = from_str(obj, "id") or ""
-        numero = from_int(obj, "numero") or 0
+        numero = from_str(obj, "numero") or ""
         numeroJournee = from_int(obj, "numeroJournee") or 0
         idPoule = from_str(obj, "idPoule") or ""
         competitionId = from_str(obj, "competitionId") or ""

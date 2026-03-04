@@ -29,7 +29,7 @@ class PratiquesHit(Hit):
     type: PratiquesHitTypeEnum | None = None
     adresse: str | None = None
     description: str | None = None
-    id: int | None = None
+    id: str | None = None
     date_created: datetime | None = None
     date_debut: datetime | None = None
     date_demande: int | None = None
@@ -107,7 +107,7 @@ class PratiquesHit(Hit):
         type = from_enum(PratiquesHitTypeEnum, obj, "type")
         adresse = from_str(obj, "adresse")
         description = from_str(obj, "description")
-        id = from_int(obj, "id")
+        id = from_str(obj, "id")
         date_created = from_datetime(obj, "date_created")
         date_debut = from_datetime(obj, "date_debut")
         date_demande = from_int(obj, "date_demande")
@@ -209,7 +209,7 @@ class PratiquesHit(Hit):
         if self.description is not None:
             result["description"] = self.description
         if self.id is not None:
-            result["id"] = str(self.id)
+            result["id"] = self.id
         if self.date_created is not None:
             result["date_created"] = self.date_created.isoformat()
         if self.date_debut is not None:
