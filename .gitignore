@@ -3,7 +3,6 @@
 *.py[cod]
 *.so
 *.cfg
-!.isort.cfg
 !setup.cfg
 *.orig
 *.log
@@ -76,3 +75,7 @@ data
 reports
 *.png
 .pylint.d
+
+# AI/MCP caches
+.playwright-mcp/
+.benchmarks/

@@ -28,7 +28,8 @@ class Commune:
 
     @staticmethod
     def from_dict(obj: Any) -> Commune:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         code_insee = from_str(obj, "codeInsee")
         code_postal = from_str(obj, "codePostal")
         date_created = from_datetime(obj, "date_created")

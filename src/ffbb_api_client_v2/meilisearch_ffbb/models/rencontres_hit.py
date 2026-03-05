@@ -99,7 +99,8 @@ class RencontresHit(Hit):
     @staticmethod
     def from_dict(obj: Any) -> RencontresHit:
         try:
-            assert isinstance(obj, dict)
+            if not isinstance(obj, dict):
+                raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
             niveau = from_enum(NiveauEnum, obj, "niveau")
             id = from_str(obj, "id")
             date = from_datetime(obj, "date")

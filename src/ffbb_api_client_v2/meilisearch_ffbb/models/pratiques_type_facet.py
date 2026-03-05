@@ -16,7 +16,8 @@ class PratiquesTypeFacet:
 
     @staticmethod
     def from_dict(obj: Any) -> PratiquesTypeFacet:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         basket_inclusif = from_int(obj, "Basket Inclusif")
         basket_santé = from_int(obj, "Basket Santé")
         basket_tonik = from_int(obj, "Basket Tonik")

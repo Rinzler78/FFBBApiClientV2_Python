@@ -14,7 +14,8 @@ class SexeFacet:
 
     @staticmethod
     def from_dict(obj: Any) -> SexeFacet:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         feminine = from_int(obj, "Féminin")
         masculine = from_int(obj, "Masculin")
         mixed = from_int(obj, "Mixte")

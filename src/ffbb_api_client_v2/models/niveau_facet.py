@@ -13,7 +13,8 @@ class NiveauFacet:
 
     @staticmethod
     def from_dict(obj: Any) -> NiveauFacet:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         départemental = from_int(obj, "Départemental")
         régional = from_int(obj, "Régional")
         return NiveauFacet(départemental=départemental, régional=régional)

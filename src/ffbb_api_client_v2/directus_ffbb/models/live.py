@@ -46,7 +46,8 @@ class Live:
 
     @staticmethod
     def from_dict(obj: Any) -> Live:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         match_id = from_int(obj, "matchId")
         match_time = from_datetime(obj, "matchTime")
         competition_abg_name = from_str(obj, "competitionAbgName")

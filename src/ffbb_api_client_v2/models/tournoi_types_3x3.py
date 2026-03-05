@@ -18,7 +18,8 @@ class TournoiTypes3X3:
 
     @staticmethod
     def from_dict(obj: Any) -> TournoiTypes3X3:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         libelle = from_enum(TournoiTypes3x3LibelleEnum, obj, "libelle")
         logo = from_uuid(obj, "logo")
         type_league = from_enum(TypeLeagueEnum, obj, "type_league")

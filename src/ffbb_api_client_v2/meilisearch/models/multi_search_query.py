@@ -46,7 +46,8 @@ class MultiSearchQuery:
 
     @staticmethod
     def from_dict(obj: Any) -> MultiSearchQuery:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         index_uid = from_str(obj, "indexUid")
         q = from_str(obj, "q")
         facets = from_list(str, obj, "facets")

@@ -102,7 +102,8 @@ class PratiquesHit(Hit):
 
     @staticmethod
     def from_dict(obj: Any) -> PratiquesHit:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         titre = from_str(obj, "titre")
         type = from_enum(PratiquesHitTypeEnum, obj, "type")
         adresse = from_str(obj, "adresse")

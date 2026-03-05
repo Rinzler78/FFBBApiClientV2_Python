@@ -65,7 +65,8 @@ class OrganismesHit(Hit):
     @staticmethod
     def from_dict(obj: Any) -> OrganismesHit:
         try:
-            assert isinstance(obj, dict)
+            if not isinstance(obj, dict):
+                raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
             nom_club_pro = from_str(obj, "nomClubPro")
             nom = from_str(obj, "nom")
             adresse = from_str(obj, "adresse")

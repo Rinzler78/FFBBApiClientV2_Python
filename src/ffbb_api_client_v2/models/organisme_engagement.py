@@ -14,7 +14,8 @@ class OrganismeEngagement:
 
     @staticmethod
     def from_dict(obj: Any) -> OrganismeEngagement:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         return OrganismeEngagement(
             id=from_str(obj, "id"),
             id_poule=from_str(obj, "idPoule"),

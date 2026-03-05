@@ -29,7 +29,8 @@ class Cartographie:
 
     @staticmethod
     def from_dict(obj: Any) -> Cartographie:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         adresse = from_str(obj, "adresse")
         code_postal = from_str(obj, "codePostal")
         coordonnees = from_obj(Coordonnees.from_dict, obj, "coordonnees")

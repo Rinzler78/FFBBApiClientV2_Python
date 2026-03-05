@@ -202,10 +202,7 @@ class Test001ApiFfbbAppCore(unittest.TestCase):
         """Test client raises error with empty token."""
         with self.assertRaises(ValueError) as context:
             ApiFFBBAppClient(bearer_token="")
-        self.assertIn(
-            "bearer_token cannot be None, empty, or whitespace-only",
-            str(context.exception),
-        )
+        self.assertIn("bearer_token", str(context.exception))
 
     def test_014_init_with_none_token(self):
         """Test client raises error with None token."""

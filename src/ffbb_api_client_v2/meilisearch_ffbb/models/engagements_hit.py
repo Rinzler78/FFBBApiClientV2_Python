@@ -60,7 +60,8 @@ class EngagementsHit(Hit):
 
     @staticmethod
     def from_dict(obj: Any) -> EngagementsHit:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         id = from_str(obj, "id")
         nom = from_str(obj, "nom")
         age = from_str(obj, "age")

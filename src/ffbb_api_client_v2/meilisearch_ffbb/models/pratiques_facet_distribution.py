@@ -15,7 +15,8 @@ class PratiquesFacetDistribution(FacetDistribution):
 
     @staticmethod
     def from_dict(obj: Any) -> PratiquesFacetDistribution:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         label = obj.get("label")
         type = from_obj(PratiquesTypeFacet.from_dict, obj, "type")
         return PratiquesFacetDistribution(label=label, type=type)

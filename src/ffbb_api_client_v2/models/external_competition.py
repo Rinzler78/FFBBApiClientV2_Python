@@ -19,7 +19,8 @@ class ExternalCompetition:
 
     @staticmethod
     def from_dict(obj: Any) -> ExternalCompetition:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         code = from_str(obj, "code")
         nom = from_str(obj, "nom")
         sexe = from_str(obj, "sexe")

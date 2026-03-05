@@ -12,7 +12,8 @@ class TypeFacet:
 
     @staticmethod
     def from_dict(obj: Any) -> TypeFacet:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         groupement = from_int(obj, "Groupement")
         return TypeFacet(groupement=groupement)
 

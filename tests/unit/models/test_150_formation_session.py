@@ -38,7 +38,7 @@ class TestFormationSession(unittest.TestCase):
         self.assertEqual(result.subscribe_btn, "https://example.com/subscribe")
 
     def test_001_from_dict_not_dict_raises(self) -> None:
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(TypeError):
             FormationSession.from_dict(None)
 
     def test_002_from_dict_minimal(self) -> None:

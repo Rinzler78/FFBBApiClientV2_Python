@@ -14,7 +14,8 @@ class TournoiTypeFacet:
 
     @staticmethod
     def from_dict(obj: Any) -> TournoiTypeFacet:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         open_plus = from_int(obj, "Open Plus")
         open_plus_access = from_int(obj, "Open Plus Access")
         open_start = from_int(obj, "Open Start")

@@ -39,7 +39,8 @@ class CompetitionRencontre:
 
     @staticmethod
     def from_dict(obj: Any) -> CompetitionRencontre:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         date_rencontre = from_datetime(obj, "date_rencontre")
 
         officiels_raw = from_list(Officiel.from_dict, obj, "officiels")

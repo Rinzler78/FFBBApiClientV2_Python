@@ -13,7 +13,8 @@ class MultiSearchQueries:
 
     @staticmethod
     def from_dict(obj: Any) -> MultiSearchQueries:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         queries = from_list(MultiSearchQuery.from_dict, obj, "queries")
         return MultiSearchQueries(queries=queries)
 

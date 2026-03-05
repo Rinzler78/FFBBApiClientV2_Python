@@ -18,7 +18,8 @@ class Poule:
 
     @staticmethod
     def from_dict(obj: Any) -> Poule:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         nom = from_str(obj, "nom")
         id = from_str(obj, "id")
         engagements = from_list(Engagement.from_dict, obj, "engagements")

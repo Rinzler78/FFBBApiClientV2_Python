@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
@@ -45,6 +46,8 @@ from ...meilisearch_ffbb.models.multi_search_result_tournois import (
 )
 from .multi_search_results import MultiSearchResult
 
+logger = logging.getLogger(__name__)
+
 # Re-export for backward compatibility
 index_uids = MEILISEARCH_INDEX_UIDS
 
@@ -71,9 +74,11 @@ def result_from_list(s: list[Any]) -> list[MultiSearchResult[Any, Any, Any]]:
                 from_dict_func = index_uids_converters[index_uid]
                 result = from_dict_func(element)
                 results.append(result)
-            except (KeyError, TypeError, ValueError, AssertionError):
-                # Skip invalid or unsupported index results
-                pass
+            except (KeyError, TypeError, ValueError):
+                index_uid = element.get("indexUid", "<unknown>")
+                logger.warning(
+                    "Skipped invalid or unsupported index result: %s", index_uid
+                )
 
     return results
 
@@ -84,7 +89,8 @@ class MultiSearchResults:
 
     @staticmethod
     def from_dict(obj: Any) -> MultiSearchResults:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         results_raw = obj.get("results")
         results = result_from_list(results_raw) if results_raw is not None else None
         return MultiSearchResults(results=results)

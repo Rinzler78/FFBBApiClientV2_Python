@@ -38,7 +38,8 @@ class MultiSearchResult(Generic[HitType, FacetDistributionType, FacetStatsType])
         Parse dict into the concrete MultiSearchResult subclass.
         Types are extracted from the class's generic parameters.
         """
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
 
         # Extract generic type arguments from class definition
         # e.g., OrganismesMultiSearchResult inherits from

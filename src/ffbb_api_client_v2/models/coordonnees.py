@@ -13,7 +13,8 @@ class Coordonnees:
 
     @staticmethod
     def from_dict(obj: Any) -> Coordonnees:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         type = from_str(obj, "type")
         coordinates = from_list(float, obj, "coordinates")
         return Coordonnees(type=type, coordinates=coordinates)

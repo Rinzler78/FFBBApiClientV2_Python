@@ -8,10 +8,9 @@ isolation for parallel test execution with pytest-xdist.
 
 from __future__ import annotations
 
-import json
 import os
-from collections.abc import Callable, Generator
-from typing import TYPE_CHECKING, Any
+from collections.abc import Generator
+from typing import TYPE_CHECKING
 
 import pytest
 from dotenv import load_dotenv
@@ -87,35 +86,3 @@ def isolated_env() -> Generator[dict[str, str]]:
     yield dict(os.environ)
     os.environ.clear()
     os.environ.update(original)
-
-
-# --- Fixture loading helpers ---
-
-FIXTURES_DIR = os.path.join(os.path.dirname(__file__), "fixtures")
-
-
-def load_fixture(name: str) -> Any:
-    """Load a JSON fixture file from tests/fixtures/.
-
-    Args:
-        name: Fixture filename without .json extension.
-
-    Returns:
-        Parsed JSON data (dict or list).
-
-    Raises:
-        FileNotFoundError: If the fixture file does not exist.
-    """
-    filepath = os.path.join(FIXTURES_DIR, f"{name}.json")
-    with open(filepath, encoding="utf-8") as f:
-        return json.load(f)
-
-
-@pytest.fixture
-def fixture_loader() -> Callable[[str], Any]:
-    """Pytest fixture providing the load_fixture helper.
-
-    Returns:
-        A callable that loads a named JSON fixture.
-    """
-    return load_fixture

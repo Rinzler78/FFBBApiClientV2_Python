@@ -17,7 +17,8 @@ class TournoiTypes3X3Libelle:
 
     @staticmethod
     def from_dict(obj: Any) -> TournoiTypes3X3Libelle:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         open_plus_junior_league_3_x3 = from_int(obj, "Open Plus - Junior league 3x3")
         open_plus_super_league_3_x3 = from_int(obj, "Open Plus - Super league 3x3")
         open_plus_access_junior_league_3_x3 = from_int(

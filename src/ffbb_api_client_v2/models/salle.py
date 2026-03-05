@@ -31,7 +31,8 @@ class Salle:
 
     @staticmethod
     def from_dict(obj: Any) -> Salle:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         return Salle(
             id=from_str(obj, "id"),
             numero=from_str(obj, "numero"),

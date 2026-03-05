@@ -14,7 +14,8 @@ class TypeCompetitionGenerique:
 
     @staticmethod
     def from_dict(obj: Any) -> TypeCompetitionGenerique:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         return TypeCompetitionGenerique(
             type_competition_generique_id=from_str(obj, "id"),
             logo=from_uuid(obj, "logo"),

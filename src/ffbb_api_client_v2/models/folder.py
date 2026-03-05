@@ -18,7 +18,8 @@ class Folder:
 
     @staticmethod
     def from_dict(obj: Any) -> Folder:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         id = from_uuid(obj, "id")
         name = from_str(obj, "name")
         parent = from_str(obj, "parent")

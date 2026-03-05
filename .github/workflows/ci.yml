@@ -1,3 +1,5 @@
+# Full CI pipeline: test matrix + publish on tag push.
+# Fast lint/format checks run separately in quality-gates.yml.
 name: tests
 
 on:

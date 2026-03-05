@@ -24,7 +24,8 @@ class ExternalRencontre:
 
     @staticmethod
     def from_dict(obj: Any) -> ExternalRencontre:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         return ExternalRencontre(
             nom_equipe1=from_str(obj, "nomEquipe1"),
             nom_equipe2=from_str(obj, "nomEquipe2"),

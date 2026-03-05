@@ -49,6 +49,12 @@ class HttpClient:
         except json.JSONDecodeError as e:
             logger.warning(f"Error in to_json_from_response: {e}")
 
+        # FFBB API quirk: the server sometimes returns malformed JSON that
+        # needs patching before it can be parsed.  Known cases:
+        #   - trailing comma after the last element
+        #   - two adjacent JSON arrays ("][") instead of one
+        #   - stray "KO" literal in the response body
+        #   - leading empty-string prefix ('""')
         if data_str.endswith(","):
             data_str = data_str[:-1]
 
@@ -319,14 +325,3 @@ class HttpClient:
         if encoded_params := HttpClient.encode_params(params):
             return f"{url}?{encoded_params}"
         return url
-
-
-# Module-level aliases for backward compatibility
-to_json_from_response = HttpClient.to_json_from_response
-_check_response_errors = HttpClient.check_response_errors
-http_get = HttpClient.http_get
-http_post = HttpClient.http_post
-http_get_json = HttpClient.http_get_json
-http_post_json = HttpClient.http_post_json
-encode_params = HttpClient.encode_params
-url_with_params = HttpClient.url_with_params

@@ -77,7 +77,8 @@ class TournoisHit(Hit):
 
     @staticmethod
     def from_dict(obj: Any) -> TournoisHit:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         nom = from_str(obj, "nom")
         sexe = from_enum(SexeEnum, obj, "sexe")
         adresse = from_str(obj, "adresse")

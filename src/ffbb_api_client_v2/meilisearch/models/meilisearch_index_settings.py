@@ -21,7 +21,8 @@ class MeilisearchIndexSettings:
 
     @staticmethod
     def from_dict(obj: Any) -> MeilisearchIndexSettings:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         return MeilisearchIndexSettings(
             filterable_attributes=obj.get("filterableAttributes", []),
             sortable_attributes=obj.get("sortableAttributes", []),

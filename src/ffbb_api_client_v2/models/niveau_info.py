@@ -9,14 +9,14 @@ from .niveau_type_enum import NiveauTypeEnum
 @dataclass
 class NiveauInfo:
     """
-    Classe pour représenter le niveau d'une compétition extrait du nom.
+    Class representing the level of a competition extracted from its name.
 
     Attributes:
-        type: Type de niveau (departemental, regional, national, elite)
-        division: Division spécifique (D1, D2, R1, R2, etc.)
-        categorie: Catégorie d'âge (U7, U11, U13, U15, U17, U18, U20, U21, SENIOR, etc.)
-        raw_text: Texte brut extrait du nom de la compétition
-        zone_geographique: Zone géographique associée (regional pour ELITE)
+        type: Level type (departemental, regional, national, elite)
+        division: Specific division (D1, D2, R1, R2, etc.)
+        categorie: Age category (U7, U11, U13, U15, U17, U18, U20, U21, SENIOR, etc.)
+        raw_text: Raw text extracted from the competition name
+        zone_geographique: Associated geographic zone (regional for ELITE)
     """
 
     type: NiveauTypeEnum
@@ -27,12 +27,12 @@ class NiveauInfo:
 
     @property
     def is_elite(self) -> bool:
-        """Vérifie si c'est un niveau ELITE."""
+        """Check if this is an ELITE level."""
         return self.type == NiveauTypeEnum.ELITE
 
     @property
     def zone_effective(self) -> str:
-        """Retourne la zone géographique effective (ELITE -> regional)."""
+        """Return the effective geographic zone (ELITE -> regional)."""
         if self.is_elite:
             return "regional"
         return self.type.value
@@ -41,23 +41,23 @@ class NiveauInfo:
         self, zone_filter: str, division_filter: int | None = None
     ) -> bool:
         """
-        Vérifie si ce niveau correspond aux filtres spécifiés.
+        Check if this level matches the specified filters.
 
         Args:
-            zone_filter: Zone recherchée (departemental, regional, national)
-            division_filter: Numéro de division recherchée (optionnel)
+            zone_filter: Target zone (departemental, regional, national)
+            division_filter: Target division number (optional)
 
         Returns:
-            True si le niveau correspond aux filtres
+            True if the level matches the filters
         """
-        # Vérifier la zone (ELITE est considéré comme regional)
+        # Check the zone (ELITE is considered as regional)
         if zone_filter.lower() != self.zone_effective:
             return False
 
-        # Vérifier la division si spécifiée
+        # Check the division if specified
         if division_filter is not None:
             if self.division is None:
-                return False  # Pas de division mais division demandée
+                return False  # No division but division was requested
             if self.division != division_filter:
                 return False
 

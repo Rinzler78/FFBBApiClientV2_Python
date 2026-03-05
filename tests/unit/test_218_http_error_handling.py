@@ -6,7 +6,7 @@ import json
 import unittest
 from unittest.mock import MagicMock
 
-from ffbb_api_client_v2._http.client import _check_response_errors
+from ffbb_api_client_v2._http.client import HttpClient
 from ffbb_api_client_v2._http.helper import catch_result
 from ffbb_api_client_v2.directus.exceptions import DirectusAuthError
 from ffbb_api_client_v2.exceptions import (
@@ -44,7 +44,7 @@ class Test218CheckResponseErrors(unittest.TestCase):
     def test_000_2xx_no_error(self) -> None:
         response = self._make_response(200)
         # Should not raise
-        _check_response_errors(response)
+        HttpClient.check_response_errors(response)
 
     def test_001_directus_401_raises_auth_error(self) -> None:
         body = {
@@ -54,7 +54,7 @@ class Test218CheckResponseErrors(unittest.TestCase):
         }
         response = self._make_response(401, body)
         with self.assertRaises(FFBBAuthError) as ctx:
-            _check_response_errors(response)
+            HttpClient.check_response_errors(response)
         self.assertEqual(ctx.exception.status_code, 401)
         # Body is attached for downstream enrichment
         self.assertIsNotNone(ctx.exception.response_body)
@@ -63,19 +63,19 @@ class Test218CheckResponseErrors(unittest.TestCase):
         body = {"errors": [{"message": "Forbidden"}]}
         response = self._make_response(403, body)
         with self.assertRaises(FFBBAuthError):
-            _check_response_errors(response)
+            HttpClient.check_response_errors(response)
 
     def test_003_directus_404_raises_not_found(self) -> None:
         body = {"errors": [{"message": "Item not found"}]}
         response = self._make_response(404, body)
         with self.assertRaises(FFBBNotFoundError):
-            _check_response_errors(response)
+            HttpClient.check_response_errors(response)
 
     def test_004_directus_500_raises_server_error(self) -> None:
         body = {"errors": [{"message": "Internal error"}]}
         response = self._make_response(500, body)
         with self.assertRaises(FFBBServerError):
-            _check_response_errors(response)
+            HttpClient.check_response_errors(response)
 
     def test_005_meilisearch_error_format_raises_not_found(self) -> None:
         body = {
@@ -86,7 +86,7 @@ class Test218CheckResponseErrors(unittest.TestCase):
         }
         response = self._make_response(404, body)
         with self.assertRaises(FFBBNotFoundError) as ctx:
-            _check_response_errors(response)
+            HttpClient.check_response_errors(response)
         # Body is attached for downstream Meilisearch error enrichment
         self.assertEqual(ctx.exception.response_body, body)
 
@@ -99,50 +99,50 @@ class Test218CheckResponseErrors(unittest.TestCase):
         }
         response = self._make_response(400, body)
         with self.assertRaises(FFBBValidationError) as ctx:
-            _check_response_errors(response)
+            HttpClient.check_response_errors(response)
         # Body is attached for downstream Meilisearch error enrichment
         self.assertEqual(ctx.exception.response_body, body)
 
     def test_007_generic_401_without_body(self) -> None:
         response = self._make_response(401, body=None)
         with self.assertRaises(FFBBAuthError):
-            _check_response_errors(response)
+            HttpClient.check_response_errors(response)
 
     def test_008_generic_404_without_body(self) -> None:
         response = self._make_response(404, body=None)
         with self.assertRaises(FFBBNotFoundError):
-            _check_response_errors(response)
+            HttpClient.check_response_errors(response)
 
     def test_009_generic_429_without_body(self) -> None:
         response = self._make_response(429, body=None)
         with self.assertRaises(FFBBRateLimitError):
-            _check_response_errors(response)
+            HttpClient.check_response_errors(response)
 
     def test_010_429_with_retry_after_header(self) -> None:
         response = self._make_response(429, body=None)
         response.headers = {"Retry-After": "30"}
         with self.assertRaises(FFBBRateLimitError) as ctx:
-            _check_response_errors(response)
+            HttpClient.check_response_errors(response)
         self.assertEqual(ctx.exception.retry_after, 30.0)
 
     def test_011_generic_500(self) -> None:
         response = self._make_response(500, body=None)
         with self.assertRaises(FFBBServerError):
-            _check_response_errors(response)
+            HttpClient.check_response_errors(response)
 
     def test_012_generic_502(self) -> None:
         response = self._make_response(502, body=None)
         with self.assertRaises(FFBBServerError):
-            _check_response_errors(response)
+            HttpClient.check_response_errors(response)
 
     def test_013_generic_400_raises_validation_error(self) -> None:
         response = self._make_response(400, body={"message": "Bad request"})
         with self.assertRaises(FFBBValidationError):
-            _check_response_errors(response)
+            HttpClient.check_response_errors(response)
 
     def test_014_204_no_error(self) -> None:
         response = self._make_response(204)
-        _check_response_errors(response)
+        HttpClient.check_response_errors(response)
 
 
 class Test218CatchResultWithExceptions(unittest.TestCase):

@@ -20,7 +20,8 @@ class Affiche:
 
     @staticmethod
     def from_dict(obj: Any) -> Affiche:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         affiche_id = from_uuid(obj, "id")
         gradient_color = from_str(obj, "gradient_color")
         width = from_int(obj, "width")

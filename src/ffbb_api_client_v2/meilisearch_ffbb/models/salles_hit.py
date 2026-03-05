@@ -51,7 +51,8 @@ class SallesHit(Hit):
 
     @staticmethod
     def from_dict(obj: Any) -> SallesHit:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         libelle = from_str(obj, "libelle")
         adresse = from_str(obj, "adresse")
         id = from_str(obj, "id")

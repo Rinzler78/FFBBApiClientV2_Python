@@ -266,7 +266,7 @@ class Test142CompetitionRencontreAdditional(unittest.TestCase):
 
     def test_008_competition_rencontre_assertion_error(self):
         """Test de la méthode from_dict avec un objet non-dict (devrait lever une assertion)"""
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(TypeError):
             CompetitionRencontre.from_dict("not_a_dict")
 
     def test_009_competition_rencontre_round_trip(self):

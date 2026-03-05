@@ -24,7 +24,8 @@ class NatureSol:
 
     @staticmethod
     def from_dict(obj: Any) -> NatureSol:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         code = from_enum(CodeEnum, obj, "code")
         date_created = from_datetime(obj, "date_created")
         date_updated = from_datetime(obj, "date_updated")

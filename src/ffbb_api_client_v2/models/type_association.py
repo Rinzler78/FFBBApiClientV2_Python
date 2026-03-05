@@ -12,7 +12,8 @@ class TypeAssociation:
 
     @staticmethod
     def from_dict(obj: Any) -> TypeAssociation:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         libelle = from_str(obj, "libelle")
         return TypeAssociation(libelle=libelle)
 

@@ -21,7 +21,8 @@ class FederationInfo:
 
     @staticmethod
     def from_dict(obj: Any) -> FederationInfo:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         return FederationInfo(
             index_uid=obj.get("indexUid"),
             queries_position=obj.get("queriesPosition"),
@@ -51,7 +52,8 @@ class FederatedHit:
 
     @staticmethod
     def from_dict(obj: Any) -> FederatedHit:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         federation_raw = obj.get("_federation")
         federation = (
             FederationInfo.from_dict(federation_raw)
@@ -89,7 +91,8 @@ class FederatedSearchResult:
 
     @staticmethod
     def from_dict(obj: Any) -> FederatedSearchResult:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         hits_raw = obj.get("hits", [])
         hits = [FederatedHit.from_dict(h) for h in hits_raw] if hits_raw else None
         return FederatedSearchResult(

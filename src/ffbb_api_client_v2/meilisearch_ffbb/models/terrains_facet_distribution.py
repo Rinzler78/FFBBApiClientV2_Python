@@ -18,7 +18,8 @@ class TerrainsFacetDistribution(FacetDistribution):
 
     @staticmethod
     def from_dict(obj: Any) -> TerrainsFacetDistribution:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         sexe = from_obj(SexeFacet.from_dict, obj, "sexe")
         tournoi_type = from_obj(TournoiTypeFacet.from_dict, obj, "tournoiType")
         tournoi_types3_x3_libelle = from_obj(

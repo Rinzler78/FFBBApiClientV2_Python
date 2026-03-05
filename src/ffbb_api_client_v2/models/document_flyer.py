@@ -59,7 +59,8 @@ class DocumentFlyer:
 
     @staticmethod
     def from_dict(obj: Any) -> DocumentFlyer:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         id = from_uuid(obj, "id")
         storage = from_str(obj, "storage")
         filename_disk = from_str(obj, "filename_disk")

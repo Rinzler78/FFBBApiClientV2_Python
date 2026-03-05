@@ -8,9 +8,9 @@ from .niveau_type_enum import NiveauTypeEnum
 
 
 class NiveauExtractor:
-    """Extracteur de niveau depuis le nom d'une compétition."""
+    """Extract competition level from a competition name."""
 
-    # Patterns pour identifier les niveaux
+    # Patterns for identifying levels
     PATTERNS = {
         NiveauTypeEnum.ELITE: [
             r"\bELITE\b",
@@ -34,7 +34,7 @@ class NiveauExtractor:
             r"\bR2\b",
             r"\bR3\b",
             r"\bREGIONALE\b",
-            r"^RÉGIONALE\b",  # Format simple: "Régionale masculine seniors"
+            r"^RÉGIONALE\b",  # Simple format: "Régionale masculine seniors"
         ],
         NiveauTypeEnum.DEPARTEMENTAL: [
             r"\bDEPARTEMENTAL\b",
@@ -43,11 +43,11 @@ class NiveauExtractor:
             r"\bD2\b",
             r"\bD3\b",
             r"\bDEPARTEMENTALE\b",
-            r"^DÉPARTEMENTALE\b",  # Format simple: "Départementale masculine seniors"
+            r"^DÉPARTEMENTALE\b",  # Simple format: "Départementale masculine seniors"
         ],
     }
 
-    # Patterns pour extraire les numéros de division
+    # Patterns for extracting division numbers
     DIVISION_PATTERNS = [
         r"\b[DRN](\d+)\b",  # R1, R2, D1, D2, N1, N2, etc.
         r"\bREGIONAL\s+(\d+)\b",  # REGIONAL 1, REGIONAL 2
@@ -55,9 +55,9 @@ class NiveauExtractor:
         r"(?i)-\s*division\s+(\d+)\b",  # - Division 3, - division 1 (case insensitive)
     ]
 
-    # Patterns pour les catégories
+    # Patterns for categories
     CATEGORIE_PATTERNS = {
-        # Catégories jeunes
+        # Youth categories
         CategorieTypeEnum.U7: [r"\bU7\b", r"\bU-7\b"],
         CategorieTypeEnum.U9: [r"\bU9\b", r"\bU-9\b"],
         CategorieTypeEnum.U11: [r"\bU11\b", r"\bU-11\b"],
@@ -67,17 +67,17 @@ class NiveauExtractor:
         CategorieTypeEnum.U18: [r"\bU18\b", r"\bU-18\b"],
         CategorieTypeEnum.U20: [r"\bU20\b", r"\bU-20\b"],
         CategorieTypeEnum.U21: [r"\bU21\b", r"\bU-21\b"],
-        # Catégories seniors
+        # Senior categories
         CategorieTypeEnum.SENIOR: [r"\bSENIOR\b"],
         CategorieTypeEnum.SENIORS: [r"\bSENIORS\b"],
-        # Catégories vétérans
+        # Veteran categories
         CategorieTypeEnum.VETERAN: [r"\bVETERAN\b", r"\bVÉTÉRAN\b"],
         CategorieTypeEnum.VETERANS: [r"\bVETERANS\b", r"\bVÉTÉRANS\b"],
         CategorieTypeEnum.V35: [r"\bV35\b", r"\bV-35\b"],
         CategorieTypeEnum.V40: [r"\bV40\b", r"\bV-40\b"],
         CategorieTypeEnum.V45: [r"\bV45\b", r"\bV-45\b"],
         CategorieTypeEnum.V50: [r"\bV50\b", r"\bV-50\b"],
-        # Catégories spéciales (anciennes dénominations)
+        # Special categories (legacy names)
         CategorieTypeEnum.ESPOIR: [r"\bESPOIR\b"],
         CategorieTypeEnum.ESPOIRS: [r"\bESPOIRS\b"],
         CategorieTypeEnum.CADET: [r"\bCADET\b"],
@@ -95,20 +95,20 @@ class NiveauExtractor:
     @classmethod
     def extract_niveau(cls, competition_name: str) -> NiveauInfo | None:
         """
-        Extrait le niveau d'une compétition depuis son nom.
+        Extract the level of a competition from its name.
 
         Args:
-            competition_name: Nom de la compétition
+            competition_name: Competition name
 
         Returns:
-            Objet NiveauEnum ou None si aucun niveau n'est détecté
+            NiveauInfo object or None if no level is detected
         """
         if not competition_name:
             return None
 
         name_upper = competition_name.upper()
 
-        # Détection du type de niveau
+        # Detect level type
         detected_type = None
         matched_text = ""
 
@@ -125,7 +125,7 @@ class NiveauExtractor:
         if not detected_type:
             return None
 
-        # Détection de la division
+        # Detect division
         detected_division = None
         for pattern in cls.DIVISION_PATTERNS:
             match = re.search(pattern, name_upper)
@@ -133,7 +133,7 @@ class NiveauExtractor:
                 detected_division = int(match.group(1))
                 break
 
-        # Détection de la catégorie
+        # Detect category
         detected_categorie = None
         for categorie_type, patterns in cls.CATEGORIE_PATTERNS.items():
             for pattern in patterns:
@@ -143,16 +143,16 @@ class NiveauExtractor:
             if detected_categorie:
                 break
 
-        # Si aucune catégorie spécifique n'est trouvée, essayer de déduire SENIOR
+        # If no specific category found, try to infer SENIOR
         if not detected_categorie:
-            # Si pas de catégorie jeune détectée et que c'est une compétition, on assume SENIOR
-            if not any(re.search(r"\bU\d+\b", name_upper) for _ in [1]):
+            # No youth category detected, assume SENIOR
+            if not re.search(r"\bU\d+\b", name_upper):
                 detected_categorie = CategorieTypeEnum.SENIOR
 
-        # Déterminer la zone géographique
+        # Determine geographic zone
         zone_geo = None
         if detected_type == NiveauTypeEnum.ELITE:
-            zone_geo = "regional"  # ELITE est associé à régional
+            zone_geo = "regional"  # ELITE maps to regional
 
         return NiveauInfo(
             type=detected_type,
@@ -165,25 +165,25 @@ class NiveauExtractor:
     @classmethod
     def extract_from_competition_data(cls, competition_data: dict) -> NiveauInfo | None:
         """
-        Extrait le niveau depuis les données complètes de compétition.
+        Extract level from full competition data.
 
         Args:
-            competition_data: Dictionnaire avec les données de compétition
+            competition_data: Dictionary with competition data
 
         Returns:
-            Objet NiveauEnum ou None
+            NiveauInfo object or None
         """
         if not competition_data:
             return None
 
-        # Essayer d'abord avec le nom de la compétition
+        # Try with competition name first
         nom = competition_data.get("nom", "")
         niveau = cls.extract_niveau(nom)
 
         if niveau:
             return niveau
 
-        # Essayer avec le code de la compétition
+        # Try with competition code
         code = competition_data.get("code", "")
         if code:
             niveau = cls.extract_niveau(code)
@@ -191,16 +191,16 @@ class NiveauExtractor:
         return niveau
 
 
-# Fonctions utilitaires pour l'analyse
+# Utility functions for analysis
 def get_niveau_from_idcompetition(idcompetition) -> NiveauInfo | None:
     """
-    Extrait le niveau depuis un objet IdCompetitionModel.
+    Extract level from an IdCompetitionModel object.
 
     Args:
-        idcompetition: Instance de IdCompetitionModel
+        idcompetition: IdCompetitionModel instance
 
     Returns:
-        Objet NiveauEnum ou None
+        NiveauInfo object or None
     """
     if not idcompetition or not idcompetition.nom:
         return None
