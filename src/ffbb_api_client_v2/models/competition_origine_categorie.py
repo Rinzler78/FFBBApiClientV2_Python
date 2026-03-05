@@ -12,7 +12,8 @@ class CompetitionOrigineCategorie:
 
     @staticmethod
     def from_dict(obj: Any) -> CompetitionOrigineCategorie:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         ordre = from_int(obj, "ordre")
         return CompetitionOrigineCategorie(ordre=ordre)
 

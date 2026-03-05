@@ -1,3 +1,5 @@
+# Fast pre-merge gate: lint + format checks only.
+# Full test suite and publish are handled by ci.yml.
 name: Quality Gates
 
 on:

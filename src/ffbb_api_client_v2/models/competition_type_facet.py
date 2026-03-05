@@ -7,16 +7,17 @@ from ..utils.converter_utils import from_int
 
 
 @dataclass
-class CompetitionTypeFacet:
+class CompetitionIDTypeCompetition:
     championnat: int | None = None
     coupe: int | None = None
 
     @staticmethod
-    def from_dict(obj: Any) -> CompetitionTypeFacet:
-        assert isinstance(obj, dict)
+    def from_dict(obj: Any) -> CompetitionIDTypeCompetition:
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         championnat = from_int(obj, "Championnat")
         coupe = from_int(obj, "Coupe")
-        return CompetitionTypeFacet(championnat=championnat, coupe=coupe)
+        return CompetitionIDTypeCompetition(championnat=championnat, coupe=coupe)
 
     def to_dict(self) -> dict:
         result: dict = {}

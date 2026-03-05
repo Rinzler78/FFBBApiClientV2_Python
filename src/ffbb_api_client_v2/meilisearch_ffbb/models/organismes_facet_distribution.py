@@ -19,7 +19,8 @@ class OrganismesFacetDistribution(FacetDistribution):
 
     @staticmethod
     def from_dict(obj: Any) -> OrganismesFacetDistribution:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         labellisation = from_obj(Labellisation.from_dict, obj, "labellisation")
         offres_pratiques = obj.get("offresPratiques")
         type = from_obj(TypeFacet.from_dict, obj, "type")

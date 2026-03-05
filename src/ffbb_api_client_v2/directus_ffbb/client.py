@@ -66,22 +66,22 @@ from .models.tournois_fields import TournoisFields
 
 
 class ApiFFBBAppClient(DirectusClient):
-    """Client REST Directus pour l'API FFBB.
+    """Directus REST client for the FFBB API.
 
-    Accede aux collections Directus via des endpoints REST parametres par des
-    ``fields[]`` qui controlent la morphologie de la reponse :
+    Accesses Directus collections via REST endpoints parameterized by
+    ``fields[]`` that control the response shape:
 
-    - **FK-only** (int brut) : necessite un appel supplementaire pour resoudre
-    - **Embedded** (dot notation) : objets expandus inline par Directus
+    - **FK-only** (raw int): requires an additional call to resolve
+    - **Embedded** (dot notation): objects expanded inline by Directus
 
-    Collections : organismes, competitions, poules, engagements, rencontres,
+    Collections: organismes, competitions, poules, engagements, rencontres,
     salles, terrains, tournois, entraineurs, formations, communes, officiels,
     pratiques, saisons, lives.
 
-    Methodes :
-        - 12x ``get_*`` : recuperation par ID (single item)
-        - 10x ``list_*`` : liste paginee avec filter/sort/search
-        - 10x ``list_all_*`` : pagination automatique exhaustive
+    Methods:
+        - 12x ``get_*``: single item retrieval by ID
+        - 10x ``list_*``: paginated listing with filter/sort/search
+        - 10x ``list_all_*``: exhaustive automatic pagination
         - ``get_lives()``, ``get_saisons()``, ``get_asset_url()``
     """
 

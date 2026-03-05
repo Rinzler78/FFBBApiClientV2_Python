@@ -7,18 +7,19 @@ from ..utils.converter_utils import from_int
 
 
 @dataclass
-class TournoiTypeFacet:
+class TournoiTypeClass:
     open_plus: int | None = None
     open_plus_access: int | None = None
     open_start: int | None = None
 
     @staticmethod
-    def from_dict(obj: Any) -> TournoiTypeFacet:
-        assert isinstance(obj, dict)
+    def from_dict(obj: Any) -> TournoiTypeClass:
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         open_plus = from_int(obj, "Open Plus")
         open_plus_access = from_int(obj, "Open Plus Access")
         open_start = from_int(obj, "Open Start")
-        return TournoiTypeFacet(
+        return TournoiTypeClass(
             open_plus=open_plus,
             open_plus_access=open_plus_access,
             open_start=open_start,

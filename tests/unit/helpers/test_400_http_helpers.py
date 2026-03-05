@@ -8,13 +8,7 @@ from unittest.mock import MagicMock, Mock, patch
 
 from requests import ReadTimeout
 
-from ffbb_api_client_v2._http.client import (
-    encode_params,
-    http_get,
-    http_post,
-    to_json_from_response,
-    url_with_params,
-)
+from ffbb_api_client_v2._http.client import HttpClient
 from ffbb_api_client_v2._http.helper import catch_result
 from ffbb_api_client_v2.exceptions import FFBBNetworkError
 
@@ -61,25 +55,25 @@ class Test045HttpHelpers(unittest.TestCase):
     def test_007_to_json_from_response_valid(self) -> None:
         resp = Mock()
         resp.text = '{"key": "value"}'
-        result = to_json_from_response(resp)
+        result = HttpClient.to_json_from_response(resp)
         self.assertEqual(result, {"key": "value"})
 
     def test_008_to_json_from_response_trailing_comma(self) -> None:
         resp = Mock()
         resp.text = '[{"a":1}],'
-        result = to_json_from_response(resp)
+        result = HttpClient.to_json_from_response(resp)
         self.assertEqual(result, [{"a": 1}])
 
     def test_009_to_json_from_response_concat_arrays(self) -> None:
         resp = Mock()
         resp.text = "[1,2][3,4]"
-        result = to_json_from_response(resp)
+        result = HttpClient.to_json_from_response(resp)
         self.assertEqual(result, [1, 2, 3, 4])
 
     def test_010_to_json_from_response_leading_quotes(self) -> None:
         resp = Mock()
         resp.text = '""[1,2]'
-        result = to_json_from_response(resp)
+        result = HttpClient.to_json_from_response(resp)
         self.assertEqual(result, [1, 2])
 
     # -- http_get tests --
@@ -89,7 +83,9 @@ class Test045HttpHelpers(unittest.TestCase):
         mock_resp = Mock()
         mock_resp.text = '{"ok": true}'
         mock_get.return_value = mock_resp
-        response = http_get("https://example.com", {"Authorization": "Bearer test"})
+        response = HttpClient.http_get(
+            "https://example.com", {"Authorization": "Bearer test"}
+        )
         self.assertEqual(response, mock_resp)
         mock_get.assert_called_once()
 
@@ -98,7 +94,7 @@ class Test045HttpHelpers(unittest.TestCase):
         mock_resp = Mock()
         mock_resp.text = '{"ok": true}'
         mock_get.return_value = mock_resp
-        response = http_get(
+        response = HttpClient.http_get(
             "https://example.com", {"Authorization": "Bearer test"}, debug=True
         )
         self.assertEqual(response, mock_resp)
@@ -110,7 +106,7 @@ class Test045HttpHelpers(unittest.TestCase):
         mock_resp = Mock()
         mock_resp.text = '{"ok": true}'
         mock_post.return_value = mock_resp
-        response = http_post(
+        response = HttpClient.http_post(
             "https://example.com",
             {"Authorization": "Bearer test"},
             data={"key": "value"},
@@ -123,7 +119,7 @@ class Test045HttpHelpers(unittest.TestCase):
         mock_resp = Mock()
         mock_resp.text = '{"ok": true}'
         mock_post.return_value = mock_resp
-        response = http_post(
+        response = HttpClient.http_post(
             "https://example.com",
             {"Authorization": "Bearer test"},
             data={"key": "value"},
@@ -134,17 +130,17 @@ class Test045HttpHelpers(unittest.TestCase):
     # -- encode_params / url_with_params --
 
     def test_015_encode_params_array(self) -> None:
-        result = encode_params({"fields[]": ["id", "nom"], "limit": 10})
+        result = HttpClient.encode_params({"fields[]": ["id", "nom"], "limit": 10})
         self.assertIn("fields%5B%5D=id", result)
         self.assertIn("fields%5B%5D=nom", result)
         self.assertIn("limit=10", result)
 
     def test_016_url_with_params_empty(self) -> None:
-        result = url_with_params("https://api.ffbb.com/items", {})
+        result = HttpClient.url_with_params("https://api.ffbb.com/items", {})
         self.assertEqual(result, "https://api.ffbb.com/items")
 
     def test_017_url_with_params_none_values(self) -> None:
-        result = url_with_params("https://api.ffbb.com/items", {"key": None})
+        result = HttpClient.url_with_params("https://api.ffbb.com/items", {"key": None})
         self.assertEqual(result, "https://api.ffbb.com/items")
 
 

@@ -10,6 +10,7 @@ from requests_cache import CachedSession
 from .._http.client import HttpClient
 from ..exceptions import FFBBApiError
 from ..utils.cache_manager import CacheConfig, CacheManager
+from ..utils.input_validation import validate_token
 from ..utils.retry_utils import (
     RetryConfig,
     TimeoutConfig,
@@ -48,10 +49,7 @@ class DirectusClient:
         timeout_config: TimeoutConfig | None = None,
         cache_config: CacheConfig | None = None,
     ):
-        if not bearer_token or not bearer_token.strip():
-            raise ValueError("bearer_token cannot be None, empty, or whitespace-only")
-
-        self._bearer_token = bearer_token
+        self._bearer_token = validate_token(bearer_token, "bearer_token")
         self.url = url
         self.debug = debug
         self.headers = {

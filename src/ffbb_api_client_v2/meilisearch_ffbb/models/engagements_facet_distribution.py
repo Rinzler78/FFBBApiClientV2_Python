@@ -22,7 +22,8 @@ class EngagementsFacetDistribution(FacetDistribution):
 
     @staticmethod
     def from_dict(obj: Any) -> EngagementsFacetDistribution:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         club_pro = obj.get("clubPro")
         id_competition_categorie_code = obj.get("idCompetition.categorie.code")
         id_competition_categorie_libelle = obj.get("idCompetition.categorie.libelle")

@@ -7,7 +7,7 @@ from ...utils.converter_utils import from_int
 
 
 @dataclass
-class PratiquesTypeFacet:
+class PratiquesTypeClass:
     basket_inclusif: int | None = None
     basket_santé: int | None = None
     basket_tonik: int | None = None
@@ -15,14 +15,15 @@ class PratiquesTypeFacet:
     micro_basket: int | None = None
 
     @staticmethod
-    def from_dict(obj: Any) -> PratiquesTypeFacet:
-        assert isinstance(obj, dict)
+    def from_dict(obj: Any) -> PratiquesTypeClass:
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         basket_inclusif = from_int(obj, "Basket Inclusif")
         basket_santé = from_int(obj, "Basket Santé")
         basket_tonik = from_int(obj, "Basket Tonik")
         centre_génération_basket = from_int(obj, "Centre Génération Basket")
         micro_basket = from_int(obj, "Micro Basket")
-        return PratiquesTypeFacet(
+        return PratiquesTypeClass(
             basket_inclusif=basket_inclusif,
             basket_santé=basket_santé,
             basket_tonik=basket_tonik,

@@ -49,16 +49,13 @@ class Test146ErrorHandlingEdgeCases(unittest.TestCase):
                 api_bearer_token="test_api_token",
             )
 
-            # Simuler une erreur de connexion
-            with requests_mock.Mocker() as m:
-                m.get(requests_mock.ANY, exc=requests.exceptions.ConnectionError)
+            # Configure mock to raise ConnectionError
+            mock_api_instance.get_lives.side_effect = (
+                requests.exceptions.ConnectionError
+            )
 
-                try:
-                    # Appeler une méthode qui ferait une requête réseau
-                    client.get_lives()
-                except requests.exceptions.ConnectionError:
-                    # C'est attendu dans ce test
-                    pass
+            with self.assertRaises(requests.exceptions.ConnectionError):
+                client.get_lives()
 
     def test_004_api_client_timeout_handling(self):
         """Test de la gestion des timeouts"""
@@ -78,16 +75,11 @@ class Test146ErrorHandlingEdgeCases(unittest.TestCase):
                 api_bearer_token="test_api_token",
             )
 
-            # Simuler un timeout
-            with requests_mock.Mocker() as m:
-                m.get(requests_mock.ANY, exc=requests.exceptions.Timeout)
+            # Configure mock to raise Timeout
+            mock_api_instance.get_lives.side_effect = requests.exceptions.Timeout
 
-                try:
-                    # Appeler une méthode qui ferait une requête réseau
-                    client.get_lives()
-                except requests.exceptions.Timeout:
-                    # C'est attendu dans ce test
-                    pass
+            with self.assertRaises(requests.exceptions.Timeout):
+                client.get_lives()
 
     def test_005_api_client_http_error_handling(self):
         """Test de la gestion des erreurs HTTP"""
@@ -107,21 +99,11 @@ class Test146ErrorHandlingEdgeCases(unittest.TestCase):
                 api_bearer_token="test_api_token",
             )
 
-        # Simuler une erreur HTTP 500
-        with requests_mock.Mocker() as m:
-            m.get(
-                requests_mock.ANY,
-                status_code=500,
-                json={"error": "Internal Server Error"},
-            )
+        # Configure mock to raise HTTP error
+        mock_api_instance.get_lives.side_effect = Exception("Internal Server Error")
 
-            # Tester une méthode susceptible de faire une requête
-            try:
-                # Appeler une méthode qui ferait une requête réseau
-                client.get_lives()
-            except Exception:
-                # Gérer l'erreur comme attendu
-                pass
+        with self.assertRaises(Exception):
+            client.get_lives()
 
     def test_006_retry_mechanism_failure(self):
         """Test du mécanisme de retry en cas d'échec persistant"""
@@ -220,21 +202,15 @@ class Test146ErrorHandlingEdgeCases(unittest.TestCase):
                 api_bearer_token="test_api_token",
             )
 
-        # Simuler une réponse de limitation de débit
-        with requests_mock.Mocker() as m:
-            m.get(
-                requests_mock.ANY,
-                status_code=429,
-                json={"error": "Rate limit exceeded"},
-            )
+        # Configure mock to raise rate limit error
+        from ffbb_api_client_v2.exceptions import FFBBRateLimitError
 
-            # Tester une méthode susceptible de faire une requête
-            try:
-                # Appeler une méthode qui ferait une requête réseau
-                client.get_lives()
-            except Exception:
-                # Gérer l'erreur comme attendu
-                pass
+        mock_api_instance.get_lives.side_effect = FFBBRateLimitError(
+            "Rate limit exceeded"
+        )
+
+        with self.assertRaises(FFBBRateLimitError):
+            client.get_lives()
 
     def test_011_api_client_with_special_characters_in_input(self):
         """Test de la gestion d'entrées contenant des caractères spéciaux"""

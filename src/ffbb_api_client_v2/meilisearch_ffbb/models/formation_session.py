@@ -23,7 +23,8 @@ class FormationSession:
 
     @staticmethod
     def from_dict(obj: Any) -> FormationSession:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         return FormationSession(
             id=from_str(obj, "id"),
             title=from_str(obj, "title"),

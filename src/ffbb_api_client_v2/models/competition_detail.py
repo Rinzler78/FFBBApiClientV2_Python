@@ -27,7 +27,8 @@ class CompetitionDetail(CompetitionBase):
 
     @staticmethod
     def from_dict(obj: Any) -> CompetitionDetail:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         base = CompetitionBase._parse_base(obj)
         return CompetitionDetail(
             **base,

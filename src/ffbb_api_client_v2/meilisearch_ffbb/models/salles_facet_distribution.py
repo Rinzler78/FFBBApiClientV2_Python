@@ -15,7 +15,8 @@ class SallesFacetDistribution(FacetDistribution):
 
     @staticmethod
     def from_dict(obj: Any) -> SallesFacetDistribution:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         return SallesFacetDistribution(
             type=obj.get("type"),
             commune_code_postal=obj.get("commune.codePostal"),

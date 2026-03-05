@@ -251,7 +251,7 @@ class Test141CompetitionDetailAdditional(unittest.TestCase):
 
     def test_010_competition_ref_assertion_error(self):
         """Test de la méthode from_dict avec un objet non-dict (devrait lever une assertion)"""
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(TypeError):
             CompetitionDetail.from_dict("not_a_dict")
 
     def test_011_competition_ref_round_trip(self):

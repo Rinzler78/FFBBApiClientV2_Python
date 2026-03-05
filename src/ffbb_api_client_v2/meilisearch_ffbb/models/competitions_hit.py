@@ -90,7 +90,8 @@ class CompetitionsHit(Hit):
     @staticmethod
     def from_dict(obj: Any) -> CompetitionsHit:
         try:
-            assert isinstance(obj, dict)
+            if not isinstance(obj, dict):
+                raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
             nom = from_str(obj, "nom")
             code = from_str(obj, "code")
             niveau = from_enum(NiveauEnum, obj, "niveau")

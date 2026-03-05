@@ -46,7 +46,8 @@ class TerrainsHit(Hit):
 
     @staticmethod
     def from_dict(obj: Any) -> TerrainsHit:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         nom = from_str(obj, "nom")
         rue = from_str(obj, "rue")
         id = from_str(obj, "id")

@@ -75,7 +75,8 @@ class FormationsHit(Hit):
 
     @staticmethod
     def from_dict(obj: Any) -> FormationsHit:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         id = from_str(obj, "id")
         title = from_str(obj, "title")
         type = from_str(obj, "type")

@@ -12,7 +12,8 @@ class Fonction:
 
     @staticmethod
     def from_dict(obj: Any) -> Fonction:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         return Fonction(libelle=from_str(obj, "libelle"))
 
     def to_dict(self) -> dict:

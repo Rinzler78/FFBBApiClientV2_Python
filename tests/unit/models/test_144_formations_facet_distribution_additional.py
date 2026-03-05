@@ -165,7 +165,7 @@ class Test144FormationsFacetDistributionAdditional(unittest.TestCase):
 
     def test_008_formations_facet_distribution_assertion_error(self):
         """Test de la méthode from_dict avec un objet non-dict (devrait lever une assertion)"""
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(TypeError):
             FormationsFacetDistribution.from_dict("not_a_dict")
 
     def test_009_formations_facet_distribution_round_trip(self):

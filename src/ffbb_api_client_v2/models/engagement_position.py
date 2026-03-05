@@ -17,7 +17,8 @@ class EngagementPosition:
 
     @staticmethod
     def from_dict(obj: Any) -> EngagementPosition:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         return EngagementPosition(
             position=from_str(obj, "position"),
             key=from_str(obj, "key"),

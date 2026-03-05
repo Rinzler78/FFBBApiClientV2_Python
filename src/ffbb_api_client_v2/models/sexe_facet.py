@@ -7,18 +7,19 @@ from ..utils.converter_utils import from_int
 
 
 @dataclass
-class SexeFacet:
+class SexeClass:
     feminine: int | None = None
     masculine: int | None = None
     mixed: int | None = None
 
     @staticmethod
-    def from_dict(obj: Any) -> SexeFacet:
-        assert isinstance(obj, dict)
+    def from_dict(obj: Any) -> SexeClass:
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         feminine = from_int(obj, "Féminin")
         masculine = from_int(obj, "Masculin")
         mixed = from_int(obj, "Mixte")
-        return SexeFacet(feminine=feminine, masculine=masculine, mixed=mixed)
+        return SexeClass(feminine=feminine, masculine=masculine, mixed=mixed)
 
     def to_dict(self) -> dict:
         result: dict = {}

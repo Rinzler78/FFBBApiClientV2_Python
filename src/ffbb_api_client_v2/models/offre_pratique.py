@@ -17,7 +17,8 @@ class OffrePratiqueDetail:
 
     @staticmethod
     def from_dict(obj: Any) -> OffrePratiqueDetail:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         return OffrePratiqueDetail(
             id=from_str(obj, "id"),
             title=from_str(obj, "title"),
@@ -46,7 +47,8 @@ class OffrePratique:
 
     @staticmethod
     def from_dict(obj: Any) -> OffrePratique:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         return OffrePratique(
             ffbbserver_offres_pratiques_id=from_obj(
                 OffrePratiqueDetail.from_dict, obj, "ffbbserver_offres_pratiques_id"

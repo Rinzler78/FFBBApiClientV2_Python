@@ -13,7 +13,8 @@ class Labellisation:
 
     @staticmethod
     def from_dict(obj: Any) -> Labellisation:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         basket_santé_résolutions = from_int(obj, "Basket Santé / Résolutions")
         micro_basket = from_int(obj, "Micro Basket")
         return Labellisation(

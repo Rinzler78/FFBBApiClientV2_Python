@@ -23,7 +23,8 @@ class PouleRencontreItemModel:
 
     @staticmethod
     def from_dict(obj: Any) -> PouleRencontreItemModel:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         id = from_str(obj, "id") or ""
         numero = from_str(obj, "numero") or ""
         numeroJournee = from_int(obj, "numeroJournee") or 0

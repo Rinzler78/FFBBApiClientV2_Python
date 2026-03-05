@@ -13,7 +13,8 @@ class TypeAssociationLibelle:
 
     @staticmethod
     def from_dict(obj: Any) -> TypeAssociationLibelle:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         club = from_int(obj, "Club")
         coopération_territoriale_club = from_int(obj, "Coopération Territoriale Club")
         return TypeAssociationLibelle(

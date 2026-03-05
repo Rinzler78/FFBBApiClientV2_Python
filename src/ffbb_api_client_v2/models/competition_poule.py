@@ -17,7 +17,8 @@ class CompetitionPoule:
 
     @staticmethod
     def from_dict(obj: Any) -> CompetitionPoule:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         rencontres_raw = from_list(CompetitionRencontre.from_dict, obj, "rencontres")
         engagements_raw = from_list(PhaseEngagement.from_dict, obj, "engagements")
         return CompetitionPoule(

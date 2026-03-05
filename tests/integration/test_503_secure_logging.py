@@ -97,26 +97,17 @@ class Test013SecureLoggingIntegration(unittest.TestCase):
         # Test empty token
         with self.assertRaises(ValueError) as context:
             ApiFFBBAppClient(bearer_token="")
-        self.assertIn(
-            "bearer_token cannot be None, empty, or whitespace-only",
-            str(context.exception),
-        )
+        self.assertIn("bearer_token", str(context.exception))
 
         # Test None token
         with self.assertRaises(ValueError) as context:
             ApiFFBBAppClient(bearer_token=None)
-        self.assertIn(
-            "bearer_token cannot be None, empty, or whitespace-only",
-            str(context.exception),
-        )
+        self.assertIn("bearer_token", str(context.exception))
 
         # Test whitespace-only token
         with self.assertRaises(ValueError) as context:
             ApiFFBBAppClient(bearer_token="   ")
-        self.assertIn(
-            "bearer_token cannot be None, empty, or whitespace-only",
-            str(context.exception),
-        )
+        self.assertIn("bearer_token", str(context.exception))
 
     def test_headers_use_secure_token(self):
         """Test that headers use the securely stored token."""

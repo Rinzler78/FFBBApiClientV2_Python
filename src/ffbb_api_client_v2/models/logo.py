@@ -14,7 +14,8 @@ class Logo:
 
     @staticmethod
     def from_dict(obj: Any) -> Logo:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         id = from_uuid(obj, "id")
         gradient_color = from_str(obj, "gradient_color")
         return Logo(id=id, gradient_color=gradient_color)

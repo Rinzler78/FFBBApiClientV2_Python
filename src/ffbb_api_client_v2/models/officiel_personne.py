@@ -13,7 +13,8 @@ class OfficielPersonne:
 
     @staticmethod
     def from_dict(obj: Any) -> OfficielPersonne:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         return OfficielPersonne(
             nom=from_str(obj, "nom"),
             prenom=from_str(obj, "prenom"),

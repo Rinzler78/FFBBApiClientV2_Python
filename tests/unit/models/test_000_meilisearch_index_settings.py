@@ -112,8 +112,8 @@ class Test124MeilisearchIndexSettings(unittest.TestCase):
         self.assertEqual(result["rankingRules"], ["words", "typo", "proximity"])
 
     def test_005_from_dict_invalid_type(self) -> None:
-        """Test from_dict raises AssertionError for non-dict input."""
-        with self.assertRaises(AssertionError):
+        """Test from_dict raises TypeError for non-dict input."""
+        with self.assertRaises(TypeError):
             MeilisearchIndexSettings.from_dict("invalid")
 
     def test_006_from_dict_partial(self) -> None:

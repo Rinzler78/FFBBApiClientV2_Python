@@ -21,7 +21,8 @@ class FormationsFacetDistribution(FacetDistribution):
 
     @staticmethod
     def from_dict(obj: Any) -> FormationsFacetDistribution:
-        assert isinstance(obj, dict)
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
         return FormationsFacetDistribution(
             domain=obj.get("domain"),
             mode=obj.get("mode"),

@@ -1,10 +1,10 @@
 from enum import Enum
 
 
-class CategorieTypeEnum(Enum):
-    """Enumération des catégories d'âge en basketball."""
+class CategorieType(Enum):
+    """Enumeration of age categories in basketball."""
 
-    # Catégories jeunes
+    # Youth categories
     U7 = "U7"
     U9 = "U9"
     U11 = "U11"
@@ -15,11 +15,11 @@ class CategorieTypeEnum(Enum):
     U20 = "U20"
     U21 = "U21"
 
-    # Catégories seniors
+    # Senior categories
     SENIOR = "SENIOR"
     SENIORS = "SENIORS"
 
-    # Catégories vétérans
+    # Veteran categories
     VETERAN = "VETERAN"
     VETERANS = "VETERANS"
     V35 = "V35"
@@ -27,7 +27,7 @@ class CategorieTypeEnum(Enum):
     V45 = "V45"
     V50 = "V50"
 
-    # Catégories spéciales
+    # Special categories
     ESPOIR = "ESPOIR"
     ESPOIRS = "ESPOIRS"
     CADET = "CADET"

@@ -5,23 +5,24 @@ from typing import Any
 from uuid import UUID
 
 from ..utils.converter_utils import from_enum, from_int, from_uuid
-from .tournoi_types_3x3_libelle_enum import TournoiTypes3x3LibelleEnum
-from .type_league_enum import TypeLeagueEnum
+from .tournoi_types_3x3_libelle_enum import Libelle
+from .type_league import TypeLeague
 
 
 @dataclass
 class TournoiTypes3X3:
-    libelle: TournoiTypes3x3LibelleEnum | None = None
+    libelle: Libelle | None = None
     logo: UUID | None = None
-    type_league: TypeLeagueEnum | None = None
+    type_league: TypeLeague | None = None
     type_tournois: int | None = None
 
     @staticmethod
     def from_dict(obj: Any) -> TournoiTypes3X3:
-        assert isinstance(obj, dict)
-        libelle = from_enum(TournoiTypes3x3LibelleEnum, obj, "libelle")
+        if not isinstance(obj, dict):
+            raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
+        libelle = from_enum(Libelle, obj, "libelle")
         logo = from_uuid(obj, "logo")
-        type_league = from_enum(TypeLeagueEnum, obj, "type_league")
+        type_league = from_enum(TypeLeague, obj, "type_league")
         type_tournois = from_int(obj, "type_tournois")
         return TournoiTypes3X3(
             libelle=libelle,
