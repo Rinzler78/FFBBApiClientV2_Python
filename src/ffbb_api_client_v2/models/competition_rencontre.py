@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
@@ -12,10 +12,7 @@ from ..utils.converter_utils import (
     from_obj,
     from_str,
 )
-from .engagement_equipe import EngagementEquipe
-from .game_stats_model import GameStatsModel
 from .officiel import Officiel
-from .organisme_equipe import OrganismeEquipe
 from .salle import Salle
 
 
@@ -32,11 +29,11 @@ class CompetitionRencontre:
     nom_equipe1: str | None = None
     nom_equipe2: str | None = None
     date_rencontre: datetime | None = None
-    id_organisme_equipe1: OrganismeEquipe | None = None
-    id_organisme_equipe2: OrganismeEquipe | None = None
-    gs_id: GameStatsModel | None = None
-    id_engagement_equipe1: EngagementEquipe | None = None
-    id_engagement_equipe2: EngagementEquipe | None = None
+    id_organisme_equipe1: str | None = None
+    id_organisme_equipe2: str | None = None
+    gs_id: str | None = None
+    id_engagement_equipe1: str | None = None
+    id_engagement_equipe2: str | None = None
     salle: Salle | None = None
     officiels: list[Officiel] = field(default_factory=list)
 
@@ -44,7 +41,6 @@ class CompetitionRencontre:
     def from_dict(obj: Any) -> CompetitionRencontre:
         if not isinstance(obj, dict):
             raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
-        # Handle date_rencontre with fallback
         date_rencontre = from_datetime(obj, "date_rencontre")
 
         officiels_raw = from_list(Officiel.from_dict, obj, "officiels")
@@ -60,19 +56,11 @@ class CompetitionRencontre:
             nom_equipe1=from_str(obj, "nomEquipe1"),
             nom_equipe2=from_str(obj, "nomEquipe2"),
             date_rencontre=date_rencontre,
-            id_organisme_equipe1=from_obj(
-                OrganismeEquipe.from_dict, obj, "idOrganismeEquipe1"
-            ),
-            id_organisme_equipe2=from_obj(
-                OrganismeEquipe.from_dict, obj, "idOrganismeEquipe2"
-            ),
-            gs_id=from_obj(GameStatsModel.from_dict, obj, "gsId"),
-            id_engagement_equipe1=from_obj(
-                EngagementEquipe.from_dict, obj, "idEngagementEquipe1"
-            ),
-            id_engagement_equipe2=from_obj(
-                EngagementEquipe.from_dict, obj, "idEngagementEquipe2"
-            ),
+            id_organisme_equipe1=from_str(obj, "idOrganismeEquipe1"),
+            id_organisme_equipe2=from_str(obj, "idOrganismeEquipe2"),
+            gs_id=from_str(obj, "gsId"),
+            id_engagement_equipe1=from_str(obj, "idEngagementEquipe1"),
+            id_engagement_equipe2=from_str(obj, "idEngagementEquipe2"),
             salle=from_obj(Salle.from_dict, obj, "salle"),
             officiels=officiels_raw if officiels_raw is not None else [],
         )
@@ -102,15 +90,15 @@ class CompetitionRencontre:
         if self.date_rencontre is not None:
             result["date_rencontre"] = self.date_rencontre.isoformat()
         if self.id_organisme_equipe1 is not None:
-            result["idOrganismeEquipe1"] = self.id_organisme_equipe1.to_dict()
+            result["idOrganismeEquipe1"] = self.id_organisme_equipe1
         if self.id_organisme_equipe2 is not None:
-            result["idOrganismeEquipe2"] = self.id_organisme_equipe2.to_dict()
+            result["idOrganismeEquipe2"] = self.id_organisme_equipe2
         if self.gs_id is not None:
-            result["gsId"] = asdict(self.gs_id)
+            result["gsId"] = self.gs_id
         if self.id_engagement_equipe1 is not None:
-            result["idEngagementEquipe1"] = self.id_engagement_equipe1.to_dict()
+            result["idEngagementEquipe1"] = self.id_engagement_equipe1
         if self.id_engagement_equipe2 is not None:
-            result["idEngagementEquipe2"] = self.id_engagement_equipe2.to_dict()
+            result["idEngagementEquipe2"] = self.id_engagement_equipe2
         if self.salle is not None:
             result["salle"] = self.salle.to_dict()
         if self.officiels:

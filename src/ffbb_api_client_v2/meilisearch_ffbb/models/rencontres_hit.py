@@ -5,14 +5,14 @@ from datetime import datetime
 from typing import Any
 
 from ...meilisearch.models.hit import Hit
-from ...models.competition_id import CompetitionID
+from ...models.competition import Competition
+from ...models.engagement_equipe import EngagementEquipe
 from ...models.geo import Geo
-from ...models.id_engagement_equipe import IDEngagementEquipe
-from ...models.id_organisme_equipe import IDOrganismeEquipe
-from ...models.id_poule import IDPoule
-from ...models.niveau import Niveau
+from ...models.niveau_enum import NiveauEnum
 from ...models.organisateur import Organisateur
-from ...models.pratique import Pratique
+from ...models.organisme_equipe import OrganismeEquipe
+from ...models.poule import Poule
+from ...models.pratique_enum import PratiqueEnum
 from ...models.saison import Saison
 from ...models.salle import Salle
 from ...utils.converter_utils import (
@@ -28,24 +28,24 @@ from ...utils.converter_utils import (
 
 @dataclass
 class RencontresHit(Hit):
-    niveau: Niveau | None = None
+    niveau: NiveauEnum | None = None
     id: str | None = None
     date: datetime | None = None
     date_rencontre: datetime | None = None
     nom_equipe1: str | None = None
     nom_equipe2: str | None = None
     numero_journee: int | None = None
-    pratique: Pratique | None = None
+    pratique: PratiqueEnum | None = None
     gs_id: str | None = None
     officiels: list[str] | None = None
-    competition_id: CompetitionID | None = None
-    id_organisme_equipe1: IDOrganismeEquipe | None = None
-    id_organisme_equipe2: IDOrganismeEquipe | None = None
-    id_poule: IDPoule | None = None
+    competition_id: Competition | None = None
+    id_organisme_equipe1: OrganismeEquipe | None = None
+    id_organisme_equipe2: OrganismeEquipe | None = None
+    id_poule: Poule | None = None
     saison: Saison | None = None
     salle: Salle | None = None
-    id_engagement_equipe1: IDEngagementEquipe | None = None
-    id_engagement_equipe2: IDEngagementEquipe | None = None
+    id_engagement_equipe1: EngagementEquipe | None = None
+    id_engagement_equipe2: EngagementEquipe | None = None
     geo: Geo | None = None
     date_timestamp: int | None = None
     date_rencontre_timestamp: int | None = None
@@ -101,7 +101,7 @@ class RencontresHit(Hit):
         try:
             if not isinstance(obj, dict):
                 raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
-            niveau = from_enum(Niveau, obj, "niveau")
+            niveau = from_enum(NiveauEnum, obj, "niveau")
             id = from_str(obj, "id")
             date = from_datetime(obj, "date")
             date_rencontre = from_datetime(obj, "date_rencontre")
@@ -109,24 +109,24 @@ class RencontresHit(Hit):
             nom_equipe2 = from_str(obj, "nomEquipe2")
 
             numero_journee = from_int(obj, "numeroJournee")
-            pratique = from_enum(Pratique, obj, "pratique")
+            pratique = from_enum(PratiqueEnum, obj, "pratique")
             gs_id = from_str(obj, "gsId")
             officiels = from_officiels_list(obj.get("officiels"))
-            competition_id = from_obj(CompetitionID.from_dict, obj, "competitionId")
+            competition_id = from_obj(Competition.from_dict, obj, "competitionId")
             id_organisme_equipe1 = from_obj(
-                IDOrganismeEquipe.from_dict, obj, "idOrganismeEquipe1"
+                OrganismeEquipe.from_dict, obj, "idOrganismeEquipe1"
             )
             id_organisme_equipe2 = from_obj(
-                IDOrganismeEquipe.from_dict, obj, "idOrganismeEquipe2"
+                OrganismeEquipe.from_dict, obj, "idOrganismeEquipe2"
             )
-            id_poule = from_obj(IDPoule.from_dict, obj, "idPoule")
+            id_poule = from_obj(Poule.from_dict, obj, "idPoule")
             saison = from_obj(Saison.from_dict, obj, "saison")
             salle = from_obj(Salle.from_dict, obj, "salle")
             id_engagement_equipe1 = from_obj(
-                IDEngagementEquipe.from_dict, obj, "idEngagementEquipe1"
+                EngagementEquipe.from_dict, obj, "idEngagementEquipe1"
             )
             id_engagement_equipe2 = from_obj(
-                IDEngagementEquipe.from_dict, obj, "idEngagementEquipe2"
+                EngagementEquipe.from_dict, obj, "idEngagementEquipe2"
             )
             geo = from_obj(Geo.from_dict, obj, "_geo")
             date_timestamp = from_int(obj, "date_timestamp")

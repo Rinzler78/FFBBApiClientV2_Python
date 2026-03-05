@@ -8,7 +8,7 @@ from .ranking_engagement import RankingEngagement
 
 @dataclass
 class TeamRanking:
-    """Model for a team ranking."""
+    """Modèle pour un classement d'équipe."""
 
     # Required fields first
     id: str

@@ -1,10 +1,10 @@
 from enum import Enum
 
 
-class NiveauType(Enum):
+class NiveauTypeEnum(Enum):
     """Enumeration of competition level types."""
 
     DEPARTEMENTAL = "departemental"
     REGIONAL = "regional"
     NATIONAL = "national"
-    ELITE = "elite"  # ELITE is associated with regional
+    ELITE = "elite"  # ELITE maps to regional

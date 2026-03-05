@@ -33,23 +33,15 @@ class Salle:
     def from_dict(obj: Any) -> Salle:
         if not isinstance(obj, dict):
             raise TypeError(f"Expected dict, got {obj.__class__.__name__}")
-        id = from_str(obj, "id")
-        numero = from_str(obj, "numero")
-        libelle = from_str(obj, "libelle")
-        libelle2 = from_str(obj, "libelle2")
-        adresse = from_str(obj, "adresse")
-        adresse_complement = from_str(obj, "adresseComplement")
-        commune = from_obj(Commune.from_dict, obj, "commune")
-        cartographie = from_obj(Cartographie.from_dict, obj, "cartographie")
         return Salle(
-            id=id,
-            numero=numero,
-            libelle=libelle,
-            libelle2=libelle2,
-            adresse=adresse,
-            adresse_complement=adresse_complement,
-            commune=commune,
-            cartographie=cartographie,
+            id=from_str(obj, "id"),
+            numero=from_str(obj, "numero"),
+            libelle=from_str(obj, "libelle"),
+            libelle2=from_str(obj, "libelle2"),
+            adresse=from_str(obj, "adresse"),
+            adresse_complement=from_str(obj, "adresseComplement"),
+            commune=from_obj(Commune.from_dict, obj, "commune"),
+            cartographie=from_obj(Cartographie.from_dict, obj, "cartographie"),
         )
 
     def to_dict(self) -> dict:

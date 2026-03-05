@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class CategorieType(Enum):
+class CategorieTypeEnum(Enum):
     """Enumeration of age categories in basketball."""
 
     # Youth categories

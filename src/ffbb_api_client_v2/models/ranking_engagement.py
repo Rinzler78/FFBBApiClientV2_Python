@@ -7,7 +7,7 @@ from ..utils.converter_utils import from_int, from_str
 
 @dataclass
 class RankingEngagement:
-    """Model for a team's engagement in a ranking."""
+    """Modèle pour l'engagement d'une équipe dans un classement."""
 
     id: str
     nom: str
