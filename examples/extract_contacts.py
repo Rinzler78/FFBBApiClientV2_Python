@@ -4636,7 +4636,12 @@ def main() -> None:
         for eng in all_engagements:
             try:
                 eid = int(eng.id)
-            except (ValueError, TypeError):
+            except (ValueError, TypeError) as e:
+                logger.debug(
+                    "Skipping engagement with non-integer id %r: %s",
+                    getattr(eng, "id", None),
+                    e,
+                )
                 continue
             eng_by_id[eid] = eng
             if eng.entraineur is not None:
@@ -4655,7 +4660,12 @@ def main() -> None:
             for tr in all_trainers:
                 try:
                     trainer_by_id[int(tr.idLicence)] = tr
-                except (ValueError, TypeError, AttributeError):
+                except (ValueError, TypeError, AttributeError) as e:
+                    logger.debug(
+                        "Skipping trainer with invalid idLicence %r: %s",
+                        getattr(tr, "idLicence", None),
+                        e,
+                    )
                     continue
 
         for eid in eng_ids:

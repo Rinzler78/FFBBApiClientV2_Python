@@ -68,15 +68,10 @@ def test_feature(
         return None
 
 
-def main() -> None:
-    headers = get_headers()
+def _run_federation_tests(headers: dict[str, str]) -> dict[str, str]:
+    """Run federation feature tests."""
     results: dict[str, str] = {}
 
-    print("\n" + "#" * 60)
-    print("# MEILISEARCH FEATURE TESTS")
-    print("#" * 60)
-
-    # 1. Federation
     body = {
         "queries": [
             {"indexUid": "ffbbserver_organismes", "q": "Paris"},
@@ -87,7 +82,6 @@ def main() -> None:
     r = test_feature("federation (merged results)", body, headers)
     results["federation"] = "OK" if r and "hits" in r else "FAILED"
 
-    # 2. Federation with weights
     body = {
         "queries": [
             {
@@ -106,7 +100,13 @@ def main() -> None:
     r = test_feature("federation with weights", body, headers)
     results["federation_weights"] = "OK" if r and "hits" in r else "FAILED"
 
-    # 3. matchingStrategy: "all"
+    return results
+
+
+def _run_search_strategy_tests(headers: dict[str, str]) -> dict[str, str]:
+    """Run matching strategy and ranking tests."""
+    results: dict[str, str] = {}
+
     body = {
         "queries": [
             {
@@ -120,7 +120,6 @@ def main() -> None:
     r = test_feature("matchingStrategy: all", body, headers)
     results["matching_strategy_all"] = "OK" if r and "results" in r else "FAILED"
 
-    # 4. matchingStrategy: "frequency"
     body = {
         "queries": [
             {
@@ -134,7 +133,6 @@ def main() -> None:
     r = test_feature("matchingStrategy: frequency", body, headers)
     results["matching_strategy_freq"] = "OK" if r and "results" in r else "FAILED"
 
-    # 5. rankingScoreThreshold
     body = {
         "queries": [
             {
@@ -150,12 +148,16 @@ def main() -> None:
     results["ranking_score_threshold"] = "OK" if r and "results" in r else "FAILED"
     if r and "results" in r:
         hits = r["results"][0].get("hits", [])
-        if hits:
-            sample = hits[0]
-            if "_rankingScore" in sample:
-                print(f"  Sample _rankingScore: {sample['_rankingScore']}")
+        if hits and "_rankingScore" in hits[0]:
+            print(f"  Sample _rankingScore: {hits[0]['_rankingScore']}")
 
-    # 6. attributesToHighlight
+    return results
+
+
+def _run_presentation_tests(headers: dict[str, str]) -> dict[str, str]:
+    """Run highlight and search attribute tests."""
+    results: dict[str, str] = {}
+
     body = {
         "queries": [
             {
@@ -173,7 +175,26 @@ def main() -> None:
         if hits and "_formatted" in hits[0]:
             print("  _formatted field present in hits")
 
-    # 7. Geo-search: _geoRadius
+    body = {
+        "queries": [
+            {
+                "indexUid": "ffbbserver_organismes",
+                "q": "Paris",
+                "attributesToSearchOn": ["nom"],
+                "limit": 5,
+            }
+        ]
+    }
+    r = test_feature("attributesToSearchOn: ['nom']", body, headers)
+    results["attrs_to_search_on"] = "OK" if r and "results" in r else "FAILED"
+
+    return results
+
+
+def _run_geo_and_filter_tests(headers: dict[str, str]) -> dict[str, str]:
+    """Run geo-search and filter tests."""
+    results: dict[str, str] = {}
+
     body = {
         "queries": [
             {
@@ -193,7 +214,6 @@ def main() -> None:
             geo = hits[0]["_geo"]
             print(f"  First hit _geo: lat={geo.get('lat')}, lng={geo.get('lng')}")
 
-    # 8. distinct
     body = {
         "queries": [
             {
@@ -207,21 +227,11 @@ def main() -> None:
     r = test_feature("distinct on type_association.libelle", body, headers)
     results["distinct"] = "OK" if r and "results" in r else "FAILED"
 
-    # 9. attributesToSearchOn
-    body = {
-        "queries": [
-            {
-                "indexUid": "ffbbserver_organismes",
-                "q": "Paris",
-                "attributesToSearchOn": ["nom"],
-                "limit": 5,
-            }
-        ]
-    }
-    r = test_feature("attributesToSearchOn: ['nom']", body, headers)
-    results["attrs_to_search_on"] = "OK" if r and "results" in r else "FAILED"
+    return results
 
-    # 10. Try to detect Meilisearch version via /version
+
+def _check_server_version(headers: dict[str, str]) -> dict[str, str]:
+    """Check Meilisearch server version."""
     print(f"\n{'='*60}")
     print("Testing: Meilisearch version")
     try:
@@ -230,15 +240,16 @@ def main() -> None:
         )
         if version_result and "pkgVersion" in version_result:
             print(f"  Meilisearch version: {version_result['pkgVersion']}")
-            results["version"] = version_result["pkgVersion"]
-        else:
-            print(f"  Could not determine version: {version_result}")
-            results["version"] = "UNKNOWN"
+            return {"version": version_result["pkgVersion"]}
+        print(f"  Could not determine version: {version_result}")
+        return {"version": "UNKNOWN"}
     except Exception as e:
         print(f"  ERROR: {e}")
-        results["version"] = "ERROR"
+        return {"version": "ERROR"}
 
-    # Summary
+
+def _print_summary(results: dict[str, str]) -> None:
+    """Print test summary."""
     print("\n" + "=" * 60)
     print("SUMMARY")
     print("=" * 60)
@@ -250,6 +261,23 @@ def main() -> None:
             else "-"
         )
         print(f"  [{icon}] {feature}: {status}")
+
+
+def main() -> None:
+    headers = get_headers()
+
+    print("\n" + "#" * 60)
+    print("# MEILISEARCH FEATURE TESTS")
+    print("#" * 60)
+
+    results: dict[str, str] = {}
+    results.update(_run_federation_tests(headers))
+    results.update(_run_search_strategy_tests(headers))
+    results.update(_run_presentation_tests(headers))
+    results.update(_run_geo_and_filter_tests(headers))
+    results.update(_check_server_version(headers))
+
+    _print_summary(results)
 
 
 if __name__ == "__main__":
