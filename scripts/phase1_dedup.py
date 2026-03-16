@@ -59,7 +59,9 @@ def regex_replace_in_all(files, pattern, replacement):
 
 def git_rm(filepath):
     if os.path.exists(filepath):
-        subprocess.run(["git", "rm", "-f", filepath], cwd=WORKTREE, check=True)
+        subprocess.run(
+            ["git", "rm", "-f", filepath], cwd=WORKTREE, check=True, timeout=30
+        )
         return True
     return False
 
@@ -378,7 +380,9 @@ def main():
         )
         with open(old_path, "w", encoding="utf-8") as f:
             f.write(content)
-        subprocess.run(["git", "mv", old_path, new_path], cwd=WORKTREE, check=True)
+        subprocess.run(
+            ["git", "mv", old_path, new_path], cwd=WORKTREE, check=True, timeout=30
+        )
         print("  Renamed file to competition_type_facet.py")
 
     # ========================================================================

@@ -16,7 +16,6 @@ from __future__ import annotations
 import argparse
 import json
 import logging
-import sys
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
@@ -762,12 +761,12 @@ def main() -> None:
             )
             if attempt == 2:
                 logger.error("Failed to fetch API token after 3 attempts")
-                sys.exit(1)
+                raise RuntimeError("Failed to fetch API token after 3 attempts")
             logger.info("Retrying in 5s...")
             time.sleep(5)
     else:
         logger.error("Failed to fetch API token")
-        sys.exit(1)
+        raise RuntimeError("Failed to fetch API token")
 
     # Retry config for runtime wildcard discovery (timeout is adaptive per depth)
     retry_config = RetryConfig(max_attempts=1)
@@ -814,6 +813,7 @@ def main() -> None:
                 report[result_name] = result_entry
             except Exception as e:
                 logger.error(f"  FATAL: {ep_name} raised {type(e).__name__}: {e}")
+                raise  # Re-raise to fail fast
 
     # Reorder report to match ENDPOINTS declaration order
     ordered_report: dict[str, Any] = {}

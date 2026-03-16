@@ -101,7 +101,9 @@ def check_env():
     mls_token = os.getenv("MEILISEARCH_BEARER_TOKEN")
     if not api_token or not mls_token:
         print("ERROR: Set API_FFBB_APP_BEARER_TOKEN and MEILISEARCH_BEARER_TOKEN")
-        sys.exit(1)
+        raise RuntimeError(
+            "API_FFBB_APP_BEARER_TOKEN and MEILISEARCH_BEARER_TOKEN must be set"
+        )
     return api_token, mls_token
 
 

@@ -12,6 +12,7 @@ like str(data.get(...)), int(data.get(...)), etc., instead of the standardized f
 
 import ast
 import re
+import sys
 from pathlib import Path
 
 
@@ -161,9 +162,8 @@ def main():
     checker.print_report()
 
     # Exit with non-zero if there are non-compliant methods
-    if results["non_compliant"]:
-        exit(1)
+    return 1 if results["non_compliant"] else 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
