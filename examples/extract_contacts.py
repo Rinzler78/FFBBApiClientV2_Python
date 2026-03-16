@@ -30,6 +30,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
+from typing import Any
 
 from ffbb_api_client_v2 import FFBBAPIClientV2, TokenManager
 from ffbb_api_client_v2.directus_ffbb.config import API_FFBB_BASE_URL, ENDPOINT_ASSETS
@@ -435,6 +436,135 @@ class ContactReport:
         return entries, signature_to_anchor
 
     # ------------------------------------------------------------------
+    # Build helpers
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _build_team_report(
+        sexe: str,
+        niveau: str,
+        division: str,
+        t_rows: list[_CollectedRow],
+    ) -> ReportTeam:
+        """Build a ReportTeam from a group of collected rows for the same team."""
+        effective_rows = _select_effective_team_rows(t_rows)
+        poules = sorted({p for r in effective_rows for p in r.poules if p})
+        ranking_url = ""
+        competition_logo_url = ""
+        ranking_position: int | None = None
+        ranking_total: int | None = None
+        next_match_date = ""
+        next_match_opponent = ""
+        next_match_type = ""
+        next_match_salle_name = ""
+        next_match_salle_address = ""
+        next_match_salle_map_url = ""
+        for r in effective_rows:
+            if not ranking_url and r.ranking_url:
+                ranking_url = r.ranking_url
+            if not competition_logo_url and r.competition_logo_url:
+                competition_logo_url = r.competition_logo_url
+            if ranking_position is None and r.ranking_position is not None:
+                ranking_position = r.ranking_position
+            if ranking_total is None and r.ranking_total is not None:
+                ranking_total = r.ranking_total
+            if not next_match_date and r.next_match_date:
+                next_match_date = r.next_match_date
+            if not next_match_opponent and r.next_match_opponent:
+                next_match_opponent = r.next_match_opponent
+                next_match_type = r.next_match_type
+            if not next_match_salle_name and r.next_match_salle_name:
+                next_match_salle_name = r.next_match_salle_name
+            if not next_match_salle_address and r.next_match_salle_address:
+                next_match_salle_address = r.next_match_salle_address
+            if not next_match_salle_map_url and r.next_match_salle_map_url:
+                next_match_salle_map_url = r.next_match_salle_map_url
+        contacts = [
+            ReportContact(
+                role=r.titre,
+                nom=r.nom,
+                prenom=r.prenom,
+                telephone=r.telephone,
+                email=r.email,
+                source=r.source,
+            )
+            for r in sorted(effective_rows, key=lambda x: (x.nom, x.prenom))
+        ]
+        return ReportTeam(
+            sexe=sexe,
+            niveau=niveau,
+            division=division,
+            poules=poules,
+            ranking_url=ranking_url,
+            competition_logo_url=competition_logo_url,
+            ranking_position=ranking_position,
+            ranking_total=ranking_total,
+            next_match_date=next_match_date,
+            next_match_opponent=next_match_opponent,
+            next_match_type=next_match_type,
+            next_match_salle_name=next_match_salle_name,
+            next_match_salle_address=next_match_salle_address,
+            next_match_salle_map_url=next_match_salle_map_url,
+            contacts=contacts,
+        )
+
+    @staticmethod
+    def _build_club_report(
+        club_name: str,
+        club_rows: list[_CollectedRow],
+        club_infos: dict[str, _ClubInfo],
+    ) -> ReportClub:
+        """Build a ReportClub from its collected rows and optional club info."""
+        adresse = club_rows[0].adresse_club if club_rows else ""
+        ci = club_infos.get(club_name)
+
+        club_contact_rows = [r for r in club_rows if "get_organisme" in r.source]
+        team_rows = [r for r in club_rows if "get_organisme" not in r.source]
+
+        team_groups: dict[tuple[str, str, str], list[_CollectedRow]] = defaultdict(list)
+        for r in team_rows:
+            team_groups[(r.sexe, r.niveau, r.division)].append(r)
+
+        report_teams = [
+            ContactReport._build_team_report(sexe, niveau, division, t_rows)
+            for (sexe, niveau, division), t_rows in sorted(
+                team_groups.items(),
+                key=lambda item: (
+                    NIVEAU_PRIORITY.get(item[0][1], 99),
+                    item[0][2],
+                    item[0][0],
+                ),
+            )
+        ]
+        club_contacts = [
+            ReportContact(
+                role=r.titre,
+                nom=r.nom,
+                prenom=r.prenom,
+                telephone=r.telephone,
+                email=r.email,
+                source=r.source,
+            )
+            for r in sorted(club_contact_rows, key=lambda x: (x.nom, x.prenom))
+        ]
+        return ReportClub(
+            nom=club_name,
+            adresse=adresse,
+            lat=ci.lat if ci else None,
+            lng=ci.lng if ci else None,
+            site_web=ci.site_web if ci else "",
+            url_ffbb=ci.url_ffbb if ci else "",
+            logo_url=ci.logo_url if ci else "",
+            telephone=ci.telephone if ci else "",
+            mail=ci.mail if ci else "",
+            salle_nom=ci.salle_nom if ci else "",
+            salle_adresse=ci.salle_adresse if ci else "",
+            salle_map_url=ci.salle_map_url if ci else "",
+            teams=report_teams,
+            club_contacts=club_contacts,
+        )
+
+    # ------------------------------------------------------------------
     # Build from flat rows
     # ------------------------------------------------------------------
 
@@ -456,7 +586,7 @@ class ContactReport:
     ) -> ContactReport:
         """Build a hierarchical report from flat collected rows."""
 
-        # Group: ville -> club -> (sexe, niveau, division) -> rows
+        # Group: ville -> club
         ville_clubs: dict[str, dict[str, list[_CollectedRow]]] = defaultdict(
             lambda: defaultdict(list)
         )
@@ -470,154 +600,24 @@ class ContactReport:
 
         report_cities: list[ReportCity] = []
         for ville in sorted_villes:
-            cp = city_postcodes.get(ville, "")
-            dist = city_distances.get(ville)
-            clubs_dict = ville_clubs[ville]
-
             geo = city_geo.get(ville)
-            city_lat = geo.lat if geo else None
-            city_lng = geo.lng if geo else None
-
-            report_clubs: list[ReportClub] = []
-            for club_name in sorted(clubs_dict.keys()):
-                club_rows = clubs_dict[club_name]
-                adresse = club_rows[0].adresse_club if club_rows else ""
-
-                # Lookup club info for enriched fields
-                ci = club_infos.get(club_name)
-
-                # Separate club-level vs team-level
-                club_contact_rows = [
-                    r for r in club_rows if "get_organisme" in r.source
-                ]
-                team_rows = [r for r in club_rows if "get_organisme" not in r.source]
-
-                # Group teams
-                team_groups: dict[tuple[str, str, str], list[_CollectedRow]] = (
-                    defaultdict(list)
-                )
-                for r in team_rows:
-                    team_groups[(r.sexe, r.niveau, r.division)].append(r)
-
-                report_teams: list[ReportTeam] = []
-                for (sexe, niveau, division), t_rows in sorted(
-                    team_groups.items(),
-                    key=lambda item: (
-                        NIVEAU_PRIORITY.get(item[0][1], 99),
-                        item[0][2],
-                        item[0][0],
-                    ),
-                ):
-                    effective_rows = _select_effective_team_rows(t_rows)
-                    poules = sorted({p for r in effective_rows for p in r.poules if p})
-                    ranking_url = ""
-                    competition_logo_url = ""
-                    ranking_position: int | None = None
-                    ranking_total: int | None = None
-                    next_match_date = ""
-                    next_match_opponent = ""
-                    next_match_type = ""
-                    next_match_salle_name = ""
-                    next_match_salle_address = ""
-                    next_match_salle_map_url = ""
-                    for r in effective_rows:
-                        if not ranking_url and r.ranking_url:
-                            ranking_url = r.ranking_url
-                        if not competition_logo_url and r.competition_logo_url:
-                            competition_logo_url = r.competition_logo_url
-                        if ranking_position is None and r.ranking_position is not None:
-                            ranking_position = r.ranking_position
-                        if ranking_total is None and r.ranking_total is not None:
-                            ranking_total = r.ranking_total
-                        if not next_match_date and r.next_match_date:
-                            next_match_date = r.next_match_date
-                        if not next_match_opponent and r.next_match_opponent:
-                            next_match_opponent = r.next_match_opponent
-                            next_match_type = r.next_match_type
-                        if not next_match_salle_name and r.next_match_salle_name:
-                            next_match_salle_name = r.next_match_salle_name
-                        if not next_match_salle_address and r.next_match_salle_address:
-                            next_match_salle_address = r.next_match_salle_address
-                        if not next_match_salle_map_url and r.next_match_salle_map_url:
-                            next_match_salle_map_url = r.next_match_salle_map_url
-                    contacts = [
-                        ReportContact(
-                            role=r.titre,
-                            nom=r.nom,
-                            prenom=r.prenom,
-                            telephone=r.telephone,
-                            email=r.email,
-                            source=r.source,
-                        )
-                        for r in sorted(effective_rows, key=lambda x: (x.nom, x.prenom))
-                    ]
-                    report_teams.append(
-                        ReportTeam(
-                            sexe=sexe,
-                            niveau=niveau,
-                            division=division,
-                            poules=poules,
-                            ranking_url=ranking_url,
-                            competition_logo_url=competition_logo_url,
-                            ranking_position=ranking_position,
-                            ranking_total=ranking_total,
-                            next_match_date=next_match_date,
-                            next_match_opponent=next_match_opponent,
-                            next_match_type=next_match_type,
-                            next_match_salle_name=next_match_salle_name,
-                            next_match_salle_address=next_match_salle_address,
-                            next_match_salle_map_url=next_match_salle_map_url,
-                            contacts=contacts,
-                        )
-                    )
-
-                club_contacts = [
-                    ReportContact(
-                        role=r.titre,
-                        nom=r.nom,
-                        prenom=r.prenom,
-                        telephone=r.telephone,
-                        email=r.email,
-                        source=r.source,
-                    )
-                    for r in sorted(club_contact_rows, key=lambda x: (x.nom, x.prenom))
-                ]
-
-                report_clubs.append(
-                    ReportClub(
-                        nom=club_name,
-                        adresse=adresse,
-                        lat=ci.lat if ci else None,
-                        lng=ci.lng if ci else None,
-                        site_web=ci.site_web if ci else "",
-                        url_ffbb=ci.url_ffbb if ci else "",
-                        logo_url=ci.logo_url if ci else "",
-                        telephone=ci.telephone if ci else "",
-                        mail=ci.mail if ci else "",
-                        salle_nom=ci.salle_nom if ci else "",
-                        salle_adresse=ci.salle_adresse if ci else "",
-                        salle_map_url=ci.salle_map_url if ci else "",
-                        teams=report_teams,
-                        club_contacts=club_contacts,
-                    )
-                )
-
+            report_clubs = [
+                ContactReport._build_club_report(club_name, club_rows, club_infos)
+                for club_name, club_rows in sorted(ville_clubs[ville].items())
+            ]
             report_cities.append(
                 ReportCity(
                     ville=ville,
-                    code_postal=cp,
-                    distance_km=dist,
-                    lat=city_lat,
-                    lng=city_lng,
+                    code_postal=city_postcodes.get(ville, ""),
+                    distance_km=city_distances.get(ville),
+                    lat=geo.lat if geo else None,
+                    lng=geo.lng if geo else None,
                     clubs=report_clubs,
                 )
             )
 
         # Ensure the target city always appears (even with 0 matching teams)
-        target_present = any(
-            c.ville.lower() == city_name.lower() for c in report_cities
-        )
-        if not target_present:
+        if not any(c.ville.lower() == city_name.lower() for c in report_cities):
             report_cities.insert(
                 0,
                 ReportCity(
@@ -886,354 +886,281 @@ class ContactReport:
         object.__setattr__(self, "_cached_all_roles", result)
         return result
 
+    def _write_html_head_and_sidebar(
+        self,
+        f,
+        salle_entries: list,
+    ) -> None:
+        """Write <head>, skip-link, and desktop sidebar nav."""
+        h = _html_escape
+        f.write("<!DOCTYPE html>\n<html lang='fr'>\n<head>\n")
+        f.write("<meta charset='utf-8'>\n")
+        f.write(
+            "<meta name='viewport' content='width=device-width, initial-scale=1'>\n"
+        )
+        f.write(f"<title>Liste de contacts — {h(self.city_name)}</title>\n")
+        f.write(
+            "<link rel='stylesheet' href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'"
+            " integrity='sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=' crossorigin=''/>\n"
+            "<link rel='stylesheet' href='https://unpkg.com/leaflet.markercluster@1.5.3"
+            "/dist/MarkerCluster.css' crossorigin=''/>\n"
+            "<link rel='stylesheet' href='https://unpkg.com/leaflet.markercluster@1.5.3"
+            "/dist/MarkerCluster.Default.css' crossorigin=''/>\n"
+        )
+        f.write(f"<style>\n{_HTML_CSS}</style>\n</head>\n<body>\n")
+        f.write(
+            "<a class='skip-link' href='#main-content'>Aller au contenu principal</a>\n"
+        )
+        f.write("<nav class='sidebar' id='sidebar'>\n")
+        f.write(f"<div class='sidebar-title'>{h(self.city_name)}</div>\n")
+        f.write("<ul class='sidebar-list'>\n")
+        for city in self.cities:
+            anchor = f"city-{slugify(city.ville)}"
+            dist = f"{city.distance_km:.0f}" if city.distance_km is not None else "?"
+            city_label = (
+                f"{city.ville} ({city.code_postal})" if city.code_postal else city.ville
+            )
+            f.write(
+                f"<li data-city-link='{h(anchor)}'><a href='#{anchor}'>"
+                f"{h(city_label)}<span class='sidebar-dist'>{dist} km</span></a></li>\n"
+            )
+        f.write(
+            "<li class='sidebar-annuaire'><a href='#annuaire'>&#x1F4D6; Annuaire</a></li>\n"
+        )
+        if salle_entries:
+            f.write(
+                "<li class='sidebar-annuaire'><a href='#salles'>&#x1F4CD; Salles</a></li>\n"
+            )
+        f.write("</ul>\n</nav>\n\n")
+
+    def _write_html_top_grid(
+        self,
+        f,
+        role_options: list[str],
+        max_distance_slider: int,
+        salle_entries: list,
+    ) -> None:
+        """Write the top grid: left column (hero, stats, controls) + right column (map)."""
+        h = _html_escape
+        f.write("<div class='top-grid'>\n<div class='top-grid__left'>\n")
+        # Hero header
+        f.write(
+            "<header class='hero'>\n<div class='hero-main'>\n<div>\n"
+            "<p class='hero-kicker'>Recherche FFBB</p>\n"
+            "<h1>Liste de contacts</h1>\n</div>\n"
+            f"<p class='hero-date'>{h(self.timestamp)}</p>\n</div>\n"
+            "<p class='hero-subtitle'>Extraction des clubs et contacts dans un rayon "
+            "personnalise autour de la ville de recherche.</p>\n"
+            "<ul class='hero-facts'>\n"
+        )
+        for label, value in [
+            ("Ville", self.city_name),
+            ("Rayon", f"{self.radius:.0f} km"),
+            ("Position", f"{self.lat:.4f}, {self.lng:.4f}"),
+            ("Echelons", self._format_filter(self.filter_echelons, "Tous")),
+            ("Tranches d'age", self._format_filter(self.filter_age_groups, "Toutes")),
+            ("SexeEnum", self._format_filter(self.filter_sexes, "Tous")),
+        ]:
+            f.write(
+                "<li class='hero-fact'>"
+                f"<span class='hero-fact__label'>{h(label)}</span>"
+                f"<span class='hero-fact__value'>{h(value)}</span></li>\n"
+            )
+        f.write("</ul>\n</header>\n\n")
+        # Stats
+        f.write("<section class='summary'>\n<div class='stat-grid'>\n")
+        for label, val in [
+            ("Villes", self.total_cities),
+            ("Clubs", self.total_clubs),
+            ("Equipes", self.total_teams),
+            ("Contacts", self.total_contacts),
+        ]:
+            f.write(
+                f"<div class='stat'><span class='stat-val'>{val}</span>"
+                f"<span class='stat-label'>{label}</span></div>\n"
+            )
+        f.write("</div>\n</section>\n\n")
+        # Filter controls
+        f.write(
+            "<section class='controls' aria-labelledby='controls-title'>\n"
+            "<h2 id='controls-title' class='visually-hidden'>Recherche et filtres</h2>\n"
+            "<div class='controls-bar'>\n"
+            "<label class='control-field control-field--search' for='ui-search'>"
+            "<span>Recherche</span>"
+            "<input id='ui-search' type='search' placeholder='Club, ville, contact, email...' "
+            "autocomplete='off'></label>\n"
+            "<div class='controls-actions'>\n"
+            f"<p class='controls-result' id='ui-results'>{self.total_clubs} clubs affiches</p>\n"
+            "<button type='button' id='ui-reset' class='control-reset'>Reinitialiser</button>\n"
+            "</div>\n</div>\n"
+            "<details class='controls-advanced'>\n<summary>Filtres avances</summary>\n"
+            "<div class='controls-grid'>\n"
+        )
+        f.write(
+            "<label class='control-field' for='ui-city'><span>Ville</span><select id='ui-city'>"
+        )
+        f.write("<option value='all'>Toutes les villes</option>")
+        for city in self.cities:
+            f.write(
+                f"<option value='{h(slugify(city.ville))}'>{h(city.ville)}</option>"
+            )
+        f.write(
+            "</select></label>\n"
+            "<label class='control-field' for='ui-level'><span>NiveauEnum</span>"
+            "<select id='ui-level'><option value='all'>Tous les niveaux</option>"
+            "<option value='pro'>Pro</option><option value='national'>National</option>"
+            "</select></label>\n"
+            "<label class='control-field' for='ui-role'><span>Role</span><select id='ui-role'>"
+            "<option value='all'>Tous les roles</option>"
+        )
+        for role in role_options:
+            f.write(f"<option value='{h(slugify(role))}'>{h(role)}</option>")
+        f.write(
+            "</select></label>\n"
+            "<label class='control-field control-field--range' for='ui-distance'>"
+            f"<span>Distance max: <strong id='ui-distance-value'>{max_distance_slider}</strong> km</span>"
+            f"<input id='ui-distance' type='range' min='0' max='{max_distance_slider}' "
+            f"value='{max_distance_slider}' step='1'></label>\n"
+            "<label class='control-field' for='ui-sort'><span>Tri</span><select id='ui-sort'>"
+            "<option value='distance'>Distance</option><option value='city'>Ville (A-Z)</option>"
+            "<option value='club'>Club (A-Z)</option><option value='contacts'>Nb contacts</option>"
+            "</select></label>\n"
+            "</div>\n</details>\n</section>\n</div>\n"  # end .top-grid__left
+        )
+        # Map
+        f.write(
+            "<section id='map-section' class='top-grid__right'>\n"
+            "<div id='map' aria-label='Carte des clubs'></div>\n"
+            "<noscript><p class='noscript-msg'>Activez JavaScript pour afficher la carte interactive."
+            "</p></noscript>\n</section>\n</div>\n\n"  # end .top-grid
+        )
+
+    def _write_html_mobile_nav(self, f, salle_entries: list) -> None:
+        """Write mobile navigation details block."""
+        h = _html_escape
+        f.write(
+            f"<details class='mobile-nav'>\n<summary>Navigation villes ({self.total_cities})</summary>\n<ul>\n"
+        )
+        for city in self.cities:
+            anchor = f"city-{slugify(city.ville)}"
+            dist = f"{city.distance_km:.0f} km" if city.distance_km is not None else "?"
+            city_label = (
+                f"{city.ville} ({city.code_postal})" if city.code_postal else city.ville
+            )
+            f.write(
+                f"<li data-city-link='{h(anchor)}'><a href='#{anchor}'>{h(city_label)} — {dist}</a></li>\n"
+            )
+        f.write("<li><a href='#annuaire'>&#x1F4D6; Annuaire des contacts</a></li>\n")
+        if salle_entries:
+            f.write("<li><a href='#salles'>&#x1F4CD; Salles</a></li>\n")
+        f.write("</ul>\n</details>\n\n")
+
+    def _write_html_cities_container(
+        self,
+        f,
+        max_distance_slider: int,
+        salle_anchor_by_signature: dict[tuple[str, str, str], str],
+    ) -> None:
+        """Write all city sections with club cards."""
+        h = _html_escape
+        f.write("<div id='cities-container'>\n")
+        for city in self.cities:
+            label = (
+                f"{city.ville} ({city.code_postal})" if city.code_postal else city.ville
+            )
+            dist = (
+                f"{city.distance_km:.1f} km"
+                if city.distance_km is not None
+                else "distance inconnue"
+            )
+            anchor = f"city-{slugify(city.ville)}"
+            city_slug = slugify(city.ville)
+            city_distance = (
+                city.distance_km
+                if city.distance_km is not None
+                else max_distance_slider
+            )
+            is_target = city.ville.lower() == self.city_name.lower()
+            f.write(
+                f"<section class='city-section' id='{anchor}' "
+                f"data-city='{h(city_slug)}' data-distance='{city_distance:.2f}' "
+                f"data-search='{h(city.ville.lower())}'>\n"
+                "<details class='city-details' open>\n"
+                "<summary class='city-summary'>"
+                f"<span class='city-summary__title'>{h(label)}</span>"
+                f"<span class='city-summary__meta'>{dist} · {city.total_clubs} club(s) · "
+                f"{city.total_teams} equipe(s) · {city.total_contacts} contact(s)</span>"
+                "</summary>\n<div class='city-body'>\n"
+            )
+            if city.clubs:
+                f.write("<div class='city-clubs'>\n")
+                for idx, club in enumerate(city.clubs, start=1):
+                    card_id = f"club-{slugify(city.ville)}-{slugify(club.nom)}-{idx}"
+                    self._write_html_club_card(
+                        f,
+                        club,
+                        card_id=card_id,
+                        city_name=city.ville,
+                        city_distance_km=city_distance,
+                        salle_anchor_by_signature=salle_anchor_by_signature,
+                    )
+                f.write("</div>\n")
+            elif is_target:
+                f.write(
+                    f"<p class='empty-city'>Aucune equipe qualifiee a <strong>{h(self.city_name)}</strong>."
+                    f" Recherche elargie a {self.radius:.0f}&nbsp;km.</p>\n"
+                )
+            f.write(
+                "<p class='nav'><a href='#map-section'>&#x2191; Carte</a> · "
+                "<a href='#main-content'>Filtres</a></p>\n"
+                "</div>\n</details>\n</section>\n\n"
+            )
+        f.write("</div>\n\n")
+
     def to_html(self, path: Path) -> None:
         """Write a professional HTML report with interactive Leaflet map."""
-        h = _html_escape
         role_options = self.all_roles
         max_city_distance = max(
             (city.distance_km for city in self.cities if city.distance_km is not None),
             default=self.radius,
         )
         max_distance_slider = max(
-            5,
-            int(math.ceil(max(max_city_distance, self.radius))),
+            5, int(math.ceil(max(max_city_distance, self.radius)))
         )
         salle_entries, salle_anchor_by_signature = self._collect_salles()
 
         with path.open("w", encoding="utf-8") as f:
-            f.write("<!DOCTYPE html>\n<html lang='fr'>\n<head>\n")
-            f.write("<meta charset='utf-8'>\n")
-            f.write(
-                "<meta name='viewport'"
-                " content='width=device-width, initial-scale=1'>\n"
-            )
-            f.write(f"<title>Liste de contacts" f" — {h(self.city_name)}</title>\n")
-            # Leaflet CSS + MarkerCluster CSS
-            f.write(
-                "<link rel='stylesheet'"
-                " href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'"
-                " integrity='sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY='"
-                " crossorigin=''/>\n"
-                "<link rel='stylesheet'"
-                " href='https://unpkg.com/leaflet.markercluster@1.5.3"
-                "/dist/MarkerCluster.css' crossorigin=''/>\n"
-                "<link rel='stylesheet'"
-                " href='https://unpkg.com/leaflet.markercluster@1.5.3"
-                "/dist/MarkerCluster.Default.css' crossorigin=''/>\n"
-            )
-            f.write("<style>\n")
-            f.write(_HTML_CSS)
-            f.write("</style>\n</head>\n<body>\n")
-            f.write(
-                "<a class='skip-link' href='#main-content'>"
-                "Aller au contenu principal</a>\n"
-            )
-
-            # --- Sidebar (desktop nav) ---
-            f.write("<nav class='sidebar' id='sidebar'>\n")
-            f.write(f"<div class='sidebar-title'>{h(self.city_name)}</div>\n")
-            f.write("<ul class='sidebar-list'>\n")
-            for city in self.cities:
-                anchor = f"city-{slugify(city.ville)}"
-                dist = (
-                    f"{city.distance_km:.0f}" if city.distance_km is not None else "?"
-                )
-                city_label = (
-                    f"{city.ville} ({city.code_postal})"
-                    if city.code_postal
-                    else city.ville
-                )
-                f.write(
-                    f"<li data-city-link='{h(anchor)}'><a href='#{anchor}'>"
-                    f"{h(city_label)}"
-                    f"<span class='sidebar-dist'>{dist} km</span></a></li>\n"
-                )
-            f.write(
-                "<li class='sidebar-annuaire'>"
-                "<a href='#annuaire'>&#x1F4D6; Annuaire</a></li>\n"
-            )
-            if salle_entries:
-                f.write(
-                    "<li class='sidebar-annuaire'>"
-                    "<a href='#salles'>&#x1F4CD; Salles</a></li>\n"
-                )
-            f.write("</ul>\n</nav>\n\n")
-
-            # --- Main content ---
+            self._write_html_head_and_sidebar(f, salle_entries)
             f.write("<main class='content' id='main-content'>\n")
-
-            # Top grid: left (hero + stats + controls) / right (map) on desktop
-            f.write("<div class='top-grid'>\n")
-            f.write("<div class='top-grid__left'>\n")
-
-            # Header
-            f.write("<header class='hero'>\n")
-            f.write("<div class='hero-main'>\n")
-            f.write("<div>\n")
-            f.write("<p class='hero-kicker'>Recherche FFBB</p>\n")
-            f.write("<h1>Liste de contacts</h1>\n")
-            f.write("</div>\n")
-            f.write(f"<p class='hero-date'>{h(self.timestamp)}</p>\n")
-            f.write("</div>\n")
-            f.write(
-                "<p class='hero-subtitle'>"
-                "Extraction des clubs et contacts dans un rayon "
-                "personnalise autour de la ville de recherche."
-                "</p>\n"
+            self._write_html_top_grid(
+                f, role_options, max_distance_slider, salle_entries
             )
-            f.write("<ul class='hero-facts'>\n")
-            for label, value in [
-                ("Ville", self.city_name),
-                ("Rayon", f"{self.radius:.0f} km"),
-                ("Position", f"{self.lat:.4f}, {self.lng:.4f}"),
-                ("Echelons", self._format_filter(self.filter_echelons, "Tous")),
-                (
-                    "Tranches d'age",
-                    self._format_filter(self.filter_age_groups, "Toutes"),
-                ),
-                ("SexeEnum", self._format_filter(self.filter_sexes, "Tous")),
-            ]:
-                f.write(
-                    "<li class='hero-fact'>"
-                    f"<span class='hero-fact__label'>{h(label)}</span>"
-                    f"<span class='hero-fact__value'>{h(value)}</span>"
-                    "</li>\n"
-                )
-            f.write("</ul>\n")
-            f.write("</header>\n\n")
-
-            # Summary stats
-            f.write("<section class='summary'>\n")
-            f.write("<div class='stat-grid'>\n")
-            for label, val in [
-                ("Villes", self.total_cities),
-                ("Clubs", self.total_clubs),
-                ("Equipes", self.total_teams),
-                ("Contacts", self.total_contacts),
-            ]:
-                f.write(
-                    f"<div class='stat'>"
-                    f"<span class='stat-val'>{val}</span>"
-                    f"<span class='stat-label'>{label}</span></div>\n"
-                )
-            f.write("</div>\n</section>\n\n")
-
-            # Search/filter/sort controls
-            f.write("<section class='controls' aria-labelledby='controls-title'>\n")
-            f.write(
-                "<h2 id='controls-title' class='visually-hidden'>"
-                "Recherche et filtres</h2>\n"
+            self._write_html_mobile_nav(f, salle_entries)
+            self._write_html_cities_container(
+                f, max_distance_slider, salle_anchor_by_signature
             )
-            f.write("<div class='controls-bar'>\n")
-            f.write(
-                "<label class='control-field control-field--search' for='ui-search'>"
-                "<span>Recherche</span>"
-                "<input id='ui-search' type='search' "
-                "placeholder='Club, ville, contact, email...' "
-                "autocomplete='off'></label>\n"
-            )
-            f.write("<div class='controls-actions'>\n")
-            f.write(
-                "<p class='controls-result' id='ui-results'>"
-                f"{self.total_clubs} clubs affiches</p>\n"
-            )
-            f.write(
-                "<button type='button' id='ui-reset' class='control-reset'>"
-                "Reinitialiser</button>\n"
-            )
-            f.write("</div>\n")
-            f.write("</div>\n")
-            f.write("<details class='controls-advanced'>\n")
-            f.write("<summary>Filtres avances</summary>\n")
-            f.write("<div class='controls-grid'>\n")
-            f.write("<label class='control-field' for='ui-city'>")
-            f.write("<span>Ville</span>")
-            f.write("<select id='ui-city'>")
-            f.write("<option value='all'>Toutes les villes</option>")
-            for city in self.cities:
-                city_slug = slugify(city.ville)
-                f.write(f"<option value='{h(city_slug)}'>{h(city.ville)}</option>")
-            f.write("</select></label>\n")
-            f.write("<label class='control-field' for='ui-level'>")
-            f.write("<span>NiveauEnum</span>")
-            f.write("<select id='ui-level'>")
-            f.write("<option value='all'>Tous les niveaux</option>")
-            f.write("<option value='pro'>Pro</option>")
-            f.write("<option value='national'>National</option>")
-            f.write("</select></label>\n")
-            f.write("<label class='control-field' for='ui-role'>")
-            f.write("<span>Role</span>")
-            f.write("<select id='ui-role'>")
-            f.write("<option value='all'>Tous les roles</option>")
-            for role in role_options:
-                f.write(f"<option value='{h(slugify(role))}'>{h(role)}</option>")
-            f.write("</select></label>\n")
-            f.write(
-                "<label class='control-field control-field--range' for='ui-distance'>"
-            )
-            f.write(
-                "<span>Distance max: <strong id='ui-distance-value'>"
-                f"{max_distance_slider}</strong> km</span>"
-            )
-            f.write(
-                f"<input id='ui-distance' type='range' min='0' max='{max_distance_slider}' "
-                f"value='{max_distance_slider}' step='1'>"
-            )
-            f.write("</label>\n")
-            f.write("<label class='control-field' for='ui-sort'>")
-            f.write("<span>Tri</span>")
-            f.write("<select id='ui-sort'>")
-            f.write("<option value='distance'>Distance</option>")
-            f.write("<option value='city'>Ville (A-Z)</option>")
-            f.write("<option value='club'>Club (A-Z)</option>")
-            f.write("<option value='contacts'>Nb contacts</option>")
-            f.write("</select></label>\n")
-            f.write("</div>\n")
-            f.write("</details>\n")
-            f.write("</section>\n")
-            f.write("</div>\n")  # end .top-grid__left
-
-            # Map (right column on desktop)
-            f.write("<section id='map-section' class='top-grid__right'>\n")
-            f.write("<div id='map' aria-label='Carte des clubs'></div>\n")
-            f.write(
-                "<noscript><p class='noscript-msg'>"
-                "Activez JavaScript pour afficher la carte interactive."
-                "</p></noscript>\n"
-            )
-            f.write("</section>\n")
-            f.write("</div>\n\n")  # end .top-grid
-
-            # Mobile nav (replaces sidebar on small screens)
-            f.write("<details class='mobile-nav'>\n")
-            f.write(f"<summary>Navigation villes ({self.total_cities})</summary>\n")
-            f.write("<ul>\n")
-            for city in self.cities:
-                anchor = f"city-{slugify(city.ville)}"
-                dist = (
-                    f"{city.distance_km:.0f} km"
-                    if city.distance_km is not None
-                    else "?"
-                )
-                city_label = (
-                    f"{city.ville} ({city.code_postal})"
-                    if city.code_postal
-                    else city.ville
-                )
-                f.write(
-                    f"<li data-city-link='{h(anchor)}'><a href='#{anchor}'>"
-                    f"{h(city_label)} — {dist}</a></li>\n"
-                )
-            f.write(
-                "<li><a href='#annuaire'>" "&#x1F4D6; Annuaire des contacts</a></li>\n"
-            )
-            if salle_entries:
-                f.write("<li><a href='#salles'>&#x1F4CD; Salles</a></li>\n")
-            f.write("</ul>\n</details>\n\n")
-
-            # Contacts detail by city
-            f.write("<div id='cities-container'>\n")
-            for city in self.cities:
-                label = (
-                    f"{city.ville} ({city.code_postal})"
-                    if city.code_postal
-                    else city.ville
-                )
-                dist = (
-                    f"{city.distance_km:.1f} km"
-                    if city.distance_km is not None
-                    else "distance inconnue"
-                )
-                anchor = f"city-{slugify(city.ville)}"
-                city_slug = slugify(city.ville)
-                city_distance = (
-                    city.distance_km
-                    if city.distance_km is not None
-                    else max_distance_slider
-                )
-                is_target = city.ville.lower() == self.city_name.lower()
-                f.write(
-                    f"<section class='city-section' id='{anchor}' "
-                    f"data-city='{h(city_slug)}' data-distance='{city_distance:.2f}' "
-                    f"data-search='{h(city.ville.lower())}'>\n"
-                )
-                f.write("<details class='city-details' open>\n")
-                f.write(
-                    "<summary class='city-summary'>"
-                    f"<span class='city-summary__title'>{h(label)}</span>"
-                    f"<span class='city-summary__meta'>{dist} · {city.total_clubs} club(s) · "
-                    f"{city.total_teams} equipe(s) · {city.total_contacts} contact(s)</span>"
-                    "</summary>\n"
-                )
-                f.write("<div class='city-body'>\n")
-                if city.clubs:
-                    f.write("<div class='city-clubs'>\n")
-                    for idx, club in enumerate(city.clubs, start=1):
-                        card_id = (
-                            f"club-{slugify(city.ville)}-{slugify(club.nom)}-{idx}"
-                        )
-                        self._write_html_club_card(
-                            f,
-                            club,
-                            card_id=card_id,
-                            city_name=city.ville,
-                            city_distance_km=city_distance,
-                            salle_anchor_by_signature=salle_anchor_by_signature,
-                        )
-                    f.write("</div>\n")
-                elif is_target:
-                    f.write(
-                        "<p class='empty-city'>Aucune equipe qualifiee"
-                        f" a <strong>{h(self.city_name)}</strong>."
-                        f" Recherche elargie a {self.radius:.0f}&nbsp;km.</p>\n"
-                    )
-                f.write(
-                    "<p class='nav'><a href='#map-section'>&#x2191; Carte</a> · "
-                    "<a href='#main-content'>Filtres</a></p>\n"
-                )
-                f.write("</div>\n</details>\n</section>\n\n")
-            f.write("</div>\n\n")
-
-            # Annuaire — all contacts, deduplicated
             self._write_html_annuaire(f)
             self._write_html_salles(f, salle_entries)
-
-            # Footer
+            h = _html_escape
             f.write(
-                f"<footer>Genere le {h(self.timestamp)}"
-                f" par ffbb-api-client-v2</footer>\n"
+                f"<footer>Genere le {h(self.timestamp)} par ffbb-api-client-v2</footer>\n"
+                "</main>\n\n"
+                "<script src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'"
+                " integrity='sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=' crossorigin=''></script>\n"
+                "<script src='https://unpkg.com/leaflet.markercluster@1.5.3"
+                "/dist/leaflet.markercluster.js' crossorigin=''></script>\n"
+                "<script>\n"
             )
-            f.write("</main>\n\n")
-
-            # --- Leaflet JS + MarkerCluster JS ---
-            f.write(
-                "<script"
-                " src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'"
-                " integrity='sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo='"
-                " crossorigin=''></script>\n"
-                "<script"
-                " src='https://unpkg.com/leaflet.markercluster@1.5.3"
-                "/dist/leaflet.markercluster.js'"
-                " crossorigin=''></script>\n"
-            )
-            f.write("<script>\n")
             self._write_leaflet_js(f)
             self._write_report_ui_js(f)
-            f.write("</script>\n")
-            f.write("</body>\n</html>\n")
+            f.write("</script>\n</body>\n</html>\n")
 
-    def _write_html_club_card(
-        self,
-        f,
+    @staticmethod
+    def _build_club_card_search_data(
         club: ReportClub,
-        *,
-        card_id: str,
         city_name: str,
-        city_distance_km: float,
-        salle_anchor_by_signature: dict[tuple[str, str, str], str],
-    ) -> None:
-        """Write a single club card with logo, links, teams, contacts."""
-        h = _html_escape
+    ) -> tuple[list[str], set[str], str, int]:
+        """Build search tokens, role tokens, search blob, and total contact count for a club card."""
         level_tokens = sorted({slugify(t.niveau) for t in club.teams if t.niveau})
         role_tokens: set[str] = set()
         search_tokens = [
@@ -1253,16 +1180,16 @@ class ContactReport:
                 [contact.nom, contact.prenom, contact.email, contact.telephone]
             )
         for team in club.teams:
-            if team.niveau:
-                search_tokens.append(team.niveau)
-            if team.division:
-                search_tokens.append(team.division)
-            if team.next_match_opponent:
-                search_tokens.append(team.next_match_opponent)
-            if team.next_match_salle_name:
-                search_tokens.append(team.next_match_salle_name)
-            if team.next_match_salle_address:
-                search_tokens.append(team.next_match_salle_address)
+            for attr in (
+                "niveau",
+                "division",
+                "next_match_opponent",
+                "next_match_salle_name",
+                "next_match_salle_address",
+            ):
+                val = getattr(team, attr, "")
+                if val:
+                    search_tokens.append(val)
             for contact in team.contacts:
                 if contact.role:
                     role_tokens.add(slugify(contact.role))
@@ -1270,66 +1197,55 @@ class ContactReport:
                 search_tokens.extend(
                     [contact.nom, contact.prenom, contact.email, contact.telephone]
                 )
-        search_blob = " ".join(token for token in search_tokens if token).lower()
+        search_blob = " ".join(t for t in search_tokens if t).lower()
         total_contacts = len(club.club_contacts) + sum(
             len(t.contacts) for t in club.teams
         )
+        return level_tokens, role_tokens, search_blob, total_contacts
 
-        def salle_anchor(name: str, address: str, map_url: str) -> str:
-            signature = self._salle_signature(name, address, map_url)
-            return salle_anchor_by_signature.get(signature, "")
-
-        f.write(
-            f"<article class='club-card' id='{h(card_id)}' "
-            f"data-card-id='{h(card_id)}' data-city='{h(slugify(city_name))}' "
-            f"data-distance='{city_distance_km:.2f}' "
-            f"data-club-name='{h(club.nom.lower())}' "
-            f"data-levels='{h(' '.join(level_tokens))}' "
-            f"data-roles='{h(' '.join(sorted(role_tokens)))}' "
-            f"data-search='{h(search_blob)}' "
-            f"data-contact-count='{total_contacts}'>\n"
-        )
-
-        # Club header row
+    def _write_club_header_row(
+        self,
+        f,
+        club: ReportClub,
+        city_name: str,
+        city_distance_km: float,
+        total_contacts: int,
+        salle_anchor_fn: Any,
+    ) -> None:
+        """Write the club header row: logo + address + meta."""
+        h = _html_escape
         f.write("<div class='club-header'>\n")
         if club.logo_url:
             f.write(
-                f"<img class='club-logo' src='{h(club.logo_url)}'"
-                f" alt='Logo {h(club.nom)}' loading='lazy' decoding='async'"
-                f" onerror=\"this.style.display='none'\">\n"
+                f"<img class='club-logo' src='{h(club.logo_url)}' alt='Logo {h(club.nom)}'"
+                f" loading='lazy' decoding='async' onerror=\"this.style.display='none'\">\n"
             )
         else:
             f.write("<span class='club-logo-placeholder'>&#x1F3C0;</span>\n")
-        f.write("<div class='club-info'>\n")
-        f.write(f"<h3 class='club-name'>{h(club.nom)}</h3>\n")
+        f.write(f"<div class='club-info'>\n<h3 class='club-name'>{h(club.nom)}</h3>\n")
         if club.adresse:
             map_url = _directions_url(club.lat, club.lng, club.adresse)
             if map_url:
                 f.write(
                     f"<p class='address'><a href='{h(map_url)}' target='_blank' "
-                    "rel='noopener noreferrer' class='address-link' "
-                    "title='Voir sur la carte'>"
+                    f"rel='noopener noreferrer' class='address-link' title='Voir sur la carte'>"
                     f"{h(club.adresse)}</a></p>\n"
                 )
             else:
                 f.write(f"<p class='address'>{h(club.adresse)}</p>\n")
         if club.salle_nom or club.salle_adresse or club.salle_map_url:
             salle_label = self._salle_label(club.salle_nom, club.salle_adresse)
-            salle_id = salle_anchor(
-                club.salle_nom,
-                club.salle_adresse,
-                club.salle_map_url,
+            salle_id = salle_anchor_fn(
+                club.salle_nom, club.salle_adresse, club.salle_map_url
             )
             if salle_id and salle_label:
                 f.write(
-                    "<p class='address address--secondary'>Salle club: "
-                    f"<a href='#{h(salle_id)}' class='salle-ref-link'>"
-                    f"{h(salle_label)}</a></p>\n"
+                    f"<p class='address address--secondary'>Salle club: "
+                    f"<a href='#{h(salle_id)}' class='salle-ref-link'>{h(salle_label)}</a></p>\n"
                 )
             elif salle_label:
                 f.write(
-                    "<p class='address address--secondary'>Salle club: "
-                    f"{h(salle_label)}</p>\n"
+                    f"<p class='address address--secondary'>Salle club: {h(salle_label)}</p>\n"
                 )
         f.write(
             f"<p class='club-meta'>{h(city_name)} · {city_distance_km:.1f} km · "
@@ -1337,192 +1253,204 @@ class ContactReport:
         )
         f.write("</div>\n</div>\n")
 
-        # Action links row
+    @staticmethod
+    def _write_club_action_links(f, club: ReportClub) -> None:
+        """Write the action links row (directions, website, FFBB, phone, email)."""
+        h = _html_escape
         links: list[str] = []
         dir_url = _directions_url(club.lat, club.lng, club.adresse)
         if dir_url:
             links.append(
                 f"<a href='{h(dir_url)}' target='_blank' rel='noopener noreferrer'"
-                f" title='Itineraire Google Maps'"
-                f" class='action-link'>&#x1F4CD; Itineraire</a>"
+                f" title='Itineraire Google Maps' class='action-link'>&#x1F4CD; Itineraire</a>"
             )
         if club.site_web:
-            url = club.site_web
-            if not url.startswith("http"):
-                url = "https://" + url
+            url = (
+                club.site_web
+                if club.site_web.startswith("http")
+                else "https://" + club.site_web
+            )
             links.append(
                 f"<a href='{h(url)}' target='_blank' rel='noopener noreferrer'"
-                f" title='Site web du club'"
-                f" class='action-link'>&#x1F310; Site web</a>"
+                f" title='Site web du club' class='action-link'>&#x1F310; Site web</a>"
             )
         if club.url_ffbb:
-            ffbb_url = club.url_ffbb
-            if not ffbb_url.startswith("http"):
-                ffbb_url = f"{_COMPETITIONS_BASE}{ffbb_url}"
+            ffbb = (
+                club.url_ffbb
+                if club.url_ffbb.startswith("http")
+                else f"{_COMPETITIONS_BASE}{club.url_ffbb}"
+            )
             links.append(
-                f"<a href='{h(ffbb_url)}' target='_blank' rel='noopener noreferrer'"
-                f" title='Page FFBB'"
-                f" class='action-link'>&#x1F3C6; Page FFBB</a>"
+                f"<a href='{h(ffbb)}' target='_blank' rel='noopener noreferrer'"
+                f" title='Page FFBB' class='action-link'>&#x1F3C6; Page FFBB</a>"
             )
         if club.telephone:
             tel_clean = re.sub(r"\D", "", club.telephone)
             links.append(
-                f"<a href='tel:{h(tel_clean)}'"
-                f" class='action-link'>&#x1F4DE; {h(_format_phone(club.telephone))}</a>"
+                f"<a href='tel:{h(tel_clean)}' class='action-link'>"
+                f"&#x1F4DE; {h(_format_phone(club.telephone))}</a>"
             )
         if club.mail:
             links.append(
-                f"<a href='mailto:{h(club.mail)}'"
-                f" class='action-link'>&#x2709; {h(club.mail)}</a>"
+                f"<a href='mailto:{h(club.mail)}' class='action-link'>&#x2709; {h(club.mail)}</a>"
             )
         if links:
-            f.write("<div class='club-actions'>\n")
-            f.write(" ".join(links))
-            f.write("\n</div>\n")
+            f.write("<div class='club-actions'>\n" + " ".join(links) + "\n</div>\n")
+
+    def _write_club_team_section(
+        self,
+        f,
+        team: ReportTeam,
+        index: int,
+        card_id: str,
+        salle_anchor_fn: Any,
+    ) -> None:
+        """Write a single team section within a club card."""
+        h = _html_escape
+        team_role_tokens = sorted({slugify(c.role) for c in team.contacts if c.role})
+        team_level = slugify(team.niveau) if team.niveau else ""
+        sexe_cls = "team--masculin" if team.sexe.startswith("M") else "team--feminin"
+        f.write(
+            f"<section class='team team-filterable {sexe_cls}' "
+            f"data-team-level='{h(team_level)}' data-team-roles='{h(' '.join(team_role_tokens))}'>\n"
+            "<div class='team-heading'><span class='team-label'>Equipe</span>"
+        )
+        if team.competition_logo_url:
+            f.write(
+                f"<img src='{h(team.competition_logo_url)}' alt='{h(team.division or team.niveau)}'"
+                f" class='competition-logo' width='28' height='28' loading='lazy'> "
+            )
+        niveau_class = _niveau_css_class(team.niveau)
+        sexe_badge = "M" if team.sexe.startswith("M") else "F"
+        f.write(
+            f"<span class='badge {niveau_class}'>{h(team.niveau)}</span>"
+            f" <span class='badge badge-sexe'>{sexe_badge}</span>"
+        )
+        if team.division:
+            f.write(f" <span class='badge badge-div'>{h(team.division)}</span>")
+        f.write(
+            f"<span class='team-count'>{len(team.contacts)} contact(s)</span></div>\n<div class='team-body'>\n"
+        )
+        # Meta chips
+        team_meta_items: list[str] = []
+        if team.poules:
+            team_meta_items.append(
+                "<span class='team-chip team-chip--poule'>"
+                f"<span class='team-chip__label'>Poule(s)</span>"
+                f"<span class='team-chip__value'>{h(' / '.join(team.poules))}</span></span>"
+            )
+        if team.ranking_position is not None and team.ranking_total is not None:
+            team_meta_items.append(
+                "<span class='team-chip team-chip--ranking'>"
+                f"<span class='team-chip__label'>Classement</span>"
+                f"<span class='team-chip__value'>{team.ranking_position} / {team.ranking_total}</span></span>"
+            )
+        if team.next_match_date:
+            match_type_label = _next_match_label(team.next_match_type)
+            chip_classes = "team-chip team-chip--next"
+            match_css = _next_match_css(team.next_match_type)
+            if match_css:
+                chip_classes += f" {match_css}"
+            salle_line = ""
+            if (
+                team.next_match_salle_name
+                or team.next_match_salle_address
+                or team.next_match_salle_map_url
+            ):
+                salle_label = self._salle_label(
+                    team.next_match_salle_name, team.next_match_salle_address
+                )
+                salle_id = salle_anchor_fn(
+                    team.next_match_salle_name,
+                    team.next_match_salle_address,
+                    team.next_match_salle_map_url,
+                )
+                if salle_id and salle_label:
+                    salle_line = (
+                        f"<span class='team-chip__hall'>Lieu match: "
+                        f"<a href='#{h(salle_id)}' class='team-chip__hall-link'>{h(salle_label)}</a></span>"
+                    )
+                elif salle_label:
+                    salle_line = f"<span class='team-chip__hall'>Lieu match: {h(salle_label)}</span>"
+            opponent_html = ""
+            if team.next_match_opponent:
+                opponent_html = (
+                    f"<span class='team-chip__vs'>contre</span>"
+                    f"<span class='team-chip__opponent' title='{h(team.next_match_opponent)}'>"
+                    f"{h(team.next_match_opponent)}</span>"
+                )
+            team_meta_items.append(
+                f"<span class='{chip_classes}'>"
+                f"<span class='team-chip__label'>{h(match_type_label)}</span>"
+                f"<span class='team-chip__next-main'><span class='team-chip__when'>{h(team.next_match_date)}</span>"
+                f"{opponent_html}</span>{salle_line}</span>"
+            )
+        if team_meta_items or team.ranking_url:
+            f.write("<div class='team-meta'>")
+            if team_meta_items:
+                f.write("".join(team_meta_items))
+            if team.ranking_url:
+                f.write(
+                    f"<a href='{h(team.ranking_url)}' target='_blank' rel='noopener noreferrer'"
+                    f" class='team-meta-link'>Voir classement &#x2197;</a>"
+                )
+            f.write("</div>\n")
+        self._write_html_contact_table(
+            f, team.contacts, with_refs=True, table_id=f"{card_id}-team-{index}"
+        )
+        f.write("</div>\n</section>\n")
+
+    def _write_html_club_card(
+        self,
+        f,
+        club: ReportClub,
+        *,
+        card_id: str,
+        city_name: str,
+        city_distance_km: float,
+        salle_anchor_by_signature: dict[tuple[str, str, str], str],
+    ) -> None:
+        """Write a single club card with logo, links, teams, contacts."""
+        h = _html_escape
+        level_tokens, role_tokens, search_blob, total_contacts = (
+            self._build_club_card_search_data(club, city_name)
+        )
+
+        def salle_anchor_fn(name: str, address: str, map_url: str) -> str:
+            return salle_anchor_by_signature.get(
+                self._salle_signature(name, address, map_url), ""
+            )
+
+        f.write(
+            f"<article class='club-card' id='{h(card_id)}' data-card-id='{h(card_id)}' "
+            f"data-city='{h(slugify(city_name))}' data-distance='{city_distance_km:.2f}' "
+            f"data-club-name='{h(club.nom.lower())}' data-levels='{h(' '.join(level_tokens))}' "
+            f"data-roles='{h(' '.join(sorted(role_tokens)))}' data-search='{h(search_blob)}' "
+            f"data-contact-count='{total_contacts}'>\n"
+        )
+        self._write_club_header_row(
+            f, club, city_name, city_distance_km, total_contacts, salle_anchor_fn
+        )
+        self._write_club_action_links(f, club)
 
         if club.club_contacts:
             club_role_tokens = sorted(
-                {
-                    slugify(contact.role)
-                    for contact in club.club_contacts
-                    if contact.role
-                }
+                {slugify(c.role) for c in club.club_contacts if c.role}
             )
             f.write(
-                "<section class='team team-filterable team--club' "
-                f"data-team-level='' data-team-roles='{h(' '.join(club_role_tokens))}'>\n"
+                f"<section class='team team-filterable team--club' data-team-level='' "
+                f"data-team-roles='{h(' '.join(club_role_tokens))}'>\n"
+                "<div class='team-heading'><span class='badge badge-club'>Contacts club</span>"
+                f"<span class='team-count'>{len(club.club_contacts)} contact(s)</span></div>\n"
+                "<div class='team-body'>\n"
             )
-            f.write(
-                "<div class='team-heading'>"
-                "<span class='badge badge-club'>Contacts club</span>"
-                f"<span class='team-count'>{len(club.club_contacts)} contact(s)</span>"
-                "</div>\n"
-            )
-            f.write("<div class='team-body'>\n")
             self._write_html_contact_table(
-                f,
-                club.club_contacts,
-                with_refs=True,
-                table_id=f"{card_id}-club",
+                f, club.club_contacts, with_refs=True, table_id=f"{card_id}-club"
             )
             f.write("</div>\n</section>\n")
 
         for index, team in enumerate(club.teams, start=1):
-            team_role_tokens = sorted(
-                {slugify(contact.role) for contact in team.contacts if contact.role}
-            )
-            team_level = slugify(team.niveau) if team.niveau else ""
-            sexe_cls = (
-                "team--masculin" if team.sexe.startswith("M") else "team--feminin"
-            )
-            f.write(
-                f"<section class='team team-filterable {sexe_cls}' "
-                f"data-team-level='{h(team_level)}' "
-                f"data-team-roles='{h(' '.join(team_role_tokens))}'>\n"
-            )
-            f.write("<div class='team-heading'>")
-            f.write("<span class='team-label'>Equipe</span>")
-            if team.competition_logo_url:
-                f.write(
-                    f"<img src='{h(team.competition_logo_url)}'"
-                    f" alt='{h(team.division or team.niveau)}' class='competition-logo'"
-                    f" width='28' height='28' loading='lazy'> "
-                )
-            niveau_class = _niveau_css_class(team.niveau)
-            sexe_badge = "M" if team.sexe.startswith("M") else "F"
-            f.write(
-                f"<span class='badge {niveau_class}'>{h(team.niveau)}</span>"
-                f" <span class='badge badge-sexe'>{sexe_badge}</span>"
-            )
-            if team.division:
-                f.write(f" <span class='badge badge-div'>{h(team.division)}</span>")
-            f.write(f"<span class='team-count'>{len(team.contacts)} contact(s)</span>")
-            f.write("</div>\n")
-            f.write("<div class='team-body'>\n")
-            team_meta_items: list[str] = []
-            if team.poules:
-                team_meta_items.append(
-                    "<span class='team-chip team-chip--poule'>"
-                    "<span class='team-chip__label'>Poule(s)</span>"
-                    f"<span class='team-chip__value'>{h(' / '.join(team.poules))}</span>"
-                    "</span>"
-                )
-            if team.ranking_position is not None and team.ranking_total is not None:
-                team_meta_items.append(
-                    "<span class='team-chip team-chip--ranking'>"
-                    "<span class='team-chip__label'>Classement</span>"
-                    "<span class='team-chip__value'>"
-                    f"{team.ranking_position} / {team.ranking_total}</span>"
-                    "</span>"
-                )
-            if team.next_match_date:
-                match_type_label = _next_match_label(team.next_match_type)
-                match_type_css = _next_match_css(team.next_match_type)
-                chip_classes = "team-chip team-chip--next"
-                if match_type_css:
-                    chip_classes += f" {match_type_css}"
-                salle_line = ""
-                if (
-                    team.next_match_salle_name
-                    or team.next_match_salle_address
-                    or team.next_match_salle_map_url
-                ):
-                    salle_label = self._salle_label(
-                        team.next_match_salle_name,
-                        team.next_match_salle_address,
-                    )
-                    salle_id = salle_anchor(
-                        team.next_match_salle_name,
-                        team.next_match_salle_address,
-                        team.next_match_salle_map_url,
-                    )
-                    if salle_id and salle_label:
-                        salle_line = (
-                            "<span class='team-chip__hall'>Lieu match: "
-                            f"<a href='#{h(salle_id)}' class='team-chip__hall-link'>"
-                            f"{h(salle_label)}</a></span>"
-                        )
-                    elif salle_label:
-                        salle_line = (
-                            "<span class='team-chip__hall'>Lieu match: "
-                            f"{h(salle_label)}</span>"
-                        )
-                opponent_html = ""
-                if team.next_match_opponent:
-                    opponent_html = (
-                        "<span class='team-chip__vs'>contre</span>"
-                        f"<span class='team-chip__opponent'"
-                        f" title='{h(team.next_match_opponent)}'>"
-                        f"{h(team.next_match_opponent)}</span>"
-                    )
-                team_meta_items.append(
-                    f"<span class='{chip_classes}'>"
-                    f"<span class='team-chip__label'>{h(match_type_label)}</span>"
-                    "<span class='team-chip__next-main'>"
-                    f"<span class='team-chip__when'>{h(team.next_match_date)}</span>"
-                    f"{opponent_html}"
-                    "</span>"
-                    f"{salle_line}"
-                    "</span>"
-                )
-            if team_meta_items or team.ranking_url:
-                f.write("<div class='team-meta'>")
-                if team_meta_items:
-                    f.write("".join(team_meta_items))
-                if team.ranking_url:
-                    f.write(
-                        f"<a href='{h(team.ranking_url)}' target='_blank' "
-                        "rel='noopener noreferrer' class='team-meta-link'>"
-                        "Voir classement &#x2197;</a>"
-                    )
-                f.write("</div>\n")
-            self._write_html_contact_table(
-                f,
-                team.contacts,
-                with_refs=True,
-                table_id=f"{card_id}-team-{index}",
-            )
-            f.write("</div>\n</section>\n")
+            self._write_club_team_section(f, team, index, card_id, salle_anchor_fn)
 
         f.write("</article>\n")
 
@@ -1623,19 +1551,15 @@ class ContactReport:
             f.write("</article>\n")
         f.write("</div>\n</div>\n")
 
-    def _write_leaflet_js(self, f) -> None:
-        """Write the Leaflet map initialization script."""
-
-        # Collect all club markers
+    def _collect_map_markers(self) -> str:
+        """Collect all club coordinates and popup data as a JSON string for Leaflet."""
         markers: list[dict] = []
         for city in self.cities:
             for index, club in enumerate(city.clubs, start=1):
-                lat = club.lat
-                lng = club.lng
-                if lat is None or lng is None:
+                if club.lat is None or club.lng is None:
                     continue
                 card_id = f"club-{slugify(city.ville)}-{slugify(club.nom)}-{index}"
-                dir_url = _directions_url(lat, lng, club.adresse)
+                dir_url = _directions_url(club.lat, club.lng, club.adresse)
                 popup = f"<strong>{_html_escape(club.nom)}</strong>"
                 if club.adresse:
                     popup += f"<br><em>{_html_escape(club.adresse)}</em>"
@@ -1650,175 +1574,130 @@ class ContactReport:
                 )
                 markers.append(
                     {
-                        "lat": lat,
-                        "lng": lng,
+                        "lat": club.lat,
+                        "lng": club.lng,
                         "popup": popup,
                         "name": club.nom,
                         "logo_url": club.logo_url,
                         "card_id": card_id,
                     }
                 )
+        return json.dumps(markers, ensure_ascii=False)
 
-        markers_json = json.dumps(markers, ensure_ascii=False)
-
+    def _write_leaflet_map_setup_js(self, f) -> None:
+        """Write Leaflet map init + radius circle JS."""
         f.write(f"""\
 (function() {{
-      var center = [{self.lat}, {self.lng}];
-      var mapEl = document.getElementById('map');
-      if (!mapEl || typeof L === 'undefined') {{
-        return;
-      }}
-      var map = L.map('map').setView(center, 8);
-      L.tileLayer('https://{{s}}.tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png', {{
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        maxZoom: 18
-      }}).addTo(map);
-
-  // Radius circle
-  var radiusCircle = L.circle(center, {{
-    radius: {self.radius * 1000},
-    color: '#416BD7',
-    fillColor: '#416BD7',
-    fillOpacity: 0.08,
-    weight: 2,
-    dashArray: '8 4'
+  var center = [{self.lat}, {self.lng}];
+  var mapEl = document.getElementById('map');
+  if (!mapEl || typeof L === 'undefined') {{ return; }}
+  var map = L.map('map').setView(center, 8);
+  L.tileLayer('https://{{s}}.tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png', {{
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    maxZoom: 18
   }}).addTo(map);
-
-  function escapeHtml(value) {{
-    return String(value || '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
-  }}
-
-  function buildClubIcon(markerData) {{
-    var safeName = escapeHtml(markerData.name || 'Club');
-    var rawLogo = typeof markerData.logo_url === 'string'
-      ? markerData.logo_url.trim()
-      : '';
-    var hasHttpLogo = /^https?:\\/\\//i.test(rawLogo);
-    if (hasHttpLogo) {{
-      return L.divIcon({{
-        className: 'club-marker',
-        html: '<div class="club-pin club-pin--logo" title="' + safeName + '">'
-          + '<img class="club-pin__img" src="' + escapeHtml(rawLogo) + '"'
-          + ' alt="" loading="lazy"></div>',
-        iconSize: [30, 30],
-        iconAnchor: [15, 15],
-        popupAnchor: [0, -15]
-      }});
-    }}
-
-    return L.divIcon({{
-      className: 'club-marker',
-      html: '<div class="club-pin club-pin--fallback" title="' + safeName + '">'
-        + '<span class="club-pin__emoji" aria-hidden="true">&#x1F3C0;</span>'
-        + '</div>',
-      iconSize: [30, 30],
-      iconAnchor: [15, 15],
-      popupAnchor: [0, -15]
-    }});
-  }}
-
-      var clusters = L.markerClusterGroup({{
-        maxClusterRadius: 40,
-        spiderfyOnMaxZoom: true,
-        showCoverageOnHover: false,
-    iconCreateFunction: function(cluster) {{
-      var n = cluster.getChildCount();
-      return L.divIcon({{
-        html: '<div style="background:#416BD7;color:#fff;'
-          + 'border-radius:50%;width:32px;height:32px;'
-          + 'display:flex;align-items:center;justify-content:center;'
-          + 'font-weight:700;font-size:13px;border:2px solid #fff;'
-          + 'box-shadow:0 0 6px rgba(0,0,0,0.3)">' + n + '</div>',
-        className: 'club-cluster',
-        iconSize: [32, 32],
-        iconAnchor: [16, 16]
-      }});
-    }}
-      }});
-
-      var data = {markers_json};
-      var markerEntries = [];
-      var markerByCardId = Object.create(null);
-      data.forEach(function(m) {{
-        var marker = L.marker([m.lat, m.lng], {{icon: buildClubIcon(m)}})
-          .bindPopup(m.popup);
-        if (m.name) {{
-      marker.bindTooltip(escapeHtml(m.name), {{
-        direction: 'top',
-        offset: [0, -18],
-        sticky: true,
-            opacity: 0.95
-          }});
-        }}
-        markerEntries.push({{cardId: m.card_id || '', marker: marker}});
-        if (m.card_id) {{
-          markerByCardId[m.card_id] = marker;
-          marker.on('click', function() {{
-            document.dispatchEvent(
-              new CustomEvent('ffbb:marker-selected', {{
-                detail: {{cardId: m.card_id}}
-              }})
-            );
-          }});
-        }}
-      }});
-
-      function updateClusters(visibleCardIds, preserveView) {{
-        var hasFilter = Array.isArray(visibleCardIds);
-        var visibleSet = Object.create(null);
-        if (hasFilter) {{
-          visibleCardIds.forEach(function(cardId) {{
-            visibleSet[cardId] = true;
-          }});
-        }}
-        clusters.clearLayers();
-        var bounds = radiusCircle.getBounds();
-        var visibleCount = 0;
-        markerEntries.forEach(function(entry) {{
-          var include = !hasFilter || !!visibleSet[entry.cardId];
-          if (!include) {{
-            return;
-          }}
-          clusters.addLayer(entry.marker);
-          bounds.extend(entry.marker.getLatLng());
-          visibleCount += 1;
-        }});
-        if (!map.hasLayer(clusters)) {{
-          map.addLayer(clusters);
-        }}
-        if (!preserveView && visibleCount > 0) {{
-          map.fitBounds(bounds, {{padding: [10, 10], maxZoom: 11}});
-        }}
-      }}
-
-      updateClusters(null, false);
-
-      window.__ffbbMapBridge = {{
-        setVisibleCards: function(cardIds, preserveView) {{
-          updateClusters(cardIds, !!preserveView);
-        }},
-        focusCard: function(cardId, openPopup) {{
-          var marker = markerByCardId[cardId];
-          if (!marker) {{
-            return;
-          }}
-          map.panTo(marker.getLatLng(), {{animate: true, duration: 0.35}});
-          if (openPopup !== false) {{
-            marker.openPopup();
-          }}
-        }}
-      }};
-    }})();
-    """)
+  var radiusCircle = L.circle(center, {{
+    radius: {self.radius * 1000}, color: '#416BD7', fillColor: '#416BD7',
+    fillOpacity: 0.08, weight: 2, dashArray: '8 4'
+  }}).addTo(map);
+""")
 
     @staticmethod
-    def _write_report_ui_js(f) -> None:
-        """Write client-side UI interactions (filters, sorting, copy, sync)."""
+    def _write_leaflet_icon_helpers_js(f) -> None:
+        """Write JS escapeHtml + buildClubIcon helper functions."""
+        f.write("""\
+  function escapeHtml(value) {
+    return String(value || '')
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+  function buildClubIcon(m) {
+    var safeName = escapeHtml(m.name || 'Club');
+    var rawLogo = typeof m.logo_url === 'string' ? m.logo_url.trim() : '';
+    if (/^https?:\\/\\//i.test(rawLogo)) {
+      return L.divIcon({className:'club-marker',
+        html:'<div class="club-pin club-pin--logo" title="'+safeName+'">'
+          +'<img class="club-pin__img" src="'+escapeHtml(rawLogo)+'" alt="" loading="lazy"></div>',
+        iconSize:[30,30],iconAnchor:[15,15],popupAnchor:[0,-15]});
+    }
+    return L.divIcon({className:'club-marker',
+      html:'<div class="club-pin club-pin--fallback" title="'+safeName+'">'
+        +'<span class="club-pin__emoji" aria-hidden="true">&#x1F3C0;</span></div>',
+      iconSize:[30,30],iconAnchor:[15,15],popupAnchor:[0,-15]});
+  }
+""")
+
+    @staticmethod
+    def _write_leaflet_clusters_js(f, markers_json: str) -> None:
+        """Write Leaflet marker clusters + data loading + updateClusters function."""
+        f.write(f"""\
+  var clusters = L.markerClusterGroup({{maxClusterRadius:40,spiderfyOnMaxZoom:true,
+    showCoverageOnHover:false,
+    iconCreateFunction:function(cluster){{
+      var n=cluster.getChildCount();
+      return L.divIcon({{
+        html:'<div style="background:#416BD7;color:#fff;border-radius:50%;width:32px;height:32px;'
+          +'display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;'
+          +'border:2px solid #fff;box-shadow:0 0 6px rgba(0,0,0,0.3)">'+n+'</div>',
+        className:'club-cluster',iconSize:[32,32],iconAnchor:[16,16]}});
+    }}}});
+  var data = {markers_json};
+  var markerEntries=[];
+  var markerByCardId=Object.create(null);
+  data.forEach(function(m){{
+    var marker=L.marker([m.lat,m.lng],{{icon:buildClubIcon(m)}}).bindPopup(m.popup);
+    if(m.name){{marker.bindTooltip(escapeHtml(m.name),{{direction:'top',offset:[0,-18],sticky:true,opacity:0.95}});}}
+    markerEntries.push({{cardId:m.card_id||'',marker:marker}});
+    if(m.card_id){{
+      markerByCardId[m.card_id]=marker;
+      marker.on('click',function(){{document.dispatchEvent(new CustomEvent('ffbb:marker-selected',{{detail:{{cardId:m.card_id}}}}));}});
+    }}
+  }});
+  function updateClusters(visibleCardIds,preserveView){{
+    var hasFilter=Array.isArray(visibleCardIds);
+    var visibleSet=Object.create(null);
+    if(hasFilter){{visibleCardIds.forEach(function(id){{visibleSet[id]=true;}});}}
+    clusters.clearLayers();
+    var bounds=radiusCircle.getBounds();
+    var n=0;
+    markerEntries.forEach(function(e){{
+      if(hasFilter&&!visibleSet[e.cardId]){{return;}}
+      clusters.addLayer(e.marker);bounds.extend(e.marker.getLatLng());n+=1;
+    }});
+    if(!map.hasLayer(clusters)){{map.addLayer(clusters);}}
+    if(!preserveView&&n>0){{map.fitBounds(bounds,{{padding:[10,10],maxZoom:11}});}}
+  }}
+  updateClusters(null,false);
+""")
+
+    @staticmethod
+    def _write_leaflet_bridge_js(f) -> None:
+        """Write the window.__ffbbMapBridge public API + close IIFE."""
+        f.write("""\
+  window.__ffbbMapBridge = {
+    setVisibleCards: function(cardIds, preserveView) { updateClusters(cardIds, !!preserveView); },
+    focusCard: function(cardId, openPopup) {
+      var marker = markerByCardId[cardId];
+      if (!marker) { return; }
+      map.panTo(marker.getLatLng(), {animate: true, duration: 0.35});
+      if (openPopup !== false) { marker.openPopup(); }
+    }
+  };
+})();
+""")
+
+    def _write_leaflet_js(self, f) -> None:
+        """Write the Leaflet map initialization script (delegates to sub-writers)."""
+        markers_json = self._collect_map_markers()
+        self._write_leaflet_map_setup_js(f)
+        self._write_leaflet_icon_helpers_js(f)
+        self._write_leaflet_clusters_js(f, markers_json)
+        self._write_leaflet_bridge_js(f)
+
+    @staticmethod
+    @staticmethod
+    def _write_ui_declarations_js(f) -> None:
+        """Write IIFE open + state declarations + utility/sort/helper functions."""
         f.write("""\
     (function() {
       var searchInput = document.getElementById('ui-search');
@@ -1960,6 +1839,12 @@ class ContactReport:
         return hasVisible;
       }
 
+""")
+
+    @staticmethod
+    def _write_ui_filters_and_card_js(f) -> None:
+        """Write applyFilters, setActiveCard, copyText functions."""
+        f.write("""\
       function applyFilters() {
         var term = normalize(searchInput.value);
         var cityValue = cityInput.value || 'all';
@@ -1969,6 +1854,12 @@ class ContactReport:
         var visibleCardIds = [];
         var visibleContactCount = 0;
 
+""")
+
+    @staticmethod
+    def _write_ui_event_handlers_js(f) -> None:
+        """Write event handler registrations + IIFE close."""
+        f.write("""\
         clubCards.forEach(function(card) {
           var cardSearch = normalize(card.dataset.search);
           var cardCity = card.dataset.city || '';
@@ -2150,7 +2041,14 @@ class ContactReport:
       applySort();
       applyFilters();
     })();
-    """)
+""")
+
+    @staticmethod
+    def _write_report_ui_js(f) -> None:
+        """Write client-side UI interactions (delegates to sub-writers)."""
+        ContactReport._write_ui_declarations_js(f)
+        ContactReport._write_ui_filters_and_card_js(f)
+        ContactReport._write_ui_event_handlers_js(f)
 
     def _write_html_annuaire(self, f) -> None:
         """Write the 'Annuaire' section with all contacts deduplicated."""
@@ -4380,11 +4278,12 @@ def _search_and_classify(
 
 
 # ---------------------------------------------------------------------------
-# Main
+# Main phase helpers
 # ---------------------------------------------------------------------------
 
 
-def main() -> None:
+def _build_arg_parser() -> argparse.ArgumentParser:
+    """Build and return the CLI argument parser."""
     parser = argparse.ArgumentParser(
         description="Extract basketball contacts near a city"
     )
@@ -4425,11 +4324,18 @@ def main() -> None:
         help="Age groups (e.g. --age-group SENIOR VETERAN). "
         f"Valid: {', '.join(a.name for a in AgeGroupEnum)}. Default: all",
     )
-    args = parser.parse_args()
+    return parser
 
-    slug = args.city_name.lower().replace(" ", "_")
 
-    # --- Build validated filter sets from CLI args (None = accept all) ---
+def _parse_cli_filters(
+    args: argparse.Namespace,
+    parser: argparse.ArgumentParser,
+) -> tuple[
+    frozenset[EchelonEnum] | None,
+    frozenset[AgeGroupEnum] | None,
+    frozenset[SexeEnum] | None,
+]:
+    """Parse and validate echelon/age-group/sexe filter args into enum frozensets."""
     accepted_echelons: frozenset[EchelonEnum] | None = (
         _parse_enum_args(args.echelon, EchelonEnum, "echelon", parser)
         if args.echelon
@@ -4443,40 +4349,29 @@ def main() -> None:
     accepted_sexes: frozenset[SexeEnum] | None = (
         _parse_enum_args(args.sexe, SexeEnum, "sexe", parser) if args.sexe else None
     )
+    return accepted_echelons, accepted_age_groups, accepted_sexes
 
-    # --- Resolve city coordinates & create client ---
-    t_start = time.perf_counter()
-    tokens = TokenManager.get_tokens()
-    client = FFBBAPIClientV2.create(
-        api_bearer_token=tokens.api_token,
-        meilisearch_bearer_token=tokens.meilisearch_token,
-    )
-    t0 = time.perf_counter()
-    lat, lng, city_code_postal, city_club_codes = resolve_city_coordinates(
-        client, args.city_name
-    )
-    logger.info("[0/5] Résolution ville: %.2fs", time.perf_counter() - t0)
 
-    if args.dry_run:
-        effective_radius = args.radius if args.radius is not None else _CITY_RADIUS_KM
-        logger.info(
-            "[dry-run] %s (%.5f, %.5f), rayon %.1f km → %s/%s_senior_contacts.{md,csv,html}",
-            args.city_name,
-            lat,
-            lng,
-            effective_radius,
-            args.out_dir,
-            slug,
-        )
-        return
+def _step1_geo_search_engagements(
+    client: FFBBAPIClientV2,
+    city_name: str,
+    lat: float,
+    lng: float,
+    explicit_radius: float | None,
+    city_club_codes: set[str],
+    accepted_echelons: frozenset[EchelonEnum] | None,
+    accepted_age_groups: frozenset[AgeGroupEnum] | None,
+    accepted_sexes: frozenset[SexeEnum] | None,
+) -> tuple[Any, list[Any], dict[str, int], float]:
+    """Geo-search Meilisearch for engagements; apply city-club filter or fallback.
 
-    # Step 1: Geo search engagements via Meilisearch (adaptive radius)
-    t1 = time.perf_counter()
-    if args.radius is not None:
-        search_radius = args.radius
+    Returns (result, qualified, level_counts, search_radius).
+    """
+    if explicit_radius is not None:
+        search_radius = explicit_radius
         logger.info(
             "[1/5] Recherche geo engagements: %s (%.5f, %.5f), rayon %.1f km (explicite)",
-            args.city_name,
+            city_name,
             lat,
             lng,
             search_radius,
@@ -4491,11 +4386,10 @@ def main() -> None:
             accepted_sexes,
         )
     else:
-        # City mode: geo-search + post-filter by city club codes, fallback if empty
         search_radius = _CITY_RADIUS_KM
         logger.info(
             "[1/5] Recherche geo engagements: %s (%.5f, %.5f), rayon %.1f km (ville, %d clubs)",
-            args.city_name,
+            city_name,
             lat,
             lng,
             search_radius,
@@ -4510,8 +4404,7 @@ def main() -> None:
             accepted_age_groups,
             accepted_sexes,
         )
-        # Post-filter: keep only engagements from clubs in the target city
-        all_qualified = qualified[:]  # save for fallback
+        all_qualified = qualified[:]
         if city_club_codes:
             filtered = [(h, l) for h, l in qualified if h.code_club in city_club_codes]
             if filtered:
@@ -4520,88 +4413,48 @@ def main() -> None:
                 for _, l in qualified:
                     level_counts[l] += 1
                 logger.info(
-                    "[1/5] Ville %s: %d engagements bruts, %d qualifies, "
-                    "%d apres filtre clubs ville (%d clubs)",
-                    args.city_name,
+                    "[1/5] Ville %s: %d bruts, %d qualifies, %d apres filtre (%d clubs)",
+                    city_name,
                     len(result.hits) if result and result.hits else 0,
                     len(all_qualified),
                     len(qualified),
                     len(city_club_codes),
                 )
             else:
-                # No results after city filter → fallback to all geo results
                 logger.info(
-                    "[1/5] Ville %s: %d engagements bruts, %d qualifies, "
-                    "0 apres filtre clubs ville (%d clubs) → fallback geo-rayon %.0f km",
-                    args.city_name,
+                    "[1/5] Ville %s: %d bruts, %d qualifies, 0 apres filtre → fallback %.0f km",
+                    city_name,
                     len(result.hits) if result and result.hits else 0,
                     len(all_qualified),
-                    len(city_club_codes),
                     search_radius,
                 )
         else:
             logger.info(
-                "[1/5] Ville %s: %d engagements bruts, %d qualifies "
-                "(rayon %.0f km, pas de clubs ville)",
-                args.city_name,
+                "[1/5] Ville %s: %d bruts, %d qualifies (rayon %.0f km, pas de clubs ville)",
+                city_name,
                 len(result.hits) if result and result.hits else 0,
                 len(qualified),
                 search_radius,
             )
+    return result, qualified, level_counts, search_radius
 
-    t1_elapsed = time.perf_counter() - t1
-    if not result or not result.hits:
-        logger.warning(
-            "Aucun engagement trouve autour de %s. (%.2fs)", args.city_name, t1_elapsed
-        )
-        return
 
-    logger.info(
-        "[1/5] %d engagements bruts trouves (rayon %.1f km) en %.2fs",
-        len(result.hits),
-        search_radius,
-        t1_elapsed,
-    )
+def _step3_enrich_contacts(
+    client: FFBBAPIClientV2,
+    qualified: list[Any],
+    salle_cache: dict[int, tuple[str, str, str]],
+) -> tuple[
+    dict[tuple, _CollectedRow],
+    dict[int, _ClubInfo | None],
+    dict[int, Any],
+    dict[int, dict[str, _TeamCompetitionSnapshot]],
+    dict[str, _CityGeo],
+    int,
+]:
+    """Enrich qualified engagements with contact data (phases A-D).
 
-    if not qualified:
-        logger.warning("[2/5] Aucun engagement qualifie avec les filtres donnes.")
-        return
-
-    breakdown = ", ".join(
-        f"{NIVEAU_LABELS.get(k, k)}: {v}" for k, v in sorted(level_counts.items())
-    )
-    logger.info(
-        "[2/5] %d engagements qualifies / %d (%s)",
-        len(qualified),
-        len(result.hits),
-        breakdown,
-    )
-
-    # Step 3: Enrich via facade contact methods (parallelised prefetch)
-    t3 = time.perf_counter()
-    club_cache: dict[int, _ClubInfo | None] = {}
-    poule_cache: dict[int, dict[str, _TeamCompetitionSnapshot]] = {}
-    salle_cache: dict[int, tuple[str, str, str]] = {}
-    rows_by_key: dict[tuple[object, ...], _CollectedRow] = {}
-    city_geo: dict[str, _CityGeo] = {}
-    errors = 0
-
-    # CacheManager now uses ThreadSafeCachedSession — the shared client
-    # can be used from multiple threads without external locking.
-
-    # -- Pre-parse eng_ids from qualified hits --
-    eng_ids: list[int] = []
-    eng_id_by_hit: dict[int, int] = {}  # index in qualified -> eng_id
-    for idx, (hit, _level) in enumerate(qualified):
-        try:
-            eid = int(hit.id) if hit.id else None
-        except (ValueError, TypeError):
-            eid = None
-        if eid:
-            eng_ids.append(eid)
-            eng_id_by_hit[idx] = eid
-
-    # -- Phase A: Batch-fetch engagements + entraineurs --
+    Returns (rows_by_key, club_cache, club_contacts_raw, poule_cache, city_geo, errors).
+    """
     from ffbb_api_client_v2.models.club_contacts import ClubContacts as _CC
     from ffbb_api_client_v2.models.contact_role_enum import (
         ContactRoleEnum as _ContactRole,
@@ -4614,16 +4467,32 @@ def main() -> None:
         extract_entraineur_contact as _extract_entraineur_contact,
     )
 
+    club_cache: dict[int, _ClubInfo | None] = {}
+    poule_cache: dict[int, dict[str, _TeamCompetitionSnapshot]] = {}
+    rows_by_key: dict[tuple, _CollectedRow] = {}
+    city_geo: dict[str, _CityGeo] = {}
+    errors = 0
+
+    # Pre-parse eng_ids
+    eng_ids: list[int] = []
+    eng_id_by_hit: dict[int, int] = {}
+    for idx, (hit, _level) in enumerate(qualified):
+        try:
+            eid = int(hit.id) if hit.id else None
+        except (ValueError, TypeError):
+            eid = None
+        if eid:
+            eng_ids.append(eid)
+            eng_id_by_hit[idx] = eid
+
     def _fetch_club(oid: int) -> tuple[int, _CC | None]:
         return oid, client.get_club_contacts(oid)
 
+    # Phase A: Batch-fetch engagements + entraineurs
     eng_results: dict[int, _EC | None] = {}
     if eng_ids:
         tA = time.perf_counter()
-        logger.info(
-            "[3/5] Phase A: batch engagements (%d ids)...",
-            len(eng_ids),
-        )
+        logger.info("[3/5] Phase A: batch engagements (%d ids)...", len(eng_ids))
         try:
             all_engagements = client.list_engagements_by_ids(eng_ids)
         except FFBBApiError as e:
@@ -4674,19 +4543,22 @@ def main() -> None:
                 eng_results[eid] = None
                 continue
             correspondant = _extract_correspondant(eng)
-            entraineur = None
-            if eng.entraineur is not None:
-                entraineur = _extract_entraineur_contact(
+            entraineur = (
+                _extract_entraineur_contact(
                     trainer_by_id.get(eng.entraineur), _ContactRole.ENTRAINEUR
                 )
-            entraineur_adj = None
-            if eng.entraineurAdjoint is not None:
-                entraineur_adj = _extract_entraineur_contact(
+                if eng.entraineur is not None
+                else None
+            )
+            entraineur_adj = (
+                _extract_entraineur_contact(
                     trainer_by_id.get(eng.entraineurAdjoint),
                     _ContactRole.ENTRAINEUR_ADJOINT,
                 )
+                if eng.entraineurAdjoint is not None
+                else None
+            )
             eng_results[eid] = _EC(eng, correspondant, entraineur, entraineur_adj)
-
         logger.info(
             "[3/5] Phase A terminee: %d/%d engagements en %.2fs",
             len(eng_results),
@@ -4694,8 +4566,7 @@ def main() -> None:
             time.perf_counter() - tA,
         )
 
-    # -- Phase B: Prefetch club contacts (unique org_ids) in parallel --
-    # Also collect first-seen hit info per org_id for logo/url fallback
+    # Phase B: Prefetch club contacts in parallel
     org_ids: set[int] = set()
     org_hit_fallback: dict[int, EngagementsHit] = {}
     for idx, (hit, _level) in enumerate(qualified):
@@ -4713,8 +4584,7 @@ def main() -> None:
     if org_ids:
         tB = time.perf_counter()
         logger.info(
-            "[3/5] Phase B: prefetch clubs (%d unique org_ids)...",
-            len(org_ids),
+            "[3/5] Phase B: prefetch clubs (%d unique org_ids)...", len(org_ids)
         )
         with ThreadPoolExecutor(max_workers=_MAX_WORKERS) as pool:
             futures = {pool.submit(_fetch_club, oid): oid for oid in org_ids}
@@ -4734,24 +4604,21 @@ def main() -> None:
             time.perf_counter() - tB,
         )
 
-    # -- Build club_cache from raw club contacts (sequential, resolves salles) --
+    # Build club_cache from raw contacts
     for oid, cc in club_contacts_raw.items():
         if cc:
-            salle_nom = ""
-            salle_adresse = ""
-            salle_map_url = ""
+            salle_nom, salle_adresse, salle_map_url = ("", "", "")
             if cc.organisme.salle is not None:
                 salle_nom, salle_adresse, salle_map_url = _resolve_salle_details(
-                    client,
-                    cc.organisme.salle,
-                    salle_cache,
+                    client, cc.organisme.salle, salle_cache
                 )
             fallback_hit = org_hit_fallback.get(oid)
-            hit_logo = ""
-            hit_club_url = ""
-            if fallback_hit:
-                hit_logo = fallback_hit.logo or fallback_hit.thumbnail or ""
-                hit_club_url = _extract_club_page_url(fallback_hit)
+            hit_logo = (
+                fallback_hit.logo or fallback_hit.thumbnail or ""
+                if fallback_hit
+                else ""
+            )
+            hit_club_url = _extract_club_page_url(fallback_hit) if fallback_hit else ""
             club_cache[oid] = _extract_club_info(
                 cc.organisme,
                 hit_logo_fallback=hit_logo,
@@ -4763,10 +4630,9 @@ def main() -> None:
         else:
             club_cache[oid] = None
 
-    # -- Phase C: Batch-fetch poule snapshots --
-    # Collect poule_ids from hit data + engagement data
+    # Phase C: Batch-fetch poule snapshots
     poule_ids: set[int] = set()
-    poule_id_for_hit: dict[int, int | None] = {}  # idx -> poule_id
+    poule_id_for_hit: dict[int, int | None] = {}
     for idx, (hit, _level) in enumerate(qualified):
         eid = eng_id_by_hit.get(idx)
         poule_id: int | None = None
@@ -4786,8 +4652,7 @@ def main() -> None:
     if poule_ids:
         tC = time.perf_counter()
         logger.info(
-            "[3/5] Phase C: batch poules (%d unique poule_ids)...",
-            len(poule_ids),
+            "[3/5] Phase C: batch poules (%d unique poule_ids)...", len(poule_ids)
         )
         try:
             poule_cache.update(
@@ -4803,19 +4668,16 @@ def main() -> None:
             time.perf_counter() - tC,
         )
 
-    # -- Phase D: Sequential assembly (no API calls, only cache lookups) --
+    # Phase D: Sequential assembly
     tD = time.perf_counter()
     logger.info("[3/5] Phase D: assemblage des contacts...")
-    _club_contacts_added: set[int] = (
-        set()
-    )  # org_ids whose club contacts were already added
+    _club_contacts_added: set[int] = set()
     for idx, (hit, level) in enumerate(qualified):
         sexe = hit.sexe or ""
         club_name = hit.nom_club or hit.nom_organisme or ""
         ville = ""
         adresse_club = ""
         code_postal = ""
-
         niveau = NIVEAU_LABELS.get(level, level)
         division = _extract_division(hit)
         poule = _extract_poule(hit)
@@ -4839,9 +4701,6 @@ def main() -> None:
         next_match_salle_address = ""
         next_match_salle_map_url = ""
         team_lookup_name = hit.nom or hit.nom_equipe or ""
-
-        hit_logo = hit.logo or hit.thumbnail or ""
-
         eng_id = eng_id_by_hit.get(idx)
         contacts: list[ContactInfo] = []
 
@@ -4879,7 +4738,6 @@ def main() -> None:
 
                 org_id = eng_contacts.engagement.idOrganisme
                 if org_id is not None:
-                    # Club contacts added only once per org_id (same as original)
                     if org_id not in _club_contacts_added:
                         _club_contacts_added.add(org_id)
                         cc = club_contacts_raw.get(org_id)
@@ -4894,7 +4752,6 @@ def main() -> None:
                         ville = cached.ville
                         adresse_club = cached.adresse
                         code_postal = cached.code_postal
-
                         if (
                             ville
                             and ville not in city_geo
@@ -4902,9 +4759,7 @@ def main() -> None:
                             and cached.lng is not None
                         ):
                             city_geo[ville] = _CityGeo(
-                                ville=ville,
-                                lat=cached.lat,
-                                lng=cached.lng,
+                                ville=ville, lat=cached.lat, lng=cached.lng
                             )
 
             poule_id = poule_id_for_hit.get(idx)
@@ -4923,13 +4778,10 @@ def main() -> None:
                     next_match_salle_address = snapshot.next_match_salle_address
                     next_match_salle_map_url = snapshot.next_match_salle_map_url
 
-        # Fallback geo from Meilisearch hit
         if ville and ville not in city_geo and hit.geo:
             if hit.geo.lat is not None and hit.geo.lng is not None:
                 city_geo[ville] = _CityGeo(
-                    ville=ville,
-                    lat=hit.geo.lat,
-                    lng=hit.geo.lng,
+                    ville=ville, lat=hit.geo.lat, lng=hit.geo.lng
                 )
 
         for contact in contacts:
@@ -4999,56 +4851,65 @@ def main() -> None:
                     next_match_salle_map_url,
                 )
 
-    t3_elapsed = time.perf_counter() - t3
     logger.info(
-        "[3/5] Enrichissement termine: %d contacts, %d clubs, "
-        "%d poules, %d erreurs — %.2fs (assemblage %.2fs)",
+        "[3/5] Enrichissement termine: %d contacts, %d clubs, %d poules, %d erreurs — assemblage %.2fs",
         len(rows_by_key),
         len(club_cache),
         len(poule_cache),
         errors,
-        t3_elapsed,
         time.perf_counter() - tD,
     )
+    return rows_by_key, club_cache, club_contacts_raw, poule_cache, city_geo, errors
 
-    all_rows = list(rows_by_key.values())
 
-    if errors:
-        logger.warning("[3/5] %d erreurs API ignorees", errors)
+def _step4_compute_distances(
+    lat: float,
+    lng: float,
+    city_geo: dict[str, _CityGeo],
+    all_rows: list[_CollectedRow],
+    city_name: str,
+    city_code_postal: str,
+) -> tuple[dict[str, float], dict[str, str], dict[str, _ClubInfo]]:
+    """Compute city distances and build city_postcodes + club_infos.
 
-    # Step 4: Compute distances
-    t4 = time.perf_counter()
-    city_distances: dict[str, float] = {}
-    for v, geo in city_geo.items():
-        city_distances[v] = haversine_km(lat, lng, geo.lat, geo.lng)
-
+    Returns (city_distances, city_postcodes, club_infos).
+    """
+    city_distances: dict[str, float] = {
+        v: haversine_km(lat, lng, geo.lat, geo.lng) for v, geo in city_geo.items()
+    }
     city_postcodes: dict[str, str] = {}
     for row in all_rows:
         if row.ville and row.code_postal and row.ville not in city_postcodes:
             city_postcodes[row.ville] = row.code_postal
-    # Inject target city postal code resolved from Meilisearch organismes
-    if city_code_postal and args.city_name not in city_postcodes:
-        city_postcodes[args.city_name] = city_code_postal
+    if city_code_postal and city_name not in city_postcodes:
+        city_postcodes[city_name] = city_code_postal
+    return city_distances, city_postcodes
 
-    cities_with_geo = len(city_distances)
-    cities_without = len({r.ville for r in all_rows if r.ville}) - cities_with_geo
-    logger.info(
-        "[4/5] Distances calculees: %d villes geoloc, %d sans coordonnees — %.2fs",
-        cities_with_geo,
-        max(0, cities_without),
-        time.perf_counter() - t4,
-    )
 
-    # Build club_infos dict keyed by club name for report
-    club_infos: dict[str, _ClubInfo] = {}
-    for info in club_cache.values():
-        if info:
-            club_infos[info.nom] = info
-
-    # Step 5: Build report and export
+def _step5_build_and_export(
+    city_name: str,
+    lat: float,
+    lng: float,
+    search_radius: float,
+    all_rows: list[_CollectedRow],
+    city_distances: dict[str, float],
+    city_postcodes: dict[str, str],
+    club_cache: dict[int, _ClubInfo | None],
+    city_geo: dict[str, _CityGeo],
+    accepted_echelons: frozenset[EchelonEnum] | None,
+    accepted_age_groups: frozenset[AgeGroupEnum] | None,
+    accepted_sexes: frozenset[SexeEnum] | None,
+    out_dir: Path,
+    slug: str,
+    t_start: float,
+) -> None:
+    """Build ContactReport and export MD/CSV/HTML files."""
     t5 = time.perf_counter()
+    club_infos: dict[str, _ClubInfo] = {
+        info.nom: info for info in club_cache.values() if info
+    }
     report = ContactReport.build(
-        city_name=args.city_name,
+        city_name=city_name,
         lat=lat,
         lng=lng,
         radius=search_radius,
@@ -5061,17 +4922,13 @@ def main() -> None:
         filter_age_groups=accepted_age_groups,
         filter_sexes=accepted_sexes,
     )
-
-    out_dir = args.out_dir
     out_dir.mkdir(parents=True, exist_ok=True)
     md_path = out_dir / f"{slug}_senior_contacts.md"
     csv_path = out_dir / f"{slug}_senior_contacts.csv"
     html_path = out_dir / f"{slug}_senior_contacts.html"
-
     report.to_markdown(md_path)
     report.to_csv(csv_path)
     report.to_html(html_path)
-
     t_total = time.perf_counter() - t_start
     logger.info(
         "[5/5] %d contacts, %d clubs, %d villes → %s, %s, %s — export %.2fs, total %.2fs",
@@ -5083,6 +4940,134 @@ def main() -> None:
         html_path,
         time.perf_counter() - t5,
         t_total,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+
+
+def main() -> None:
+    parser = _build_arg_parser()
+    args = parser.parse_args()
+    slug = args.city_name.lower().replace(" ", "_")
+
+    accepted_echelons, accepted_age_groups, accepted_sexes = _parse_cli_filters(
+        args, parser
+    )
+
+    # Resolve city + create client
+    t_start = time.perf_counter()
+    tokens = TokenManager.get_tokens()
+    client = FFBBAPIClientV2.create(
+        api_bearer_token=tokens.api_token,
+        meilisearch_bearer_token=tokens.meilisearch_token,
+    )
+    t0 = time.perf_counter()
+    lat, lng, city_code_postal, city_club_codes = resolve_city_coordinates(
+        client, args.city_name
+    )
+    logger.info("[0/5] Résolution ville: %.2fs", time.perf_counter() - t0)
+
+    if args.dry_run:
+        effective_radius = args.radius if args.radius is not None else _CITY_RADIUS_KM
+        logger.info(
+            "[dry-run] %s (%.5f, %.5f), rayon %.1f km → %s/%s_senior_contacts.{md,csv,html}",
+            args.city_name,
+            lat,
+            lng,
+            effective_radius,
+            args.out_dir,
+            slug,
+        )
+        return
+
+    # Step 1 + 2: Geo search engagements + qualify
+    t1 = time.perf_counter()
+    result, qualified, level_counts, search_radius = _step1_geo_search_engagements(
+        client,
+        args.city_name,
+        lat,
+        lng,
+        args.radius,
+        city_club_codes,
+        accepted_echelons,
+        accepted_age_groups,
+        accepted_sexes,
+    )
+    t1_elapsed = time.perf_counter() - t1
+    if not result or not result.hits:
+        logger.warning(
+            "Aucun engagement trouve autour de %s. (%.2fs)", args.city_name, t1_elapsed
+        )
+        return
+    logger.info(
+        "[1/5] %d engagements bruts trouves (rayon %.1f km) en %.2fs",
+        len(result.hits),
+        search_radius,
+        t1_elapsed,
+    )
+    if not qualified:
+        logger.warning("[2/5] Aucun engagement qualifie avec les filtres donnes.")
+        return
+    breakdown = ", ".join(
+        f"{NIVEAU_LABELS.get(k, k)}: {v}" for k, v in sorted(level_counts.items())
+    )
+    logger.info(
+        "[2/5] %d engagements qualifies / %d (%s)",
+        len(qualified),
+        len(result.hits),
+        breakdown,
+    )
+
+    # Step 3: Enrich contacts (phases A-D)
+    t3 = time.perf_counter()
+    salle_cache: dict[int, tuple[str, str, str]] = {}
+    rows_by_key, club_cache, _club_contacts_raw, _poule_cache, city_geo, errors = (
+        _step3_enrich_contacts(client, qualified, salle_cache)
+    )
+    logger.info(
+        "[3/5] Enrichissement termine: %d contacts, %d clubs — %.2fs",
+        len(rows_by_key),
+        len(club_cache),
+        time.perf_counter() - t3,
+    )
+    all_rows = list(rows_by_key.values())
+    if errors:
+        logger.warning("[3/5] %d erreurs API ignorees", errors)
+
+    # Step 4: Compute distances
+    t4 = time.perf_counter()
+    city_distances, city_postcodes = _step4_compute_distances(
+        lat, lng, city_geo, all_rows, args.city_name, city_code_postal
+    )
+    cities_with_geo = len(city_distances)
+    cities_without = len({r.ville for r in all_rows if r.ville}) - cities_with_geo
+    logger.info(
+        "[4/5] Distances calculees: %d villes geoloc, %d sans coordonnees — %.2fs",
+        cities_with_geo,
+        max(0, cities_without),
+        time.perf_counter() - t4,
+    )
+
+    # Step 5: Build report and export
+    _step5_build_and_export(
+        city_name=args.city_name,
+        lat=lat,
+        lng=lng,
+        search_radius=search_radius,
+        all_rows=all_rows,
+        city_distances=city_distances,
+        city_postcodes=city_postcodes,
+        club_cache=club_cache,
+        city_geo=city_geo,
+        accepted_echelons=accepted_echelons,
+        accepted_age_groups=accepted_age_groups,
+        accepted_sexes=accepted_sexes,
+        out_dir=args.out_dir,
+        slug=slug,
+        t_start=t_start,
     )
 
 
