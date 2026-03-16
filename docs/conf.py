@@ -16,11 +16,6 @@ import shutil
 
 __location__ = os.path.dirname(__file__)
 
-# If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.insert(0, os.path.join(__location__, "../src"))
-
 # -- Run sphinx-apidoc -------------------------------------------------------
 # This hack is necessary since RTD does not issue `sphinx-apidoc` before running
 # `sphinx-build -b html . _build/html`. See Issue:
@@ -39,7 +34,7 @@ module_dir = os.path.join(__location__, "../src/ffbb_api_client_v2")
 try:
     shutil.rmtree(output_dir)
 except FileNotFoundError:
-    pass
+    print(f"Output directory {output_dir} does not exist, skipping cleanup")
 
 try:
     import sphinx
@@ -53,7 +48,8 @@ try:
 
     apidoc.main(args)
 except Exception as e:
-    print("Running `sphinx-apidoc` failed!\n{}".format(e))
+    print(f"Running `sphinx-apidoc` failed!\n{e}")
+    raise  # Re-raise to fail fast
 
 # -- General configuration ---------------------------------------------------
 
@@ -159,10 +155,7 @@ html_theme = "alabaster"
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-html_theme_options = {
-    "sidebar_width": "300px",
-    "page_width": "1200px"
-}
+html_theme_options = {"sidebar_width": "300px", "page_width": "1200px"}
 
 # Add any paths that contain custom themes here, relative to this directory.
 # html_theme_path = []
@@ -247,7 +240,13 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-    ("index", "user_guide.tex", "ffbb_api_client_v2 Documentation", "Rinzler78", "manual")
+    (
+        "index",
+        "user_guide.tex",
+        "ffbb_api_client_v2 Documentation",
+        "Rinzler78",
+        "manual",
+    )
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

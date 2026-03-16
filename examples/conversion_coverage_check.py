@@ -29,16 +29,9 @@ import sys
 import time
 import traceback
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Any
 
-# Ensure local src/ takes precedence over editable installs
-_SCRIPT_DIR = Path(__file__).resolve().parent
-_SRC_DIR = str(_SCRIPT_DIR.parent / "src")
-if _SRC_DIR not in sys.path:
-    sys.path.insert(0, _SRC_DIR)
-
-from ffbb_api_client_v2 import FFBBAPIClientV2, TokenManager  # noqa: E402
+from ffbb_api_client_v2 import FFBBAPIClientV2, TokenManager
 
 # Logger targeted by all from_* helpers
 _CONVERTER_LOGGER = "ffbb_api_client_v2.utils.converter_utils"
