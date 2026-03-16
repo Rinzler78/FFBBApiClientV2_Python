@@ -756,8 +756,8 @@ def main() -> None:
     conv_logger.propagate = True  # restore default
 
     total_issues = _print_summary(sections)
-    sys.exit(1 if total_issues > 0 else 0)
+    return 1 if total_issues > 0 else 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

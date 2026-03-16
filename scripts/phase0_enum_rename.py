@@ -309,7 +309,9 @@ def main():
         if not os.path.exists(old_path):
             print(f"  SKIP: {old_stem}.py (not found)")
             continue
-        subprocess.run(["git", "mv", old_path, new_path], cwd=WORKTREE, check=True)
+        subprocess.run(
+            ["git", "mv", old_path, new_path], cwd=WORKTREE, check=True, timeout=30
+        )
         print(f"  {old_stem}.py -> {new_stem}.py")
 
     # === Step 4: Meilisearch deduplication ===
@@ -328,12 +330,16 @@ def main():
 
     terrains_sexe = os.path.join(MEILI_MODELS, "terrains_sexe_enum.py")
     if os.path.exists(terrains_sexe):
-        subprocess.run(["git", "rm", "-f", terrains_sexe], cwd=WORKTREE, check=True)
+        subprocess.run(
+            ["git", "rm", "-f", terrains_sexe], cwd=WORKTREE, check=True, timeout=30
+        )
         print("  Deleted terrains_sexe_enum.py")
 
     tournois_libelle = os.path.join(MEILI_MODELS, "tournois_libelle.py")
     if os.path.exists(tournois_libelle):
-        subprocess.run(["git", "rm", "-f", tournois_libelle], cwd=WORKTREE, check=True)
+        subprocess.run(
+            ["git", "rm", "-f", tournois_libelle], cwd=WORKTREE, check=True, timeout=30
+        )
         print("  Deleted tournois_libelle.py")
 
     # === Step 5: Verify no stale module refs ===

@@ -59,12 +59,14 @@ def replace_module(files, old_mod, new_mod):
 
 def git_mv(old_path, new_path):
     if os.path.exists(old_path):
-        subprocess.run(["git", "mv", old_path, new_path], cwd=WORKTREE, check=True)
+        subprocess.run(
+            ["git", "mv", old_path, new_path], cwd=WORKTREE, check=True, timeout=30
+        )
 
 
 def git_rm(path):
     if os.path.exists(path):
-        subprocess.run(["git", "rm", "-f", path], cwd=WORKTREE, check=True)
+        subprocess.run(["git", "rm", "-f", path], cwd=WORKTREE, check=True, timeout=30)
 
 
 def remove_import_line(files, pattern):

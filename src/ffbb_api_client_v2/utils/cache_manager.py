@@ -232,13 +232,13 @@ class CacheManager:
                 key_parts.append("auth_masked")
 
         if request.method == "POST" and request.body:
-            body_hash = hashlib.md5(str(request.body).encode()).hexdigest()
+            body_hash = hashlib.md5(
+                str(request.body).encode(), usedforsecurity=False
+            ).hexdigest()
             key_parts.append(body_hash)
 
         key_string = "|".join(key_parts)
-        return (
-            f"{self.config.key_prefix}:{hashlib.md5(key_string.encode()).hexdigest()}"
-        )
+        return f"{self.config.key_prefix}:{hashlib.md5(key_string.encode(), usedforsecurity=False).hexdigest()}"
 
     @property
     def session(self) -> CachedSession | None:

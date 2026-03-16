@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import json
 import os
-import sys
 
 from ffbb_api_client_v2._http.client import HttpClient
 
@@ -25,7 +24,7 @@ def get_headers() -> dict[str, str]:
     token = os.environ.get("API_FFBB_APP_BEARER_TOKEN")
     if not token:
         print("ERROR: Set API_FFBB_APP_BEARER_TOKEN environment variable")
-        sys.exit(1)
+        raise RuntimeError("API_FFBB_APP_BEARER_TOKEN environment variable not set")
     return {
         "Authorization": f"Bearer {token}",
         "user-agent": DEFAULT_USER_AGENT,

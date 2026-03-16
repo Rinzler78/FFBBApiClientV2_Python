@@ -15,21 +15,14 @@ from __future__ import annotations
 
 import sys
 import time
-from pathlib import Path
 
-# Ensure local src/ takes precedence
-_SCRIPT_DIR = Path(__file__).resolve().parent
-_SRC_DIR = str(_SCRIPT_DIR.parent / "src")
-if _SRC_DIR not in sys.path:
-    sys.path.insert(0, _SRC_DIR)
-
-from ffbb_api_client_v2 import FFBBAPIClientV2, TokenManager  # noqa: E402
+from ffbb_api_client_v2 import FFBBAPIClientV2, TokenManager
 
 _RATE_DELAY = 0.3
 _SAMPLE_SIZE = 20
 
 
-def main() -> None:
+def main() -> int:
     tokens = TokenManager.get_tokens()
     client = FFBBAPIClientV2.create(
         api_bearer_token=tokens.api_token,
@@ -49,7 +42,7 @@ def main() -> None:
     search_results = client.search_multiple_competitions()
     if not search_results or not search_results.results:
         print("No competitions found via search")
-        sys.exit(1)
+        raise RuntimeError("No competitions found via search")
 
     comp_ids: list[str] = []
     for result in search_results.results:
@@ -81,7 +74,7 @@ def main() -> None:
                     totals[fk_field]["null"] += 1
                 elif isinstance(val, dict):
                     totals[fk_field]["dict"] += 1
-                elif isinstance(val, str | int):
+                elif isinstance(val, (int, str)):
                     totals[fk_field]["scalar"] += 1
                     print(f"  SCALAR: {comp_id}.{fk_field} = {val!r}")
                 else:
@@ -90,6 +83,7 @@ def main() -> None:
 
         except Exception as e:
             print(f"  ERROR: {comp_id}: {e}")
+            raise  # Re-raise unexpected errors
 
         time.sleep(_RATE_DELAY)
 
@@ -111,8 +105,8 @@ def main() -> None:
     else:
         print("FAIL: Some FK fields return scalars. Need from_str converters.")
 
-    sys.exit(0 if all_ok else 1)
+    return 0 if all_ok else 1
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

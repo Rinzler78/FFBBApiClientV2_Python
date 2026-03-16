@@ -15,7 +15,6 @@ from __future__ import annotations
 
 import json
 import logging
-import sys
 from pathlib import Path
 from typing import Any
 
@@ -130,7 +129,7 @@ def main() -> None:
     tokens = TokenManager.get_tokens()
     if not tokens or not tokens.meilisearch_token:
         logger.error("Failed to fetch Meilisearch token")
-        sys.exit(1)
+        raise RuntimeError("Failed to fetch Meilisearch token")
 
     headers = {
         "Authorization": f"Bearer {tokens.meilisearch_token}",
