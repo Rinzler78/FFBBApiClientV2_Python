@@ -1,0 +1,97 @@
+{
+  "batch": "test_strategy",
+  "batch_index": 10,
+  "assessments": {"test_strategy": 52.0},
+  "dimension_notes": {
+    "test_strategy": {
+      "evidence": [
+        "Test suite: 1793 unit tests + 11 integration test files. Coverage is 96.13% on src/ (above 96% threshold).",
+        "Facade delegation tests (test_211_*.py) use Mock(spec=...) correctly to test that FFBBAPIClientV2 delegates to the correct sub-client. This is appropriate for facade testing.",
+        "Model tests (tests/unit/models/) cover from_dict/to_dict round-trips, edge cases, and invalid input. Comprehensive for the data layer.",
+        "Integration tests (tests/integration/) require API tokens via environment variables — they skip cleanly when tokens are absent. This is correct behavior.",
+        "No test markers distinguishing unit/integration/e2e — tox runs all tests together. The integration tests that fail without tokens cause ERROR (not FAIL) in tox output.",
+        "Test file naming convention: test_NNN_description.py with sequential numbers. The numbering implies a run order that pytest does not honor by default, potentially misleading.",
+        "Test class names: Test211FFBBAPIClientV2NewEndpoints (class number matches file number) — provides some organization but makes topic discovery hard.",
+        "examples/ and scripts/ have zero test coverage. extract_contacts.py (5000+ LOC) is entirely untested.",
+        "converter_utils.py is partially tested (91% per coverage report). The untested paths include from_uuid edge cases and some from_list branches.",
+        "No property-based tests (hypothesis) for model round-trips or converter edge cases, which would be highly effective for this domain.",
+        "Test isolation is good: all unit tests use mocks/fixtures, no external calls in unit tests."
+      ],
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high",
+      "issues_preventing_higher_score": "examples/scripts untested (5000+ LOC extract_contacts.py), no property-based tests for data layer, test file numbering convention obscures topic organization"
+    }
+  },
+  "dimension_judgment": {
+    "test_strategy": {
+      "dimension_character": "The library core (src/) has strong unit test coverage at 96%+ with a well-structured model testing approach. The significant gap is the complete absence of tests for examples/ and scripts/, which collectively contain 16,000+ LOC including complex business logic in extract_contacts.py. The test strategy is strong for the library but weak for the operational tooling.",
+      "score_rationale": "Score of 52 reflects excellent library coverage (96%+) balanced against zero test coverage for 16,000 LOC of examples/scripts code that contains real business logic. The testing infrastructure quality is high, but the strategy scope is incomplete."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "test_strategy",
+      "identifier": "examples_scripts_untested",
+      "summary": "examples/ and scripts/ (~16,000 LOC total) have zero automated test coverage",
+      "related_files": [
+        "examples/extract_contacts.py",
+        "examples/conversion_coverage_check.py",
+        "scripts/discover_types.py",
+        "scripts/audit_api_models.py"
+      ],
+      "evidence": [
+        "examples/extract_contacts.py is 5000+ LOC with complex business logic (geo-distance calculation, HTML generation, data assembly) — entirely untested",
+        "scripts/discover_types.py is 2680 LOC with complex data processing — entirely untested",
+        "tox.ini test command runs pytest tests/ which excludes examples/ and scripts/ — no unit tests exist for these"
+      ],
+      "suggestion": "Add unit tests for critical functions in extract_contacts.py: ContactReport.build(), _build_team_report(), _step1_geo_search_engagements() (can be tested with mocks). For scripts/, test the pure-logic functions (deduplicate helpers, phase functions). Target functions with >50 LOC or complex branching first.",
+      "confidence": "high",
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "test_scope_gap"
+    },
+    {
+      "dimension": "test_strategy",
+      "identifier": "sequential_test_numbering_obscures_topics",
+      "summary": "Sequential numeric test file names (test_NNN_*.py) make topic discovery hard",
+      "related_files": ["tests/unit/models/"],
+      "evidence": [
+        "test_146_error_handling_edge_cases.py, test_147_performance_resilience.py — numbers imply execution order but provide no topic signal",
+        "Finding tests for a specific model (e.g., GetOrganismeResponse) requires either grep or reading all file names"
+      ],
+      "suggestion": "For new test files, prefer topic-based naming: test_get_organisme_response.py, test_converter_utils_dates.py. The numeric prefix convention can be maintained for existing files but should not be extended to new ones.",
+      "confidence": "low",
+      "impact_scope": "local",
+      "fix_scope": "single_edit"
+    }
+  ],
+  "retrospective": {
+    "root_causes": ["test strategy focused on library code, treating examples/scripts as outside scope"],
+    "likely_symptoms": ["examples_scripts_untested"]
+  },
+  "context_updates": {
+    "test_strategy": {
+      "add": [
+        {
+          "header": "Strong unit test coverage on library core at 96%+",
+          "description": "src/ffbb_api_client_v2 has >96% branch coverage with comprehensive model round-trip tests and mock-based facade delegation tests.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Integration tests correctly skip without API tokens",
+          "description": "Integration tests raise Exception in setUpClass when API_FFBB_APP_BEARER_TOKEN is absent, resulting in ERROR (not FAIL) — correct behavior for optional external dependencies.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Zero test coverage for examples/ and scripts/ (16,000+ LOC)",
+          "description": "The test strategy covers the library but not the operational tooling. extract_contacts.py alone is 5000+ LOC of untested business logic.",
+          "settled": true,
+          "positive": false
+        }
+      ]
+    }
+  }
+}

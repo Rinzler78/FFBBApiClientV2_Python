@@ -1,0 +1,69 @@
+{
+  "batch": "package_organization",
+  "batch_index": 15,
+  "assessments": {"package_organization": 80.0},
+  "dimension_notes": {
+    "package_organization": {
+      "evidence": [
+        "Top-level package structure: _http/ (raw HTTP), directus/ (generic Directus), meilisearch/ (generic Meilisearch), directus_ffbb/ (FFBB Directus), meilisearch_ffbb/ (FFBB Meilisearch), facade/ (unified API), models/ (shared models), utils/ (shared utilities). This is a logical and navigable structure.",
+        "models/ contains shared models used by both Directus and Meilisearch clients — correct placement for cross-client entities.",
+        "utils/ contains cache_manager.py, converter_utils.py, input_validation.py, retry_utils.py, secure_logging.py — all genuinely shared utilities with no domain coupling.",
+        "config.py at the package root contains only MEILISEARCH_BASE_URL, retry/timeout defaults, and env var names — the generic Meilisearch config. The FFBB-specific configs are in directus_ffbb/config.py and meilisearch_ffbb/config.py. This split is correct.",
+        "test_explicit_fields.py and discover_api_fields.py in scripts/ — these are developer utility scripts, correctly placed outside src/.",
+        "examples/ mixes quick demos (50 LOC) with a complex application (extract_contacts.py at 5000+ LOC). The directory name 'examples' doesn't accurately describe the application-class file.",
+        "directus_ffbb/models/ contains 20+ response types and field definition classes — the field definition classes (CommunesFields, OrganismeFields etc.) are collocated with response models. A fields/ subdirectory could separate concerns.",
+        "There is no __init__.py in tests/unit/models/ — pytest discovers these without it, so this is cosmetic.",
+        "No __all__ defined in individual modules — consumers must read the source to know the public surface of each module."
+      ],
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high",
+      "issues_preventing_higher_score": "extract_contacts.py misplaced as an 'example', field definition classes collocated with response models in directus_ffbb/models/"
+    }
+  },
+  "dimension_judgment": {
+    "package_organization": {
+      "dimension_character": "The package structure is logically organized and reflects the layered architecture cleanly. Models, utilities, and client layers are correctly separated. The main placement concern is extract_contacts.py which has grown to application scale but remains in examples/, and the field definition classes in directus_ffbb/models/ which could benefit from a subdirectory.",
+      "score_rationale": "Score of 80 reflects a well-structured package that accurately reflects the system's architecture. Docked for the misplaced application-scale file in examples/ and minor colocation of field definitions with response models."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "package_organization",
+      "identifier": "extract_contacts_misplaced_in_examples",
+      "summary": "extract_contacts.py is application-scale (5000+ LOC) but placed in examples/ which implies a demo",
+      "related_files": ["examples/extract_contacts.py"],
+      "evidence": [
+        "examples/extract_contacts.py is 5000+ LOC with complex CLI, parallel API batching, full HTML report generation — clearly an application, not an example",
+        "Other examples range from 50 to 300 LOC — the scale difference is 25x",
+        "The file has a proper CLI (argparse) suggesting it is a standalone tool"
+      ],
+      "suggestion": "Move to tools/ or apps/extract_contacts/ directory to signal its application scope. Add a brief README explaining it is an advanced usage example that doubles as a production tool.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    }
+  ],
+  "retrospective": {
+    "root_causes": ["gradual growth of example script into full application without directory reclassification"],
+    "likely_symptoms": ["extract_contacts_misplaced_in_examples"]
+  },
+  "context_updates": {
+    "package_organization": {
+      "add": [
+        {
+          "header": "Logical 8-layer package structure reflecting the architecture",
+          "description": "_http → generic clients → FFBB clients → facade, with shared models/ and utils/. The directory structure accurately maps to the system design.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "config.py placement correctly scoped",
+          "description": "Generic Meilisearch config in package-root config.py; FFBB-specific configs in directus_ffbb/config.py and meilisearch_ffbb/config.py. Config boundaries match package boundaries.",
+          "settled": true,
+          "positive": true
+        }
+      ]
+    }
+  }
+}

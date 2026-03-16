@@ -1,0 +1,85 @@
+{
+  "batch": "cross_module_architecture",
+  "batch_index": 1,
+  "assessments": {"cross_module_architecture": 78.0},
+  "dimension_notes": {
+    "cross_module_architecture": {
+      "evidence": [
+        "Layered architecture is respected: _http → directus/meilisearch → directus_ffbb/meilisearch_ffbb → facade → __init__. Dependencies flow upward; no reverse imports detected.",
+        "converter_utils.py has 87 importers — every model file imports from it, creating a single-file blast radius. A change to any converter helper forces re-evaluation of 87 consumers.",
+        "facade/client.py imports directly from directus_ffbb.client and meilisearch_ffbb.client, keeping the facade layer thin and honest.",
+        "directus_ffbb/models/rankings_models.py is a backward-compat re-export shim: 'from ...models.ranking_engagement import RankingEngagement'. This blurs the boundary between directus_ffbb and models/.",
+        "examples/ and scripts/ are production-zone classified but contain no library code; they consume the facade cleanly.",
+        "No import cycles found. Static analysis and the blind packet show no deferred-import density concerns in library code.",
+        "meilisearch_ffbb/client.py imports from config.py (MEILISEARCH_BASE_URL) via the top-level config, maintaining a clean config boundary."
+      ],
+      "impact_scope": "module",
+      "fix_scope": "single_edit",
+      "confidence": "high",
+      "issues_preventing_higher_score": "converter_utils.py hub module (87 importers) creates a high blast radius; rankings_models shim blurs directus_ffbb/models boundary"
+    }
+  },
+  "dimension_judgment": {
+    "cross_module_architecture": {
+      "dimension_character": "The library follows a clean layered architecture with unambiguous directional dependencies. The main structural concern is converter_utils.py acting as a god module imported by every model — while functional, it creates a large blast radius. The rankings_models.py backward-compat shim adds minor boundary blur.",
+      "score_rationale": "Score of 78 reflects a well-organized layer hierarchy with no cycles, but docked for the hub-module pattern in converter_utils (high blast radius) and one compat shim that dilutes the directus_ffbb boundary. The issues are known and manageable rather than architectural rot."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "cross_module_architecture",
+      "identifier": "hub_converter_utils",
+      "summary": "converter_utils.py is a god module with 87 importers, creating a large blast radius",
+      "related_files": ["src/ffbb_api_client_v2/utils/converter_utils.py"],
+      "evidence": [
+        "87 model files import from converter_utils.py — any change to a converter helper (e.g. from_str, from_int) forces re-evaluation across the entire model layer",
+        "The module mixes date/time converters, string converters, list converters, enum converters, and UUID converters with no internal grouping"
+      ],
+      "suggestion": "Split converter_utils.py into focused sub-modules: primitive_converters.py (str/int/float/bool), date_converters.py (datetime/timedelta), collection_converters.py (list/dict), enum_converters.py. Re-export all from converter_utils for backward compat. This bounds blast radius per type of change.",
+      "confidence": "high",
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "god_module"
+    },
+    {
+      "dimension": "cross_module_architecture",
+      "identifier": "rankings_shim_boundary",
+      "summary": "rankings_models.py shim in directus_ffbb blurs the boundary with the shared models/ package",
+      "related_files": [
+        "src/ffbb_api_client_v2/directus_ffbb/models/rankings_models.py",
+        "src/ffbb_api_client_v2/models/ranking_engagement.py",
+        "src/ffbb_api_client_v2/models/team_ranking.py"
+      ],
+      "evidence": [
+        "directus_ffbb/models/rankings_models.py re-exports RankingEngagement and TeamRanking from models/ — these are shared models not specific to Directus",
+        "Consumers importing from directus_ffbb.models.rankings_models get the same object as models.ranking_engagement, making the boundary ambiguous"
+      ],
+      "suggestion": "Remove the shim if no external consumers depend on it, or document explicitly that it is a transitional shim with a deprecation notice. Consumers should import shared models directly from ffbb_api_client_v2.models.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    }
+  ],
+  "retrospective": {
+    "root_causes": ["god_module accumulation in utility layer", "backward-compat shims persisting without active need"],
+    "likely_symptoms": ["hub_converter_utils", "rankings_shim_boundary"]
+  },
+  "context_updates": {
+    "cross_module_architecture": {
+      "add": [
+        {
+          "header": "Clean layered dependency direction throughout library",
+          "description": "_http → directus/meilisearch → *_ffbb → facade — no reverse imports found. The layer contract is upheld in all production modules.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "converter_utils hub module with 87 importers",
+          "description": "All model files import from a single converter_utils.py, creating a large blast radius. The module mixes multiple conversion concerns without internal grouping.",
+          "settled": true,
+          "positive": false
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,1649 @@
+{
+  "version": 8,
+  "created": "2026-03-16T20:01:32+00:00",
+  "updated": "2026-03-16T20:24:40+00:00",
+  "queue_order": [
+    "subjective::authorization_consistency",
+    "subjective::initialization_coupling"
+  ],
+  "deferred": [],
+  "skipped": {},
+  "active_cluster": null,
+  "overrides": {
+    "test_coverage::src/ffbb_api_client_v2/models/club_contacts.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/club_contacts.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/engagement_position.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/engagement_position.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_terrains_response.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_terrains_response.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_organisme_response.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_organisme_response.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/type_competition_generique.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/type_competition_generique.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/external_rencontre.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/external_rencontre.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/saison.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/saison.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/competition_poule.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/competition_poule.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/labellisation_item.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/labellisation_item.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/engagements_fields.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/engagements_fields.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/tournoi_types_3x3_libelle.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/tournoi_types_3x3_libelle.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::scripts/discover_meilisearch_settings.py::untested_module": {
+      "issue_id": "test_coverage::scripts/discover_meilisearch_settings.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/competition_detail.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/competition_detail.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/officiel_personne.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/officiel_personne.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/pratiques_fields.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/pratiques_fields.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::scripts/phase0_enum_rename.py::untested_critical": {
+      "issue_id": "test_coverage::scripts/phase0_enum_rename.py::untested_critical",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/directus_ffbb/client.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/directus_ffbb/client.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/rencontres_hit.py::untested_critical": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/rencontres_hit.py::untested_critical",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/formations_facet_distribution.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/formations_facet_distribution.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::scripts/phase1_dedup.py::untested_module": {
+      "issue_id": "test_coverage::scripts/phase1_dedup.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/exceptions.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/exceptions.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/facade/token_manager.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/facade/token_manager.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_communes_response.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_communes_response.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/saison_fields.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/saison_fields.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_salles_response.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_salles_response.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch/models/facet_distribution.py::untested_critical": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch/models/facet_distribution.py::untested_critical",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/competition_base.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/competition_base.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/rencontres_fields.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/rencontres_fields.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/categorie_code.py::transitive_only": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/categorie_code.py::transitive_only",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::examples/directus_collections.py::untested_module": {
+      "issue_id": "test_coverage::examples/directus_collections.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/formations_hit.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/formations_hit.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::examples/user_journeys.py::untested_critical": {
+      "issue_id": "test_coverage::examples/user_journeys.py::untested_critical",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::examples/conversion_coverage_check.py::untested_module": {
+      "issue_id": "test_coverage::examples/conversion_coverage_check.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_rencontres_response.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_rencontres_response.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/sexe_facet.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/sexe_facet.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/competition_origine_type_competition_enum.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/competition_origine_type_competition_enum.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/terrains_facet_distribution.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/terrains_facet_distribution.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/query_helper.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/query_helper.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::scripts/validate_test_structure.py::untested_critical": {
+      "issue_id": "test_coverage::scripts/validate_test_structure.py::untested_critical",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/formations_multi_search_query.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/formations_multi_search_query.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/terrains_fields.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/terrains_fields.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_engagements_response.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_engagements_response.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::scripts/analyze_test_structure.py::untested_module": {
+      "issue_id": "test_coverage::scripts/analyze_test_structure.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch/models/facet_stats.py::untested_critical": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch/models/facet_stats.py::untested_critical",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/clock.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/clock.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::scripts/discover_meilisearch_indexes.py::untested_module": {
+      "issue_id": "test_coverage::scripts/discover_meilisearch_indexes.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/competition_origine_categorie.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/competition_origine_categorie.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/competition_origine.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/competition_origine.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::scripts/audit_api_models.py::untested_critical": {
+      "issue_id": "test_coverage::scripts/audit_api_models.py::untested_critical",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::examples/quick_start.py::untested_module": {
+      "issue_id": "test_coverage::examples/quick_start.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/tournoi_type_facet.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/tournoi_type_facet.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/utils/retry_utils.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/utils/retry_utils.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/_http/client.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/_http/client.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/document_flyer.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/document_flyer.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/organisateur.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/organisateur.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/salles_facet_stats.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/salles_facet_stats.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_entraineurs_response.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_entraineurs_response.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/pratiques_multi_search_query.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/pratiques_multi_search_query.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/competitions_facet_distribution.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/competitions_facet_distribution.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/commune.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/commune.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/engagements_facet_distribution.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/engagements_facet_distribution.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/type_association_libelle.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/type_association_libelle.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/organismes_facet_distribution.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/organismes_facet_distribution.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/officiel.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/officiel.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_competition_response.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_competition_response.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/utils/secure_logging.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/utils/secure_logging.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::examples/search_all_indexes.py::untested_module": {
+      "issue_id": "test_coverage::examples/search_all_indexes.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/facade/client.py::untested_critical": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/facade/client.py::untested_critical",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/terrains_hit.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/terrains_hit.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/type_association.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/type_association.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/game_stats_model.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/game_stats_model.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/poule.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/poule.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::scripts/utils.py::untested_module": {
+      "issue_id": "test_coverage::scripts/utils.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/competitions_hit.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/competitions_hit.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/query_fields_manager.py::untested_critical": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/query_fields_manager.py::untested_critical",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::examples/extract_contacts.py::untested_critical": {
+      "issue_id": "test_coverage::examples/extract_contacts.py::untested_critical",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/organismes_facet_stats.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/organismes_facet_stats.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/live.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/live.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/labellisation_programme.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/labellisation_programme.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_officiels_response.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_officiels_response.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/tournois_fields.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/tournois_fields.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::scripts/analyze_dependencies.py::untested_module": {
+      "issue_id": "test_coverage::scripts/analyze_dependencies.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/rencontres_facet_stats.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/rencontres_facet_stats.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/poule_rencontre_item_model.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/poule_rencontre_item_model.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch/models/multi_search_query.py::untested_critical": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch/models/multi_search_query.py::untested_critical",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/engagements_facet_stats.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/engagements_facet_stats.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/utils/cache_manager.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/utils/cache_manager.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/engagement_equipe.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/engagement_equipe.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/pratiques_facet_distribution.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/pratiques_facet_distribution.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/terrains_facet_stats.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/terrains_facet_stats.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/competition_rencontre.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/competition_rencontre.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/client.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/client.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/coordonnees.py::transitive_only": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/coordonnees.py::transitive_only",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/type_competition_enum.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/type_competition_enum.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/formations_fields.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/formations_fields.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch/models/meilisearch_index_settings.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch/models/meilisearch_index_settings.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/competitions_multi_search_query.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/competitions_multi_search_query.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/competition.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/competition.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::examples/team_ranking_analysis.py::untested_critical": {
+      "issue_id": "test_coverage::examples/team_ranking_analysis.py::untested_critical",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/organisme_engagement.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/organisme_engagement.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/rencontres_multi_search_query.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/rencontres_multi_search_query.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::examples/cross_api_workflows.py::untested_module": {
+      "issue_id": "test_coverage::examples/cross_api_workflows.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/affiche.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/affiche.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::scripts/discover_api_fields.py::untested_critical": {
+      "issue_id": "test_coverage::scripts/discover_api_fields.py::untested_critical",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/_http/helper.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/_http/helper.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/engagements_hit.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/engagements_hit.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/offre_pratique.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/offre_pratique.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/phone_number.py::transitive_only": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/phone_number.py::transitive_only",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/organismes_multi_search_query.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/organismes_multi_search_query.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/utils/input_validation.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/utils/input_validation.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/directus/client.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/directus/client.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::examples/field_sets_and_filtering.py::untested_module": {
+      "issue_id": "test_coverage::examples/field_sets_and_filtering.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch/models/hit.py::untested_critical": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch/models/hit.py::untested_critical",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_tournois_response.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_tournois_response.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/engagements_multi_search_query.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/engagements_multi_search_query.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/salles_hit.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/salles_hit.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/engagement_contacts.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/engagement_contacts.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/salles_facet_distribution.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/salles_facet_distribution.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/niveau_facet.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/niveau_facet.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/salles_multi_search_query.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/salles_multi_search_query.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/pratiques_type_facet.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/pratiques_type_facet.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/officiels_fields.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/officiels_fields.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/utils/converter_utils.py::transitive_only": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/utils/converter_utils.py::transitive_only",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/type_facet.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/type_facet.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/organisme_fields.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/organisme_fields.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/poule_fields.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/poule_fields.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::examples/index_settings_discovery.py::untested_module": {
+      "issue_id": "test_coverage::examples/index_settings_discovery.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/folder.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/folder.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/tournois_facet_stats.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/tournois_facet_stats.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::examples/basketball_dashboard.py::untested_module": {
+      "issue_id": "test_coverage::examples/basketball_dashboard.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::examples/complete_usage_example.py::untested_module": {
+      "issue_id": "test_coverage::examples/complete_usage_example.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/competition_phase.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/competition_phase.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/jour_enum.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/jour_enum.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch/models/multi_search_queries.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch/models/multi_search_queries.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/pratiques_facet_stats.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/pratiques_facet_stats.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch/models/multi_search_results_class.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch/models/multi_search_results_class.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/terrains_multi_search_query.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/terrains_multi_search_query.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/competitions_facet_stats.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/competitions_facet_stats.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/tournoi_types_3x3.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/tournoi_types_3x3.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::scripts/validate_fk_expansion.py::untested_module": {
+      "issue_id": "test_coverage::scripts/validate_fk_expansion.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch/exceptions.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch/exceptions.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/formation_session.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/formation_session.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_configuration_response.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_configuration_response.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/labellisation.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/labellisation.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_formations_response.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_formations_response.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/competition_type_facet.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/competition_type_facet.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/fonction.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/fonction.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/organisme_equipe.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/organisme_equipe.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/salle.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/salle.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/external_competition.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/external_competition.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/team_ranking.py::transitive_only": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/team_ranking.py::transitive_only",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/phase_engagement.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/phase_engagement.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::scripts/discover_types.py::untested_critical": {
+      "issue_id": "test_coverage::scripts/discover_types.py::untested_critical",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch/models/multi_search_results.py::untested_critical": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch/models/multi_search_results.py::untested_critical",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/salles_fields.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/salles_fields.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::scripts/check_from_dict_compliance.py::untested_module": {
+      "issue_id": "test_coverage::scripts/check_from_dict_compliance.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/entraineurs_fields.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/entraineurs_fields.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/geo.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/geo.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/logo.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/logo.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_pratiques_response.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_pratiques_response.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/nature_sol.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/nature_sol.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch/models/federated_search_result.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch/models/federated_search_result.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/competition_fields.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/competition_fields.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::scripts/phase3_rename.py::untested_module": {
+      "issue_id": "test_coverage::scripts/phase3_rename.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/membre.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/membre.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/rencontres_engagement.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/rencontres_engagement.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/organismes_hit.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/organismes_hit.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/directus/exceptions.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/directus/exceptions.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/communes_fields.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/communes_fields.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::scripts/discover_directus_collections.py::untested_critical": {
+      "issue_id": "test_coverage::scripts/discover_directus_collections.py::untested_critical",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/tournois_hit.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/tournois_hit.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch/client.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch/client.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/tournois_multi_search_query.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/tournois_multi_search_query.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch/client_extension.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch/client_extension.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/models/categorie.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/models/categorie.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/formations_facet_stats.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/formations_facet_stats.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/pratiques_hit.py::untested_module": {
+      "issue_id": "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/pratiques_hit.py::untested_module",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/test_coverage",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "security::scripts/audit_api_models.py::security::log_sensitive::scripts/audit_api_models.py::541": {
+      "issue_id": "security::scripts/audit_api_models.py::security::log_sensitive::scripts/audit_api_models.py::541",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/security",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "security::scripts/audit_api_models.py::security::log_sensitive::scripts/audit_api_models.py::910": {
+      "issue_id": "security::scripts/audit_api_models.py::security::log_sensitive::scripts/audit_api_models.py::910",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/security",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "security::scripts/audit_api_models.py::security::log_sensitive::scripts/audit_api_models.py::916": {
+      "issue_id": "security::scripts/audit_api_models.py::security::log_sensitive::scripts/audit_api_models.py::916",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/security",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "security::scripts/audit_api_models.py::security::log_sensitive::scripts/audit_api_models.py::922": {
+      "issue_id": "security::scripts/audit_api_models.py::security::log_sensitive::scripts/audit_api_models.py::922",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/security",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "security::scripts/discover_api_fields.py::security::log_sensitive::scripts/discover_api_fields.py::750": {
+      "issue_id": "security::scripts/discover_api_fields.py::security::log_sensitive::scripts/discover_api_fields.py::750",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/security",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "security::scripts/discover_api_fields.py::security::log_sensitive::scripts/discover_api_fields.py::755": {
+      "issue_id": "security::scripts/discover_api_fields.py::security::log_sensitive::scripts/discover_api_fields.py::755",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/security",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "security::scripts/discover_api_fields.py::security::log_sensitive::scripts/discover_api_fields.py::763": {
+      "issue_id": "security::scripts/discover_api_fields.py::security::log_sensitive::scripts/discover_api_fields.py::763",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/security",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "security::scripts/discover_api_fields.py::security::log_sensitive::scripts/discover_api_fields.py::768": {
+      "issue_id": "security::scripts/discover_api_fields.py::security::log_sensitive::scripts/discover_api_fields.py::768",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/security",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "security::scripts/discover_directus_collections.py::security::log_sensitive::scripts/discover_directus_collections.py::397": {
+      "issue_id": "security::scripts/discover_directus_collections.py::security::log_sensitive::scripts/discover_directus_collections.py::397",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/security",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "security::scripts/discover_meilisearch_indexes.py::security::log_sensitive::scripts/discover_meilisearch_indexes.py::153": {
+      "issue_id": "security::scripts/discover_meilisearch_indexes.py::security::log_sensitive::scripts/discover_meilisearch_indexes.py::153",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/security",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "security::scripts/discover_meilisearch_settings.py::security::log_sensitive::scripts/discover_meilisearch_settings.py::131": {
+      "issue_id": "security::scripts/discover_meilisearch_settings.py::security::log_sensitive::scripts/discover_meilisearch_settings.py::131",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/security",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "security::scripts/discover_types.py::security::log_sensitive::scripts/discover_types.py::1979": {
+      "issue_id": "security::scripts/discover_types.py::security::log_sensitive::scripts/discover_types.py::1979",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/security",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "security::scripts/discover_types.py::security::log_sensitive::scripts/discover_types.py::1985": {
+      "issue_id": "security::scripts/discover_types.py::security::log_sensitive::scripts/discover_types.py::1985",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/security",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "security::scripts/discover_types.py::security::log_sensitive::scripts/discover_types.py::2631": {
+      "issue_id": "security::scripts/discover_types.py::security::log_sensitive::scripts/discover_types.py::2631",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/security",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "subjective::authorization_consistency": {
+      "issue_id": "subjective::authorization_consistency",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/initial-review",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    },
+    "subjective::initialization_coupling": {
+      "issue_id": "subjective::initialization_coupling",
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "cluster": "auto/initial-review",
+      "updated_at": "2026-03-16T20:01:32+00:00"
+    }
+  },
+  "clusters": {
+    "auto/test_coverage": {
+      "name": "auto/test_coverage",
+      "description": "Fix 177 test coverage issues",
+      "issue_ids": [
+        "test_coverage::src/ffbb_api_client_v2/models/club_contacts.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/engagement_position.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_terrains_response.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_organisme_response.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/type_competition_generique.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/external_rencontre.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/saison.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/competition_poule.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/labellisation_item.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/engagements_fields.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/tournoi_types_3x3_libelle.py::untested_module",
+        "test_coverage::scripts/discover_meilisearch_settings.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/competition_detail.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/officiel_personne.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/pratiques_fields.py::untested_module",
+        "test_coverage::scripts/phase0_enum_rename.py::untested_critical",
+        "test_coverage::src/ffbb_api_client_v2/directus_ffbb/client.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/rencontres_hit.py::untested_critical",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/formations_facet_distribution.py::untested_module",
+        "test_coverage::scripts/phase1_dedup.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/exceptions.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/facade/token_manager.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_communes_response.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/saison_fields.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_salles_response.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch/models/facet_distribution.py::untested_critical",
+        "test_coverage::src/ffbb_api_client_v2/models/competition_base.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/rencontres_fields.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/categorie_code.py::transitive_only",
+        "test_coverage::examples/directus_collections.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/formations_hit.py::untested_module",
+        "test_coverage::examples/user_journeys.py::untested_critical",
+        "test_coverage::examples/conversion_coverage_check.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_rencontres_response.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/sexe_facet.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/competition_origine_type_competition_enum.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/terrains_facet_distribution.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/query_helper.py::untested_module",
+        "test_coverage::scripts/validate_test_structure.py::untested_critical",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/formations_multi_search_query.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/terrains_fields.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_engagements_response.py::untested_module",
+        "test_coverage::scripts/analyze_test_structure.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch/models/facet_stats.py::untested_critical",
+        "test_coverage::src/ffbb_api_client_v2/models/clock.py::untested_module",
+        "test_coverage::scripts/discover_meilisearch_indexes.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/competition_origine_categorie.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/competition_origine.py::untested_module",
+        "test_coverage::scripts/audit_api_models.py::untested_critical",
+        "test_coverage::examples/quick_start.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/tournoi_type_facet.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/utils/retry_utils.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/_http/client.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/document_flyer.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/organisateur.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/salles_facet_stats.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_entraineurs_response.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/pratiques_multi_search_query.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/competitions_facet_distribution.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/commune.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/engagements_facet_distribution.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/type_association_libelle.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/organismes_facet_distribution.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/officiel.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_competition_response.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/utils/secure_logging.py::untested_module",
+        "test_coverage::examples/search_all_indexes.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/facade/client.py::untested_critical",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/terrains_hit.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/type_association.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/game_stats_model.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/poule.py::untested_module",
+        "test_coverage::scripts/utils.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/competitions_hit.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/query_fields_manager.py::untested_critical",
+        "test_coverage::examples/extract_contacts.py::untested_critical",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/organismes_facet_stats.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/live.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/labellisation_programme.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_officiels_response.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/tournois_fields.py::untested_module",
+        "test_coverage::scripts/analyze_dependencies.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/rencontres_facet_stats.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/poule_rencontre_item_model.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch/models/multi_search_query.py::untested_critical",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/engagements_facet_stats.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/utils/cache_manager.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/engagement_equipe.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/pratiques_facet_distribution.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/terrains_facet_stats.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/competition_rencontre.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/client.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/coordonnees.py::transitive_only",
+        "test_coverage::src/ffbb_api_client_v2/models/type_competition_enum.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/formations_fields.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch/models/meilisearch_index_settings.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/competitions_multi_search_query.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/competition.py::untested_module",
+        "test_coverage::examples/team_ranking_analysis.py::untested_critical",
+        "test_coverage::src/ffbb_api_client_v2/models/organisme_engagement.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/rencontres_multi_search_query.py::untested_module",
+        "test_coverage::examples/cross_api_workflows.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/affiche.py::untested_module",
+        "test_coverage::scripts/discover_api_fields.py::untested_critical",
+        "test_coverage::src/ffbb_api_client_v2/_http/helper.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/engagements_hit.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/offre_pratique.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/phone_number.py::transitive_only",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/organismes_multi_search_query.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/utils/input_validation.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/directus/client.py::untested_module",
+        "test_coverage::examples/field_sets_and_filtering.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch/models/hit.py::untested_critical",
+        "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_tournois_response.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/engagements_multi_search_query.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/salles_hit.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/engagement_contacts.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/salles_facet_distribution.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/niveau_facet.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/salles_multi_search_query.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/pratiques_type_facet.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/officiels_fields.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/utils/converter_utils.py::transitive_only",
+        "test_coverage::src/ffbb_api_client_v2/models/type_facet.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/organisme_fields.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/poule_fields.py::untested_module",
+        "test_coverage::examples/index_settings_discovery.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/folder.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/tournois_facet_stats.py::untested_module",
+        "test_coverage::examples/basketball_dashboard.py::untested_module",
+        "test_coverage::examples/complete_usage_example.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/competition_phase.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/jour_enum.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch/models/multi_search_queries.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/pratiques_facet_stats.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch/models/multi_search_results_class.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/terrains_multi_search_query.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/competitions_facet_stats.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/tournoi_types_3x3.py::untested_module",
+        "test_coverage::scripts/validate_fk_expansion.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch/exceptions.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/formation_session.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_configuration_response.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/labellisation.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_formations_response.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/competition_type_facet.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/fonction.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/organisme_equipe.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/salle.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/external_competition.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/team_ranking.py::transitive_only",
+        "test_coverage::src/ffbb_api_client_v2/models/phase_engagement.py::untested_module",
+        "test_coverage::scripts/discover_types.py::untested_critical",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch/models/multi_search_results.py::untested_critical",
+        "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/salles_fields.py::untested_module",
+        "test_coverage::scripts/check_from_dict_compliance.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/entraineurs_fields.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/geo.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/logo.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/get_pratiques_response.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/nature_sol.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch/models/federated_search_result.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/competition_fields.py::untested_module",
+        "test_coverage::scripts/phase3_rename.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/membre.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/rencontres_engagement.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/organismes_hit.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/directus/exceptions.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/directus_ffbb/models/communes_fields.py::untested_module",
+        "test_coverage::scripts/discover_directus_collections.py::untested_critical",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/tournois_hit.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch/client.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/tournois_multi_search_query.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch/client_extension.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/models/categorie.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/formations_facet_stats.py::untested_module",
+        "test_coverage::src/ffbb_api_client_v2/meilisearch_ffbb/models/pratiques_hit.py::untested_module"
+      ],
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "updated_at": "2026-03-16T20:01:32+00:00",
+      "auto": true,
+      "cluster_key": "detector::test_coverage",
+      "action": "add tests for untested production modules \u2014 prioritize by import count",
+      "execution_status": "review",
+      "user_modified": false,
+      "action_type": "refactor",
+      "execution_policy": "planned_only"
+    },
+    "auto/security": {
+      "name": "auto/security",
+      "description": "Fix 14 security issues",
+      "issue_ids": [
+        "security::scripts/audit_api_models.py::security::log_sensitive::scripts/audit_api_models.py::541",
+        "security::scripts/audit_api_models.py::security::log_sensitive::scripts/audit_api_models.py::910",
+        "security::scripts/audit_api_models.py::security::log_sensitive::scripts/audit_api_models.py::916",
+        "security::scripts/audit_api_models.py::security::log_sensitive::scripts/audit_api_models.py::922",
+        "security::scripts/discover_api_fields.py::security::log_sensitive::scripts/discover_api_fields.py::750",
+        "security::scripts/discover_api_fields.py::security::log_sensitive::scripts/discover_api_fields.py::755",
+        "security::scripts/discover_api_fields.py::security::log_sensitive::scripts/discover_api_fields.py::763",
+        "security::scripts/discover_api_fields.py::security::log_sensitive::scripts/discover_api_fields.py::768",
+        "security::scripts/discover_directus_collections.py::security::log_sensitive::scripts/discover_directus_collections.py::397",
+        "security::scripts/discover_meilisearch_indexes.py::security::log_sensitive::scripts/discover_meilisearch_indexes.py::153",
+        "security::scripts/discover_meilisearch_settings.py::security::log_sensitive::scripts/discover_meilisearch_settings.py::131",
+        "security::scripts/discover_types.py::security::log_sensitive::scripts/discover_types.py::1979",
+        "security::scripts/discover_types.py::security::log_sensitive::scripts/discover_types.py::1985",
+        "security::scripts/discover_types.py::security::log_sensitive::scripts/discover_types.py::2631"
+      ],
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "updated_at": "2026-03-16T20:01:32+00:00",
+      "auto": true,
+      "cluster_key": "detector::security",
+      "action": "review and fix security issues \u2014 prioritize by severity",
+      "execution_status": "review",
+      "user_modified": false,
+      "action_type": "manual_fix",
+      "execution_policy": "planned_only"
+    },
+    "auto/initial-review": {
+      "name": "auto/initial-review",
+      "description": "Initial review of 20 unscored subjective dimensions",
+      "issue_ids": [
+        "subjective::authorization_consistency",
+        "subjective::initialization_coupling"
+      ],
+      "created_at": "2026-03-16T20:01:32+00:00",
+      "updated_at": "2026-03-16T20:01:32+00:00",
+      "auto": true,
+      "cluster_key": "subjective::unscored",
+      "action": "desloppify review --prepare --dimensions abstraction_fitness,ai_generated_debt,api_surface_coherence,authorization_consistency,contract_coherence,convention_outlier,cross_module_architecture,dependency_health,design_coherence,error_consistency,high_level_elegance,incomplete_migration,initialization_coupling,logic_clarity,low_level_elegance,mid_level_elegance,naming_quality,package_organization,test_strategy,type_safety",
+      "execution_status": "review",
+      "user_modified": false,
+      "action_type": "manual_fix",
+      "execution_policy": "planned_only"
+    }
+  },
+  "superseded": {},
+  "promoted_ids": [],
+  "plan_start_scores": {
+    "strict": 20.0,
+    "overall": 20.0,
+    "objective": 80.0,
+    "verified": 80.0
+  },
+  "refresh_state": {
+    "lifecycle_phase": "review_initial",
+    "subjective_review_completed_at_scan_count": 2
+  },
+  "execution_log": [
+    {
+      "timestamp": "2026-03-16T20:01:32+00:00",
+      "action": "sync_subjective",
+      "issue_ids": [],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {
+        "changes": true
+      }
+    },
+    {
+      "timestamp": "2026-03-16T20:01:32+00:00",
+      "action": "auto_cluster",
+      "issue_ids": [],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {
+        "changes": true
+      }
+    },
+    {
+      "timestamp": "2026-03-16T20:01:32+00:00",
+      "action": "sync_lifecycle_phase",
+      "issue_ids": [],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {
+        "phase": "review_initial"
+      }
+    },
+    {
+      "timestamp": "2026-03-16T20:01:32+00:00",
+      "action": "seed_start_scores",
+      "issue_ids": [],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {}
+    },
+    {
+      "timestamp": "2026-03-16T20:20:28+00:00",
+      "action": "review_import_sync",
+      "issue_ids": [],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {
+        "trigger": "review_import",
+        "new_ids": [
+          "review::.::holistic::abstraction_fitness::facet_abc_no_shared_logic",
+          "review::.::holistic::abstraction_fitness::mixed_raw_get_and_converters",
+          "review::.::holistic::ai_generated_debt::verbose_test_method_names",
+          "review::.::holistic::api_surface_coherence::get_club_contacts_return_type",
+          "review::.::holistic::contract_coherence::smart_multi_search_contract_gap",
+          "review::.::holistic::convention_outlier::scripts_os_path_outliers",
+          "review::.::holistic::cross_module_architecture::hub_converter_utils",
+          "review::.::holistic::cross_module_architecture::rankings_shim_boundary",
+          "review::.::holistic::dependency_health::converter_utils_untested_hub",
+          "review::.::holistic::design_coherence::is_valid_for_query_not_in_base",
+          "review::.::holistic::error_consistency::facade_silent_none_returns",
+          "review::.::holistic::high_level_elegance::extract_contacts_application_in_examples",
+          "review::.::holistic::high_level_elegance::meilisearch_generic_imports_ffbb_config",
+          "review::.::holistic::incomplete_migration::rankings_shim_no_deprecation",
+          "review::.::holistic::logic_clarity::cache_manager_docstring_overclaims",
+          "review::.::holistic::logic_clarity::step_number_gap_in_main",
+          "review::.::holistic::low_level_elegance::deferred_import_circular_dep",
+          "review::.::holistic::mid_level_elegance::contact_report_god_class",
+          "review::.::holistic::mid_level_elegance::smart_multi_search_undocumented_filtering",
+          "review::.::holistic::naming_quality::meilisearch_client_hierarchy_naming",
+          "review::.::holistic::package_organization::extract_contacts_misplaced_in_examples",
+          "review::.::holistic::test_strategy::examples_scripts_untested",
+          "review::.::holistic::test_strategy::sequential_test_numbering_obscures_topics",
+          "review::.::holistic::type_safety::filter_sort_list_any"
+        ],
+        "added_to_queue": [
+          "review::.::holistic::abstraction_fitness::facet_abc_no_shared_logic",
+          "review::.::holistic::abstraction_fitness::mixed_raw_get_and_converters",
+          "review::.::holistic::ai_generated_debt::verbose_test_method_names",
+          "review::.::holistic::api_surface_coherence::get_club_contacts_return_type",
+          "review::.::holistic::contract_coherence::smart_multi_search_contract_gap",
+          "review::.::holistic::convention_outlier::scripts_os_path_outliers",
+          "review::.::holistic::cross_module_architecture::hub_converter_utils",
+          "review::.::holistic::cross_module_architecture::rankings_shim_boundary",
+          "review::.::holistic::dependency_health::converter_utils_untested_hub",
+          "review::.::holistic::design_coherence::is_valid_for_query_not_in_base",
+          "review::.::holistic::error_consistency::facade_silent_none_returns",
+          "review::.::holistic::high_level_elegance::extract_contacts_application_in_examples",
+          "review::.::holistic::high_level_elegance::meilisearch_generic_imports_ffbb_config",
+          "review::.::holistic::incomplete_migration::rankings_shim_no_deprecation",
+          "review::.::holistic::logic_clarity::cache_manager_docstring_overclaims",
+          "review::.::holistic::logic_clarity::step_number_gap_in_main",
+          "review::.::holistic::low_level_elegance::deferred_import_circular_dep",
+          "review::.::holistic::mid_level_elegance::contact_report_god_class",
+          "review::.::holistic::mid_level_elegance::smart_multi_search_undocumented_filtering",
+          "review::.::holistic::naming_quality::meilisearch_client_hierarchy_naming",
+          "review::.::holistic::package_organization::extract_contacts_misplaced_in_examples",
+          "review::.::holistic::test_strategy::examples_scripts_untested",
+          "review::.::holistic::test_strategy::sequential_test_numbering_obscures_topics",
+          "review::.::holistic::type_safety::filter_sort_list_any"
+        ],
+        "workflow_injected_ids": [],
+        "triage_injected": false,
+        "triage_injected_ids": [],
+        "triage_deferred": false,
+        "diff_new": 24,
+        "diff_reopened": 0,
+        "diff_auto_resolved": 18,
+        "stale_pruned_from_queue": [],
+        "covered_subjective_pruned_from_queue": [
+          "subjective::abstraction_fitness",
+          "subjective::ai_generated_debt",
+          "subjective::api_surface_coherence",
+          "subjective::contract_coherence",
+          "subjective::convention_outlier",
+          "subjective::cross_module_architecture",
+          "subjective::dependency_health",
+          "subjective::design_coherence",
+          "subjective::error_consistency",
+          "subjective::high_level_elegance",
+          "subjective::incomplete_migration",
+          "subjective::logic_clarity",
+          "subjective::low_level_elegance",
+          "subjective::mid_level_elegance",
+          "subjective::naming_quality",
+          "subjective::package_organization",
+          "subjective::test_strategy",
+          "subjective::type_safety"
+        ],
+        "covered_subjective": [
+          "subjective::abstraction_fitness",
+          "subjective::ai_generated_debt",
+          "subjective::api_surface_coherence",
+          "subjective::contract_coherence",
+          "subjective::convention_outlier",
+          "subjective::cross_module_architecture",
+          "subjective::dependency_health",
+          "subjective::design_coherence",
+          "subjective::error_consistency",
+          "subjective::high_level_elegance",
+          "subjective::incomplete_migration",
+          "subjective::logic_clarity",
+          "subjective::low_level_elegance",
+          "subjective::mid_level_elegance",
+          "subjective::naming_quality",
+          "subjective::package_organization",
+          "subjective::test_strategy",
+          "subjective::type_safety"
+        ],
+        "stale_sync_injected": [],
+        "stale_sync_pruned": [],
+        "auto_cluster_changes": 0,
+        "import_scores_injected": [],
+        "import_scores_pruned": [],
+        "sync_status": "synced",
+        "sync_message": null
+      }
+    },
+    {
+      "timestamp": "2026-03-16T20:24:40+00:00",
+      "action": "review_import_sync",
+      "issue_ids": [],
+      "cluster_name": null,
+      "actor": "system",
+      "note": null,
+      "detail": {
+        "trigger": "review_import",
+        "new_ids": [],
+        "added_to_queue": [],
+        "workflow_injected_ids": [],
+        "triage_injected": false,
+        "triage_injected_ids": [],
+        "triage_deferred": false,
+        "diff_new": 0,
+        "diff_reopened": 0,
+        "diff_auto_resolved": 26,
+        "stale_pruned_from_queue": [
+          "review::.::holistic::abstraction_fitness::facet_abc_no_shared_logic",
+          "review::.::holistic::abstraction_fitness::mixed_raw_get_and_converters",
+          "review::.::holistic::ai_generated_debt::verbose_test_method_names",
+          "review::.::holistic::api_surface_coherence::get_club_contacts_return_type",
+          "review::.::holistic::contract_coherence::smart_multi_search_contract_gap",
+          "review::.::holistic::convention_outlier::scripts_os_path_outliers",
+          "review::.::holistic::cross_module_architecture::hub_converter_utils",
+          "review::.::holistic::cross_module_architecture::rankings_shim_boundary",
+          "review::.::holistic::dependency_health::converter_utils_untested_hub",
+          "review::.::holistic::design_coherence::is_valid_for_query_not_in_base",
+          "review::.::holistic::error_consistency::facade_silent_none_returns",
+          "review::.::holistic::high_level_elegance::extract_contacts_application_in_examples",
+          "review::.::holistic::high_level_elegance::meilisearch_generic_imports_ffbb_config",
+          "review::.::holistic::incomplete_migration::rankings_shim_no_deprecation",
+          "review::.::holistic::logic_clarity::cache_manager_docstring_overclaims",
+          "review::.::holistic::logic_clarity::step_number_gap_in_main",
+          "review::.::holistic::low_level_elegance::deferred_import_circular_dep",
+          "review::.::holistic::mid_level_elegance::contact_report_god_class",
+          "review::.::holistic::mid_level_elegance::smart_multi_search_undocumented_filtering",
+          "review::.::holistic::naming_quality::meilisearch_client_hierarchy_naming",
+          "review::.::holistic::package_organization::extract_contacts_misplaced_in_examples",
+          "review::.::holistic::test_strategy::examples_scripts_untested",
+          "review::.::holistic::test_strategy::sequential_test_numbering_obscures_topics",
+          "review::.::holistic::type_safety::filter_sort_list_any"
+        ],
+        "covered_subjective_pruned_from_queue": [],
+        "covered_subjective": [
+          "subjective::authorization_consistency",
+          "subjective::initialization_coupling"
+        ],
+        "stale_sync_injected": [],
+        "stale_sync_pruned": [],
+        "auto_cluster_changes": 0,
+        "import_scores_injected": [],
+        "import_scores_pruned": [],
+        "sync_status": "synced",
+        "sync_message": null
+      }
+    }
+  ],
+  "epic_triage_meta": {},
+  "commit_log": [],
+  "uncommitted_issues": [],
+  "commit_tracking_branch": null,
+  "scan_count_at_plan_start": 1
+}

@@ -1,0 +1,70 @@
+{
+  "batch": "ai_generated_debt",
+  "batch_index": 13,
+  "assessments": {"ai_generated_debt": 72.0},
+  "dimension_notes": {
+    "ai_generated_debt": {
+      "evidence": [
+        "~120 model dataclass files follow an identical structural template: @dataclass → fields → __post_init__ → from_dict → to_dict. The uniformity is characteristic of AI-assisted or template-generated code — not a defect in itself.",
+        "All models have complete docstrings and type annotations — consistent with AI-assisted generation that adds documentation boilerplate.",
+        "4 type: ignore comments in src/ are all explained with inline rationale (type coercion, generic arg-type). These are appropriate suppressions, not lazy ignores.",
+        "converter_utils.py has uniform warning message format across all functions — consistent with a single generation pass.",
+        "No TODO/FIXME/HACK markers in src/ — clean, but also consistent with AI-generated code that doesn't leave human working notes.",
+        "Some test methods have overly verbose names: test_000_get_rencontre_delegates — the suffix 'delegates' is always true for facade tests, making it redundant boilerplate.",
+        "git log shows commits co-authored by 'Qwen-Coder' (phase-2A commit). AI collaboration is acknowledged in commits.",
+        "Several scripts (phase0_enum_rename.py, phase1_dedup.py) contain replacement logic that is highly mechanical and pattern-repetitive — characteristic of AI-assisted one-shot scripts.",
+        "No evidence of hallucinated APIs, incorrect library usage, or stale library versions — the AI-assisted code is accurate for the domain.",
+        "RetryConfig/TimeoutConfig/ValidationError docstrings are verbose but correct — over-documentation typical of AI generation."
+      ],
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "medium",
+      "issues_preventing_higher_score": "Mechanical test name boilerplate (test_NNN_delegates), over-documented RetryConfig/ValidationError that adds noise without insight"
+    }
+  },
+  "dimension_judgment": {
+    "ai_generated_debt": {
+      "dimension_character": "The codebase shows evidence of intentional AI collaboration with acknowledged co-authoring. The generated code is accurate and domain-correct. The main AI debt is in mechanical test boilerplate (test_NNN_verb patterns) and over-verbose docstrings that pad length without insight. No hallucinated APIs or subtle correctness errors were found.",
+      "score_rationale": "Score of 72 reflects AI collaboration used effectively for mechanical code generation, docked for the test name verbosity pattern and some over-documented utilities. The AI debt is cosmetic rather than structural."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "ai_generated_debt",
+      "identifier": "verbose_test_method_names",
+      "summary": "Test method names follow a redundant pattern: test_NNN_{verb}_{noun}_{obvious_qualifier}",
+      "related_files": ["tests/unit/clients/test_211_ffbb_api_client_v2_new_endpoints.py"],
+      "evidence": [
+        "test_000_get_rencontre_delegates — 'delegates' is always true for every facade test, adding no information",
+        "test_001_list_rencontres_delegates_with_filter_criteria — the method name is 40+ characters and fully describes what the test body says",
+        "This pattern appears in 20+ facade test methods"
+      ],
+      "suggestion": "Prefer shorter, behavior-focused names: test_get_rencontre_calls_api_client(), test_list_rencontres_passes_filter_criteria(). The numeric prefix can stay for ordering if needed.",
+      "confidence": "low",
+      "impact_scope": "local",
+      "fix_scope": "single_edit"
+    }
+  ],
+  "retrospective": {
+    "root_causes": ["AI test generation using verbose-but-clear naming templates"],
+    "likely_symptoms": ["verbose_test_method_names"]
+  },
+  "context_updates": {
+    "ai_generated_debt": {
+      "add": [
+        {
+          "header": "AI collaboration acknowledged in commit history",
+          "description": "Commits with Co-authored-by: Qwen-Coder indicate intentional AI collaboration. The generated code is domain-accurate with no hallucinated APIs found.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Uniform model template without structural debt",
+          "description": "The 120 dataclass model files follow an identical template that is correct and maintainable. The uniformity aids navigation even if the origin is AI-assisted.",
+          "settled": true,
+          "positive": true
+        }
+      ]
+    }
+  }
+}

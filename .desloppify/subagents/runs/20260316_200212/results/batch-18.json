@@ -1,0 +1,70 @@
+{
+  "batch": "contract_coherence",
+  "batch_index": 18,
+  "assessments": {"contract_coherence": 79.0},
+  "dimension_notes": {
+    "contract_coherence": {
+      "evidence": [
+        "from_dict() consistently raises TypeError for non-dict input across all 120 model files — enforced at the model layer boundary.",
+        "to_dict() returns only non-None fields consistently — the contract 'omit None values' is applied uniformly.",
+        "converter_utils.py functions honor their return type (str | None, int | None, etc.) — never raise, always return None on failure with a warning.",
+        "facade methods return None on API error — the return type annotation Optional[T] is honored (though the None-for-error vs None-for-not-found ambiguity is an error_consistency concern, not a contract violation).",
+        "validate_token() raises ValidationError (not ValueError) for invalid tokens — consistent with the library's exception hierarchy.",
+        "list_all_* methods have a pagination guard (max_items parameter) that warns when limit is reached — the contract 'will return all items up to max_items' is honored.",
+        "is_valid_for_query(query) returns bool, never raises — contract honored.",
+        "MeilisearchClientExtension.smart_multi_search() may return None if the underlying call fails — but this is not reflected in the method signature (returns MultiSearchResults | None). The None return on empty queries is documented.",
+        "batch methods list_engagements_by_ids([]) return [] for empty input — correct contract for 'no input → no output'.",
+        "from_obj() logs a warning when receiving an FK scalar instead of a dict and returns None — the contract 'shallow FK returns None' is documented in an inline comment."
+      ],
+      "impact_scope": "codebase",
+      "fix_scope": "single_edit",
+      "confidence": "high",
+      "issues_preventing_higher_score": "smart_multi_search undocumented client-side filtering changes the effective contract of what is returned; facade None-for-error vs None-for-not-found unresolved"
+    }
+  },
+  "dimension_judgment": {
+    "contract_coherence": {
+      "dimension_character": "Contracts are generally well-honored across the codebase: from_dict raises, to_dict omits None, converters return None on failure with logging, and validators raise the documented exception type. The main contract coherence gap is smart_multi_search which silently filters results beyond what the caller might expect from a 'search' method.",
+      "score_rationale": "Score of 79 reflects a codebase where most contracts are clear and consistently honored. Docked for smart_multi_search's undocumented client-side filtering that extends beyond the declared contract, and for the None-for-error ambiguity in the facade."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "contract_coherence",
+      "identifier": "smart_multi_search_contract_gap",
+      "summary": "smart_multi_search filters results client-side without documenting this in the return contract",
+      "related_files": ["src/ffbb_api_client_v2/meilisearch/client_extension.py"],
+      "evidence": [
+        "Method is named smart_multi_search and returns MultiSearchResults | None",
+        "Actually returns fewer results than the Meilisearch server returns because it applies is_valid_for_query filtering",
+        "The method signature and name do not signal this filtering — callers cannot tell results were post-filtered"
+      ],
+      "suggestion": "Add to the docstring: 'Note: results are post-filtered by client-side is_valid_for_query() matching against the query string.' Or rename to filtered_multi_search() to make the filtering semantics explicit.",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    }
+  ],
+  "retrospective": {
+    "root_causes": ["undocumented behavior added to a method with a clear name"],
+    "likely_symptoms": ["smart_multi_search_contract_gap"]
+  },
+  "context_updates": {
+    "contract_coherence": {
+      "add": [
+        {
+          "header": "from_dict/to_dict contracts are consistent across all 120 models",
+          "description": "from_dict always raises TypeError on non-dict input; to_dict always omits None fields. These two contracts are applied without exception across the entire model layer.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Converter contract: return None + log warning on failure",
+          "description": "All converter_utils functions honor the documented lenient-parse contract: never raise, return None on failure, always log a warning with context.",
+          "settled": true,
+          "positive": true
+        }
+      ]
+    }
+  }
+}

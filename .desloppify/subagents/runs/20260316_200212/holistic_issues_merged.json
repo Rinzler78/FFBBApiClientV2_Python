@@ -1,0 +1,1294 @@
+{
+  "assessments": {
+    "abstraction_fitness": {
+      "score": 75.0,
+      "components": [
+        "Abstraction Leverage",
+        "Indirection Cost",
+        "Interface Honesty",
+        "Delegation Density",
+        "Definition Directness",
+        "Type Discipline"
+      ],
+      "component_scores": {
+        "Abstraction Leverage": 72.0,
+        "Indirection Cost": 68.0,
+        "Interface Honesty": 85.0,
+        "Delegation Density": 78.0,
+        "Definition Directness": 80.0,
+        "Type Discipline": 74.0
+      }
+    },
+    "ai_generated_debt": 72.0,
+    "api_surface_coherence": 81.0,
+    "contract_coherence": 79.0,
+    "convention_outlier": 74.0,
+    "cross_module_architecture": 78.0,
+    "dependency_health": 78.0,
+    "design_coherence": 74.0,
+    "error_consistency": 80.0,
+    "high_level_elegance": 72.0,
+    "incomplete_migration": 79.0,
+    "logic_clarity": 78.0,
+    "low_level_elegance": 77.0,
+    "mid_level_elegance": 72.0,
+    "naming_quality": 82.0,
+    "package_organization": 80.0,
+    "test_strategy": 52.0,
+    "type_safety": 77.0
+  },
+  "dimension_notes": {
+    "cross_module_architecture": {
+      "evidence": [
+        "Layered architecture is respected: _http \u2192 directus/meilisearch \u2192 directus_ffbb/meilisearch_ffbb \u2192 facade \u2192 __init__. Dependencies flow upward; no reverse imports detected.",
+        "converter_utils.py has 87 importers \u2014 every model file imports from it, creating a single-file blast radius. A change to any converter helper forces re-evaluation of 87 consumers.",
+        "facade/client.py imports directly from directus_ffbb.client and meilisearch_ffbb.client, keeping the facade layer thin and honest.",
+        "directus_ffbb/models/rankings_models.py is a backward-compat re-export shim: 'from ...models.ranking_engagement import RankingEngagement'. This blurs the boundary between directus_ffbb and models/.",
+        "examples/ and scripts/ are production-zone classified but contain no library code; they consume the facade cleanly.",
+        "No import cycles found. Static analysis and the blind packet show no deferred-import density concerns in library code.",
+        "meilisearch_ffbb/client.py imports from config.py (MEILISEARCH_BASE_URL) via the top-level config, maintaining a clean config boundary."
+      ],
+      "impact_scope": "module",
+      "fix_scope": "single_edit",
+      "confidence": "high",
+      "issues_preventing_higher_score": "converter_utils.py hub module (87 importers) creates a high blast radius; rankings_models shim blurs directus_ffbb/models boundary"
+    },
+    "high_level_elegance": {
+      "evidence": [
+        "The library has a clear 4-layer architecture: HTTP client \u2192 generic API clients \u2192 FFBB-specific clients \u2192 facade. This is a well-reasoned structural split.",
+        "FFBBAPIClientV2.create() factory method provides a single entry point \u2014 clean for consumers.",
+        "Two separate backends (Directus REST + Meilisearch full-text) are unified behind a single facade, which is the correct design for this domain.",
+        "The dataclass + from_dict/to_dict pattern is consistent across ~120 model files. The pattern is mechanical but appropriate for API client models.",
+        "MeilisearchClientExtension inherits MeilisearchClient and adds smart_multi_search/list_all pagination logic \u2014 the extension point is reasonable but creates a 3-level inheritance chain (MeilisearchClient \u2192 MeilisearchClientExtension \u2192 MeilisearchFFBBClient) for what could be composition.",
+        "scripts/ directory contains 15 developer utility scripts (discovery, auditing, migration) that are each standalone executables \u2014 no architectural concern, appropriate use of scripts.",
+        "examples/ directory contains 12 example files of widely varying scope: quick_start.py (50 LOC) to extract_contacts.py (5000+ LOC). The size inconsistency makes the examples directory feel like a mix of demos and mini-applications.",
+        "multi_search_results_class.py imports from meilisearch_ffbb.config inside the generic meilisearch/ module \u2014 this reverses the dependency from a lower layer importing from a higher layer."
+      ],
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high",
+      "issues_preventing_higher_score": "meilisearch generic layer importing from meilisearch_ffbb config (upward dependency), inheritance chain depth for meilisearch client, examples/ folder containing a 5000-LOC application"
+    },
+    "convention_outlier": {
+      "evidence": [
+        "All library source files use snake_case naming \u2014 fully consistent with the naming_by_directory census.",
+        "10 of 15 scripts use pathlib.Path; 5 scripts (phase0_enum_rename.py, phase1_dedup.py, phase3_rename.py, utils.py, validate_fk_expansion.py) use os.path/os.walk instead \u2014 identified as outliers in sibling_behavior.",
+        "phase1_dedup.py and phase3_rename.py use os.path extensively even though other scripts (discover_types.py, audit_api_models.py) use Path. These are deduplication/rename scripts that predate the Path convention.",
+        "All src/ files use 'from __future__ import annotations' consistently for deferred type evaluation \u2014 a well-established internal convention.",
+        "All models use the dataclass + from_dict/to_dict pattern. No outlier models use different deserialization.",
+        "test files in tests/unit/ use unittest.TestCase style. Some newer tests use pytest-style (no class inheritance). This creates a mixed testing convention.",
+        "scripts/utils.py uses os.path.join instead of Path \u2014 it is a shared utility imported by other scripts, making the outlier pattern propagate.",
+        "examples/ files mostly import from ffbb_api_client_v2 directly. No examples use internal private APIs."
+      ],
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high",
+      "issues_preventing_higher_score": "os.path vs pathlib.Path inconsistency across scripts/, mixed unittest.TestCase vs pytest-class-free testing convention"
+    },
+    "error_consistency": {
+      "evidence": [
+        "exceptions.py defines a clean hierarchy: FFBBApiError \u2192 FFBBNetworkError, FFBBAuthError, FFBBNotFoundError, FFBBRateLimitError, FFBBValidationError, FFBBServerError. Each carries status_code and response_body.",
+        "directus/exceptions.py mirrors the hierarchy for DirectusError subclasses. meilisearch/exceptions.py similarly for MeilisearchError.",
+        "_http/helper.py provides HttpHelper.catch_result() which wraps network errors consistently into FFBBNetworkError.",
+        "models/: from_dict raises TypeError for non-dict input (consistent across all models). Returns None-filled objects for missing optional fields \u2014 not raises.",
+        "utils/converter_utils.py uses logger.warning for conversion failures instead of raising, returning None. This is documented behavior: converters are lenient by design.",
+        "scripts/ error strategy is mixed: try_catch (35), returns_null (26), throws (9), result_type (4) \u2014 intentional variety for script-level error handling after Phase 2B cleanup.",
+        "After Phase 2B fixes: all silent exception handlers now log with context. catch-log-only handlers in ThreadPoolExecutor futures are intentional (graceful degradation).",
+        "facade/client.py does not re-raise on most errors \u2014 callers receive None or empty lists. This is a deliberate lenient-client design but some callers may be surprised by silent None returns."
+      ],
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high",
+      "issues_preventing_higher_score": "facade layer silently returns None on API errors without signaling to caller; converter_utils lenient-returns mixed with models that raise TypeError creates dual error contract"
+    },
+    "naming_quality": {
+      "evidence": [
+        "All public API methods follow consistent verb+noun patterns: get_competition(), list_rencontres(), search_organismes(). The get/list/search distinction is meaningful: get=single item, list=collection with filters, search=meilisearch full-text.",
+        "Naming census shows 100% snake_case across all source directories \u2014 zero camelCase names in Python identifiers.",
+        "Model field names mirror API JSON keys mapped to snake_case: nomEquipe1 \u2192 nom_equipe1, dateAffiliation \u2192 date_affiliation. This is the correct convention for API client models.",
+        "from_str, from_int, from_datetime, from_bool \u2014 converter helpers use clear, consistent from_TYPE naming.",
+        "ApiFFBBAppClient (directus_ffbb/client.py) has a redundant 'App' in the name. The class wraps the FFBB Directus API \u2014 naming it ApiFFBBAppClient is verbose and slightly redundant alongside FFBBAPIClientV2.",
+        "MeilisearchFFBBClient vs MeilisearchClientExtension vs MeilisearchClient \u2014 three related classes with subtly different naming patterns (FFBBClient, ClientExtension, Client).",
+        "Some model fields use abbreviated names: nom_usuel (common name), code_abrege (abbreviated code) \u2014 French domain terms, appropriate given the FFBB domain.",
+        "_CITY_RADIUS_KM, _FK_BATCH, _RATE_DELAY in examples/ use module-private constants with clear names.",
+        "test file names follow a numbered pattern: test_000_*, test_001_*, test_146_*. The numbers indicate priority/order but make discovery by topic harder."
+      ],
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high",
+      "issues_preventing_higher_score": "Meilisearch client class naming inconsistency (3 related classes with 3 different naming patterns), ApiFFBBAppClient verbose name"
+    },
+    "abstraction_fitness": {
+      "evidence": [
+        "Hit ABC defines from_dict, to_dict, is_valid_for_query \u2014 a minimal, honest contract. All 9 concrete hit types implement it cleanly.",
+        "MultiSearchQuery is a data-bag with 22+ optional fields covering the full Meilisearch query parameter set. Not an abstraction problem \u2014 mirrors the API spec directly.",
+        "converter_utils.py provides from_str, from_int, from_datetime etc. as named typed converters. These are not abstractions per se \u2014 they are named coercions. The naming is appropriate but the module lacks internal grouping.",
+        "QueryFieldsManager ABC has a single abstract method get_fields() returning list[str]. This is a thin, appropriate abstraction for the endpoint field registry pattern.",
+        "MultiSearchResult is Generic[HitType, FacetDistributionType, FacetStatsType] \u2014 appropriate use of generics for a typed container.",
+        "FacetDistribution and FacetStats ABCs exist but have minimal contract \u2014 concrete classes simply add typed fields. The abstraction cost is higher than the benefit (9 paired subclasses with no shared logic).",
+        "RetryConfig/TimeoutConfig are configuration dataclasses \u2014 not abstractions but value objects. Well-scoped.",
+        "CacheManager encapsulates requests_cache session lifecycle \u2014 an appropriate single-responsibility abstraction.",
+        "secure_logging.py provides get_secure_logger and mask_token \u2014 right-sized utilities.",
+        "from_dict pattern in models uses converter helpers but some models also do raw obj.get() for booleans and floats \u2014 a small inconsistency in the abstraction boundary."
+      ],
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high",
+      "issues_preventing_higher_score": "FacetDistribution/FacetStats ABCs with 9 paired subclasses and no shared logic add abstraction overhead without benefit; raw obj.get() mixed with converter helpers in model from_dict methods",
+      "sub_axes": {
+        "abstraction_leverage": 72.0,
+        "indirection_cost": 68.0,
+        "interface_honesty": 85.0,
+        "delegation_density": 78.0,
+        "definition_directness": 80.0,
+        "type_discipline": 74.0
+      }
+    },
+    "dependency_health": {
+      "evidence": [
+        "converter_utils.py has 87 importers \u2014 the highest blast radius in the codebase. Any breaking change propagates to nearly all model files.",
+        "secure_logging.py (get_secure_logger) is imported by _http/client.py, directus/client.py, meilisearch/client.py, utils/retry_utils.py \u2014 4 importers, manageable.",
+        "requests_cache.CachedSession is used throughout: MeilisearchClient, MeilisearchClientExtension, DirectusClient, MeilisearchFFBBClient, facade/client.py, facade/token_manager.py. The dependency is concentrated at the client layer \u2014 not leaked into models.",
+        "dateutil.parser is used only in converter_utils.py \u2014 isolated well.",
+        "No circular imports detected by blind packet dependency analysis.",
+        "facade/client.py imports from both directus_ffbb and meilisearch_ffbb \u2014 this is the intended integration point, not a health concern.",
+        "scripts/ have zero importers \u2014 they are standalone executables, healthy.",
+        "examples/ have zero importers \u2014 standalone scripts, healthy.",
+        "The test discovery shows critical_untested includes converter_utils.py (87 importers) \u2014 this is the highest-risk untested path.",
+        "pyproject.toml dependencies: requests, requests_cache, python-dateutil \u2014 minimal, well-scoped runtime dependencies."
+      ],
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high",
+      "issues_preventing_higher_score": "converter_utils hub module (87 importers) is untested yet central to all model deserialization"
+    },
+    "low_level_elegance": {
+      "evidence": [
+        "converter_utils.py functions follow a consistent, readable pattern: guard None \u2192 type check \u2192 parse \u2192 log warning on failure \u2192 return None. Each function is 5-15 lines with a single clear responsibility.",
+        "from_duration() handles 3 input formats (timedelta obj, 'Xh00' string, numeric string) with clear sequential guards and meaningful warning messages. The branching is necessary given the API's format inconsistency.",
+        "from_obj() documents the FK depth limitation inline: 'Directus returns FK (str/int) when field depth is shallow' \u2014 this is an honest comment explaining a non-obvious behavior.",
+        "from_categorie_code() has a deferred import inside the function body to avoid a circular import. This is a pragmatic workaround that is clearly intentional.",
+        "After Phase 2C refactoring: all functions in extract_contacts.py, discover_types.py, phase1_dedup.py are now \u2264100 LOC with clear responsibilities.",
+        "_step3_enrich_contacts() is 421 LOC but is highly cohesive: 4 sequential phases (A-D) with shared state that cannot be cleanly split without excessive parameter passing.",
+        "models/cartographie.py to_dict() is 25 lines of if-not-None guards \u2014 readable and mechanical, appropriate for the domain.",
+        "Some model from_dict() methods exceed 60 lines due to the number of fields (e.g., OrganismesHit at 130+ lines) \u2014 this is a field-count issue not a logic-complexity issue."
+      ],
+      "impact_scope": "local",
+      "fix_scope": "single_edit",
+      "confidence": "high",
+      "issues_preventing_higher_score": "_step3_enrich_contacts at 421 LOC with complex shared state; deferred import in from_categorie_code is a workaround for a structural issue"
+    },
+    "mid_level_elegance": {
+      "evidence": [
+        "directus_ffbb/client.py at 1066 LOC contains all FFBB-specific Directus endpoints. The class is wide but not deep \u2014 each method is 10-30 lines with a clear fetch-parse pattern.",
+        "meilisearch_ffbb/client.py at 945 LOC: same pattern. Each search method constructs a query and calls multi_search. The repetition is driven by the number of indexes (9), not by poor design.",
+        "facade/client.py at 1590 LOC is the largest module. It combines methods from both directus_ffbb and meilisearch_ffbb clients, adding batch operations and list_all_* pagination helpers.",
+        "MeilisearchClientExtension has smart_multi_search that filters results.hits by query.q using is_valid_for_query() \u2014 this client-side filtering is an undocumented responsibility added to the generic layer.",
+        "ContactReport class in extract_contacts.py contains 25+ methods including HTML generation, JS generation, CSV export, and data building. This is a God Class with mixed responsibilities: data model + multi-format serialization + UI generation.",
+        "WaveCollector class in scripts/discover_types.py is a cohesive 500+ LOC class with clear phase-based methods (_collect_wave1, _collect_wave2, _fetch_rest_paginated etc.). The size is driven by the number of collection strategies, not poor design.",
+        "CacheManager in utils/cache_manager.py is 148 LOC with clear session lifecycle management. Appropriate size for its responsibility.",
+        "The dataclass model files are uniformly structured: fields \u2192 __post_init__ \u2192 from_dict \u2192 to_dict. This mechanically consistent structure aids navigation."
+      ],
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high",
+      "issues_preventing_higher_score": "ContactReport God Class in extract_contacts.py (data+rendering+JS+CSV in one class); facade/client.py at 1590 LOC combining two backends; smart_multi_search client-side filtering undocumented"
+    },
+    "test_strategy": {
+      "evidence": [
+        "Test suite: 1793 unit tests + 11 integration test files. Coverage is 96.13% on src/ (above 96% threshold).",
+        "Facade delegation tests (test_211_*.py) use Mock(spec=...) correctly to test that FFBBAPIClientV2 delegates to the correct sub-client. This is appropriate for facade testing.",
+        "Model tests (tests/unit/models/) cover from_dict/to_dict round-trips, edge cases, and invalid input. Comprehensive for the data layer.",
+        "Integration tests (tests/integration/) require API tokens via environment variables \u2014 they skip cleanly when tokens are absent. This is correct behavior.",
+        "No test markers distinguishing unit/integration/e2e \u2014 tox runs all tests together. The integration tests that fail without tokens cause ERROR (not FAIL) in tox output.",
+        "Test file naming convention: test_NNN_description.py with sequential numbers. The numbering implies a run order that pytest does not honor by default, potentially misleading.",
+        "Test class names: Test211FFBBAPIClientV2NewEndpoints (class number matches file number) \u2014 provides some organization but makes topic discovery hard.",
+        "examples/ and scripts/ have zero test coverage. extract_contacts.py (5000+ LOC) is entirely untested.",
+        "converter_utils.py is partially tested (91% per coverage report). The untested paths include from_uuid edge cases and some from_list branches.",
+        "No property-based tests (hypothesis) for model round-trips or converter edge cases, which would be highly effective for this domain.",
+        "Test isolation is good: all unit tests use mocks/fixtures, no external calls in unit tests."
+      ],
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high",
+      "issues_preventing_higher_score": "examples/scripts untested (5000+ LOC extract_contacts.py), no property-based tests for data layer, test file numbering convention obscures topic organization"
+    },
+    "api_surface_coherence": {
+      "evidence": [
+        "Public API is defined by __init__.py which explicitly lists 80+ exports. All public symbols are named and versioned together.",
+        "FFBBAPIClientV2.create() factory is the single entry point for consumers \u2014 clean and consistent.",
+        "Facade methods follow strict verb+noun patterns: get_{resource}(id), list_{resources}(filters), search_{resources}(query). No verb outliers found.",
+        "get_poule(id) returns GetPouleResponse; list_rencontres() returns list[GetRencontresResponse] \u2014 return types are consistent: single items return the response type, collections return list[response_type].",
+        "search_organismes(), search_competitions() etc. return MultiSearchResult[HitType, FacetType, StatsType] \u2014 consistent generic container.",
+        "list_all_rencontres(), list_all_salles() pagination helpers exist alongside list_rencontres() \u2014 the naming pattern list_all_* is clear and consistent for 'fetch all pages' variants.",
+        "get_club_contacts() returns ClubContacts \u2014 this return type is from a different module (models/club_contacts.py) than the pattern of get_{resource} returning directus_ffbb/models/get_{resource}_response.py. Minor inconsistency.",
+        "batch methods: list_engagements_by_ids(), list_entraineurs_by_ids() \u2014 clear batch naming with _by_ids suffix.",
+        "FFBBAPIClientV2.__init__ takes api_ffbb_client and meilisearch_ffbb_client as constructor args for dependency injection \u2014 good testability signal.",
+        "Some methods return None on error, others may raise \u2014 not entirely consistent at the public API level (see error_consistency dimension)."
+      ],
+      "impact_scope": "codebase",
+      "fix_scope": "single_edit",
+      "confidence": "high",
+      "issues_preventing_higher_score": "get_club_contacts return type inconsistent with the get_{resource} \u2192 get_{resource}_response pattern; error handling not uniform across methods"
+    },
+    "ai_generated_debt": {
+      "evidence": [
+        "~120 model dataclass files follow an identical structural template: @dataclass \u2192 fields \u2192 __post_init__ \u2192 from_dict \u2192 to_dict. The uniformity is characteristic of AI-assisted or template-generated code \u2014 not a defect in itself.",
+        "All models have complete docstrings and type annotations \u2014 consistent with AI-assisted generation that adds documentation boilerplate.",
+        "4 type: ignore comments in src/ are all explained with inline rationale (type coercion, generic arg-type). These are appropriate suppressions, not lazy ignores.",
+        "converter_utils.py has uniform warning message format across all functions \u2014 consistent with a single generation pass.",
+        "No TODO/FIXME/HACK markers in src/ \u2014 clean, but also consistent with AI-generated code that doesn't leave human working notes.",
+        "Some test methods have overly verbose names: test_000_get_rencontre_delegates \u2014 the suffix 'delegates' is always true for facade tests, making it redundant boilerplate.",
+        "git log shows commits co-authored by 'Qwen-Coder' (phase-2A commit). AI collaboration is acknowledged in commits.",
+        "Several scripts (phase0_enum_rename.py, phase1_dedup.py) contain replacement logic that is highly mechanical and pattern-repetitive \u2014 characteristic of AI-assisted one-shot scripts.",
+        "No evidence of hallucinated APIs, incorrect library usage, or stale library versions \u2014 the AI-assisted code is accurate for the domain.",
+        "RetryConfig/TimeoutConfig/ValidationError docstrings are verbose but correct \u2014 over-documentation typical of AI generation."
+      ],
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "medium",
+      "issues_preventing_higher_score": "Mechanical test name boilerplate (test_NNN_delegates), over-documented RetryConfig/ValidationError that adds noise without insight"
+    },
+    "incomplete_migration": {
+      "evidence": [
+        "phase0_enum_rename.py, phase1_dedup.py, phase3_rename.py scripts exist and are standalone \u2014 they were one-time migration tools that have been run but left in scripts/. This is common for migration artifacts.",
+        "rankings_models.py is a backward-compat shim re-exporting RankingEngagement and TeamRanking from models/. This suggests a migration that moved models but left a compatibility layer.",
+        "directus_ffbb/models/rankings_models.py docstring: 'Backward-compatibility re-export shim for RankingEngagement, TeamRanking.' \u2014 explicitly documented as transitional but no deprecation notice or removal timeline.",
+        "competition_id_categorie_code field in competitions_facet_distribution.py uses the old API path 'competitionId.categorie.code' \u2014 references the old model naming. This is an API key, not a Python name, so it's correct but the field name mirrors the old model hierarchy.",
+        "No old enum suffixes (*Class, *Ref, *ID) found in src/ \u2014 the phase0/phase3 renames completed successfully.",
+        "No duplicate model classes remaining in src/ \u2014 phase1 deduplication completed.",
+        "test_140_competition_extracted_models.py has test_018_phase_engagement_id_organisme_is_str \u2014 the test name references the old OrganismeId model that was removed. The test itself is valid but the name documents a migration artifact.",
+        "git log shows 3 migration commits (dff561c, 25d7e80, 50f7d04) in recent history \u2014 all appear to have completed their goals based on absence of old names in src/."
+      ],
+      "impact_scope": "module",
+      "fix_scope": "single_edit",
+      "confidence": "medium",
+      "issues_preventing_higher_score": "rankings_models.py shim without deprecation timeline, phase migration scripts left in scripts/ without cleanup notice"
+    },
+    "package_organization": {
+      "evidence": [
+        "Top-level package structure: _http/ (raw HTTP), directus/ (generic Directus), meilisearch/ (generic Meilisearch), directus_ffbb/ (FFBB Directus), meilisearch_ffbb/ (FFBB Meilisearch), facade/ (unified API), models/ (shared models), utils/ (shared utilities). This is a logical and navigable structure.",
+        "models/ contains shared models used by both Directus and Meilisearch clients \u2014 correct placement for cross-client entities.",
+        "utils/ contains cache_manager.py, converter_utils.py, input_validation.py, retry_utils.py, secure_logging.py \u2014 all genuinely shared utilities with no domain coupling.",
+        "config.py at the package root contains only MEILISEARCH_BASE_URL, retry/timeout defaults, and env var names \u2014 the generic Meilisearch config. The FFBB-specific configs are in directus_ffbb/config.py and meilisearch_ffbb/config.py. This split is correct.",
+        "test_explicit_fields.py and discover_api_fields.py in scripts/ \u2014 these are developer utility scripts, correctly placed outside src/.",
+        "examples/ mixes quick demos (50 LOC) with a complex application (extract_contacts.py at 5000+ LOC). The directory name 'examples' doesn't accurately describe the application-class file.",
+        "directus_ffbb/models/ contains 20+ response types and field definition classes \u2014 the field definition classes (CommunesFields, OrganismeFields etc.) are collocated with response models. A fields/ subdirectory could separate concerns.",
+        "There is no __init__.py in tests/unit/models/ \u2014 pytest discovers these without it, so this is cosmetic.",
+        "No __all__ defined in individual modules \u2014 consumers must read the source to know the public surface of each module."
+      ],
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high",
+      "issues_preventing_higher_score": "extract_contacts.py misplaced as an 'example', field definition classes collocated with response models in directus_ffbb/models/"
+    },
+    "design_coherence": {
+      "evidence": [
+        "The two-backend design (Directus REST for deep FK resolution, Meilisearch for full-text/geo search) is coherent and well-motivated: the facade docstring explicitly documents when to use each: 'Meilisearch pour la decouverte, Directus pour l'approfondissement'.",
+        "dataclass + from_dict/to_dict is the universal model serialization pattern \u2014 applied uniformly, no outliers.",
+        "Hit ABC \u2192 concrete *Hit subclasses is a clean polymorphic hierarchy for typed search results.",
+        "The Generic[HitType, FacetType, StatsType] MultiSearchResult pattern enables type-safe multi-index search \u2014 a coherent design choice.",
+        "Lenient converter design (return None on parse failure, log warning) is consistently applied \u2014 a documented design decision.",
+        "The is_valid_for_query(query) method on Hit subclasses implements client-side post-filtering. This design decision is repeated across 9 Hit classes but the motivation (Meilisearch returns results that don't always exactly match the query) is documented in MeilisearchClientExtension.",
+        "ContactReport in extract_contacts.py mixes domain data with multi-format presentation in one class \u2014 this is a design coherence failure for the examples layer.",
+        "scripts/ have no shared design pattern \u2014 each is standalone. This is appropriate for utility scripts.",
+        "The facade exposes batch operations (list_engagements_by_ids) alongside single-item operations (get_engagement) \u2014 coherent API design for consumers who need bulk fetching.",
+        "WaveCollector in discover_types.py uses a phase-based method structure that mirrors the Phase 0-7 design of main() \u2014 coherent within the script's context."
+      ],
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high",
+      "issues_preventing_higher_score": "ContactReport God Class violates single-responsibility in the examples layer; is_valid_for_query client-side filtering duplicated across 9 Hit classes without a shared implementation"
+    },
+    "contract_coherence": {
+      "evidence": [
+        "from_dict() consistently raises TypeError for non-dict input across all 120 model files \u2014 enforced at the model layer boundary.",
+        "to_dict() returns only non-None fields consistently \u2014 the contract 'omit None values' is applied uniformly.",
+        "converter_utils.py functions honor their return type (str | None, int | None, etc.) \u2014 never raise, always return None on failure with a warning.",
+        "facade methods return None on API error \u2014 the return type annotation Optional[T] is honored (though the None-for-error vs None-for-not-found ambiguity is an error_consistency concern, not a contract violation).",
+        "validate_token() raises ValidationError (not ValueError) for invalid tokens \u2014 consistent with the library's exception hierarchy.",
+        "list_all_* methods have a pagination guard (max_items parameter) that warns when limit is reached \u2014 the contract 'will return all items up to max_items' is honored.",
+        "is_valid_for_query(query) returns bool, never raises \u2014 contract honored.",
+        "MeilisearchClientExtension.smart_multi_search() may return None if the underlying call fails \u2014 but this is not reflected in the method signature (returns MultiSearchResults | None). The None return on empty queries is documented.",
+        "batch methods list_engagements_by_ids([]) return [] for empty input \u2014 correct contract for 'no input \u2192 no output'.",
+        "from_obj() logs a warning when receiving an FK scalar instead of a dict and returns None \u2014 the contract 'shallow FK returns None' is documented in an inline comment."
+      ],
+      "impact_scope": "codebase",
+      "fix_scope": "single_edit",
+      "confidence": "high",
+      "issues_preventing_higher_score": "smart_multi_search undocumented client-side filtering changes the effective contract of what is returned; facade None-for-error vs None-for-not-found unresolved"
+    },
+    "logic_clarity": {
+      "evidence": [
+        "HttpClient.check_response_errors() has clear sequential status-code guards: 200-299 \u2192 success, 401/403 \u2192 auth, 404 \u2192 not found, 429 \u2192 rate limit, 500+ \u2192 server error. The logic is directly readable.",
+        "converter_utils.py functions use a clear guard-then-parse pattern. from_duration handles 3 formats in explicit sequential branches with a comment explaining each.",
+        "ThreadSafeCachedSession.request() acquires a lock and delegates \u2014 maximally clear one-liner logic.",
+        "cache_manager.py module docstring promises 'multi-level caching, Redis, cache warming' but the actual implementation is a single SQLite-backed CachedSession. The docstring overclaims and misleads about what the module actually does.",
+        "MeilisearchClientExtension.smart_multi_search() has a nested for loop: for query, for result.hits, applies filtering. The logic is readable but the scope (which queries to filter) requires reading the full loop to understand.",
+        "After Phase 2C refactoring, main() in extract_contacts.py is 121 LOC with clear sequential phase calls (_step1_geo_search, _step3_enrich_contacts, _step4_compute_distances, _step5_build_and_export). The step numbering (1,3,4,5) has a gap \u2014 step 2 is embedded inside step 1.",
+        "_step3_enrich_contacts at 421 LOC has a long sequential assembly loop (Phase D) that tracks 15+ variables for each engagement. The logic is correct but dense \u2014 a developer debugging a contact enrichment error needs to track many variables.",
+        "WaveCollector.collect_all() orchestrates 3 waves with clear phase separation and logging \u2014 the logic flow is traceable.",
+        "from_obj() handles the Directus FK-depth issue with an inline warning that makes the 'else' branch clear: this is an unexpected state, not a normal code path."
+      ],
+      "impact_scope": "module",
+      "fix_scope": "single_edit",
+      "confidence": "high",
+      "issues_preventing_higher_score": "cache_manager.py docstring overclaims (Redis, multi-level) vs single SQLite implementation; _step3_enrich_contacts Phase D has 15+ variables in a dense loop; step numbering gap in main() (1,3,4,5)"
+    },
+    "type_safety": {
+      "evidence": [
+        "pyright reports 0 errors on src/ffbb_api_client_v2/ \u2014 the library passes strict static type checking.",
+        "All public facade methods have full type annotations: get_organisme(organisme_id: int) -> GetOrganismeResponse | None. Return types are explicitly annotated.",
+        "Generic MultiSearchResult[HitType, FacetDistributionType, FacetStatsType] provides typed results \u2014 consumers get typed access to hits without casting.",
+        "converter_utils.py functions are typed: from_str(obj: dict, key: str) -> str | None, from_int(obj: dict, key: str) -> int | None. Consistent Any avoidance in return types.",
+        "TYPE_CHECKING block in converter_utils.py prevents circular imports at runtime while keeping types for mypy/pyright \u2014 correct pattern.",
+        "4 type: ignore[arg-type] comments in multi_search_results.py are all annotated with rationale comments \u2014 not lazy ignores.",
+        "filter and sort fields in MultiSearchQuery are typed as list[Any] \u2014 a known escape hatch where Meilisearch filter syntax is a complex union not easily typed.",
+        "Some model fields use dict[str, Any] for facet distribution counts (e.g., competitions_facet_distribution.competition_id_categorie_code: dict[str, int] | None) \u2014 these are correctly typed as int-value dicts from the API.",
+        "from_dict(obj: Any) in model classes accepts Any at the entry point and immediately checks isinstance(obj, dict) \u2014 correct boundary narrowing.",
+        "No TypedDict usage for dict-typed fields that have known structure \u2014 some facet fields could be more precisely typed."
+      ],
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high",
+      "issues_preventing_higher_score": "filter/sort as list[Any] in MultiSearchQuery (unavoidable without complex filter syntax typing); some dict[str, Any] annotations where known structure could use TypedDict"
+    }
+  },
+  "dimension_judgment": {
+    "cross_module_architecture": {
+      "dimension_character": "The library follows a clean layered architecture with unambiguous directional dependencies. The main structural concern is converter_utils.py acting as a god module imported by every model \u2014 while functional, it creates a large blast radius. The rankings_models.py backward-compat shim adds minor boundary blur.",
+      "score_rationale": "Score of 78 reflects a well-organized layer hierarchy with no cycles, but docked for the hub-module pattern in converter_utils (high blast radius) and one compat shim that dilutes the directus_ffbb boundary. The issues are known and manageable rather than architectural rot."
+    },
+    "high_level_elegance": {
+      "dimension_character": "The library's overall design is sound: a clean layered API client with two backends unified under one facade. The model layer is consistent and mechanical. The main elegance gap is that the generic meilisearch/ module imports from meilisearch_ffbb/, reversing the expected dependency direction, and the examples directory contains a mini-application (extract_contacts.py) that dwarfs all other examples.",
+      "score_rationale": "Score of 72 reflects a well-conceived overall structure that serves its domain, docked for the upward dependency violation in the generic meilisearch layer and the example file that has grown into a complex application without a clear boundary."
+    },
+    "convention_outlier": {
+      "dimension_character": "The library maintains strong naming and structural conventions throughout src/. The main outlier cluster is in scripts/ where 5 files use os.path instead of the project-standard pathlib.Path, and in tests/ where unittest.TestCase and bare-pytest styles coexist.",
+      "score_rationale": "Score of 74 reflects a consistent core library with two minor but systematic outlier patterns. The os.path cluster in scripts/ is the most visible deviation from sibling conventions; the mixed test style is a lesser concern as both are valid pytest-compatible patterns."
+    },
+    "error_consistency": {
+      "dimension_character": "The exception hierarchy is well-designed and consistently applied in the HTTP layer. The library has two distinct error contracts: the model layer raises TypeError on bad input, while the converter layer silently returns None. The facade layer further softens errors by returning None/empty collections without signaling to callers.",
+      "score_rationale": "Score of 80 reflects a clean, structured exception hierarchy at the API boundary, with a documented lenient converter design. Docked for the inconsistency between the model TypeError contract and converter None-return contract, and for the facade's silent None returns which require callers to always check return values."
+    },
+    "naming_quality": {
+      "dimension_character": "Naming is consistently snake_case and domain-appropriate throughout the library. The get/list/search verb distinction in the public API is well-maintained. The main weakness is in the Meilisearch client class hierarchy, where three related classes (MeilisearchClient, MeilisearchClientExtension, MeilisearchFFBBClient) follow three different naming patterns, obscuring their relationship.",
+      "score_rationale": "Score of 82 reflects strong overall naming consistency docked for the Meilisearch class hierarchy naming inconsistency and the verbose ApiFFBBAppClient name. These are minor concerns that do not impede comprehension but reduce clarity at first glance."
+    },
+    "abstraction_fitness": {
+      "dimension_character": "Abstractions are generally well-scoped and honest: Hit ABC, QueryFieldsManager, CacheManager, and the generic MultiSearchResult are all appropriate. The main weak point is the FacetDistribution/FacetStats ABC hierarchy which imposes 9 paired subclass pairs without shared logic, adding indirection cost with minimal benefit.",
+      "score_rationale": "Score of 75 reflects mostly fit abstractions with one structural cost (paired ABC hierarchies for facets) and a minor inconsistency (mixed raw obj.get() and converter helpers inside model from_dict). The generics usage is appropriate and the interface contracts are honest."
+    },
+    "dependency_health": {
+      "dimension_character": "The external dependency footprint is minimal and appropriate (requests, requests_cache, dateutil). Internal dependencies are well-contained with no cycles. The main health risk is the untested converter_utils.py hub module \u2014 87 consumer files rely on its behavior, but its partial test coverage means regressions could propagate widely.",
+      "score_rationale": "Score of 78 reflects a clean external dependency profile and no cycles. Docked for the high blast-radius untested hub module (converter_utils.py) which is the single biggest dependency health risk in the codebase."
+    },
+    "low_level_elegance": {
+      "dimension_character": "Individual functions are generally clear, focused, and well-documented. The converter helpers are particularly clean. The main low-level concern is _step3_enrich_contacts at 421 LOC \u2014 while cohesive, its size and dense variable interactions make local reasoning difficult. Model from_dict methods are mechanical but readable.",
+      "score_rationale": "Score of 77 reflects clean, readable low-level code throughout the library layer, with the main deduction for the 421-LOC enrichment function in the examples layer and the deferred-import workaround indicating a structural debt in converter_utils."
+    },
+    "mid_level_elegance": {
+      "dimension_character": "The library-level modules (directus_ffbb/client.py, meilisearch_ffbb/client.py) are wide but internally consistent \u2014 their size reflects API breadth not design failure. The main mid-level concern is ContactReport in examples/extract_contacts.py, which is a 5000+ LOC God Class mixing data representation with HTML/JS/CSV generation.",
+      "score_rationale": "Score of 72 reflects well-designed library modules at appropriate size, docked significantly for ContactReport which has six distinct generation responsibilities in a single class, and for facade/client.py which aggregates two backends in 1590 LOC without sub-delegation."
+    },
+    "test_strategy": {
+      "dimension_character": "The library core (src/) has strong unit test coverage at 96%+ with a well-structured model testing approach. The significant gap is the complete absence of tests for examples/ and scripts/, which collectively contain 16,000+ LOC including complex business logic in extract_contacts.py. The test strategy is strong for the library but weak for the operational tooling.",
+      "score_rationale": "Score of 52 reflects excellent library coverage (96%+) balanced against zero test coverage for 16,000 LOC of examples/scripts code that contains real business logic. The testing infrastructure quality is high, but the strategy scope is incomplete."
+    },
+    "api_surface_coherence": {
+      "dimension_character": "The public API surface is coherent and well-organized: a clear create() factory, consistent verb+noun method names, uniform collection types for list/search results, and explicit __init__.py exports. The main coherence gap is get_club_contacts() which returns a different response type than the get_* pattern, and the not-fully-consistent error signal (None vs exception).",
+      "score_rationale": "Score of 81 reflects a strong, predictable API surface that follows its own conventions consistently. Docked for the minor return type inconsistency in get_club_contacts and the None-vs-exception ambiguity inherited from the error handling design."
+    },
+    "ai_generated_debt": {
+      "dimension_character": "The codebase shows evidence of intentional AI collaboration with acknowledged co-authoring. The generated code is accurate and domain-correct. The main AI debt is in mechanical test boilerplate (test_NNN_verb patterns) and over-verbose docstrings that pad length without insight. No hallucinated APIs or subtle correctness errors were found.",
+      "score_rationale": "Score of 72 reflects AI collaboration used effectively for mechanical code generation, docked for the test name verbosity pattern and some over-documented utilities. The AI debt is cosmetic rather than structural."
+    },
+    "incomplete_migration": {
+      "dimension_character": "The three model migration phases (enum rename, deduplication, suffix cleanup) appear complete based on absence of old names in src/. The main migration artifacts are the rankings_models.py backward-compat shim and the phase scripts left in scripts/. These are not broken migrations but deliberate leftovers without clear removal criteria.",
+      "score_rationale": "Score of 79 reflects completed migrations with clean results, docked for the undocumented shim lifetime and for leaving one-time migration scripts in scripts/ without a retirement notice."
+    },
+    "package_organization": {
+      "dimension_character": "The package structure is logically organized and reflects the layered architecture cleanly. Models, utilities, and client layers are correctly separated. The main placement concern is extract_contacts.py which has grown to application scale but remains in examples/, and the field definition classes in directus_ffbb/models/ which could benefit from a subdirectory.",
+      "score_rationale": "Score of 80 reflects a well-structured package that accurately reflects the system's architecture. Docked for the misplaced application-scale file in examples/ and minor colocation of field definitions with response models."
+    },
+    "design_coherence": {
+      "dimension_character": "The library's core design is coherent and internally consistent: the two-backend split is well-motivated, the model layer uses a uniform pattern, and the facade API is cleanly structured. The main design coherence issue is in the examples layer where ContactReport conflates data representation with multi-format rendering, and the repeated is_valid_for_query logic across 9 Hit classes.",
+      "score_rationale": "Score of 74 reflects a coherent library design docked for two specific deviations: the God Class in examples/ and the duplicated client-side filtering logic in Hit subclasses that should be in the base class."
+    },
+    "contract_coherence": {
+      "dimension_character": "Contracts are generally well-honored across the codebase: from_dict raises, to_dict omits None, converters return None on failure with logging, and validators raise the documented exception type. The main contract coherence gap is smart_multi_search which silently filters results beyond what the caller might expect from a 'search' method.",
+      "score_rationale": "Score of 79 reflects a codebase where most contracts are clear and consistently honored. Docked for smart_multi_search's undocumented client-side filtering that extends beyond the declared contract, and for the None-for-error ambiguity in the facade."
+    },
+    "logic_clarity": {
+      "dimension_character": "Control flow is generally readable and well-structured. The HTTP error handling, converter functions, and refactored phase-based orchestration are clear. The main logic clarity gaps are the misleading cache_manager module docstring and the dense 421-LOC contact enrichment function that tracks too many variables simultaneously.",
+      "score_rationale": "Score of 78 reflects clear logic at the function level throughout the library, docked for the misleading module docstring and the high local reasoning burden of the contact enrichment phase with its 15+ tracked variables."
+    },
+    "type_safety": {
+      "dimension_character": "The library passes pyright with 0 errors. Public APIs are fully annotated, generics are used appropriately for typed multi-index results, and type: ignore suppressions are minimal and justified. The main type safety gap is list[Any] for Meilisearch filter/sort fields where the filter syntax is complex, and a few dict[str, Any] annotations where TypedDict could improve precision.",
+      "score_rationale": "Score of 77 reflects a well-typed library that passes static analysis clean. Docked for the list[Any] filter/sort parameters (a structural limitation of the untyped Meilisearch filter syntax) and for some dict[str, Any] fields that could use TypedDict for better precision."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "cross_module_architecture",
+      "identifier": "hub_converter_utils",
+      "summary": "converter_utils.py is a god module with 87 importers, creating a large blast radius",
+      "confidence": "high",
+      "suggestion": "Split converter_utils.py into focused sub-modules: primitive_converters.py (str/int/float/bool), date_converters.py (datetime/timedelta), collection_converters.py (list/dict), enum_converters.py. Re-export all from converter_utils for backward compat. This bounds blast radius per type of change.",
+      "related_files": [
+        "src/ffbb_api_client_v2/utils/converter_utils.py"
+      ],
+      "evidence": [
+        "87 model files import from converter_utils.py \u2014 any change to a converter helper (e.g. from_str, from_int) forces re-evaluation across the entire model layer",
+        "The module mixes date/time converters, string converters, list converters, enum converters, and UUID converters with no internal grouping"
+      ],
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "cross_module_architecture",
+      "identifier": "rankings_shim_boundary",
+      "summary": "rankings_models.py shim in directus_ffbb blurs the boundary with the shared models/ package",
+      "confidence": "medium",
+      "suggestion": "Remove the shim if no external consumers depend on it, or document explicitly that it is a transitional shim with a deprecation notice. Consumers should import shared models directly from ffbb_api_client_v2.models.",
+      "related_files": [
+        "src/ffbb_api_client_v2/directus_ffbb/models/rankings_models.py",
+        "src/ffbb_api_client_v2/models/ranking_engagement.py",
+        "src/ffbb_api_client_v2/models/team_ranking.py"
+      ],
+      "evidence": [
+        "directus_ffbb/models/rankings_models.py re-exports RankingEngagement and TeamRanking from models/ \u2014 these are shared models not specific to Directus",
+        "Consumers importing from directus_ffbb.models.rankings_models get the same object as models.ranking_engagement, making the boundary ambiguous"
+      ],
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "high_level_elegance",
+      "identifier": "meilisearch_generic_imports_ffbb_config",
+      "summary": "Generic meilisearch/models/ imports from meilisearch_ffbb/ config, reversing layer direction",
+      "confidence": "high",
+      "suggestion": "Move the index-UID dispatch logic from multi_search_results_class.py into meilisearch_ffbb/. The generic MultiSearchResults class should not reference FFBB-specific index names. Pass the type mapping as a parameter or registry.",
+      "related_files": [
+        "src/ffbb_api_client_v2/meilisearch/models/multi_search_results_class.py",
+        "src/ffbb_api_client_v2/meilisearch_ffbb/config.py"
+      ],
+      "evidence": [
+        "multi_search_results_class.py imports MEILISEARCH_INDEX_COMPETITIONS, MEILISEARCH_INDEX_ENGAGEMENTS etc. from meilisearch_ffbb.config",
+        "The generic meilisearch/ layer should not know about FFBB-specific index UIDs \u2014 these belong in the meilisearch_ffbb/ layer"
+      ],
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "high_level_elegance",
+      "identifier": "extract_contacts_application_in_examples",
+      "summary": "examples/extract_contacts.py has grown into a 5000+ LOC application, inconsistent with the examples/ directory purpose",
+      "confidence": "medium",
+      "suggestion": "Move extract_contacts.py to a dedicated tools/ or apps/ directory to signal its application-level scope, or create a sub-package (examples/extract_contacts/) with split modules.",
+      "related_files": [
+        "examples/extract_contacts.py"
+      ],
+      "evidence": [
+        "extract_contacts.py is 5000+ LOC with full HTML report generation, Leaflet.js map embedding, parallel API batching, and a CLI entry point",
+        "Other examples are 50-200 LOC focused demos. The scale difference is 25-100x.",
+        "The file contains complex domain logic (contact extraction, geo-distance calculation, report formatting) not present in other examples"
+      ],
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "convention_outlier",
+      "identifier": "scripts_os_path_outliers",
+      "summary": "5 scripts use os.path/os.walk instead of the project-standard pathlib.Path",
+      "confidence": "high",
+      "suggestion": "Migrate these scripts to use pathlib.Path for path operations, consistent with the sibling scripts. scripts/utils.py should be migrated first since it influences other scripts.",
+      "related_files": [
+        "scripts/phase0_enum_rename.py",
+        "scripts/phase1_dedup.py",
+        "scripts/phase3_rename.py",
+        "scripts/utils.py",
+        "scripts/validate_fk_expansion.py"
+      ],
+      "evidence": [
+        "10 of 15 scripts use pathlib.Path; these 5 use os.path.join/os.path.dirname/os.walk",
+        "scripts/utils.py is a shared utility imported by others \u2014 its os.path usage propagates to consumers"
+      ],
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "error_consistency",
+      "identifier": "facade_silent_none_returns",
+      "summary": "Facade client returns None silently on API failures without a way for callers to distinguish 'not found' from 'error'",
+      "confidence": "medium",
+      "suggestion": "Document the None-return contract explicitly per method, or introduce a Result[T] / Optional[T] type with a separate get_last_error() accessor. At minimum, add logging at DEBUG level when returning None due to error (not just 'not found').",
+      "related_files": [
+        "src/ffbb_api_client_v2/facade/client.py"
+      ],
+      "evidence": [
+        "Many facade methods return Optional[T] \u2014 on API error (FFBBApiError), they return None, indistinguishable from 'resource not found'",
+        "strategy_by_directory shows facade/ has returns_null: 11, throws: 2 \u2014 predominantly silent None returns"
+      ],
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "naming_quality",
+      "identifier": "meilisearch_client_hierarchy_naming",
+      "summary": "Three Meilisearch client classes follow three different naming patterns, obscuring their relationship",
+      "confidence": "medium",
+      "suggestion": "Rename to make the hierarchy explicit: MeilisearchClient (base) \u2192 MeilisearchPaginatedClient or keep 'Extension' but suffix consistently \u2192 FFBBMeilisearchClient (FFBB-specific). Or document the hierarchy prominently in docstrings.",
+      "related_files": [
+        "src/ffbb_api_client_v2/meilisearch/client.py",
+        "src/ffbb_api_client_v2/meilisearch/client_extension.py",
+        "src/ffbb_api_client_v2/meilisearch_ffbb/client.py"
+      ],
+      "evidence": [
+        "MeilisearchClient (base HTTP client)",
+        "MeilisearchClientExtension (adds pagination, inherits MeilisearchClient)",
+        "MeilisearchFFBBClient (FFBB-specific, inherits MeilisearchClientExtension)",
+        "A developer reading these names cannot infer the inheritance chain from the names alone"
+      ],
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "abstraction_fitness",
+      "identifier": "facet_abc_no_shared_logic",
+      "summary": "FacetDistribution and FacetStats ABCs generate 9 paired subclasses with no shared behavior, adding indirection without benefit",
+      "confidence": "medium",
+      "suggestion": "Replace the ABC hierarchy with a Generic TypeVar bound or Protocol. Consider a single FacetDistribution(dict[str, dict]) type with dynamic fields instead of 9 statically-typed subclasses, or use TypedDict for typed per-index facets without the ABC overhead.",
+      "related_files": [
+        "src/ffbb_api_client_v2/meilisearch/models/facet_distribution.py",
+        "src/ffbb_api_client_v2/meilisearch/models/facet_stats.py",
+        "src/ffbb_api_client_v2/meilisearch_ffbb/models/competitions_facet_distribution.py",
+        "src/ffbb_api_client_v2/meilisearch_ffbb/models/organismes_facet_distribution.py"
+      ],
+      "evidence": [
+        "FacetDistribution ABC has no methods \u2014 it is only a marker type used for type-checking in generics",
+        "Each index has its own FacetDistribution subclass with only data fields and from_dict/to_dict",
+        "9 facet_distribution subclasses \u00d7 9 facet_stats subclasses = 18 files that are structurally identical except for field names"
+      ],
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "abstraction_fitness",
+      "identifier": "mixed_raw_get_and_converters",
+      "summary": "Model from_dict methods mix raw obj.get() with converter helpers inconsistently",
+      "confidence": "medium",
+      "suggestion": "Standardize all from_dict implementations to use converter helpers exclusively. Add from_bool to converter_utils if needed and update all raw obj.get() calls for boolean/float fields.",
+      "related_files": [
+        "src/ffbb_api_client_v2/meilisearch/models/multi_search_query.py",
+        "src/ffbb_api_client_v2/meilisearch_ffbb/models/rencontres_hit.py"
+      ],
+      "evidence": [
+        "multi_search_query.py: show_ranking_score = obj.get('showRankingScore') \u2014 raw dict access instead of from_bool",
+        "Some hit models use obj.get() for boolean fields that should go through from_bool for consistent None-handling"
+      ],
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "dependency_health",
+      "identifier": "converter_utils_untested_hub",
+      "summary": "converter_utils.py has 87 importers but partial test coverage \u2014 a high blast-radius untested dependency",
+      "confidence": "high",
+      "suggestion": "Add comprehensive unit tests for all converter functions including edge cases: None input, wrong type, overflow, timezone-aware/naive datetime, invalid UUID strings, empty list vs None list. Target >95% branch coverage for converter_utils.py.",
+      "related_files": [
+        "src/ffbb_api_client_v2/utils/converter_utils.py",
+        "tests/unit/utils/test_000_converter_utils.py"
+      ],
+      "evidence": [
+        "converter_utils.py is imported by 87 model files \u2014 any regression affects all of them",
+        "test_000_converter_utils.py and test_307_coverage_gaps_utils.py provide partial coverage but edge cases in from_datetime, from_duration, from_uuid are not fully tested",
+        "Critical path: every model's from_dict relies on converter_utils \u2014 a bug in from_str or from_int affects deserialization of the entire API response"
+      ],
+      "impact_scope": "codebase",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "low_level_elegance",
+      "identifier": "deferred_import_circular_dep",
+      "summary": "from_categorie_code() uses a deferred function-body import to avoid a circular import \u2014 indicates a structural issue",
+      "confidence": "medium",
+      "suggestion": "Move from_categorie_code out of converter_utils into a module-specific helper in models/categorie_code.py, or restructure to pass the CategorieCode constructor as a callable parameter. The deferred import is a symptom of models/ and utils/ being tightly coupled.",
+      "related_files": [
+        "src/ffbb_api_client_v2/utils/converter_utils.py"
+      ],
+      "evidence": [
+        "from_categorie_code() imports CategorieCode inside the function body: 'from ..models.categorie_code import CategorieCode'",
+        "This pattern indicates that converter_utils.py and models/categorie_code.py have a mutual dependency that cannot be resolved at module level"
+      ],
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "mid_level_elegance",
+      "identifier": "contact_report_god_class",
+      "summary": "ContactReport is a God Class mixing data model, HTML rendering, Leaflet.js generation, CSV export, and report building",
+      "confidence": "high",
+      "suggestion": "Extract rendering logic into separate renderer classes: HtmlReportRenderer, CsvReportRenderer, MarkdownReportRenderer. Keep ContactReport as a pure data container. This aligns with the separation of concerns already partially implemented by Phase 2C refactoring.",
+      "related_files": [
+        "examples/extract_contacts.py"
+      ],
+      "evidence": [
+        "ContactReport has: build() (data aggregation), to_html() (HTML rendering), to_csv() (CSV export), to_markdown() (Markdown export), _write_leaflet_js() (Leaflet map), _write_report_ui_js() (React-like UI), _write_html_club_card() (sub-rendering)",
+        "The class mixes domain data (cities, clubs, contacts) with multi-format presentation logic",
+        "25+ methods in a single class covering 5 distinct output formats"
+      ],
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "mid_level_elegance",
+      "identifier": "smart_multi_search_undocumented_filtering",
+      "summary": "smart_multi_search silently filters hits client-side without documentation",
+      "confidence": "medium",
+      "suggestion": "Document the client-side filtering behavior explicitly in the docstring. Add a return_filtered_count parameter or logging to make the filtering transparent. Consider making this filtering opt-in.",
+      "related_files": [
+        "src/ffbb_api_client_v2/meilisearch/client_extension.py"
+      ],
+      "evidence": [
+        "smart_multi_search calls is_valid_for_query(query.q) on each hit \u2014 filtering out results that don't match the query locally",
+        "This client-side filtering is not documented in the method signature or docstring",
+        "Callers cannot tell whether fewer results are due to API response or client-side filtering"
+      ],
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "test_strategy",
+      "identifier": "examples_scripts_untested",
+      "summary": "examples/ and scripts/ (~16,000 LOC total) have zero automated test coverage",
+      "confidence": "high",
+      "suggestion": "Add unit tests for critical functions in extract_contacts.py: ContactReport.build(), _build_team_report(), _step1_geo_search_engagements() (can be tested with mocks). For scripts/, test the pure-logic functions (deduplicate helpers, phase functions). Target functions with >50 LOC or complex branching first.",
+      "related_files": [
+        "examples/extract_contacts.py",
+        "examples/conversion_coverage_check.py",
+        "scripts/discover_types.py",
+        "scripts/audit_api_models.py"
+      ],
+      "evidence": [
+        "examples/extract_contacts.py is 5000+ LOC with complex business logic (geo-distance calculation, HTML generation, data assembly) \u2014 entirely untested",
+        "scripts/discover_types.py is 2680 LOC with complex data processing \u2014 entirely untested",
+        "tox.ini test command runs pytest tests/ which excludes examples/ and scripts/ \u2014 no unit tests exist for these"
+      ],
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "test_strategy",
+      "identifier": "sequential_test_numbering_obscures_topics",
+      "summary": "Sequential numeric test file names (test_NNN_*.py) make topic discovery hard",
+      "confidence": "low",
+      "suggestion": "For new test files, prefer topic-based naming: test_get_organisme_response.py, test_converter_utils_dates.py. The numeric prefix convention can be maintained for existing files but should not be extended to new ones.",
+      "related_files": [
+        "tests/unit/models/"
+      ],
+      "evidence": [
+        "test_146_error_handling_edge_cases.py, test_147_performance_resilience.py \u2014 numbers imply execution order but provide no topic signal",
+        "Finding tests for a specific model (e.g., GetOrganismeResponse) requires either grep or reading all file names"
+      ],
+      "impact_scope": "local",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "api_surface_coherence",
+      "identifier": "get_club_contacts_return_type",
+      "summary": "get_club_contacts() returns ClubContacts instead of following the get_{resource} \u2192 GetClubContactsResponse pattern",
+      "confidence": "low",
+      "suggestion": "Either rename ClubContacts to GetClubContactsResponse and move it to directus_ffbb/models/, or add a type alias GetClubContactsResponse = ClubContacts in the appropriate module. Either option restores pattern consistency.",
+      "related_files": [
+        "src/ffbb_api_client_v2/facade/client.py",
+        "src/ffbb_api_client_v2/models/club_contacts.py"
+      ],
+      "evidence": [
+        "All other get_* methods return models from directus_ffbb/models/get_*_response.py (GetOrganismeResponse, GetEngagementResponse, etc.)",
+        "get_club_contacts() returns ClubContacts from models/club_contacts.py \u2014 a different response type pattern",
+        "The inconsistency is not harmful but breaks the mental model of a consumer learning the API"
+      ],
+      "impact_scope": "local",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "ai_generated_debt",
+      "identifier": "verbose_test_method_names",
+      "summary": "Test method names follow a redundant pattern: test_NNN_{verb}_{noun}_{obvious_qualifier}",
+      "confidence": "low",
+      "suggestion": "Prefer shorter, behavior-focused names: test_get_rencontre_calls_api_client(), test_list_rencontres_passes_filter_criteria(). The numeric prefix can stay for ordering if needed.",
+      "related_files": [
+        "tests/unit/clients/test_211_ffbb_api_client_v2_new_endpoints.py"
+      ],
+      "evidence": [
+        "test_000_get_rencontre_delegates \u2014 'delegates' is always true for every facade test, adding no information",
+        "test_001_list_rencontres_delegates_with_filter_criteria \u2014 the method name is 40+ characters and fully describes what the test body says",
+        "This pattern appears in 20+ facade test methods"
+      ],
+      "impact_scope": "local",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "incomplete_migration",
+      "identifier": "rankings_shim_no_deprecation",
+      "summary": "rankings_models.py backward-compat shim has no deprecation notice or removal timeline",
+      "confidence": "medium",
+      "suggestion": "Add a DeprecationWarning to the module-level imports, document which version it will be removed in, or remove it immediately if no external consumers depend on it.",
+      "related_files": [
+        "src/ffbb_api_client_v2/directus_ffbb/models/rankings_models.py"
+      ],
+      "evidence": [
+        "Docstring says 'Backward-compatibility re-export shim' but no @deprecated decorator, no DeprecationWarning, no TODO with removal version",
+        "Without a deprecation mechanism, this shim will remain indefinitely"
+      ],
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "package_organization",
+      "identifier": "extract_contacts_misplaced_in_examples",
+      "summary": "extract_contacts.py is application-scale (5000+ LOC) but placed in examples/ which implies a demo",
+      "confidence": "medium",
+      "suggestion": "Move to tools/ or apps/extract_contacts/ directory to signal its application scope. Add a brief README explaining it is an advanced usage example that doubles as a production tool.",
+      "related_files": [
+        "examples/extract_contacts.py"
+      ],
+      "evidence": [
+        "examples/extract_contacts.py is 5000+ LOC with complex CLI, parallel API batching, full HTML report generation \u2014 clearly an application, not an example",
+        "Other examples range from 50 to 300 LOC \u2014 the scale difference is 25x",
+        "The file has a proper CLI (argparse) suggesting it is a standalone tool"
+      ],
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "design_coherence",
+      "identifier": "is_valid_for_query_not_in_base",
+      "summary": "is_valid_for_query() is defined in each of 9 Hit subclasses with similar logic but no shared base implementation",
+      "confidence": "medium",
+      "suggestion": "Move the normalization logic (lower-case preprocessing) to Hit base class as a protected _normalize_query() helper. Each subclass can then override _get_searchable_fields() returning a list of lower-case field values, and is_valid_for_query() in the base class calls _get_searchable_fields().",
+      "related_files": [
+        "src/ffbb_api_client_v2/meilisearch/models/hit.py",
+        "src/ffbb_api_client_v2/meilisearch_ffbb/models/organismes_hit.py",
+        "src/ffbb_api_client_v2/meilisearch_ffbb/models/salles_hit.py"
+      ],
+      "evidence": [
+        "Hit ABC declares is_valid_for_query as abstract but provides no default implementation",
+        "Each Hit subclass independently implements a similar 'not query or lower_nom contains query' pattern",
+        "If the filtering strategy changes (e.g., case normalization), all 9 implementations must be updated independently"
+      ],
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor"
+    },
+    {
+      "dimension": "contract_coherence",
+      "identifier": "smart_multi_search_contract_gap",
+      "summary": "smart_multi_search filters results client-side without documenting this in the return contract",
+      "confidence": "high",
+      "suggestion": "Add to the docstring: 'Note: results are post-filtered by client-side is_valid_for_query() matching against the query string.' Or rename to filtered_multi_search() to make the filtering semantics explicit.",
+      "related_files": [
+        "src/ffbb_api_client_v2/meilisearch/client_extension.py"
+      ],
+      "evidence": [
+        "Method is named smart_multi_search and returns MultiSearchResults | None",
+        "Actually returns fewer results than the Meilisearch server returns because it applies is_valid_for_query filtering",
+        "The method signature and name do not signal this filtering \u2014 callers cannot tell results were post-filtered"
+      ],
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "logic_clarity",
+      "identifier": "cache_manager_docstring_overclaims",
+      "summary": "cache_manager.py module docstring promises Redis, multi-level caching, cache warming \u2014 none of which are implemented",
+      "confidence": "high",
+      "suggestion": "Replace the module docstring with an accurate description of what the module actually does: 'Thread-safe HTTP caching via requests_cache with SQLite backend and basic cache metrics.'",
+      "related_files": [
+        "src/ffbb_api_client_v2/utils/cache_manager.py"
+      ],
+      "evidence": [
+        "Module docstring: 'Multi-level caching (memory, disk, Redis)', 'Cache warming capabilities', 'Intelligent cache invalidation'",
+        "Actual implementation: ThreadSafeCachedSession wrapping a SQLite-backed requests_cache.CachedSession",
+        "No Redis, no memory layer, no cache warming \u2014 the docstring describes aspirational features, not the actual implementation"
+      ],
+      "impact_scope": "local",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "logic_clarity",
+      "identifier": "step_number_gap_in_main",
+      "summary": "main() in extract_contacts.py has a step numbering gap (1, 3, 4, 5) \u2014 step 2 is embedded inside step 1",
+      "confidence": "low",
+      "suggestion": "Renumber steps to match actual structure, or separate the 'no qualified results' guard into a dedicated step function _step2_validate_results(). The current gap is minor but confusing for debugging.",
+      "related_files": [
+        "examples/extract_contacts.py"
+      ],
+      "evidence": [
+        "logger.info('[1/5] ...')",
+        "logger.info('[2/5] Aucun engagement qualifie...') \u2014 step 2 is a guard inside _step1_geo_search_engagements",
+        "logger.info('[3/5] ...')",
+        "The step numbering suggests 5 parallel phases but step 2 is actually a validation inside step 1"
+      ],
+      "impact_scope": "local",
+      "fix_scope": "single_edit"
+    },
+    {
+      "dimension": "type_safety",
+      "identifier": "filter_sort_list_any",
+      "summary": "MultiSearchQuery.filter and .sort are typed as list[Any] \u2014 no type safety for query predicates",
+      "confidence": "medium",
+      "suggestion": "Define FilterClause = str | list[str | list] as a recursive type alias, or use a Union[str, list[FilterClause]] TypeAlias. At minimum, type sort as list[str] since Meilisearch sort expressions are always strings.",
+      "related_files": [
+        "src/ffbb_api_client_v2/meilisearch/models/multi_search_query.py"
+      ],
+      "evidence": [
+        "filter: list[Any] | None \u2014 Meilisearch filters can be strings, lists, or nested structures",
+        "sort: list[Any] | None \u2014 sort expressions are strings like 'nom:asc'",
+        "Passing a malformed filter (e.g., a nested dict instead of a filter string) is not caught by the type system"
+      ],
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    }
+  ],
+  "review_quality": {
+    "batch_count": 18,
+    "dimension_coverage": 0.05,
+    "evidence_density": 7.583,
+    "high_score_missing_issue_note": 0
+  },
+  "context_updates": {
+    "cross_module_architecture": {
+      "add": [
+        {
+          "header": "Clean layered dependency direction throughout library",
+          "description": "_http \u2192 directus/meilisearch \u2192 *_ffbb \u2192 facade \u2014 no reverse imports found. The layer contract is upheld in all production modules.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "converter_utils hub module with 87 importers",
+          "description": "All model files import from a single converter_utils.py, creating a large blast radius. The module mixes multiple conversion concerns without internal grouping.",
+          "settled": true,
+          "positive": false
+        }
+      ]
+    },
+    "high_level_elegance": {
+      "add": [
+        {
+          "header": "Sound 4-layer architecture with clean facade pattern",
+          "description": "HTTP \u2192 generic clients \u2192 FFBB clients \u2192 facade reflects a well-considered separation of concerns. FFBBAPIClientV2.create() is a clean entry point for library consumers.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Upward dependency: generic meilisearch imports meilisearch_ffbb config",
+          "description": "multi_search_results_class.py imports FFBB-specific index UIDs from the higher-level meilisearch_ffbb package, violating the layer contract.",
+          "settled": true,
+          "positive": false
+        }
+      ]
+    },
+    "convention_outlier": {
+      "add": [
+        {
+          "header": "Consistent dataclass+from_dict/to_dict convention across all models",
+          "description": "All ~120 model files follow the exact same deserialization/serialization pattern with no outliers \u2014 a strong positive consistency signal.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "os.path outlier cluster in 5 scripts/",
+          "description": "phase0_enum_rename.py, phase1_dedup.py, phase3_rename.py, utils.py, validate_fk_expansion.py use os.path instead of pathlib.Path used by 10 sibling scripts.",
+          "settled": true,
+          "positive": false
+        }
+      ]
+    },
+    "error_consistency": {
+      "add": [
+        {
+          "header": "Well-structured three-tier exception hierarchy",
+          "description": "FFBBApiError \u2192 domain errors (FFBBNetworkError, FFBBAuthError, etc.) \u2192 client-specific mirrors in directus/ and meilisearch/. Each carries structured metadata (status_code, response_body).",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Converter layer uses lenient None-return by design",
+          "description": "converter_utils.py logs warnings and returns None for conversion failures rather than raising \u2014 an intentional resilient-parse contract documented in the module.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Facade layer silently returns None on API errors",
+          "description": "Facade methods return None on both 'not found' and 'API error', making it impossible for callers to distinguish these cases without additional instrumentation.",
+          "settled": false,
+          "positive": false
+        }
+      ]
+    },
+    "naming_quality": {
+      "add": [
+        {
+          "header": "Consistent get/list/search verb distinction in facade API",
+          "description": "get_* returns a single item, list_* returns a filtered collection, search_* hits Meilisearch. This three-way verb distinction is consistent across all 30+ facade methods.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Model field names correctly mirror snake_case of API camelCase keys",
+          "description": "nomEquipe1 \u2192 nom_equipe1, dateAffiliation \u2192 date_affiliation \u2014 this is the correct convention for API client models and is applied uniformly.",
+          "settled": true,
+          "positive": true
+        }
+      ]
+    },
+    "abstraction_fitness": {
+      "add": [
+        {
+          "header": "Hit ABC contract is minimal and honest",
+          "description": "Hit defines from_dict, to_dict, is_valid_for_query \u2014 the exact contract needed for typed multi-index search. No overabstraction.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Generic MultiSearchResult[HitType, FacetType, StatsType] is well-scoped",
+          "description": "Type parameterization of MultiSearchResult matches the domain need for per-index typed results without code duplication.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "FacetDistribution/FacetStats ABCs add 18 subclass files with no shared logic",
+          "description": "These ABCs serve only as type markers for generics \u2014 the actual behavior is always in the concrete subclass, making the ABC layer pure overhead.",
+          "settled": false,
+          "positive": false
+        }
+      ]
+    },
+    "dependency_health": {
+      "add": [
+        {
+          "header": "Minimal external runtime dependencies (requests, requests_cache, dateutil)",
+          "description": "Runtime dependency footprint is small and well-chosen. No heavy frameworks or transitive dependency concerns.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "No import cycles in the library codebase",
+          "description": "Static analysis confirms no circular imports between any library modules. Deferred imports are used appropriately in TYPE_CHECKING blocks.",
+          "settled": true,
+          "positive": true
+        }
+      ]
+    },
+    "low_level_elegance": {
+      "add": [
+        {
+          "header": "Converter helpers follow consistent guard-parse-log pattern",
+          "description": "All from_TYPE functions in converter_utils.py follow the same None-guard \u2192 type-check \u2192 parse \u2192 log-warning \u2192 return-None pattern. This is clean, predictable low-level code.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "from_obj documents FK depth limitation inline",
+          "description": "from_obj() has an inline comment explaining why it might receive a scalar instead of a dict \u2014 an honest, helpful low-level comment.",
+          "settled": true,
+          "positive": true
+        }
+      ]
+    },
+    "mid_level_elegance": {
+      "add": [
+        {
+          "header": "FFBB client modules are wide but internally consistent",
+          "description": "directus_ffbb/client.py and meilisearch_ffbb/client.py have 1000+ LOC but each method is 10-30 lines following a uniform fetch-parse pattern. Size reflects API breadth, not design failure.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "ContactReport God Class in extract_contacts.py",
+          "description": "ContactReport mixes data model, HTML/JS/CSS generation, CSV export, and Markdown export in one class. Phase 2C extracted sub-methods but the class boundary remains unmoved.",
+          "settled": false,
+          "positive": false
+        }
+      ]
+    },
+    "test_strategy": {
+      "add": [
+        {
+          "header": "Strong unit test coverage on library core at 96%+",
+          "description": "src/ffbb_api_client_v2 has >96% branch coverage with comprehensive model round-trip tests and mock-based facade delegation tests.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Integration tests correctly skip without API tokens",
+          "description": "Integration tests raise Exception in setUpClass when API_FFBB_APP_BEARER_TOKEN is absent, resulting in ERROR (not FAIL) \u2014 correct behavior for optional external dependencies.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Zero test coverage for examples/ and scripts/ (16,000+ LOC)",
+          "description": "The test strategy covers the library but not the operational tooling. extract_contacts.py alone is 5000+ LOC of untested business logic.",
+          "settled": true,
+          "positive": false
+        }
+      ]
+    },
+    "api_surface_coherence": {
+      "add": [
+        {
+          "header": "Consistent get/list/search/list_all verb pattern across 30+ facade methods",
+          "description": "get_*=single, list_*=filtered collection, search_*=meilisearch, list_all_*=paginated all. The four-verb taxonomy is applied uniformly.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Explicit __init__.py with 80+ curated public exports",
+          "description": "The public API is deliberately scoped via __init__.py \u2014 consumers get a clean symbol table without internal implementation details leaking.",
+          "settled": true,
+          "positive": true
+        }
+      ]
+    },
+    "ai_generated_debt": {
+      "add": [
+        {
+          "header": "AI collaboration acknowledged in commit history",
+          "description": "Commits with Co-authored-by: Qwen-Coder indicate intentional AI collaboration. The generated code is domain-accurate with no hallucinated APIs found.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Uniform model template without structural debt",
+          "description": "The 120 dataclass model files follow an identical template that is correct and maintainable. The uniformity aids navigation even if the origin is AI-assisted.",
+          "settled": true,
+          "positive": true
+        }
+      ]
+    },
+    "incomplete_migration": {
+      "add": [
+        {
+          "header": "Three model migration phases completed cleanly",
+          "description": "Enum rename (phase0), model deduplication (phase1), suffix cleanup (phase3) all completed \u2014 no residual old names found in src/.",
+          "settled": true,
+          "positive": true
+        }
+      ]
+    },
+    "package_organization": {
+      "add": [
+        {
+          "header": "Logical 8-layer package structure reflecting the architecture",
+          "description": "_http \u2192 generic clients \u2192 FFBB clients \u2192 facade, with shared models/ and utils/. The directory structure accurately maps to the system design.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "config.py placement correctly scoped",
+          "description": "Generic Meilisearch config in package-root config.py; FFBB-specific configs in directus_ffbb/config.py and meilisearch_ffbb/config.py. Config boundaries match package boundaries.",
+          "settled": true,
+          "positive": true
+        }
+      ]
+    },
+    "design_coherence": {
+      "add": [
+        {
+          "header": "Two-backend design is coherent and explicitly documented",
+          "description": "The facade docstring explains the two-backend strategy: Meilisearch for discovery (full-text/geo), Directus for depth (FK resolution). The design decision is visible and justified.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "is_valid_for_query duplicated across 9 Hit subclasses without shared logic",
+          "description": "The filtering pattern (lower-case field matching) is repeated in each Hit subclass. A template method in the base Hit class would centralize the logic.",
+          "settled": false,
+          "positive": false
+        }
+      ]
+    },
+    "contract_coherence": {
+      "add": [
+        {
+          "header": "from_dict/to_dict contracts are consistent across all 120 models",
+          "description": "from_dict always raises TypeError on non-dict input; to_dict always omits None fields. These two contracts are applied without exception across the entire model layer.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Converter contract: return None + log warning on failure",
+          "description": "All converter_utils functions honor the documented lenient-parse contract: never raise, return None on failure, always log a warning with context.",
+          "settled": true,
+          "positive": true
+        }
+      ]
+    },
+    "logic_clarity": {
+      "add": [
+        {
+          "header": "cache_manager.py module docstring overclaims unimplemented features",
+          "description": "Module promises Redis, multi-level caching, and cache warming but delivers only ThreadSafe SQLite-backed CachedSession. Misleads developers about available capabilities.",
+          "settled": true,
+          "positive": false
+        },
+        {
+          "header": "Phase-based orchestration in main() uses sequential step functions",
+          "description": "After Phase 2C refactoring, main() delegates to _step1_geo_search, _step3_enrich_contacts, _step4_compute_distances, _step5_build_and_export \u2014 a clear sequential flow.",
+          "settled": true,
+          "positive": true
+        }
+      ]
+    },
+    "type_safety": {
+      "add": [
+        {
+          "header": "pyright reports 0 errors on entire src/ package",
+          "description": "The library passes strict static type checking with no errors. Public API annotations are complete and correct.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Generic typing for MultiSearchResult provides typed result access",
+          "description": "MultiSearchResult[HitType, FacetDistributionType, FacetStatsType] gives consumers typed access to index-specific hits without casting.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "filter/sort typed as list[Any] due to Meilisearch filter syntax complexity",
+          "description": "Meilisearch filter syntax is a complex recursive structure. list[Any] is a documented escape hatch; sort could be typed as list[str] for improved safety.",
+          "settled": false,
+          "positive": false
+        }
+      ]
+    }
+  },
+  "review_scope": {
+    "reviewed_files_count": 0,
+    "successful_batch_count": 18,
+    "full_sweep_included": false,
+    "total_files": 251,
+    "imported_dimensions": [
+      "abstraction_fitness",
+      "ai_generated_debt",
+      "api_surface_coherence",
+      "contract_coherence",
+      "convention_outlier",
+      "cross_module_architecture",
+      "dependency_health",
+      "design_coherence",
+      "error_consistency",
+      "high_level_elegance",
+      "incomplete_migration",
+      "logic_clarity",
+      "low_level_elegance",
+      "mid_level_elegance",
+      "naming_quality",
+      "package_organization",
+      "test_strategy",
+      "type_safety"
+    ]
+  },
+  "provenance": {
+    "kind": "blind_review_batch_import",
+    "blind": true,
+    "runner": "dry-run",
+    "run_stamp": "20260316_200212",
+    "created_at": "2026-03-16T20:20:26+00:00",
+    "batch_count": 18,
+    "batch_indexes": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      13,
+      14,
+      15,
+      17,
+      18,
+      19,
+      20
+    ],
+    "packet_path": "/Users/bleclereperso/Projects/Python/FFBBApiClientV2_Python-phase2/.desloppify/review_packet_blind.json",
+    "packet_sha256": "daa7df95f12132daa007b7ac4ce48c0f638ba07c46cfd0a50a120510dc820938"
+  },
+  "assessment_coverage": {
+    "scored_dimensions": [
+      "naming_quality",
+      "logic_clarity",
+      "type_safety",
+      "contract_coherence",
+      "error_consistency",
+      "abstraction_fitness",
+      "ai_generated_debt",
+      "high_level_elegance",
+      "mid_level_elegance",
+      "low_level_elegance",
+      "cross_module_architecture",
+      "initialization_coupling",
+      "convention_outlier",
+      "dependency_health",
+      "test_strategy",
+      "api_surface_coherence",
+      "authorization_consistency",
+      "incomplete_migration",
+      "package_organization",
+      "design_coherence"
+    ],
+    "selected_dimensions": [
+      "naming_quality",
+      "logic_clarity",
+      "type_safety",
+      "contract_coherence",
+      "error_consistency",
+      "abstraction_fitness",
+      "ai_generated_debt",
+      "high_level_elegance",
+      "mid_level_elegance",
+      "low_level_elegance",
+      "cross_module_architecture",
+      "initialization_coupling",
+      "convention_outlier",
+      "dependency_health",
+      "test_strategy",
+      "api_surface_coherence",
+      "authorization_consistency",
+      "incomplete_migration",
+      "package_organization",
+      "design_coherence"
+    ],
+    "imported_dimensions": [
+      "abstraction_fitness",
+      "ai_generated_debt",
+      "api_surface_coherence",
+      "contract_coherence",
+      "convention_outlier",
+      "cross_module_architecture",
+      "dependency_health",
+      "design_coherence",
+      "error_consistency",
+      "high_level_elegance",
+      "incomplete_migration",
+      "logic_clarity",
+      "low_level_elegance",
+      "mid_level_elegance",
+      "naming_quality",
+      "package_organization",
+      "test_strategy",
+      "type_safety"
+    ],
+    "missing_dimensions": [
+      "initialization_coupling",
+      "authorization_consistency"
+    ]
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "batch": "design_coherence",
+  "batch_index": 17,
+  "assessments": {"design_coherence": 74.0},
+  "dimension_notes": {
+    "design_coherence": {
+      "evidence": [
+        "The two-backend design (Directus REST for deep FK resolution, Meilisearch for full-text/geo search) is coherent and well-motivated: the facade docstring explicitly documents when to use each: 'Meilisearch pour la decouverte, Directus pour l'approfondissement'.",
+        "dataclass + from_dict/to_dict is the universal model serialization pattern — applied uniformly, no outliers.",
+        "Hit ABC → concrete *Hit subclasses is a clean polymorphic hierarchy for typed search results.",
+        "The Generic[HitType, FacetType, StatsType] MultiSearchResult pattern enables type-safe multi-index search — a coherent design choice.",
+        "Lenient converter design (return None on parse failure, log warning) is consistently applied — a documented design decision.",
+        "The is_valid_for_query(query) method on Hit subclasses implements client-side post-filtering. This design decision is repeated across 9 Hit classes but the motivation (Meilisearch returns results that don't always exactly match the query) is documented in MeilisearchClientExtension.",
+        "ContactReport in extract_contacts.py mixes domain data with multi-format presentation in one class — this is a design coherence failure for the examples layer.",
+        "scripts/ have no shared design pattern — each is standalone. This is appropriate for utility scripts.",
+        "The facade exposes batch operations (list_engagements_by_ids) alongside single-item operations (get_engagement) — coherent API design for consumers who need bulk fetching.",
+        "WaveCollector in discover_types.py uses a phase-based method structure that mirrors the Phase 0-7 design of main() — coherent within the script's context."
+      ],
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high",
+      "issues_preventing_higher_score": "ContactReport God Class violates single-responsibility in the examples layer; is_valid_for_query client-side filtering duplicated across 9 Hit classes without a shared implementation"
+    }
+  },
+  "dimension_judgment": {
+    "design_coherence": {
+      "dimension_character": "The library's core design is coherent and internally consistent: the two-backend split is well-motivated, the model layer uses a uniform pattern, and the facade API is cleanly structured. The main design coherence issue is in the examples layer where ContactReport conflates data representation with multi-format rendering, and the repeated is_valid_for_query logic across 9 Hit classes.",
+      "score_rationale": "Score of 74 reflects a coherent library design docked for two specific deviations: the God Class in examples/ and the duplicated client-side filtering logic in Hit subclasses that should be in the base class."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "design_coherence",
+      "identifier": "is_valid_for_query_not_in_base",
+      "summary": "is_valid_for_query() is defined in each of 9 Hit subclasses with similar logic but no shared base implementation",
+      "related_files": [
+        "src/ffbb_api_client_v2/meilisearch/models/hit.py",
+        "src/ffbb_api_client_v2/meilisearch_ffbb/models/organismes_hit.py",
+        "src/ffbb_api_client_v2/meilisearch_ffbb/models/salles_hit.py"
+      ],
+      "evidence": [
+        "Hit ABC declares is_valid_for_query as abstract but provides no default implementation",
+        "Each Hit subclass independently implements a similar 'not query or lower_nom contains query' pattern",
+        "If the filtering strategy changes (e.g., case normalization), all 9 implementations must be updated independently"
+      ],
+      "suggestion": "Move the normalization logic (lower-case preprocessing) to Hit base class as a protected _normalize_query() helper. Each subclass can then override _get_searchable_fields() returning a list of lower-case field values, and is_valid_for_query() in the base class calls _get_searchable_fields().",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "missing_template_method"
+    }
+  ],
+  "retrospective": {
+    "root_causes": ["ABC without template method pattern for repeated subclass logic"],
+    "likely_symptoms": ["is_valid_for_query_not_in_base"]
+  },
+  "context_updates": {
+    "design_coherence": {
+      "add": [
+        {
+          "header": "Two-backend design is coherent and explicitly documented",
+          "description": "The facade docstring explains the two-backend strategy: Meilisearch for discovery (full-text/geo), Directus for depth (FK resolution). The design decision is visible and justified.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "is_valid_for_query duplicated across 9 Hit subclasses without shared logic",
+          "description": "The filtering pattern (lower-case field matching) is repeated in each Hit subclass. A template method in the base Hit class would centralize the logic.",
+          "settled": false,
+          "positive": false
+        }
+      ]
+    }
+  }
+}

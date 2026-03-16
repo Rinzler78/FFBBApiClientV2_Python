@@ -1,0 +1,74 @@
+{
+  "batch": "convention_outlier",
+  "batch_index": 3,
+  "assessments": {"convention_outlier": 74.0},
+  "dimension_notes": {
+    "convention_outlier": {
+      "evidence": [
+        "All library source files use snake_case naming — fully consistent with the naming_by_directory census.",
+        "10 of 15 scripts use pathlib.Path; 5 scripts (phase0_enum_rename.py, phase1_dedup.py, phase3_rename.py, utils.py, validate_fk_expansion.py) use os.path/os.walk instead — identified as outliers in sibling_behavior.",
+        "phase1_dedup.py and phase3_rename.py use os.path extensively even though other scripts (discover_types.py, audit_api_models.py) use Path. These are deduplication/rename scripts that predate the Path convention.",
+        "All src/ files use 'from __future__ import annotations' consistently for deferred type evaluation — a well-established internal convention.",
+        "All models use the dataclass + from_dict/to_dict pattern. No outlier models use different deserialization.",
+        "test files in tests/unit/ use unittest.TestCase style. Some newer tests use pytest-style (no class inheritance). This creates a mixed testing convention.",
+        "scripts/utils.py uses os.path.join instead of Path — it is a shared utility imported by other scripts, making the outlier pattern propagate.",
+        "examples/ files mostly import from ffbb_api_client_v2 directly. No examples use internal private APIs."
+      ],
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high",
+      "issues_preventing_higher_score": "os.path vs pathlib.Path inconsistency across scripts/, mixed unittest.TestCase vs pytest-class-free testing convention"
+    }
+  },
+  "dimension_judgment": {
+    "convention_outlier": {
+      "dimension_character": "The library maintains strong naming and structural conventions throughout src/. The main outlier cluster is in scripts/ where 5 files use os.path instead of the project-standard pathlib.Path, and in tests/ where unittest.TestCase and bare-pytest styles coexist.",
+      "score_rationale": "Score of 74 reflects a consistent core library with two minor but systematic outlier patterns. The os.path cluster in scripts/ is the most visible deviation from sibling conventions; the mixed test style is a lesser concern as both are valid pytest-compatible patterns."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "convention_outlier",
+      "identifier": "scripts_os_path_outliers",
+      "summary": "5 scripts use os.path/os.walk instead of the project-standard pathlib.Path",
+      "related_files": [
+        "scripts/phase0_enum_rename.py",
+        "scripts/phase1_dedup.py",
+        "scripts/phase3_rename.py",
+        "scripts/utils.py",
+        "scripts/validate_fk_expansion.py"
+      ],
+      "evidence": [
+        "10 of 15 scripts use pathlib.Path; these 5 use os.path.join/os.path.dirname/os.walk",
+        "scripts/utils.py is a shared utility imported by others — its os.path usage propagates to consumers"
+      ],
+      "suggestion": "Migrate these scripts to use pathlib.Path for path operations, consistent with the sibling scripts. scripts/utils.py should be migrated first since it influences other scripts.",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "convention_drift"
+    }
+  ],
+  "retrospective": {
+    "root_causes": ["legacy scripts written before pathlib.Path adoption became the project norm"],
+    "likely_symptoms": ["scripts_os_path_outliers"]
+  },
+  "context_updates": {
+    "convention_outlier": {
+      "add": [
+        {
+          "header": "Consistent dataclass+from_dict/to_dict convention across all models",
+          "description": "All ~120 model files follow the exact same deserialization/serialization pattern with no outliers — a strong positive consistency signal.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "os.path outlier cluster in 5 scripts/",
+          "description": "phase0_enum_rename.py, phase1_dedup.py, phase3_rename.py, utils.py, validate_fk_expansion.py use os.path instead of pathlib.Path used by 10 sibling scripts.",
+          "settled": true,
+          "positive": false
+        }
+      ]
+    }
+  }
+}

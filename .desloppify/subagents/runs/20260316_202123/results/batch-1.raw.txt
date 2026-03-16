@@ -1,0 +1,48 @@
+{
+  "batch": "authorization_consistency",
+  "batch_index": 1,
+  "assessments": {"authorization_consistency": 83.0},
+  "dimension_notes": {
+    "authorization_consistency": {
+      "evidence": [
+        "Token lifecycle centralized in facade/token_manager.py: env var priority → public config endpoint fetch → HTTP cached for reuse. Single resolution point.",
+        "validate_token() called in DirectusClient.__init__ before any request is made.",
+        "Bearer tokens passed only via Authorization header in _http/client.py — never exposed after construction.",
+        "mask_token() from secure_logging.py used in all log calls that reference tokens. No plaintext token logging found.",
+        "No RBAC needed for this read-only public API client.",
+        "ENV_API_TOKEN and ENV_MEILISEARCH_TOKEN constants centralized to avoid magic string duplication.",
+        "TokenManager caches tokens via HTTP session — stale tokens persist in cache without explicit rotation mechanism, but this is low-risk for a public token endpoint."
+      ],
+      "impact_scope": "module",
+      "fix_scope": "single_edit",
+      "confidence": "high",
+      "issues_preventing_higher_score": "Token cache has no explicit refresh/rotation mechanism; no documented procedure for token rotation when tokens expire"
+    }
+  },
+  "dimension_judgment": {
+    "authorization_consistency": {
+      "dimension_character": "Authorization is clean and consistently applied: single resolution point in TokenManager, validation at client construction, tokens masked in logs. The library is a read-only public API client with no RBAC needs, so auth simplicity is appropriate.",
+      "score_rationale": "Score of 83 reflects consistent, correct auth handling appropriate for the domain. Minor deductions for the undocumented token refresh mechanism and the absence of a cache-bust path for token rotation."
+    }
+  },
+  "issues": [],
+  "retrospective": {"root_causes": [], "likely_symptoms": []},
+  "context_updates": {
+    "authorization_consistency": {
+      "add": [
+        {
+          "header": "Centralized token resolution with env-var priority and API fallback",
+          "description": "TokenManager.get_tokens() checks env vars first, then fetches from the public FFBB configuration endpoint with HTTP caching.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Token masking applied uniformly across all logging paths",
+          "description": "mask_token() from secure_logging.py is used in all client modules. No raw token appears in log output.",
+          "settled": true,
+          "positive": true
+        }
+      ]
+    }
+  }
+}
