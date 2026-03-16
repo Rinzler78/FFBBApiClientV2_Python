@@ -79,3 +79,6 @@ reports
 # AI/MCP caches
 .playwright-mcp/
 .benchmarks/
+
+# Desloppify backup files
+.desloppify/*.bak

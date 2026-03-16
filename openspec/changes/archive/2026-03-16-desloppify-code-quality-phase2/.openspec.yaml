@@ -1,0 +1,58 @@
+id: desloppify-code-quality-phase2
+title: "Desloppify Code Quality Phase 2"
+description: "Address remaining desloppify issues after phase 1 (PR #31) to improve strict score from 19.9 to ~50-60/100"
+status: draft
+created: 2026-03-16
+author: AI Assistant
+priority: high
+labels:
+  - code-quality
+  - refactoring
+  - testing
+  - security
+  - technical-debt
+
+phases:
+  - id: 2A
+    name: Quick Wins
+    estimated_hours: 2
+    priority: critical
+  - id: 2B
+    name: Exception Handling
+    estimated_hours: 4
+    priority: critical
+  - id: 2C
+    name: Monster Functions
+    estimated_hours: 8
+    priority: high
+  - id: 2D
+    name: Test Coverage
+    estimated_hours: 16
+    priority: high
+  - id: 2E
+    name: Security Audit
+    estimated_hours: 2
+    priority: critical
+  - id: 2F
+    name: Subjective Review
+    estimated_hours: 8
+    priority: medium
+
+metrics:
+  current:
+    strict_score: 19.9
+    code_smells_high: 37
+    code_smells_medium: 360
+    test_health: 2.3
+    security_issues: 27
+    duplication_clusters: 24
+  target:
+    strict_score: 50.0
+    code_smells_high: 10
+    code_smells_medium: 200
+    test_health: 15.0
+    security_issues: 0
+    duplication_clusters: 15
+
+dependencies:
+  - fix-conversion-mismatch-detection  # Phase 1 prerequisite
