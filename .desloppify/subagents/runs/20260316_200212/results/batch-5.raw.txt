@@ -1,0 +1,74 @@
+{
+  "batch": "naming_quality",
+  "batch_index": 5,
+  "assessments": {"naming_quality": 82.0},
+  "dimension_notes": {
+    "naming_quality": {
+      "evidence": [
+        "All public API methods follow consistent verb+noun patterns: get_competition(), list_rencontres(), search_organismes(). The get/list/search distinction is meaningful: get=single item, list=collection with filters, search=meilisearch full-text.",
+        "Naming census shows 100% snake_case across all source directories — zero camelCase names in Python identifiers.",
+        "Model field names mirror API JSON keys mapped to snake_case: nomEquipe1 → nom_equipe1, dateAffiliation → date_affiliation. This is the correct convention for API client models.",
+        "from_str, from_int, from_datetime, from_bool — converter helpers use clear, consistent from_TYPE naming.",
+        "ApiFFBBAppClient (directus_ffbb/client.py) has a redundant 'App' in the name. The class wraps the FFBB Directus API — naming it ApiFFBBAppClient is verbose and slightly redundant alongside FFBBAPIClientV2.",
+        "MeilisearchFFBBClient vs MeilisearchClientExtension vs MeilisearchClient — three related classes with subtly different naming patterns (FFBBClient, ClientExtension, Client).",
+        "Some model fields use abbreviated names: nom_usuel (common name), code_abrege (abbreviated code) — French domain terms, appropriate given the FFBB domain.",
+        "_CITY_RADIUS_KM, _FK_BATCH, _RATE_DELAY in examples/ use module-private constants with clear names.",
+        "test file names follow a numbered pattern: test_000_*, test_001_*, test_146_*. The numbers indicate priority/order but make discovery by topic harder."
+      ],
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high",
+      "issues_preventing_higher_score": "Meilisearch client class naming inconsistency (3 related classes with 3 different naming patterns), ApiFFBBAppClient verbose name"
+    }
+  },
+  "dimension_judgment": {
+    "naming_quality": {
+      "dimension_character": "Naming is consistently snake_case and domain-appropriate throughout the library. The get/list/search verb distinction in the public API is well-maintained. The main weakness is in the Meilisearch client class hierarchy, where three related classes (MeilisearchClient, MeilisearchClientExtension, MeilisearchFFBBClient) follow three different naming patterns, obscuring their relationship.",
+      "score_rationale": "Score of 82 reflects strong overall naming consistency docked for the Meilisearch class hierarchy naming inconsistency and the verbose ApiFFBBAppClient name. These are minor concerns that do not impede comprehension but reduce clarity at first glance."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "naming_quality",
+      "identifier": "meilisearch_client_hierarchy_naming",
+      "summary": "Three Meilisearch client classes follow three different naming patterns, obscuring their relationship",
+      "related_files": [
+        "src/ffbb_api_client_v2/meilisearch/client.py",
+        "src/ffbb_api_client_v2/meilisearch/client_extension.py",
+        "src/ffbb_api_client_v2/meilisearch_ffbb/client.py"
+      ],
+      "evidence": [
+        "MeilisearchClient (base HTTP client)",
+        "MeilisearchClientExtension (adds pagination, inherits MeilisearchClient)",
+        "MeilisearchFFBBClient (FFBB-specific, inherits MeilisearchClientExtension)",
+        "A developer reading these names cannot infer the inheritance chain from the names alone"
+      ],
+      "suggestion": "Rename to make the hierarchy explicit: MeilisearchClient (base) → MeilisearchPaginatedClient or keep 'Extension' but suffix consistently → FFBBMeilisearchClient (FFBB-specific). Or document the hierarchy prominently in docstrings.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor"
+    }
+  ],
+  "retrospective": {
+    "root_causes": ["incremental class extraction without renaming for hierarchy clarity"],
+    "likely_symptoms": ["meilisearch_client_hierarchy_naming"]
+  },
+  "context_updates": {
+    "naming_quality": {
+      "add": [
+        {
+          "header": "Consistent get/list/search verb distinction in facade API",
+          "description": "get_* returns a single item, list_* returns a filtered collection, search_* hits Meilisearch. This three-way verb distinction is consistent across all 30+ facade methods.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Model field names correctly mirror snake_case of API camelCase keys",
+          "description": "nomEquipe1 → nom_equipe1, dateAffiliation → date_affiliation — this is the correct convention for API client models and is applied uniformly.",
+          "settled": true,
+          "positive": true
+        }
+      ]
+    }
+  }
+}

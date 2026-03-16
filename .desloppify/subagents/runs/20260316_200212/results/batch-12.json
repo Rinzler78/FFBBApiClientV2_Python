@@ -1,0 +1,56 @@
+{
+  "batch": "authorization_consistency",
+  "batch_index": 12,
+  "assessments": {
+    "authorization_consistency": 83.0
+  },
+  "dimension_notes": {
+    "authorization_consistency": {
+      "evidence": [
+        "Token lifecycle is centralized in facade/token_manager.py: TokenManager.get_tokens() resolves tokens from env vars first, then fetches from the public configuration endpoint. Single resolution point.",
+        "validate_token() in utils/input_validation.py is called from DirectusClient.__init__ to validate the bearer token before use. Consistent validation at client construction time.",
+        "Bearer token is passed as Authorization header in all HTTP requests via _http/client.py HttpClient methods. No raw token passing outside the HTTP layer.",
+        "secure_logging.py provides mask_token() which is used in logging calls across client modules \u2014 tokens are never logged in plaintext.",
+        "No authorization logic in model files \u2014 auth is correctly isolated to the client layer.",
+        "MeilisearchClient takes bearer_token in __init__ and stores it internally. DirectusClient similarly. Neither exposes the token after construction.",
+        "ENV_API_TOKEN = 'API_FFBB_APP_BEARER_TOKEN' and ENV_MEILISEARCH_TOKEN = 'MEILISEARCH_BEARER_TOKEN' are centralized constants.",
+        "TokenManager caches tokens with HTTP caching (CachedSession) \u2014 token rotation would require clearing the cache manually. This is noted but not a security issue given the public API nature.",
+        "No role-based access control or permission checking \u2014 not needed for a public read-only API client.",
+        "examples/ pass tokens through TokenManager.get_tokens() consistently \u2014 no hardcoded tokens found."
+      ],
+      "impact_scope": "module",
+      "fix_scope": "single_edit",
+      "confidence": "high",
+      "issues_preventing_higher_score": "No major auth issues found; minor: token cache holds stale tokens without explicit refresh mechanism"
+    }
+  },
+  "dimension_judgment": {
+    "authorization_consistency": {
+      "dimension_character": "Authorization is handled consistently: tokens flow from environment variables or the configuration endpoint through TokenManager, are validated at client construction, and are used only via the HTTP layer. Token masking in logs is applied uniformly. This is a read-only public API client with appropriate auth simplicity.",
+      "score_rationale": "Score of 83 reflects a clean, consistent auth flow appropriate for the domain. Minor deductions for the token cache potentially holding stale tokens without an explicit refresh mechanism, and for no documented token rotation procedure."
+    }
+  },
+  "issues": [],
+  "retrospective": {
+    "root_causes": [],
+    "likely_symptoms": []
+  },
+  "context_updates": {
+    "authorization_consistency": {
+      "add": [
+        {
+          "header": "Centralized token resolution with env var priority and API fallback",
+          "description": "TokenManager.get_tokens() checks env vars first, then fetches from the public FFBB configuration endpoint. Single resolution point with HTTP caching.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Token masking applied uniformly in all logging paths",
+          "description": "mask_token() from secure_logging.py is used in all client modules that log auth-related operations. No raw token appears in log output.",
+          "settled": true,
+          "positive": true
+        }
+      ]
+    }
+  }
+}

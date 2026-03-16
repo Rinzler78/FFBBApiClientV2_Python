@@ -1,0 +1,54 @@
+{
+  "batch": "initialization_coupling",
+  "batch_index": 16,
+  "assessments": {
+    "initialization_coupling": 84.0
+  },
+  "dimension_notes": {
+    "initialization_coupling": {
+      "evidence": [
+        "FFBBAPIClientV2.create() is a factory that constructs ApiFFBBAppClient and MeilisearchFFBBClient internally \u2014 coupling is explicit and documented. The constructor accepts pre-built clients for dependency injection: __init__(api_ffbb_client, meilisearch_ffbb_client) \u2014 testability is preserved.",
+        "CacheManager is a singleton-like pattern via CacheManager().session \u2014 a new CacheManager instance is created but it returns a shared session. This is mildly confusing but documented.",
+        "TokenManager.get_tokens() creates its own CacheManager instance for token caching. The session lifecycle is self-contained.",
+        "DirectusClient.__init__ creates its own CacheManager if not provided \u2014 this creates independent cache sessions when multiple client instances are created.",
+        "FFBBAPIClientV2.create() shares the same cached_session between both sub-clients (ApiFFBBAppClient and MeilisearchFFBBClient) \u2014 correct behavior for unified HTTP caching.",
+        "No global module-level side effects in src/ \u2014 modules are safe to import without triggering initialization.",
+        "MeilisearchClientExtension creates a CacheManager in __init__ if no session provided \u2014 this is slightly wasteful if the caller (FFBBAPIClientV2.create) already provides a session.",
+        "No circular initialization dependencies \u2014 all constructors take simple primitives or already-constructed objects."
+      ],
+      "impact_scope": "module",
+      "fix_scope": "single_edit",
+      "confidence": "high",
+      "issues_preventing_higher_score": "Redundant CacheManager creation in MeilisearchClientExtension when caller already provides session; CacheManager() instance semantics mildly confusing"
+    }
+  },
+  "dimension_judgment": {
+    "initialization_coupling": {
+      "dimension_character": "Initialization is clean with no circular dependencies and a clear factory + DI pattern. The main coupling note is the CacheManager creation in MeilisearchClientExtension.__init__ that duplicates work already done by FFBBAPIClientV2.create() when it provides a session \u2014 minor redundancy, not a structural issue.",
+      "score_rationale": "Score of 84 reflects clean initialization design with excellent testability (DI constructor + factory). Docked slightly for the redundant CacheManager creation path and for the CacheManager singleton-like pattern that creates an instance but returns a shared session (confusing ownership semantics)."
+    }
+  },
+  "issues": [],
+  "retrospective": {
+    "root_causes": [],
+    "likely_symptoms": []
+  },
+  "context_updates": {
+    "initialization_coupling": {
+      "add": [
+        {
+          "header": "Factory + DI constructor pattern for clean testability",
+          "description": "FFBBAPIClientV2.create() builds all dependencies; __init__ accepts pre-built clients for testing. This two-path pattern enables both convenience and testability.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Shared cached_session passed to both sub-clients in create()",
+          "description": "FFBBAPIClientV2.create() creates one CachedSession and passes it to both ApiFFBBAppClient and MeilisearchFFBBClient, ensuring unified HTTP caching.",
+          "settled": true,
+          "positive": true
+        }
+      ]
+    }
+  }
+}

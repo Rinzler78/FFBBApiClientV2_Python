@@ -1,0 +1,107 @@
+{
+  "batch": "abstraction_fitness",
+  "batch_index": 6,
+  "assessments": {"abstraction_fitness": 75.0},
+  "dimension_notes": {
+    "abstraction_fitness": {
+      "evidence": [
+        "Hit ABC defines from_dict, to_dict, is_valid_for_query — a minimal, honest contract. All 9 concrete hit types implement it cleanly.",
+        "MultiSearchQuery is a data-bag with 22+ optional fields covering the full Meilisearch query parameter set. Not an abstraction problem — mirrors the API spec directly.",
+        "converter_utils.py provides from_str, from_int, from_datetime etc. as named typed converters. These are not abstractions per se — they are named coercions. The naming is appropriate but the module lacks internal grouping.",
+        "QueryFieldsManager ABC has a single abstract method get_fields() returning list[str]. This is a thin, appropriate abstraction for the endpoint field registry pattern.",
+        "MultiSearchResult is Generic[HitType, FacetDistributionType, FacetStatsType] — appropriate use of generics for a typed container.",
+        "FacetDistribution and FacetStats ABCs exist but have minimal contract — concrete classes simply add typed fields. The abstraction cost is higher than the benefit (9 paired subclasses with no shared logic).",
+        "RetryConfig/TimeoutConfig are configuration dataclasses — not abstractions but value objects. Well-scoped.",
+        "CacheManager encapsulates requests_cache session lifecycle — an appropriate single-responsibility abstraction.",
+        "secure_logging.py provides get_secure_logger and mask_token — right-sized utilities.",
+        "from_dict pattern in models uses converter helpers but some models also do raw obj.get() for booleans and floats — a small inconsistency in the abstraction boundary."
+      ],
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high",
+      "issues_preventing_higher_score": "FacetDistribution/FacetStats ABCs with 9 paired subclasses and no shared logic add abstraction overhead without benefit; raw obj.get() mixed with converter helpers in model from_dict methods",
+      "sub_axes": {
+        "abstraction_leverage": 72.0,
+        "indirection_cost": 68.0,
+        "interface_honesty": 85.0,
+        "delegation_density": 78.0,
+        "definition_directness": 80.0,
+        "type_discipline": 74.0
+      }
+    }
+  },
+  "dimension_judgment": {
+    "abstraction_fitness": {
+      "dimension_character": "Abstractions are generally well-scoped and honest: Hit ABC, QueryFieldsManager, CacheManager, and the generic MultiSearchResult are all appropriate. The main weak point is the FacetDistribution/FacetStats ABC hierarchy which imposes 9 paired subclass pairs without shared logic, adding indirection cost with minimal benefit.",
+      "score_rationale": "Score of 75 reflects mostly fit abstractions with one structural cost (paired ABC hierarchies for facets) and a minor inconsistency (mixed raw obj.get() and converter helpers inside model from_dict). The generics usage is appropriate and the interface contracts are honest."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "abstraction_fitness",
+      "identifier": "facet_abc_no_shared_logic",
+      "summary": "FacetDistribution and FacetStats ABCs generate 9 paired subclasses with no shared behavior, adding indirection without benefit",
+      "related_files": [
+        "src/ffbb_api_client_v2/meilisearch/models/facet_distribution.py",
+        "src/ffbb_api_client_v2/meilisearch/models/facet_stats.py",
+        "src/ffbb_api_client_v2/meilisearch_ffbb/models/competitions_facet_distribution.py",
+        "src/ffbb_api_client_v2/meilisearch_ffbb/models/organismes_facet_distribution.py"
+      ],
+      "evidence": [
+        "FacetDistribution ABC has no methods — it is only a marker type used for type-checking in generics",
+        "Each index has its own FacetDistribution subclass with only data fields and from_dict/to_dict",
+        "9 facet_distribution subclasses × 9 facet_stats subclasses = 18 files that are structurally identical except for field names"
+      ],
+      "suggestion": "Replace the ABC hierarchy with a Generic TypeVar bound or Protocol. Consider a single FacetDistribution(dict[str, dict]) type with dynamic fields instead of 9 statically-typed subclasses, or use TypedDict for typed per-index facets without the ABC overhead.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "premature_abstraction"
+    },
+    {
+      "dimension": "abstraction_fitness",
+      "identifier": "mixed_raw_get_and_converters",
+      "summary": "Model from_dict methods mix raw obj.get() with converter helpers inconsistently",
+      "related_files": [
+        "src/ffbb_api_client_v2/meilisearch/models/multi_search_query.py",
+        "src/ffbb_api_client_v2/meilisearch_ffbb/models/rencontres_hit.py"
+      ],
+      "evidence": [
+        "multi_search_query.py: show_ranking_score = obj.get('showRankingScore') — raw dict access instead of from_bool",
+        "Some hit models use obj.get() for boolean fields that should go through from_bool for consistent None-handling"
+      ],
+      "suggestion": "Standardize all from_dict implementations to use converter helpers exclusively. Add from_bool to converter_utils if needed and update all raw obj.get() calls for boolean/float fields.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor"
+    }
+  ],
+  "retrospective": {
+    "root_causes": ["type-system motivated ABC creation without behavior to abstract", "incremental model growth mixing raw access with converters"],
+    "likely_symptoms": ["facet_abc_no_shared_logic", "mixed_raw_get_and_converters"]
+  },
+  "context_updates": {
+    "abstraction_fitness": {
+      "add": [
+        {
+          "header": "Hit ABC contract is minimal and honest",
+          "description": "Hit defines from_dict, to_dict, is_valid_for_query — the exact contract needed for typed multi-index search. No overabstraction.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Generic MultiSearchResult[HitType, FacetType, StatsType] is well-scoped",
+          "description": "Type parameterization of MultiSearchResult matches the domain need for per-index typed results without code duplication.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "FacetDistribution/FacetStats ABCs add 18 subclass files with no shared logic",
+          "description": "These ABCs serve only as type markers for generics — the actual behavior is always in the concrete subclass, making the ABC layer pure overhead.",
+          "settled": false,
+          "positive": false
+        }
+      ]
+    }
+  }
+}

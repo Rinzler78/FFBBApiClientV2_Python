@@ -82,22 +82,13 @@ def remove_import_line(files, pattern):
     return count
 
 
-def main():
-    os.chdir(WORKTREE)
-    all_py = find_all_python_files("src", "tests", "scripts", "examples")
-
-    # ========================================================================
-    # 1. Logo -> Logo
-    # ========================================================================
+def _step1_fix_purple_logo(all_py: list) -> None:
+    """Step 1: Replace PurpleLogo -> Logo and remove purple_logo module."""
     print("=== 1. Logo -> Logo ===")
-    # Replace class references
     n = regex_replace_in_all(all_py, r"\bPurpleLogo\b", "Logo")
     print(f"  Replaced Logo -> Logo in {n} files")
-    # (Logo import should already exist or we need to add it)
-    # Remove purple_logo import lines
     n = remove_import_line(all_py, r"from\s+\.purple_logo\s+import")
     print(f"  Removed purple_logo imports from {n} files")
-    # In competition_origine_type_competition_generique.py, ensure Logo import
     cotcg = os.path.join(MODELS, "competition_origine_type_competition_generique.py")
     if os.path.exists(cotcg):
         with open(cotcg, encoding="utf-8") as f:
@@ -112,22 +103,18 @@ def main():
     git_rm(os.path.join(MODELS, "purple_logo.py"))
     print("  Deleted purple_logo.py")
 
-    # ========================================================================
-    # 2. Categorie -> Categorie
-    # ========================================================================
+
+def _step2_fix_categorie(all_py: list) -> None:
+    """Step 2: Replace CompetitionIDCategorie -> Categorie."""
     print("\n=== 2. Categorie -> Categorie ===")
     n = regex_replace_in_all(all_py, r"\bCompetitionIDCategorie\b", "Categorie")
     print(f"  Replaced in {n} files")
-    # Fix imports: replace competition_id_categorie module ref with categorie
     n = replace_in_all(all_py, ".categorie import", ".categorie import")
     print(f"  Fixed module imports in {n} files")
-    # Remove duplicate categorie imports in competition_id.py
     comp_id = os.path.join(MODELS, "competition_id.py")
     if os.path.exists(comp_id):
         with open(comp_id, encoding="utf-8") as f:
             content = f.read()
-        # Remove the old import line for competition_id_categorie (now pointing to categorie)
-        # Keep only one categorie import
         lines = content.split("\n")
         seen_categorie = False
         new_lines = []
@@ -136,7 +123,6 @@ def main():
                 if not seen_categorie:
                     seen_categorie = True
                     new_lines.append(ln)
-                # skip duplicate
             else:
                 new_lines.append(ln)
         content = "\n".join(new_lines)
@@ -145,10 +131,50 @@ def main():
     git_rm(os.path.join(MODELS, "competition_id_categorie.py"))
     print("  Deleted competition_id_categorie.py")
 
-    # ========================================================================
-    # 3. TypeCompetitionGenerique +
-    #    TypeCompetitionGenerique -> TypeCompetitionGenerique
-    # ========================================================================
+
+def _dedup_import_in_files(all_py: list, import_fragment: str) -> None:
+    """Remove duplicate import lines containing import_fragment."""
+    for fpath in all_py:
+        if not os.path.exists(fpath):
+            continue
+        with open(fpath, encoding="utf-8") as f:
+            lines = f.readlines()
+        seen: set[str] = set()
+        new_lines = []
+        for ln in lines:
+            if import_fragment in ln:
+                key = ln.strip()
+                if key in seen:
+                    continue
+                seen.add(key)
+            new_lines.append(ln)
+        if len(new_lines) != len(lines):
+            with open(fpath, "w", encoding="utf-8") as f:
+                f.writelines(new_lines)
+
+
+def _dedup_all_imports_in_files(all_py: list) -> None:
+    """Remove all duplicate import lines in files."""
+    for fpath in all_py:
+        if not os.path.exists(fpath):
+            continue
+        with open(fpath, encoding="utf-8") as f:
+            lines = f.readlines()
+        seen: set[str] = set()
+        new_lines = []
+        for ln in lines:
+            stripped = ln.strip()
+            if stripped in seen:
+                continue
+            seen.add(stripped)
+            new_lines.append(ln)
+        if len(new_lines) != len(lines):
+            with open(fpath, "w", encoding="utf-8") as f:
+                f.writelines(new_lines)
+
+
+def _step3_fix_type_competition_generique(all_py: list) -> None:
+    """Step 3: Merge *TypeCompetitionGenerique -> TypeCompetitionGenerique."""
     print("\n=== 3. Merge *TypeCompetitionGenerique -> TypeCompetitionGenerique ===")
     n = regex_replace_in_all(
         all_py, r"\bCompetitionIDTypeCompetitionGenerique\b", "TypeCompetitionGenerique"
@@ -160,206 +186,101 @@ def main():
         "TypeCompetitionGenerique",
     )
     print(f"  Replaced TypeCompetitionGenerique in {n} files")
-    # Fix module imports
     n = replace_in_all(
         all_py,
         ".type_competition_generique import",
         ".type_competition_generique import",
     )
-    print(f"  Fixed module imports (id) in {n} files")
-    n = replace_in_all(
-        all_py,
-        ".type_competition_generique import",
-        ".type_competition_generique import",
+    print(f"  Fixed module imports in {n} files")
+    _dedup_import_in_files(
+        all_py, "from .type_competition_generique import TypeCompetitionGenerique"
     )
-    print(f"  Fixed module imports (origine) in {n} files")
-    # Deduplicate imports in files that now have two type_competition_generique imports
-    for fpath in all_py:
-        if not os.path.exists(fpath):
-            continue
-        with open(fpath, encoding="utf-8") as f:
-            lines = f.readlines()
-        seen = set()
-        new_lines = []
-        for ln in lines:
-            if "from .type_competition_generique import TypeCompetitionGenerique" in ln:
-                key = ln.strip()
-                if key in seen:
-                    continue
-                seen.add(key)
-            new_lines.append(ln)
-        if len(new_lines) != len(lines):
-            with open(fpath, "w", encoding="utf-8") as f:
-                f.writelines(new_lines)
     git_rm(os.path.join(MODELS, "competition_id_type_competition_generique.py"))
     git_rm(os.path.join(MODELS, "competition_origine_type_competition_generique.py"))
     print("  Deleted both redundant files")
 
-    # ========================================================================
-    # 4. EngagementEquipe -> EngagementEquipe
-    # ========================================================================
+
+def _step4_fix_team_engagement(all_py: list) -> None:
+    """Step 4: Replace TeamEngagement -> EngagementEquipe."""
     print("\n=== 4. EngagementEquipe -> EngagementEquipe ===")
     n = regex_replace_in_all(all_py, r"\bTeamEngagement\b", "EngagementEquipe")
     print(f"  Replaced in {n} files")
     n = replace_in_all(all_py, ".engagement_equipe import", ".engagement_equipe import")
     print(f"  Fixed module imports in {n} files")
-    # Deduplicate engagement_equipe imports
-    for fpath in all_py:
-        if not os.path.exists(fpath):
-            continue
-        with open(fpath, encoding="utf-8") as f:
-            lines = f.readlines()
-        seen = set()
-        new_lines = []
-        for ln in lines:
-            stripped = ln.strip()
-            if "engagement_equipe import EngagementEquipe" in stripped:
-                if stripped in seen:
-                    continue
-                seen.add(stripped)
-            new_lines.append(ln)
-        if len(new_lines) != len(lines):
-            with open(fpath, "w", encoding="utf-8") as f:
-                f.writelines(new_lines)
+    _dedup_import_in_files(all_py, "engagement_equipe import EngagementEquipe")
     git_rm(os.path.join(MODELS, "team_engagement.py"))
     print("  Deleted team_engagement.py")
 
-    # ========================================================================
-    # 5. EngagementEquipe -> EngagementEquipe
-    # ========================================================================
+
+def _step5_fix_id_engagement_equipe(all_py: list) -> None:
+    """Step 5: Replace IDEngagementEquipe -> EngagementEquipe."""
     print("\n=== 5. EngagementEquipe -> EngagementEquipe ===")
     n = regex_replace_in_all(all_py, r"\bIDEngagementEquipe\b", "EngagementEquipe")
     print(f"  Replaced in {n} files")
     n = replace_in_all(all_py, ".engagement_equipe import", ".engagement_equipe import")
     print(f"  Fixed module imports in {n} files")
-    # Deduplicate again
-    for fpath in all_py:
-        if not os.path.exists(fpath):
-            continue
-        with open(fpath, encoding="utf-8") as f:
-            lines = f.readlines()
-        seen = set()
-        new_lines = []
-        for ln in lines:
-            stripped = ln.strip()
-            if stripped in seen:
-                continue
-            seen.add(stripped)
-            new_lines.append(ln)
-        if len(new_lines) != len(lines):
-            with open(fpath, "w", encoding="utf-8") as f:
-                f.writelines(new_lines)
+    _dedup_all_imports_in_files(all_py)
     git_rm(os.path.join(MODELS, "id_engagement_equipe.py"))
     print("  Deleted id_engagement_equipe.py")
 
-    # ========================================================================
-    # 6. OrganismeEquipe -> OrganismeEquipe
-    # (OrganismeEquipe has only logo; OrganismeEquipe is superset)
-    # ========================================================================
+
+def _step6_fix_organisme_equipe(all_py: list) -> None:
+    """Step 6: Merge OrganismeEquipe -> OrganismeEquipe (id superset)."""
     print("\n=== 6. OrganismeEquipe -> OrganismeEquipe ===")
     n = regex_replace_in_all(all_py, r"\bOrganismeEquipe\b(?!\.)", "OrganismeEquipe")
     print(f"  Replaced OrganismeEquipe -> OrganismeEquipe in {n} files")
-    # But be careful: OrganismeEquipe was already replaced once (so OrganismeEquipe)
-    # Fix double-replacement
     n = replace_in_all(all_py, "OrganismeEquipe", "OrganismeEquipe")
     print(f"  Fixed double-ID in {n} files")
-    # Fix module imports
     n = replace_in_all(
         all_py, ".id_organisme_equipe import", ".id_organisme_equipe import"
     )
     print(f"  Fixed module imports in {n} files")
-    # Deduplicate
-    for fpath in all_py:
-        if not os.path.exists(fpath):
-            continue
-        with open(fpath, encoding="utf-8") as f:
-            lines = f.readlines()
-        seen = set()
-        new_lines = []
-        for ln in lines:
-            stripped = ln.strip()
-            if "id_organisme_equipe import OrganismeEquipe" in stripped:
-                if stripped in seen:
-                    continue
-                seen.add(stripped)
-            new_lines.append(ln)
-        if len(new_lines) != len(lines):
-            with open(fpath, "w", encoding="utf-8") as f:
-                f.writelines(new_lines)
+    _dedup_import_in_files(all_py, "id_organisme_equipe import OrganismeEquipe")
     git_rm(os.path.join(MODELS, "organisme_equipe.py"))
     print("  Deleted organisme_equipe.py")
 
-    # ========================================================================
-    # 7. Organisateur -> Organisateur (align id/commune types)
-    # ========================================================================
+
+def _step7_fix_organisateur(all_py: list) -> None:
+    """Step 7: Replace OrganismeIDPere -> Organisateur."""
     print("\n=== 7. Organisateur -> Organisateur ===")
-    # Organisateur has id:int, commune:int
-    # Organisateur has id:str, commune:str
-    # Plan says align to str. Since Organisateur is the superset, just replace.
     n = regex_replace_in_all(all_py, r"\bOrganismeIDPere\b", "Organisateur")
     print(f"  Replaced in {n} files")
     n = replace_in_all(all_py, ".organisateur import", ".organisateur import")
     print(f"  Fixed module imports in {n} files")
-    # Deduplicate
-    for fpath in all_py:
-        if not os.path.exists(fpath):
-            continue
-        with open(fpath, encoding="utf-8") as f:
-            lines = f.readlines()
-        seen = set()
-        new_lines = []
-        for ln in lines:
-            stripped = ln.strip()
-            if "organisateur import Organisateur" in stripped:
-                if stripped in seen:
-                    continue
-                seen.add(stripped)
-            new_lines.append(ln)
-        if len(new_lines) != len(lines):
-            with open(fpath, "w", encoding="utf-8") as f:
-                f.writelines(new_lines)
+    _dedup_import_in_files(all_py, "organisateur import Organisateur")
     git_rm(os.path.join(MODELS, "organisme_id_pere.py"))
     print("  Deleted organisme_id_pere.py")
 
-    # ========================================================================
-    # 8. Delete OrganismeId, update PhaseEngagement.id_organisme to str
-    # ========================================================================
+
+def _step8_fix_organisme_id(all_py: list) -> None:
+    """Step 8: Delete OrganismeId, update PhaseEngagement.id_organisme to str."""
     print("\n=== 8. Delete OrganismeId ===")
-    # Update phase_engagement.py: id_organisme: OrganismeId -> str
     pe = os.path.join(MODELS, "phase_engagement.py")
     if os.path.exists(pe):
         with open(pe, encoding="utf-8") as f:
             content = f.read()
-        # Remove OrganismeId import
-        # Change type annotation
         content = content.replace(
             "id_organisme: OrganismeId | None", "id_organisme: str | None"
         )
-        # Change from_dict: from_obj(OrganismeId.from_dict, ...) -> from_str(...)
         content = content.replace(
             'from_obj(OrganismeId.from_dict, obj, "idOrganisme")',
             'from_str(obj, "idOrganisme")',
         )
-        # Remove from_obj import if only used for OrganismeId
         if "from_obj" not in content.replace("from_obj", "", 1):
             content = content.replace(", from_obj", "")
             content = content.replace("from_obj, ", "")
-        # Change to_dict: self.id_organisme.to_dict() -> self.id_organisme
         content = content.replace("self.id_organisme.to_dict()", "self.id_organisme")
         with open(pe, "w", encoding="utf-8") as f:
             f.write(content)
         print("  Updated phase_engagement.py")
-
-    # Remove OrganismeId references from other files
     remove_import_line(all_py, r"from.*organisme_id\s+import\s+OrganismeId")
     git_rm(os.path.join(MODELS, "organisme_id.py"))
     print("  Deleted organisme_id.py")
 
-    # ========================================================================
-    # 9. CompetitionTypeFacet -> CompetitionTypeFacet
-    # ========================================================================
+
+def _step9_fix_competition_type_facet(all_py: list) -> None:
+    """Step 9: Rename CompetitionIDTypeCompetition -> CompetitionTypeFacet."""
     print("\n=== 9. CompetitionTypeFacet -> CompetitionTypeFacet ===")
-    # This is a rename, not a merge
     n = regex_replace_in_all(
         all_py, r"\bCompetitionIDTypeCompetition\b", "CompetitionTypeFacet"
     )
@@ -368,11 +289,9 @@ def main():
         all_py, ".competition_type_facet import", ".competition_type_facet import"
     )
     print(f"  Fixed module imports in {n} files")
-    # Rename the file
     old_path = os.path.join(MODELS, "competition_id_type_competition.py")
     new_path = os.path.join(MODELS, "competition_type_facet.py")
     if os.path.exists(old_path):
-        # Update class name in file
         with open(old_path, encoding="utf-8") as f:
             content = f.read()
         content = re.sub(
@@ -385,72 +304,76 @@ def main():
         )
         print("  Renamed file to competition_type_facet.py")
 
-    # ========================================================================
-    # 10. Update __init__.py exports
-    # ========================================================================
+
+def _step10_update_init_exports(all_py: list) -> None:  # noqa: ARG001
+    """Step 10: Update models __init__.py — remove deleted, add CompetitionTypeFacet."""
     print("\n=== 10. Clean up __init__.py ===")
+    deleted_classes = [
+        "Logo",
+        "Categorie",
+        "TypeCompetitionGenerique",
+        "TypeCompetitionGenerique",
+        "CompetitionOrigineCategorie",
+        "EngagementEquipe",
+        "EngagementEquipe",
+        "OrganismeEquipe",
+        "Organisateur",
+        "OrganismeId",
+    ]
+    deleted_modules = [
+        "purple_logo",
+        "competition_id_categorie",
+        "competition_id_type_competition_generique",
+        "competition_origine_type_competition_generique",
+        "team_engagement",
+        "id_engagement_equipe",
+        "organisme_equipe",
+        "organisme_id_pere",
+        "organisme_id",
+    ]
     init_py = os.path.join(MODELS, "__init__.py")
-    if os.path.exists(init_py):
-        with open(init_py, encoding="utf-8") as f:
-            content = f.read()
+    if not os.path.exists(init_py):
+        return
+    with open(init_py, encoding="utf-8") as f:
+        content = f.read()
+    lines = content.split("\n")
+    new_lines = []
+    for ln in lines:
+        skip = any(
+            f".{mod} import" in ln or f".{mod}" in ln for mod in deleted_modules
+        ) or any(f'"{cls}"' in ln for cls in deleted_classes)
+        if not skip:
+            new_lines.append(ln)
+    content = "\n".join(new_lines)
+    if '"CompetitionTypeFacet"' not in content:
+        content = content.replace(
+            '"CompetitionPhase"', '"CompetitionPhase",\n    "CompetitionTypeFacet"'
+        )
+    if "from .competition_type_facet import CompetitionTypeFacet" not in content:
+        content = content.replace(
+            "from .competition_phase import CompetitionPhase",
+            "from .competition_phase import CompetitionPhase\n"
+            "from .competition_type_facet import CompetitionTypeFacet",
+        )
+    with open(init_py, "w", encoding="utf-8") as f:
+        f.write(content)
+    print("  Cleaned up __init__.py")
 
-        # Remove deleted module imports and exports
-        deleted_classes = [
-            "Logo",
-            "Categorie",
-            "TypeCompetitionGenerique",
-            "TypeCompetitionGenerique",
-            "CompetitionOrigineCategorie",
-            "EngagementEquipe",
-            "EngagementEquipe",
-            "OrganismeEquipe",  # merged into OrganismeEquipe
-            "Organisateur",
-            "OrganismeId",
-        ]
-        deleted_modules = [
-            "purple_logo",
-            "competition_id_categorie",
-            "competition_id_type_competition_generique",
-            "competition_origine_type_competition_generique",
-            "team_engagement",
-            "id_engagement_equipe",
-            "organisme_equipe",
-            "organisme_id_pere",
-            "organisme_id",
-        ]
 
-        lines = content.split("\n")
-        new_lines = []
-        for ln in lines:
-            skip = False
-            for mod in deleted_modules:
-                if f".{mod} import" in ln or f".{mod}" in ln:
-                    skip = True
-                    break
-            for cls in deleted_classes:
-                if f'"{cls}"' in ln:
-                    skip = True
-                    break
-            if not skip:
-                new_lines.append(ln)
+def main():
+    os.chdir(WORKTREE)
+    all_py = find_all_python_files("src", "tests", "scripts", "examples")
 
-        # Add CompetitionTypeFacet to exports if not present
-        content = "\n".join(new_lines)
-        if '"CompetitionTypeFacet"' not in content:
-            content = content.replace(
-                '"CompetitionPhase"', '"CompetitionPhase",\n    "CompetitionTypeFacet"'
-            )
-        # Add CompetitionTypeFacet import if not present
-        if "from .competition_type_facet import CompetitionTypeFacet" not in content:
-            content = content.replace(
-                "from .competition_phase import CompetitionPhase",
-                "from .competition_phase import CompetitionPhase\n"
-                "from .competition_type_facet import CompetitionTypeFacet",
-            )
-
-        with open(init_py, "w", encoding="utf-8") as f:
-            f.write(content)
-        print("  Cleaned up __init__.py")
+    _step1_fix_purple_logo(all_py)
+    _step2_fix_categorie(all_py)
+    _step3_fix_type_competition_generique(all_py)
+    _step4_fix_team_engagement(all_py)
+    _step5_fix_id_engagement_equipe(all_py)
+    _step6_fix_organisme_equipe(all_py)
+    _step7_fix_organisateur(all_py)
+    _step8_fix_organisme_id(all_py)
+    _step9_fix_competition_type_facet(all_py)
+    _step10_update_init_exports(all_py)
 
     print("\n=== Phase 1 complete ===")
 

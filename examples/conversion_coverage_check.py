@@ -29,16 +29,11 @@ import sys
 import time
 import traceback
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Any
 
-# Ensure local src/ takes precedence over editable installs
-_SCRIPT_DIR = Path(__file__).resolve().parent
-_SRC_DIR = str(_SCRIPT_DIR.parent / "src")
-if _SRC_DIR not in sys.path:
-    sys.path.insert(0, _SRC_DIR)
+from ffbb_api_client_v2 import FFBBAPIClientV2, TokenManager
 
-from ffbb_api_client_v2 import FFBBAPIClientV2, TokenManager  # noqa: E402
+_log = logging.getLogger(__name__)
 
 # Logger targeted by all from_* helpers
 _CONVERTER_LOGGER = "ffbb_api_client_v2.utils.converter_utils"
@@ -235,15 +230,15 @@ def _extract_ids(items: list[Any] | None, limit: int = _FK_BATCH) -> list[int]:
         elif isinstance(item, dict) and "id" in item:
             try:
                 ids.append(int(item["id"]))
-            except (ValueError, TypeError):
-                pass
+            except (ValueError, TypeError) as e:
+                _log.debug("Skipping non-integer id in dict item: %s", e)
         else:
             item_id = getattr(item, "id", None)
             if item_id is not None:
                 try:
                     ids.append(int(item_id))
-                except (ValueError, TypeError):
-                    pass
+                except (ValueError, TypeError) as e:
+                    _log.debug("Skipping non-integer id on object: %s", e)
         if len(ids) >= limit:
             break
     return ids
@@ -368,8 +363,8 @@ def discover_ids(
             if hit.id is not None:
                 try:
                     ids["organismes"].append(int(hit.id))
-                except (ValueError, TypeError):
-                    pass
+                except (ValueError, TypeError) as e:
+                    _log.debug("Skipping non-integer organisme id %r: %s", hit.id, e)
 
     # 2) Get organisme details -> salle + engagement IDs
     for org_id in ids["organismes"][:5]:
@@ -419,8 +414,8 @@ def discover_ids(
                 if hit.id is not None:
                     try:
                         ids[key].append(int(hit.id))
-                    except (ValueError, TypeError):
-                        pass
+                    except (ValueError, TypeError) as e:
+                        _log.debug("Skipping non-integer %s id %r: %s", key, hit.id, e)
 
     # 7) Search formations
     time.sleep(_RATE_DELAY)

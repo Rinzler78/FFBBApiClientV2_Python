@@ -1,0 +1,73 @@
+{
+  "batch": "api_surface_coherence",
+  "batch_index": 11,
+  "assessments": {"api_surface_coherence": 81.0},
+  "dimension_notes": {
+    "api_surface_coherence": {
+      "evidence": [
+        "Public API is defined by __init__.py which explicitly lists 80+ exports. All public symbols are named and versioned together.",
+        "FFBBAPIClientV2.create() factory is the single entry point for consumers — clean and consistent.",
+        "Facade methods follow strict verb+noun patterns: get_{resource}(id), list_{resources}(filters), search_{resources}(query). No verb outliers found.",
+        "get_poule(id) returns GetPouleResponse; list_rencontres() returns list[GetRencontresResponse] — return types are consistent: single items return the response type, collections return list[response_type].",
+        "search_organismes(), search_competitions() etc. return MultiSearchResult[HitType, FacetType, StatsType] — consistent generic container.",
+        "list_all_rencontres(), list_all_salles() pagination helpers exist alongside list_rencontres() — the naming pattern list_all_* is clear and consistent for 'fetch all pages' variants.",
+        "get_club_contacts() returns ClubContacts — this return type is from a different module (models/club_contacts.py) than the pattern of get_{resource} returning directus_ffbb/models/get_{resource}_response.py. Minor inconsistency.",
+        "batch methods: list_engagements_by_ids(), list_entraineurs_by_ids() — clear batch naming with _by_ids suffix.",
+        "FFBBAPIClientV2.__init__ takes api_ffbb_client and meilisearch_ffbb_client as constructor args for dependency injection — good testability signal.",
+        "Some methods return None on error, others may raise — not entirely consistent at the public API level (see error_consistency dimension)."
+      ],
+      "impact_scope": "codebase",
+      "fix_scope": "single_edit",
+      "confidence": "high",
+      "issues_preventing_higher_score": "get_club_contacts return type inconsistent with the get_{resource} → get_{resource}_response pattern; error handling not uniform across methods"
+    }
+  },
+  "dimension_judgment": {
+    "api_surface_coherence": {
+      "dimension_character": "The public API surface is coherent and well-organized: a clear create() factory, consistent verb+noun method names, uniform collection types for list/search results, and explicit __init__.py exports. The main coherence gap is get_club_contacts() which returns a different response type than the get_* pattern, and the not-fully-consistent error signal (None vs exception).",
+      "score_rationale": "Score of 81 reflects a strong, predictable API surface that follows its own conventions consistently. Docked for the minor return type inconsistency in get_club_contacts and the None-vs-exception ambiguity inherited from the error handling design."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "api_surface_coherence",
+      "identifier": "get_club_contacts_return_type",
+      "summary": "get_club_contacts() returns ClubContacts instead of following the get_{resource} → GetClubContactsResponse pattern",
+      "related_files": [
+        "src/ffbb_api_client_v2/facade/client.py",
+        "src/ffbb_api_client_v2/models/club_contacts.py"
+      ],
+      "evidence": [
+        "All other get_* methods return models from directus_ffbb/models/get_*_response.py (GetOrganismeResponse, GetEngagementResponse, etc.)",
+        "get_club_contacts() returns ClubContacts from models/club_contacts.py — a different response type pattern",
+        "The inconsistency is not harmful but breaks the mental model of a consumer learning the API"
+      ],
+      "suggestion": "Either rename ClubContacts to GetClubContactsResponse and move it to directus_ffbb/models/, or add a type alias GetClubContactsResponse = ClubContacts in the appropriate module. Either option restores pattern consistency.",
+      "confidence": "low",
+      "impact_scope": "local",
+      "fix_scope": "single_edit"
+    }
+  ],
+  "retrospective": {
+    "root_causes": ["organic addition of club_contacts method outside the standard response type convention"],
+    "likely_symptoms": ["get_club_contacts_return_type"]
+  },
+  "context_updates": {
+    "api_surface_coherence": {
+      "add": [
+        {
+          "header": "Consistent get/list/search/list_all verb pattern across 30+ facade methods",
+          "description": "get_*=single, list_*=filtered collection, search_*=meilisearch, list_all_*=paginated all. The four-verb taxonomy is applied uniformly.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Explicit __init__.py with 80+ curated public exports",
+          "description": "The public API is deliberately scoped via __init__.py — consumers get a clean symbol table without internal implementation details leaking.",
+          "settled": true,
+          "positive": true
+        }
+      ]
+    }
+  }
+}

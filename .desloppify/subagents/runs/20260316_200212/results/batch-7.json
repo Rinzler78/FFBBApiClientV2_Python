@@ -1,0 +1,74 @@
+{
+  "batch": "dependency_health",
+  "batch_index": 7,
+  "assessments": {"dependency_health": 78.0},
+  "dimension_notes": {
+    "dependency_health": {
+      "evidence": [
+        "converter_utils.py has 87 importers — the highest blast radius in the codebase. Any breaking change propagates to nearly all model files.",
+        "secure_logging.py (get_secure_logger) is imported by _http/client.py, directus/client.py, meilisearch/client.py, utils/retry_utils.py — 4 importers, manageable.",
+        "requests_cache.CachedSession is used throughout: MeilisearchClient, MeilisearchClientExtension, DirectusClient, MeilisearchFFBBClient, facade/client.py, facade/token_manager.py. The dependency is concentrated at the client layer — not leaked into models.",
+        "dateutil.parser is used only in converter_utils.py — isolated well.",
+        "No circular imports detected by blind packet dependency analysis.",
+        "facade/client.py imports from both directus_ffbb and meilisearch_ffbb — this is the intended integration point, not a health concern.",
+        "scripts/ have zero importers — they are standalone executables, healthy.",
+        "examples/ have zero importers — standalone scripts, healthy.",
+        "The test discovery shows critical_untested includes converter_utils.py (87 importers) — this is the highest-risk untested path.",
+        "pyproject.toml dependencies: requests, requests_cache, python-dateutil — minimal, well-scoped runtime dependencies."
+      ],
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high",
+      "issues_preventing_higher_score": "converter_utils hub module (87 importers) is untested yet central to all model deserialization"
+    }
+  },
+  "dimension_judgment": {
+    "dependency_health": {
+      "dimension_character": "The external dependency footprint is minimal and appropriate (requests, requests_cache, dateutil). Internal dependencies are well-contained with no cycles. The main health risk is the untested converter_utils.py hub module — 87 consumer files rely on its behavior, but its partial test coverage means regressions could propagate widely.",
+      "score_rationale": "Score of 78 reflects a clean external dependency profile and no cycles. Docked for the high blast-radius untested hub module (converter_utils.py) which is the single biggest dependency health risk in the codebase."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "dependency_health",
+      "identifier": "converter_utils_untested_hub",
+      "summary": "converter_utils.py has 87 importers but partial test coverage — a high blast-radius untested dependency",
+      "related_files": [
+        "src/ffbb_api_client_v2/utils/converter_utils.py",
+        "tests/unit/utils/test_000_converter_utils.py"
+      ],
+      "evidence": [
+        "converter_utils.py is imported by 87 model files — any regression affects all of them",
+        "test_000_converter_utils.py and test_307_coverage_gaps_utils.py provide partial coverage but edge cases in from_datetime, from_duration, from_uuid are not fully tested",
+        "Critical path: every model's from_dict relies on converter_utils — a bug in from_str or from_int affects deserialization of the entire API response"
+      ],
+      "suggestion": "Add comprehensive unit tests for all converter functions including edge cases: None input, wrong type, overflow, timezone-aware/naive datetime, invalid UUID strings, empty list vs None list. Target >95% branch coverage for converter_utils.py.",
+      "confidence": "high",
+      "impact_scope": "codebase",
+      "fix_scope": "single_edit",
+      "root_cause_cluster": "untested_critical_path"
+    }
+  ],
+  "retrospective": {
+    "root_causes": ["hub module growth without proportional test investment"],
+    "likely_symptoms": ["converter_utils_untested_hub"]
+  },
+  "context_updates": {
+    "dependency_health": {
+      "add": [
+        {
+          "header": "Minimal external runtime dependencies (requests, requests_cache, dateutil)",
+          "description": "Runtime dependency footprint is small and well-chosen. No heavy frameworks or transitive dependency concerns.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "No import cycles in the library codebase",
+          "description": "Static analysis confirms no circular imports between any library modules. Deferred imports are used appropriately in TYPE_CHECKING blocks.",
+          "settled": true,
+          "positive": true
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "batch": "mid_level_elegance",
+  "batch_index": 9,
+  "assessments": {"mid_level_elegance": 72.0},
+  "dimension_notes": {
+    "mid_level_elegance": {
+      "evidence": [
+        "directus_ffbb/client.py at 1066 LOC contains all FFBB-specific Directus endpoints. The class is wide but not deep — each method is 10-30 lines with a clear fetch-parse pattern.",
+        "meilisearch_ffbb/client.py at 945 LOC: same pattern. Each search method constructs a query and calls multi_search. The repetition is driven by the number of indexes (9), not by poor design.",
+        "facade/client.py at 1590 LOC is the largest module. It combines methods from both directus_ffbb and meilisearch_ffbb clients, adding batch operations and list_all_* pagination helpers.",
+        "MeilisearchClientExtension has smart_multi_search that filters results.hits by query.q using is_valid_for_query() — this client-side filtering is an undocumented responsibility added to the generic layer.",
+        "ContactReport class in extract_contacts.py contains 25+ methods including HTML generation, JS generation, CSV export, and data building. This is a God Class with mixed responsibilities: data model + multi-format serialization + UI generation.",
+        "WaveCollector class in scripts/discover_types.py is a cohesive 500+ LOC class with clear phase-based methods (_collect_wave1, _collect_wave2, _fetch_rest_paginated etc.). The size is driven by the number of collection strategies, not poor design.",
+        "CacheManager in utils/cache_manager.py is 148 LOC with clear session lifecycle management. Appropriate size for its responsibility.",
+        "The dataclass model files are uniformly structured: fields → __post_init__ → from_dict → to_dict. This mechanically consistent structure aids navigation."
+      ],
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high",
+      "issues_preventing_higher_score": "ContactReport God Class in extract_contacts.py (data+rendering+JS+CSV in one class); facade/client.py at 1590 LOC combining two backends; smart_multi_search client-side filtering undocumented"
+    }
+  },
+  "dimension_judgment": {
+    "mid_level_elegance": {
+      "dimension_character": "The library-level modules (directus_ffbb/client.py, meilisearch_ffbb/client.py) are wide but internally consistent — their size reflects API breadth not design failure. The main mid-level concern is ContactReport in examples/extract_contacts.py, which is a 5000+ LOC God Class mixing data representation with HTML/JS/CSV generation.",
+      "score_rationale": "Score of 72 reflects well-designed library modules at appropriate size, docked significantly for ContactReport which has six distinct generation responsibilities in a single class, and for facade/client.py which aggregates two backends in 1590 LOC without sub-delegation."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "mid_level_elegance",
+      "identifier": "contact_report_god_class",
+      "summary": "ContactReport is a God Class mixing data model, HTML rendering, Leaflet.js generation, CSV export, and report building",
+      "related_files": ["examples/extract_contacts.py"],
+      "evidence": [
+        "ContactReport has: build() (data aggregation), to_html() (HTML rendering), to_csv() (CSV export), to_markdown() (Markdown export), _write_leaflet_js() (Leaflet map), _write_report_ui_js() (React-like UI), _write_html_club_card() (sub-rendering)",
+        "The class mixes domain data (cities, clubs, contacts) with multi-format presentation logic",
+        "25+ methods in a single class covering 5 distinct output formats"
+      ],
+      "suggestion": "Extract rendering logic into separate renderer classes: HtmlReportRenderer, CsvReportRenderer, MarkdownReportRenderer. Keep ContactReport as a pure data container. This aligns with the separation of concerns already partially implemented by Phase 2C refactoring.",
+      "confidence": "high",
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "god_class"
+    },
+    {
+      "dimension": "mid_level_elegance",
+      "identifier": "smart_multi_search_undocumented_filtering",
+      "summary": "smart_multi_search silently filters hits client-side without documentation",
+      "related_files": ["src/ffbb_api_client_v2/meilisearch/client_extension.py"],
+      "evidence": [
+        "smart_multi_search calls is_valid_for_query(query.q) on each hit — filtering out results that don't match the query locally",
+        "This client-side filtering is not documented in the method signature or docstring",
+        "Callers cannot tell whether fewer results are due to API response or client-side filtering"
+      ],
+      "suggestion": "Document the client-side filtering behavior explicitly in the docstring. Add a return_filtered_count parameter or logging to make the filtering transparent. Consider making this filtering opt-in.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    }
+  ],
+  "retrospective": {
+    "root_causes": ["organic growth of ContactReport without responsibility extraction"],
+    "likely_symptoms": ["contact_report_god_class", "smart_multi_search_undocumented_filtering"]
+  },
+  "context_updates": {
+    "mid_level_elegance": {
+      "add": [
+        {
+          "header": "FFBB client modules are wide but internally consistent",
+          "description": "directus_ffbb/client.py and meilisearch_ffbb/client.py have 1000+ LOC but each method is 10-30 lines following a uniform fetch-parse pattern. Size reflects API breadth, not design failure.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "ContactReport God Class in extract_contacts.py",
+          "description": "ContactReport mixes data model, HTML/JS/CSS generation, CSV export, and Markdown export in one class. Phase 2C extracted sub-methods but the class boundary remains unmoved.",
+          "settled": false,
+          "positive": false
+        }
+      ]
+    }
+  }
+}

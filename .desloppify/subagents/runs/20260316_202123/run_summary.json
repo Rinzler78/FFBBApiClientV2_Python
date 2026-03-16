@@ -1,0 +1,31 @@
+{
+  "created_at": "2026-03-16T20:21:38+00:00",
+  "run_stamp": "20260316_202123",
+  "runner": "dry-run",
+  "parallel": false,
+  "selected_batches": [
+    1,
+    2
+  ],
+  "successful_batches": [
+    1,
+    2
+  ],
+  "failed_batches": [],
+  "immutable_packet": "/Users/bleclereperso/Projects/Python/FFBBApiClientV2_Python-phase2/.desloppify/review_packets/holistic_packet_20260316_202123.json",
+  "blind_packet": "/Users/bleclereperso/Projects/Python/FFBBApiClientV2_Python-phase2/.desloppify/review_packet_blind.json",
+  "run_dir": "/Users/bleclereperso/Projects/Python/FFBBApiClientV2_Python-phase2/.desloppify/subagents/runs/20260316_202123",
+  "logs_dir": "/Users/bleclereperso/Projects/Python/FFBBApiClientV2_Python-phase2/.desloppify/subagents/runs/20260316_202123/logs",
+  "batches": {
+    "1": {
+      "status": "pending",
+      "prompt_path": "/Users/bleclereperso/Projects/Python/FFBBApiClientV2_Python-phase2/.desloppify/subagents/runs/20260316_202123/prompts/batch-1.md",
+      "result_path": "/Users/bleclereperso/Projects/Python/FFBBApiClientV2_Python-phase2/.desloppify/subagents/runs/20260316_202123/results/batch-1.raw.txt"
+    },
+    "2": {
+      "status": "pending",
+      "prompt_path": "/Users/bleclereperso/Projects/Python/FFBBApiClientV2_Python-phase2/.desloppify/subagents/runs/20260316_202123/prompts/batch-2.md",
+      "result_path": "/Users/bleclereperso/Projects/Python/FFBBApiClientV2_Python-phase2/.desloppify/subagents/runs/20260316_202123/results/batch-2.raw.txt"
+    }
+  }
+}

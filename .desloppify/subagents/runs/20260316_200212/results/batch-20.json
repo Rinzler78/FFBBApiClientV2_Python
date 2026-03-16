@@ -1,0 +1,76 @@
+{
+  "batch": "type_safety",
+  "batch_index": 20,
+  "assessments": {"type_safety": 77.0},
+  "dimension_notes": {
+    "type_safety": {
+      "evidence": [
+        "pyright reports 0 errors on src/ffbb_api_client_v2/ — the library passes strict static type checking.",
+        "All public facade methods have full type annotations: get_organisme(organisme_id: int) -> GetOrganismeResponse | None. Return types are explicitly annotated.",
+        "Generic MultiSearchResult[HitType, FacetDistributionType, FacetStatsType] provides typed results — consumers get typed access to hits without casting.",
+        "converter_utils.py functions are typed: from_str(obj: dict, key: str) -> str | None, from_int(obj: dict, key: str) -> int | None. Consistent Any avoidance in return types.",
+        "TYPE_CHECKING block in converter_utils.py prevents circular imports at runtime while keeping types for mypy/pyright — correct pattern.",
+        "4 type: ignore[arg-type] comments in multi_search_results.py are all annotated with rationale comments — not lazy ignores.",
+        "filter and sort fields in MultiSearchQuery are typed as list[Any] — a known escape hatch where Meilisearch filter syntax is a complex union not easily typed.",
+        "Some model fields use dict[str, Any] for facet distribution counts (e.g., competitions_facet_distribution.competition_id_categorie_code: dict[str, int] | None) — these are correctly typed as int-value dicts from the API.",
+        "from_dict(obj: Any) in model classes accepts Any at the entry point and immediately checks isinstance(obj, dict) — correct boundary narrowing.",
+        "No TypedDict usage for dict-typed fields that have known structure — some facet fields could be more precisely typed."
+      ],
+      "impact_scope": "module",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high",
+      "issues_preventing_higher_score": "filter/sort as list[Any] in MultiSearchQuery (unavoidable without complex filter syntax typing); some dict[str, Any] annotations where known structure could use TypedDict"
+    }
+  },
+  "dimension_judgment": {
+    "type_safety": {
+      "dimension_character": "The library passes pyright with 0 errors. Public APIs are fully annotated, generics are used appropriately for typed multi-index results, and type: ignore suppressions are minimal and justified. The main type safety gap is list[Any] for Meilisearch filter/sort fields where the filter syntax is complex, and a few dict[str, Any] annotations where TypedDict could improve precision.",
+      "score_rationale": "Score of 77 reflects a well-typed library that passes static analysis clean. Docked for the list[Any] filter/sort parameters (a structural limitation of the untyped Meilisearch filter syntax) and for some dict[str, Any] fields that could use TypedDict for better precision."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "type_safety",
+      "identifier": "filter_sort_list_any",
+      "summary": "MultiSearchQuery.filter and .sort are typed as list[Any] — no type safety for query predicates",
+      "related_files": ["src/ffbb_api_client_v2/meilisearch/models/multi_search_query.py"],
+      "evidence": [
+        "filter: list[Any] | None — Meilisearch filters can be strings, lists, or nested structures",
+        "sort: list[Any] | None — sort expressions are strings like 'nom:asc'",
+        "Passing a malformed filter (e.g., a nested dict instead of a filter string) is not caught by the type system"
+      ],
+      "suggestion": "Define FilterClause = str | list[str | list] as a recursive type alias, or use a Union[str, list[FilterClause]] TypeAlias. At minimum, type sort as list[str] since Meilisearch sort expressions are always strings.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    }
+  ],
+  "retrospective": {
+    "root_causes": ["complex Meilisearch filter syntax not fully expressible in Python type system"],
+    "likely_symptoms": ["filter_sort_list_any"]
+  },
+  "context_updates": {
+    "type_safety": {
+      "add": [
+        {
+          "header": "pyright reports 0 errors on entire src/ package",
+          "description": "The library passes strict static type checking with no errors. Public API annotations are complete and correct.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Generic typing for MultiSearchResult provides typed result access",
+          "description": "MultiSearchResult[HitType, FacetDistributionType, FacetStatsType] gives consumers typed access to index-specific hits without casting.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "filter/sort typed as list[Any] due to Meilisearch filter syntax complexity",
+          "description": "Meilisearch filter syntax is a complex recursive structure. list[Any] is a documented escape hatch; sort could be typed as list[str] for improved safety.",
+          "settled": false,
+          "positive": false
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "batch": "incomplete_migration",
+  "batch_index": 14,
+  "assessments": {"incomplete_migration": 79.0},
+  "dimension_notes": {
+    "incomplete_migration": {
+      "evidence": [
+        "phase0_enum_rename.py, phase1_dedup.py, phase3_rename.py scripts exist and are standalone — they were one-time migration tools that have been run but left in scripts/. This is common for migration artifacts.",
+        "rankings_models.py is a backward-compat shim re-exporting RankingEngagement and TeamRanking from models/. This suggests a migration that moved models but left a compatibility layer.",
+        "directus_ffbb/models/rankings_models.py docstring: 'Backward-compatibility re-export shim for RankingEngagement, TeamRanking.' — explicitly documented as transitional but no deprecation notice or removal timeline.",
+        "competition_id_categorie_code field in competitions_facet_distribution.py uses the old API path 'competitionId.categorie.code' — references the old model naming. This is an API key, not a Python name, so it's correct but the field name mirrors the old model hierarchy.",
+        "No old enum suffixes (*Class, *Ref, *ID) found in src/ — the phase0/phase3 renames completed successfully.",
+        "No duplicate model classes remaining in src/ — phase1 deduplication completed.",
+        "test_140_competition_extracted_models.py has test_018_phase_engagement_id_organisme_is_str — the test name references the old OrganismeId model that was removed. The test itself is valid but the name documents a migration artifact.",
+        "git log shows 3 migration commits (dff561c, 25d7e80, 50f7d04) in recent history — all appear to have completed their goals based on absence of old names in src/."
+      ],
+      "impact_scope": "module",
+      "fix_scope": "single_edit",
+      "confidence": "medium",
+      "issues_preventing_higher_score": "rankings_models.py shim without deprecation timeline, phase migration scripts left in scripts/ without cleanup notice"
+    }
+  },
+  "dimension_judgment": {
+    "incomplete_migration": {
+      "dimension_character": "The three model migration phases (enum rename, deduplication, suffix cleanup) appear complete based on absence of old names in src/. The main migration artifacts are the rankings_models.py backward-compat shim and the phase scripts left in scripts/. These are not broken migrations but deliberate leftovers without clear removal criteria.",
+      "score_rationale": "Score of 79 reflects completed migrations with clean results, docked for the undocumented shim lifetime and for leaving one-time migration scripts in scripts/ without a retirement notice."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "incomplete_migration",
+      "identifier": "rankings_shim_no_deprecation",
+      "summary": "rankings_models.py backward-compat shim has no deprecation notice or removal timeline",
+      "related_files": [
+        "src/ffbb_api_client_v2/directus_ffbb/models/rankings_models.py"
+      ],
+      "evidence": [
+        "Docstring says 'Backward-compatibility re-export shim' but no @deprecated decorator, no DeprecationWarning, no TODO with removal version",
+        "Without a deprecation mechanism, this shim will remain indefinitely"
+      ],
+      "suggestion": "Add a DeprecationWarning to the module-level imports, document which version it will be removed in, or remove it immediately if no external consumers depend on it.",
+      "confidence": "medium",
+      "impact_scope": "module",
+      "fix_scope": "single_edit"
+    }
+  ],
+  "retrospective": {
+    "root_causes": ["migration tooling not cleaned up after use", "compat shims without lifecycle management"],
+    "likely_symptoms": ["rankings_shim_no_deprecation"]
+  },
+  "context_updates": {
+    "incomplete_migration": {
+      "add": [
+        {
+          "header": "Three model migration phases completed cleanly",
+          "description": "Enum rename (phase0), model deduplication (phase1), suffix cleanup (phase3) all completed — no residual old names found in src/.",
+          "settled": true,
+          "positive": true
+        }
+      ]
+    }
+  }
+}

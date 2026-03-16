@@ -1650,7 +1650,10 @@ class WaveCollector:
             try:
                 with open(result.filepath, encoding="utf-8") as f:
                     items = json.load(f)
-            except Exception:
+            except Exception as e:
+                logger.warning(
+                    "Failed to read/parse FK file %s: %s", result.filepath, e
+                )
                 continue
 
             if not isinstance(items, list):
@@ -1770,7 +1773,10 @@ class WaveCollector:
             try:
                 with open(result.filepath, encoding="utf-8") as f:
                     items = json.load(f)
-            except Exception:
+            except Exception as e:
+                logger.warning(
+                    "Failed to read/parse ID file %s: %s", result.filepath, e
+                )
                 continue
             if not isinstance(items, list):
                 continue
@@ -1959,168 +1965,79 @@ class ReportGenerator:
 
 
 # ---------------------------------------------------------------------------
-# Main orchestrator
+# Phase helper functions
 # ---------------------------------------------------------------------------
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Discover types for model properties")
-    parser.add_argument(
-        "--clear-cache",
-        action="store_true",
-        help="Clear HTTP cache before running",
-    )
-    parser.add_argument(
-        "--workers",
-        type=int,
-        default=REST_PARALLEL_WORKERS,
-        help=f"Number of parallel workers (default: {REST_PARALLEL_WORKERS})",
-    )
-    parser.add_argument(
-        "--debug",
-        action="store_true",
-        help="Enable DEBUG logging (shows cache HIT/MISS per request)",
-    )
-    parser.add_argument(
-        "--no-chained",
-        action="store_true",
-        help="Skip Wave 2+3 (single-item + FK chain fetches for deeper discovery)",
-    )
-    args = parser.parse_args()
-
-    if args.debug:
-        logging.getLogger().setLevel(logging.DEBUG)
-
-    logger.info("=== Type Discovery Script ===")
-    logger.info("  workers=%d, cache_ttl=%ds", args.workers, CACHE_TTL)
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
-
-    # Initialize raw HTTP client
-    http = RawHttpClient(DATA_DIR)
-
-    # Handle --clear-cache
-    if args.clear_cache:
-        cache_db = DATA_DIR / "discover_types_cache.sqlite"
-        if cache_db.exists():
-            cache_db.unlink()
-            logger.info("Cache cleared: %s", cache_db)
-        else:
-            logger.info("No cache to clear")
-
-    # -----------------------------------------------------------------------
-    # Phase 0: Parallel — token fetch + AST scan + config discovery
-    # -----------------------------------------------------------------------
+def _phase0_init_parallel(
+    http: RawHttpClient,
+) -> tuple[
+    str | None,
+    str | None,
+    ASTScanResult,
+    dict[str, Any],
+]:
+    """Phase 0: Parallel token fetch + AST scan + config discovery."""
     logger.info("Phase 0: Token fetch + AST scan + config discovery (parallel)...")
-
     with ThreadPoolExecutor(max_workers=3) as ex:
         future_tokens = ex.submit(http.acquire_tokens)
         future_ast = ex.submit(scan_source_combined, MODEL_DIRS)
         future_configs = ex.submit(_discover_configs_and_mappings)
-
         api_token, meili_token = future_tokens.result()
         logger.info("  Tokens acquired")
-
         ast_result = future_ast.result()
-        incorrect_props = ast_result.incorrect_props
-        sig_registry = ModelSignatureRegistry(ast_result.signatures)
         logger.info(
             "  AST scan: %d incorrect props, %d signatures",
-            len(incorrect_props),
+            len(ast_result.incorrect_props),
             len(ast_result.signatures),
         )
-
         configs = future_configs.result()
-        endpoint_map = configs["endpoint_map"]
-        meili_index_map = configs["meili_index_map"]
-        meili_class_to_index = configs["meili_class_to_index"]
-        rest_class_to_prefix = configs["rest_class_to_prefix"]
-        endpoint_fields_map: dict[str, list[str]] = configs["endpoint_fields_map"]
         logger.info(
             "  Config: %d REST endpoints, %d MeiliSearch indexes, %d field definitions",
-            len(endpoint_map),
-            len(meili_index_map),
-            len(endpoint_fields_map),
+            len(configs["endpoint_map"]),
+            len(configs["meili_index_map"]),
+            len(configs["endpoint_fields_map"]),
         )
+    return api_token, meili_token, ast_result, configs
 
-    meili_to_fetch = list(meili_index_map.values())
 
-    # Log scanned properties
-    for prop in incorrect_props:
-        logger.info(
-            "    [%s] %s.%s (%s) -> json_key=%s",
-            prop.category,
-            prop.class_name,
-            prop.python_name,
-            prop.current_type,
-            prop.json_key,
-        )
-
-    # Build record_whole_keys from incorrect properties
-    record_whole_keys: set[str] = set()
-    for prop in incorrect_props:
-        if prop.category in ("dict_any", "list_any", "list_dict_any", "any_none"):
-            record_whole_keys.add(prop.json_key)
-
-    # -----------------------------------------------------------------------
-    # Phase 1: Wave-based collection (Wave 1 + 2 + 3+)
-    # -----------------------------------------------------------------------
-    endpoints_dir = DATA_DIR / "endpoints"
-    endpoints_dir.mkdir(parents=True, exist_ok=True)
-
-    # Check cache status
-    cache_db = DATA_DIR / "discover_types_cache.sqlite"
-    if cache_db.exists():
-        cache_size_mb = cache_db.stat().st_size / (1024 * 1024)
-        logger.info("  Cache exists: %s (%.1f MB)", cache_db, cache_size_mb)
-    else:
-        logger.info("  Cache empty — first run will fetch from network")
-
-    t0 = time.monotonic()
-
-    flattened_dir = DATA_DIR / "flattened"
-    flattened_dir.mkdir(parents=True, exist_ok=True)
-
-    collector = WaveCollector(
-        http=http,
-        endpoints_dir=endpoints_dir,
-        workers=args.workers,
-        endpoint_fields_map=endpoint_fields_map,
-        endpoint_map=endpoint_map,
-        meili_index_uids=meili_to_fetch,
-    )
-
-    fetch_results = collector.collect_all(
-        api_token, meili_token, skip_deep=args.no_chained
-    )
-
+def _phase1_wave_collect(
+    collector: WaveCollector,
+    api_token: str | None,
+    meili_token: str | None,
+    skip_deep: bool,
+    t0: float,
+) -> tuple[list[CollectionResult], float, dict[str, Any]]:
+    """Phase 1: Wave-based collection (Wave 1 + 2 + 3+)."""
+    fetch_results = collector.collect_all(api_token, meili_token, skip_deep=skip_deep)
     t_fetch_phase = time.monotonic() - t0
-
-    # Build collection_stats from results
     collection_stats: dict[str, Any] = {"rest": {}, "meilisearch": {}}
     for result in fetch_results:
         bucket = "meilisearch" if result.source == "meili" else "rest"
         collection_stats[bucket][result.name] = (
             collection_stats[bucket].get(result.name, 0) + result.count
         )
-
     logger.info(
         "Phase 1 done in %.1fs — %d collection results",
         t_fetch_phase,
         len(fetch_results),
     )
+    return fetch_results, t_fetch_phase, collection_stats
 
-    # -----------------------------------------------------------------------
-    # Phase 2: Flatten from files (ProcessPoolExecutor, true multi-core)
-    # -----------------------------------------------------------------------
+
+def _phase2_flatten(
+    fetch_results: list[CollectionResult],
+    endpoints_dir: Path,
+    flattened_dir: Path,
+    record_whole_keys: set[str],
+    flatten_workers: int,
+) -> tuple[list[tuple[str, dict[str, PathStats]]], float]:
+    """Phase 2: Deduplicate wave results, then flatten (ProcessPool)."""
     t_flatten_start = time.monotonic()
-    cpu_count = os.cpu_count() or 4
-    flatten_workers = min(cpu_count, len(fetch_results)) if fetch_results else 1
     logger.info(
         "Phase 2: Flatten %d endpoint files (ProcessPool, %d workers)...",
         len(fetch_results),
         flatten_workers,
     )
-
     # Deduplicate items across waves for same endpoint before flattening
-    # Group results by (source, name) and merge items
     items_by_key: dict[tuple[str, str], list[str]] = {}
     for r in fetch_results:
         key = (r.source, r.name)
@@ -2129,13 +2046,11 @@ def main() -> None:
     deduped_results: list[CollectionResult] = []
     for (source, name), filepaths in items_by_key.items():
         if len(filepaths) == 1:
-            # Single file — find the original result
             for r in fetch_results:
                 if r.filepath == filepaths[0]:
                     deduped_results.append(r)
                     break
         else:
-            # Multiple files for same endpoint — merge and deduplicate
             all_items: list[dict[str, Any]] = []
             for fp in filepaths:
                 try:
@@ -2143,7 +2058,8 @@ def main() -> None:
                         items = json.load(f)
                     if isinstance(items, list):
                         all_items.extend(items)
-                except Exception:
+                except Exception as e:
+                    logger.warning("Failed to read/parse merge file %s: %s", fp, e)
                     continue
             if all_items:
                 deduped = _deduplicate_items(all_items)
@@ -2168,7 +2084,6 @@ def main() -> None:
 
     per_endpoint_paths: list[tuple[str, dict[str, PathStats]]] = []
     flat_dir_str = str(flattened_dir)
-
     with ProcessPoolExecutor(max_workers=flatten_workers) as pool:
         future_to_name: dict[Any, str] = {}
         for r in deduped_results:
@@ -2182,7 +2097,6 @@ def main() -> None:
                 r.name,
             )
             future_to_name[fut] = r.name
-
         for fut in as_completed(future_to_name):
             ep_name = future_to_name[fut]
             try:
@@ -2200,10 +2114,14 @@ def main() -> None:
         t_flatten,
         len(per_endpoint_paths),
     )
+    return per_endpoint_paths, t_flatten
 
-    # -----------------------------------------------------------------------
-    # Phase 3: Merge flattened paths (sequential, fast)
-    # -----------------------------------------------------------------------
+
+def _phase3_merge(
+    per_endpoint_paths: list[tuple[str, dict[str, PathStats]]],
+    record_whole_keys: set[str],
+) -> tuple[JsonFlattener, float]:
+    """Phase 3: Merge flattened paths (sequential)."""
     t_merge_start = time.monotonic()
     logger.info("Phase 3: Merging %d endpoint path dicts...", len(per_endpoint_paths))
     combined_flattener = JsonFlattener(record_whole_keys=record_whole_keys)
@@ -2213,15 +2131,22 @@ def main() -> None:
                 combined_flattener.paths[path] = stats
             else:
                 combined_flattener.paths[path].merge(stats)
-
     t_merge = time.monotonic() - t_merge_start
     logger.info(
         "  Merged — %d unique paths in %.2fs", len(combined_flattener.paths), t_merge
     )
+    return combined_flattener, t_merge
 
-    # -----------------------------------------------------------------------
-    # Phase 4: Type inference (parallel, ThreadPool — read-only lookups)
-    # -----------------------------------------------------------------------
+
+def _phase4_infer_types(
+    incorrect_props: list[IncorrectProperty],
+    combined_flattener: JsonFlattener,
+    sig_registry: ModelSignatureRegistry,
+    meili_class_to_index: dict[str, str],
+    rest_class_to_prefix: dict[str, str],
+    workers: int,
+) -> tuple[list[TypeInference], float]:
+    """Phase 4: Type inference (parallel ThreadPool)."""
     t_infer_start = time.monotonic()
     logger.info(
         "Phase 4: Inferring types for %d properties (parallel)...", len(incorrect_props)
@@ -2229,9 +2154,7 @@ def main() -> None:
     inferrer = TypeInferrer(sig_registry)
 
     def _infer_one(prop: IncorrectProperty) -> TypeInference:
-        """Infer type for a single property (thread-safe, read-only on flattener)."""
         merged = PathStats()
-
         if prop.file.startswith("meilisearch_ffbb/"):
             index_uid = meili_class_to_index.get(prop.class_name)
             if index_uid:
@@ -2243,7 +2166,6 @@ def main() -> None:
                 ps = combined_flattener.get_stats(mp)
                 if ps:
                     merged.merge(ps)
-
         elif prop.file.startswith("directus_ffbb/"):
             rest_prefix = rest_class_to_prefix.get(prop.class_name)
             if rest_prefix:
@@ -2256,55 +2178,59 @@ def main() -> None:
                 ps = combined_flattener.get_stats(mp)
                 if ps:
                     merged.merge(ps)
-
         else:
             paths = combined_flattener.find_matching_paths(prop.json_key)
             for mp in paths:
                 ps = combined_flattener.get_stats(mp)
                 if ps:
                     merged.merge(ps)
-
         return inferrer.infer(merged, prop)
 
-    with ThreadPoolExecutor(max_workers=args.workers) as ex:
+    with ThreadPoolExecutor(max_workers=workers) as ex:
         inferences = list(ex.map(_infer_one, incorrect_props))
 
     t_infer = time.monotonic() - t_infer_start
     logger.info("  Inference done — %d properties in %.2fs", len(inferences), t_infer)
+    return inferences, t_infer
 
-    # -----------------------------------------------------------------------
-    # Phase 5: Generate reports
-    # -----------------------------------------------------------------------
+
+def _phase5_reports(
+    combined_flattener: JsonFlattener,
+    collection_stats: dict[str, Any],
+    inferences: list[TypeInference],
+    ast_result: ASTScanResult,
+) -> tuple[dict[str, Any], float]:
+    """Phase 5: Generate reports."""
     t_reports_start = time.monotonic()
     logger.info("Phase 5: Generating reports...")
-
     raw_report = ReportGenerator.generate_raw_report(
         combined_flattener, collection_stats
     )
     corrections_report = ReportGenerator.generate_corrections(
         inferences, signatures=ast_result.signatures
     )
-
     raw_path = DATA_DIR / "type_discovery_raw.json"
     corrections_path = DATA_DIR / "type_discovery_corrections.json"
-
     with open(raw_path, "w", encoding="utf-8") as f:
         json.dump(raw_report, f, indent=2, default=str, ensure_ascii=False)
     logger.info("Raw report written to %s", raw_path)
-
     with open(corrections_path, "w", encoding="utf-8") as f:
         json.dump(corrections_report, f, indent=2, default=str, ensure_ascii=False)
     logger.info("Corrections report written to %s", corrections_path)
     t_reports = time.monotonic() - t_reports_start
     logger.info("  Reports done in %.2fs", t_reports)
+    return corrections_report, t_reports
 
-    # -----------------------------------------------------------------------
-    # Phase 6: Enum candidate detection
-    # -----------------------------------------------------------------------
+
+def _phase6_enum_candidates(
+    combined_flattener: JsonFlattener,
+    ast_result: ASTScanResult,
+    rest_class_to_prefix: dict[str, str],
+    meili_class_to_index: dict[str, str],
+) -> float:
+    """Phase 6: Enum candidate detection."""
     t_enum_start = time.monotonic()
     logger.info("Phase 6: Detecting enum candidates...")
-
-    # Build prefix -> signature lookup for cross-referencing
     prefix_to_sig: dict[str, ModelSignature] = {}
     for sig in ast_result.signatures:
         if sig.class_name in rest_class_to_prefix:
@@ -2314,7 +2240,6 @@ def main() -> None:
             prefix_to_sig[f"meilisearch/{idx}/hits[]"] = sig
 
     enum_candidates: list[dict[str, Any]] = []
-
     for path, stats in combined_flattener.paths.items():
         if stats.non_none_count < 10:
             continue
@@ -2324,16 +2249,10 @@ def main() -> None:
             continue
         unique_values = sorted(stats.unique_str_values)
         n_values = len(unique_values)
-
-        # Noise filtering: skip single-value, all-empty, >50 values
-        if n_values > 50:
-            continue
-        if n_values == 1 and unique_values[0] == "":
+        if n_values > 50 or (n_values == 1 and unique_values[0] == ""):
             continue
         if all(v == "" for v in unique_values):
             continue
-
-        # Confidence scoring
         if n_values <= 10 and stats.non_none_count >= 100:
             confidence = "high"
         elif (n_values <= 10 and stats.non_none_count >= 10) or (
@@ -2342,13 +2261,10 @@ def main() -> None:
             confidence = "medium"
         else:
             confidence = "low"
-
-        # Cross-reference with model signatures to find owning class
         json_key: str | None = None
         python_class: str | None = None
         python_attr: str | None = None
         module_path: str | None = None
-
         for pfx, sig in prefix_to_sig.items():
             pfx_dot = f"{pfx}."
             if path.startswith(pfx_dot):
@@ -2361,13 +2277,11 @@ def main() -> None:
                         remainder, _camel_to_snake(remainder)
                     )
                     break
-
         base_name = python_attr or (json_key and _camel_to_snake(json_key))
         suggested_enum_name: str | None = None
         if base_name:
             parts = base_name.split("_")
             suggested_enum_name = "".join(p.capitalize() for p in parts)
-
         entry: dict[str, Any] = {
             "json_path": path,
             "unique_values": unique_values,
@@ -2386,7 +2300,6 @@ def main() -> None:
             entry["python_attr"] = python_attr
         if suggested_enum_name:
             entry["suggested_enum_name"] = suggested_enum_name
-
         enum_candidates.append(entry)
 
     enum_candidates.sort(key=lambda x: (x["count"], x["json_path"]))
@@ -2396,18 +2309,21 @@ def main() -> None:
     logger.info(
         "Enum candidates: %d paths written to %s", len(enum_candidates), enum_path
     )
-
     t_enum = time.monotonic() - t_enum_start
     logger.info("  Enum detection done in %.2fs", t_enum)
+    return t_enum
 
-    # -----------------------------------------------------------------------
-    # Phase 7: Missing fields detection
-    # -----------------------------------------------------------------------
+
+def _phase7_missing_fields(
+    ast_result: ASTScanResult,
+    combined_flattener: JsonFlattener,
+    rest_class_to_prefix: dict[str, str],
+    meili_class_to_index: dict[str, str],
+) -> tuple[list[dict[str, Any]], float]:
+    """Phase 7: Missing fields detection."""
     t_missing_start = time.monotonic()
     logger.info("Phase 7: Detecting missing fields in models...")
-
     missing_fields_report: list[dict[str, Any]] = []
-
     for sig in ast_result.signatures:
         prefix: str | None = None
         if sig.class_name in rest_class_to_prefix:
@@ -2415,10 +2331,8 @@ def main() -> None:
         elif sig.class_name in meili_class_to_index:
             index_uid = meili_class_to_index[sig.class_name]
             prefix = f"meilisearch/{index_uid}/hits[]"
-
         if not prefix:
             continue
-
         prefix_dot = f"{prefix}."
         observed_keys: set[str] = set()
         for path in combined_flattener.paths:
@@ -2427,14 +2341,11 @@ def main() -> None:
             rest = path[len(prefix_dot) :]
             if "." not in rest and "[]" not in rest:
                 observed_keys.add(rest)
-
         if not observed_keys:
             continue
-
         model_keys = set(sig.json_keys)
         missing_in_model = sorted(observed_keys - model_keys)
         missing_in_api = sorted(model_keys - observed_keys)
-
         if missing_in_model or missing_in_api:
             entry: dict[str, Any] = {
                 "class": sig.class_name,
@@ -2447,10 +2358,7 @@ def main() -> None:
                     full_path = f"{prefix}.{key}"
                     stats = combined_flattener.get_stats(full_path)
                     python_attr = _camel_to_snake(key)
-                    detail: dict[str, Any] = {
-                        "key": key,
-                        "python_attr": python_attr,
-                    }
+                    detail: dict[str, Any] = {"key": key, "python_attr": python_attr}
                     if stats:
                         detail["types"] = stats.types
                         detail["total"] = stats.total
@@ -2506,9 +2414,7 @@ def main() -> None:
                     }
                     if line:
                         api_detail["line"] = line
-                    api_detail["action"] = (
-                        "verify_needed"  # may be relation, may be deprecated
-                    )
+                    api_detail["action"] = "verify_needed"
                     missing_api_details.append(api_detail)
                 entry["missing_in_api"] = missing_api_details
             missing_fields_report.append(entry)
@@ -2517,7 +2423,6 @@ def main() -> None:
     missing_path = DATA_DIR / "missing_fields.json"
     with open(missing_path, "w", encoding="utf-8") as f:
         json.dump(missing_fields_report, f, indent=2, ensure_ascii=False)
-
     total_missing_in_model = sum(
         len(e.get("missing_in_model", [])) for e in missing_fields_report
     )
@@ -2532,9 +2437,141 @@ def main() -> None:
         total_missing_in_api,
     )
     logger.info("  Report written to %s", missing_path)
-
     t_missing = time.monotonic() - t_missing_start
     logger.info("  Missing fields detection done in %.2fs", t_missing)
+    return missing_fields_report, t_missing
+
+
+# ---------------------------------------------------------------------------
+# Main orchestrator
+# ---------------------------------------------------------------------------
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Discover types for model properties")
+    parser.add_argument(
+        "--clear-cache", action="store_true", help="Clear HTTP cache before running"
+    )
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=REST_PARALLEL_WORKERS,
+        help=f"Number of parallel workers (default: {REST_PARALLEL_WORKERS})",
+    )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Enable DEBUG logging (shows cache HIT/MISS per request)",
+    )
+    parser.add_argument(
+        "--no-chained",
+        action="store_true",
+        help="Skip Wave 2+3 (single-item + FK chain fetches for deeper discovery)",
+    )
+    args = parser.parse_args()
+
+    if args.debug:
+        logging.getLogger().setLevel(logging.DEBUG)
+
+    logger.info("=== Type Discovery Script ===")
+    logger.info("  workers=%d, cache_ttl=%ds", args.workers, CACHE_TTL)
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+    http = RawHttpClient(DATA_DIR)
+
+    # Handle --clear-cache
+    if args.clear_cache:
+        cache_db = DATA_DIR / "discover_types_cache.sqlite"
+        if cache_db.exists():
+            cache_db.unlink()
+            logger.info("Cache cleared: %s", cache_db)
+        else:
+            logger.info("No cache to clear")
+
+    # Phase 0 — tokens + AST + config (parallel)
+    api_token, meili_token, ast_result, configs = _phase0_init_parallel(http)
+    incorrect_props = ast_result.incorrect_props
+    sig_registry = ModelSignatureRegistry(ast_result.signatures)
+    endpoint_map = configs["endpoint_map"]
+    meili_index_map = configs["meili_index_map"]
+    meili_class_to_index = configs["meili_class_to_index"]
+    rest_class_to_prefix = configs["rest_class_to_prefix"]
+    endpoint_fields_map: dict[str, list[str]] = configs["endpoint_fields_map"]
+
+    for prop in incorrect_props:
+        logger.info(
+            "    [%s] %s.%s (%s) -> json_key=%s",
+            prop.category,
+            prop.class_name,
+            prop.python_name,
+            prop.current_type,
+            prop.json_key,
+        )
+
+    record_whole_keys: set[str] = {
+        prop.json_key
+        for prop in incorrect_props
+        if prop.category in ("dict_any", "list_any", "list_dict_any", "any_none")
+    }
+
+    # Phase 1 — Wave-based collection
+    endpoints_dir = DATA_DIR / "endpoints"
+    endpoints_dir.mkdir(parents=True, exist_ok=True)
+    cache_db = DATA_DIR / "discover_types_cache.sqlite"
+    if cache_db.exists():
+        cache_size_mb = cache_db.stat().st_size / (1024 * 1024)
+        logger.info("  Cache exists: %s (%.1f MB)", cache_db, cache_size_mb)
+    else:
+        logger.info("  Cache empty — first run will fetch from network")
+
+    t0 = time.monotonic()
+    flattened_dir = DATA_DIR / "flattened"
+    flattened_dir.mkdir(parents=True, exist_ok=True)
+
+    collector = WaveCollector(
+        http=http,
+        endpoints_dir=endpoints_dir,
+        workers=args.workers,
+        endpoint_fields_map=endpoint_fields_map,
+        endpoint_map=endpoint_map,
+        meili_index_uids=list(meili_index_map.values()),
+    )
+    fetch_results, t_fetch_phase, collection_stats = _phase1_wave_collect(
+        collector, api_token, meili_token, args.no_chained, t0
+    )
+
+    # Phase 2 — Flatten (ProcessPool)
+    cpu_count = os.cpu_count() or 4
+    flatten_workers = min(cpu_count, len(fetch_results)) if fetch_results else 1
+    per_endpoint_paths, t_flatten = _phase2_flatten(
+        fetch_results, endpoints_dir, flattened_dir, record_whole_keys, flatten_workers
+    )
+
+    # Phase 3 — Merge
+    combined_flattener, t_merge = _phase3_merge(per_endpoint_paths, record_whole_keys)
+
+    # Phase 4 — Type inference
+    inferences, t_infer = _phase4_infer_types(
+        incorrect_props,
+        combined_flattener,
+        sig_registry,
+        meili_class_to_index,
+        rest_class_to_prefix,
+        args.workers,
+    )
+
+    # Phase 5 — Reports
+    corrections_report, t_reports = _phase5_reports(
+        combined_flattener, collection_stats, inferences, ast_result
+    )
+
+    # Phase 6 — Enum candidates
+    t_enum = _phase6_enum_candidates(
+        combined_flattener, ast_result, rest_class_to_prefix, meili_class_to_index
+    )
+
+    # Phase 7 — Missing fields
+    missing_fields_report, t_missing = _phase7_missing_fields(
+        ast_result, combined_flattener, rest_class_to_prefix, meili_class_to_index
+    )
 
     # Print missing fields console summary
     if missing_fields_report:

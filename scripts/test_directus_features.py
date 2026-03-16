@@ -15,8 +15,8 @@ import json
 import os
 
 from ffbb_api_client_v2._http.client import HttpClient
+from ffbb_api_client_v2.config import API_FFBB_BASE_URL
 
-API_BASE_URL = "https://api.ffbb.com/"
 DEFAULT_USER_AGENT = "okhttp/4.12.0"
 
 
@@ -71,7 +71,7 @@ def main() -> None:
 
     # aggregate count
     url = HttpClient.url_with_params(
-        f"{API_BASE_URL}items/rencontres",
+        f"{API_FFBB_BASE_URL}items/rencontres",
         {"aggregate[count]": "*", "limit": "1"},
     )
     r = test_feature("aggregate[count]=*", url, headers)
@@ -79,7 +79,7 @@ def main() -> None:
 
     # aggregate countDistinct
     url = HttpClient.url_with_params(
-        f"{API_BASE_URL}items/rencontres",
+        f"{API_FFBB_BASE_URL}items/rencontres",
         {"aggregate[countDistinct]": "id", "limit": "1"},
     )
     r = test_feature("aggregate[countDistinct]=id", url, headers)
@@ -87,7 +87,7 @@ def main() -> None:
 
     # groupBy
     url = HttpClient.url_with_params(
-        f"{API_BASE_URL}items/rencontres",
+        f"{API_FFBB_BASE_URL}items/rencontres",
         {"groupBy[]": "saison", "aggregate[count]": "*", "limit": "5"},
     )
     r = test_feature("groupBy[]=saison + aggregate[count]=*", url, headers)
@@ -95,7 +95,7 @@ def main() -> None:
 
     # limit=-1 (fetch all)
     url = HttpClient.url_with_params(
-        f"{API_BASE_URL}items/saisons",
+        f"{API_FFBB_BASE_URL}items/saisons",
         {"limit": "-1", "fields[]": ["id", "libelle"]},
     )
     r = test_feature("limit=-1 (fetch all)", url, headers)
@@ -103,7 +103,7 @@ def main() -> None:
 
     # Temporal functions: year() in filter
     url = HttpClient.url_with_params(
-        f"{API_BASE_URL}items/rencontres",
+        f"{API_FFBB_BASE_URL}items/rencontres",
         {
             "filter": '{"year(date_rencontre)":{"_eq":2025}}',
             "limit": "1",
@@ -115,7 +115,7 @@ def main() -> None:
 
     # alias
     url = HttpClient.url_with_params(
-        f"{API_BASE_URL}items/organismes/1",
+        f"{API_FFBB_BASE_URL}items/organismes/1",
         {
             "alias[active_competitions]": "competitions",
             "fields[]": ["id", "nom"],
@@ -126,7 +126,7 @@ def main() -> None:
 
     # export=json
     url = HttpClient.url_with_params(
-        f"{API_BASE_URL}items/saisons",
+        f"{API_FFBB_BASE_URL}items/saisons",
         {"export": "json", "limit": "2", "fields[]": ["id", "libelle"]},
     )
     r = test_feature("export=json", url, headers)
@@ -134,7 +134,7 @@ def main() -> None:
 
     # backlink=false with wildcard
     url = HttpClient.url_with_params(
-        f"{API_BASE_URL}items/organismes/1",
+        f"{API_FFBB_BASE_URL}items/organismes/1",
         {"fields[]": ["*.*"], "backlink": "false"},
     )
     r = test_feature("backlink=false with *.*", url, headers)
@@ -142,7 +142,7 @@ def main() -> None:
 
     # page-based pagination
     url = HttpClient.url_with_params(
-        f"{API_BASE_URL}items/saisons",
+        f"{API_FFBB_BASE_URL}items/saisons",
         {
             "page": "1",
             "limit": "5",

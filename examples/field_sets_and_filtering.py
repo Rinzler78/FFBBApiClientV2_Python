@@ -7,7 +7,7 @@ filter/sort syntax, and manual/automatic pagination.
 Usage: python examples/field_sets_and_filtering.py
 """
 
-from ffbb_api_client_v2 import FFBBAPIClientV2, FieldSet, TokenManager
+from ffbb_api_client_v2 import FFBBAPIClientV2, TokenManager
 
 
 def create_client() -> FFBBAPIClientV2:
@@ -16,17 +16,6 @@ def create_client() -> FFBBAPIClientV2:
         api_bearer_token=tokens.api_token,
         meilisearch_bearer_token=tokens.meilisearch_token,
     )
-
-
-def demo_field_sets(client: FFBBAPIClientV2) -> None:
-    """Show FieldSet.DEFAULT — the single supported field set level."""
-    print("=" * 60)
-    print("1. FieldSet (DEFAULT only)")
-    print("=" * 60)
-
-    print(f"FieldSet.DEFAULT = {FieldSet.DEFAULT.value!r}")
-    print("All queries use comprehensive field lists by default.")
-    print("No BASIC, DETAILED, or WILDCARD levels — one level fits all.")
 
 
 def demo_directus_filtering(client: FFBBAPIClientV2) -> None:
@@ -124,7 +113,6 @@ def demo_pagination(client: FFBBAPIClientV2) -> None:
 def main() -> None:
     client = create_client()
 
-    demo_field_sets(client)
     demo_directus_filtering(client)
     demo_meilisearch_filtering(client)
     demo_pagination(client)

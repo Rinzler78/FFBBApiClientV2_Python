@@ -218,11 +218,11 @@ def execute_with_retry(
             raise
 
     # All retries exhausted
-    if last_exception:
-        raise last_exception
+    if last_exception:  # pragma: no cover
+        raise last_exception  # pragma: no cover
 
     # This should never happen, but just in case
-    raise RuntimeError("Retry logic failed unexpectedly")
+    raise RuntimeError("Retry logic failed unexpectedly")  # pragma: no cover
 
 
 def make_http_request_with_retry(

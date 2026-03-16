@@ -209,5 +209,256 @@ class Test016RetryTimeout(unittest.TestCase):
         )
 
 
+class Test016RetryTimeoutCoverage(unittest.TestCase):
+    """Additional tests to reach > 95% coverage on retry_utils."""
+
+    def setUp(self):
+        self.retry_config_no_jitter = RetryConfig(
+            max_attempts=2,
+            base_delay=0.001,
+            max_delay=1.0,
+            backoff_factor=2.0,
+            jitter=False,
+        )
+        self.timeout_config = TimeoutConfig(connect_timeout=1.0, read_timeout=2.0)
+
+    # ---- calculate_delay with jitter ----
+
+    def test_014_calculate_delay_with_jitter(self):
+        """Test calculate_delay when jitter=True adds randomness."""
+        config = RetryConfig(
+            max_attempts=3,
+            base_delay=1.0,
+            max_delay=60.0,
+            backoff_factor=2.0,
+            jitter=True,
+        )
+        delay = calculate_delay(0, config)
+        # Jitter is ±25% so delay must be between 0.75 and 1.25 (or at least > 0.1)
+        self.assertGreater(delay, 0.1)
+        self.assertLess(delay, 2.0)
+
+    def test_015_calculate_delay_jitter_clamps_to_minimum(self):
+        """Test that jitter delay is always >= 0.1."""
+        config = RetryConfig(
+            max_attempts=1,
+            base_delay=0.001,
+            max_delay=0.002,
+            backoff_factor=1.0,
+            jitter=True,
+        )
+        for _ in range(20):
+            delay = calculate_delay(0, config)
+            self.assertGreaterEqual(delay, 0.1)
+
+    # ---- execute_with_retry: retry on bad status code ----
+
+    @patch("time.sleep")
+    def test_016_execute_with_retry_retries_on_bad_status(self, mock_sleep):
+        """Test retry on HTTP 429 status code."""
+        from unittest.mock import MagicMock
+
+        call_count = 0
+
+        def flaky_func(**kwargs):
+            nonlocal call_count
+            call_count += 1
+            resp = MagicMock()
+            resp.status_code = 429 if call_count < 3 else 200
+            return resp
+
+        config = RetryConfig(max_attempts=3, base_delay=0.001, jitter=False)
+        result = execute_with_retry(flaky_func, config=config)
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(call_count, 3)
+        self.assertEqual(mock_sleep.call_count, 2)
+
+    @patch("time.sleep")
+    def test_017_execute_with_retry_exhausts_on_bad_status(self, mock_sleep):
+        """Test that last response returned after all retries on bad status."""
+        from unittest.mock import MagicMock
+
+        def always_429(**kwargs):
+            resp = MagicMock()
+            resp.status_code = 429
+            return resp
+
+        config = RetryConfig(max_attempts=2, base_delay=0.001, jitter=False)
+        result = execute_with_retry(always_429, config=config)
+        # Returns last response even if still retryable
+        self.assertEqual(result.status_code, 429)
+
+    # ---- execute_with_retry: non-retryable exception ----
+
+    def test_018_execute_with_retry_non_retryable_raises(self):
+        """Test that non-retryable exceptions are raised immediately."""
+
+        def raises_value_error(**kwargs):
+            raise ValueError("Not retryable")
+
+        config = RetryConfig(max_attempts=3, base_delay=0.001, jitter=False)
+        with self.assertRaises(ValueError):
+            execute_with_retry(raises_value_error, config=config)
+
+    # ---- execute_with_retry: timeout already in kwargs ----
+
+    @patch("time.sleep")
+    def test_019_execute_with_retry_timeout_already_set(self, mock_sleep):
+        """Test that existing timeout kwarg is not overridden."""
+        received_timeout = []
+
+        def capture_timeout(**kwargs):
+            received_timeout.append(kwargs.get("timeout"))
+            return "ok"
+
+        execute_with_retry(
+            capture_timeout, config=self.retry_config_no_jitter, timeout=99
+        )
+        self.assertEqual(received_timeout[0], 99)
+
+    # ---- make_http_request_with_retry ----
+
+    def test_020_make_http_request_get(self):
+        """Test make_http_request_with_retry with GET method (mocked session)."""
+        from unittest.mock import MagicMock, patch
+
+        from ffbb_api_client_v2.utils.retry_utils import make_http_request_with_retry
+
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+
+        with patch("requests.Session") as mock_session_cls:
+            mock_session = MagicMock()
+            mock_session.get.return_value = mock_response
+            mock_session_cls.return_value = mock_session
+
+            config = RetryConfig(max_attempts=1, base_delay=0.001, jitter=False)
+            result = make_http_request_with_retry(
+                "GET",
+                "https://example.com",
+                {"Authorization": "Bearer token"},
+                retry_config=config,
+                timeout_config=self.timeout_config,
+            )
+        self.assertEqual(result.status_code, 200)
+
+    def test_021_make_http_request_post(self):
+        """Test make_http_request_with_retry with POST method."""
+        from unittest.mock import MagicMock, patch
+
+        from ffbb_api_client_v2.utils.retry_utils import make_http_request_with_retry
+
+        mock_response = MagicMock()
+        mock_response.status_code = 201
+
+        with patch("requests.Session") as mock_session_cls:
+            mock_session = MagicMock()
+            mock_session.post.return_value = mock_response
+            mock_session_cls.return_value = mock_session
+
+            config = RetryConfig(max_attempts=1, base_delay=0.001, jitter=False)
+            result = make_http_request_with_retry(
+                "POST",
+                "https://example.com",
+                {"Content-Type": "application/json"},
+                data={"key": "value"},
+                retry_config=config,
+                timeout_config=self.timeout_config,
+            )
+        self.assertEqual(result.status_code, 201)
+
+    def test_022_make_http_request_unsupported_method(self):
+        """Test make_http_request_with_retry raises on unsupported HTTP method."""
+        from ffbb_api_client_v2.utils.retry_utils import make_http_request_with_retry
+
+        config = RetryConfig(max_attempts=1, base_delay=0.001, jitter=False)
+        with self.assertRaises(ValueError):
+            make_http_request_with_retry(
+                "DELETE", "https://example.com", {}, retry_config=config
+            )
+
+    def test_023_make_http_request_with_debug(self):
+        """Test make_http_request_with_retry with debug=True."""
+        from unittest.mock import MagicMock, patch
+
+        from ffbb_api_client_v2.utils.retry_utils import make_http_request_with_retry
+
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+
+        with patch("requests.Session") as mock_session_cls:
+            mock_session = MagicMock()
+            mock_session.get.return_value = mock_response
+            mock_session_cls.return_value = mock_session
+
+            config = RetryConfig(max_attempts=1, base_delay=0.001, jitter=False)
+            result = make_http_request_with_retry(
+                "GET", "https://example.com", {}, retry_config=config, debug=True
+            )
+        self.assertEqual(result.status_code, 200)
+
+    def test_024_make_http_request_with_cached_session(self):
+        """Test make_http_request_with_retry uses cached session when provided."""
+        from unittest.mock import MagicMock
+
+        from ffbb_api_client_v2.utils.retry_utils import make_http_request_with_retry
+
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_cached_session = MagicMock()
+        mock_cached_session.get.return_value = mock_response
+
+        config = RetryConfig(max_attempts=1, base_delay=0.001, jitter=False)
+        result = make_http_request_with_retry(
+            "GET",
+            "https://example.com",
+            {},
+            cached_session=mock_cached_session,
+            retry_config=config,
+        )
+        mock_cached_session.get.assert_called_once()
+        self.assertEqual(result.status_code, 200)
+
+    # ---- should_retry edge cases ----
+
+    def test_025_should_retry_no_exception_no_response(self):
+        """Test should_retry returns False with no exception and no response."""
+        config = RetryConfig(max_attempts=3, jitter=False)
+        self.assertFalse(should_retry(0, None, None, config))
+
+    def test_026_should_retry_non_retryable_exception(self):
+        """Test should_retry returns False for non-retryable exception."""
+        config = RetryConfig(
+            max_attempts=3, retry_on_exceptions=(ValueError,), jitter=False
+        )
+        exc = RuntimeError("not retryable")
+        self.assertFalse(should_retry(0, None, exc, config))
+
+    def test_027_should_retry_retryable_exception_type(self):
+        """Test should_retry returns True for configured exception type."""
+        config = RetryConfig(
+            max_attempts=3, retry_on_exceptions=(ValueError,), jitter=False
+        )
+        exc = ValueError("retryable")
+        self.assertTrue(should_retry(0, None, exc, config))
+
+    def test_028_execute_with_retry_oserror_not_retried(self):
+        """Test that OSError (caught but not in retry_on_exceptions) raises immediately."""
+        # Default retry_on_exceptions does not include OSError explicitly
+        # OSError is caught in the except block but should_retry returns False
+        config = RetryConfig(
+            max_attempts=3,
+            base_delay=0.001,
+            jitter=False,
+            retry_on_exceptions=(ValueError,),  # OSError not in list
+        )
+
+        def raises_oserror(**kwargs):
+            raise OSError("disk error")
+
+        with self.assertRaises(OSError):
+            execute_with_retry(raises_oserror, config=config)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,74 @@
+{
+  "batch": "error_consistency",
+  "batch_index": 4,
+  "assessments": {"error_consistency": 80.0},
+  "dimension_notes": {
+    "error_consistency": {
+      "evidence": [
+        "exceptions.py defines a clean hierarchy: FFBBApiError → FFBBNetworkError, FFBBAuthError, FFBBNotFoundError, FFBBRateLimitError, FFBBValidationError, FFBBServerError. Each carries status_code and response_body.",
+        "directus/exceptions.py mirrors the hierarchy for DirectusError subclasses. meilisearch/exceptions.py similarly for MeilisearchError.",
+        "_http/helper.py provides HttpHelper.catch_result() which wraps network errors consistently into FFBBNetworkError.",
+        "models/: from_dict raises TypeError for non-dict input (consistent across all models). Returns None-filled objects for missing optional fields — not raises.",
+        "utils/converter_utils.py uses logger.warning for conversion failures instead of raising, returning None. This is documented behavior: converters are lenient by design.",
+        "scripts/ error strategy is mixed: try_catch (35), returns_null (26), throws (9), result_type (4) — intentional variety for script-level error handling after Phase 2B cleanup.",
+        "After Phase 2B fixes: all silent exception handlers now log with context. catch-log-only handlers in ThreadPoolExecutor futures are intentional (graceful degradation).",
+        "facade/client.py does not re-raise on most errors — callers receive None or empty lists. This is a deliberate lenient-client design but some callers may be surprised by silent None returns."
+      ],
+      "impact_scope": "codebase",
+      "fix_scope": "multi_file_refactor",
+      "confidence": "high",
+      "issues_preventing_higher_score": "facade layer silently returns None on API errors without signaling to caller; converter_utils lenient-returns mixed with models that raise TypeError creates dual error contract"
+    }
+  },
+  "dimension_judgment": {
+    "error_consistency": {
+      "dimension_character": "The exception hierarchy is well-designed and consistently applied in the HTTP layer. The library has two distinct error contracts: the model layer raises TypeError on bad input, while the converter layer silently returns None. The facade layer further softens errors by returning None/empty collections without signaling to callers.",
+      "score_rationale": "Score of 80 reflects a clean, structured exception hierarchy at the API boundary, with a documented lenient converter design. Docked for the inconsistency between the model TypeError contract and converter None-return contract, and for the facade's silent None returns which require callers to always check return values."
+    }
+  },
+  "issues": [
+    {
+      "dimension": "error_consistency",
+      "identifier": "facade_silent_none_returns",
+      "summary": "Facade client returns None silently on API failures without a way for callers to distinguish 'not found' from 'error'",
+      "related_files": ["src/ffbb_api_client_v2/facade/client.py"],
+      "evidence": [
+        "Many facade methods return Optional[T] — on API error (FFBBApiError), they return None, indistinguishable from 'resource not found'",
+        "strategy_by_directory shows facade/ has returns_null: 11, throws: 2 — predominantly silent None returns"
+      ],
+      "suggestion": "Document the None-return contract explicitly per method, or introduce a Result[T] / Optional[T] type with a separate get_last_error() accessor. At minimum, add logging at DEBUG level when returning None due to error (not just 'not found').",
+      "confidence": "medium",
+      "impact_scope": "subsystem",
+      "fix_scope": "multi_file_refactor",
+      "root_cause_cluster": "error_contract_ambiguity"
+    }
+  ],
+  "retrospective": {
+    "root_causes": ["dual error contract between models (raise) and converters (return None)"],
+    "likely_symptoms": ["facade_silent_none_returns"]
+  },
+  "context_updates": {
+    "error_consistency": {
+      "add": [
+        {
+          "header": "Well-structured three-tier exception hierarchy",
+          "description": "FFBBApiError → domain errors (FFBBNetworkError, FFBBAuthError, etc.) → client-specific mirrors in directus/ and meilisearch/. Each carries structured metadata (status_code, response_body).",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Converter layer uses lenient None-return by design",
+          "description": "converter_utils.py logs warnings and returns None for conversion failures rather than raising — an intentional resilient-parse contract documented in the module.",
+          "settled": true,
+          "positive": true
+        },
+        {
+          "header": "Facade layer silently returns None on API errors",
+          "description": "Facade methods return None on both 'not found' and 'API error', making it impossible for callers to distinguish these cases without additional instrumentation.",
+          "settled": false,
+          "positive": false
+        }
+      ]
+    }
+  }
+}
