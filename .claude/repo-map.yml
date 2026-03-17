@@ -1,0 +1,62 @@
+# Repository Map
+# FFBBApiClientV2_Python — navigation anchors for agent retrieval
+
+entry_points:
+  - src/ffbb_api_client_v2/__init__.py  # public API surface (__all__ exports)
+  - src/ffbb_api_client_v2/facade/__init__.py  # FFBBAPIClientV2 unified client
+  - examples/  # usage examples
+
+modules:
+  facade:
+    path: src/ffbb_api_client_v2/facade/
+    description: High-level unified API client (FFBBAPIClientV2)
+  directus:
+    path: src/ffbb_api_client_v2/directus/
+    description: Base Directus REST client layer
+  directus_ffbb:
+    path: src/ffbb_api_client_v2/directus_ffbb/
+    description: FFBB-specific Directus wrapper (14 collections)
+  meilisearch:
+    path: src/ffbb_api_client_v2/meilisearch/
+    description: Base Meilisearch client layer
+  meilisearch_ffbb:
+    path: src/ffbb_api_client_v2/meilisearch_ffbb/
+    description: FFBB-specific Meilisearch wrapper (9 indexes)
+  models:
+    path: src/ffbb_api_client_v2/models/
+    description: API response models (dataclass-based, from_dict/to_dict)
+  http:
+    path: src/ffbb_api_client_v2/_http/
+    description: HTTP helper internals (client, helper)
+  utils:
+    path: src/ffbb_api_client_v2/utils/
+    description: Cache, config, retry, token, validation, logging utilities
+  config:
+    path: src/ffbb_api_client_v2/config.py
+    description: Global configuration constants
+
+tests:
+  unit: tests/unit/
+  integration: tests/integration/
+  e2e: tests/e2e/
+  conftest: tests/conftest.py
+
+config_files:
+  build:
+    - pyproject.toml
+    - setup.cfg
+    - setup.py
+    - tox.ini
+  quality:
+    - .pre-commit-config.yaml
+    - .gitleaks.toml
+  ci:
+    - .github/workflows/ci.yml
+    - .github/workflows/quality-gates.yml
+  governance:
+    - AGENTS.md
+    - CLAUDE.md
+    - .claude/CLAUDE.md
+    - .claude/AGENTS.md
+    - openspec/config.yaml
+    - openspec/project.md

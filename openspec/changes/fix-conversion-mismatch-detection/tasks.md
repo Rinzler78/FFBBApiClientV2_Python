@@ -1,4 +1,5 @@
 ## 1. Phase 0 — Rename enums to *Enum suffix
+<!-- depends_on: none -->
 
 - [ ] 1.1 Rename 29 enum classes in `models/` (class name + file name): `Sexe`->`SexeEnum`, `Code`->`CodeEnum`, `Etat`->`EtatEnum`, `Jour`->`JourEnum`, `Label`->`LabelEnum`, `Niveau`->`NiveauEnum`, `Source`->`SourceEnum`, `Status`->`StatusEnum`, `Echelon`->`EchelonEnum`, `Pratique`->`PratiqueEnum`, `AgeGroup`->`AgeGroupEnum`, `Gender`->`GenderEnum`, `Objectif`->`ObjectifEnum`, `NiveauType`->`NiveauTypeEnum`, `CategorieType`->`CategorieTypeEnum`, `TypeLeague`->`TypeLeagueEnum`, `TypeCompetition`->`TypeCompetitionEnum`, `PhaseCode`->`PhaseCodeEnum`, `CodeFonction`->`CodeFonctionEnum`, `ContactRole`->`ContactRoleEnum`, `CoordonneesType`->`CoordonneesTypeEnum`, `OrganisateurType`->`OrganisateurTypeEnum`, `PublicationInternet`->`PublicationInternetEnum`, `CompetitionType`->`CompetitionTypeEnum`, `HitType`(pratiques)->`PratiquesHitTypeEnum`, `HitType`(tournois)->`TournoisHitTypeEnum`, `Libelle`->`TournoiTypes3x3LibelleEnum`, `CategorieChampionnat3X3Libelle`->`CategorieChampionnat3x3LibelleEnum`, `CompetitionOrigineTypeCompetition`->`CompetitionOrigineTypeCompetitionEnum`
 - [ ] 1.2 Rename 2 enum classes in `meilisearch_ffbb/models/`: `Name`->`TerrainsNameEnum`, `Storage`->`TerrainsStorageEnum`
@@ -10,12 +11,14 @@
 - [ ] 1.8 Commit: `refactor(models): rename all enums to *Enum suffix, deduplicate cross-API enums`
 
 ## 2. Phase 0.5 — FK expansion validation script
+<!-- depends_on: Phase 0 -->
 
 - [ ] 2.1 Create `scripts/validate_fk_expansion.py`: verify `categorie` and `type_competition_generique` return dicts with dot-notation fields
 - [ ] 2.2 Run the script and document results
 - [ ] 2.3 Commit: `test(scripts): add FK expansion validation script`
 
 ## 3. Phase 1 — Model deduplication and merging
+<!-- depends_on: Phase 0, Phase 0.5 -->
 
 - [ ] 3.1 Replace `PurpleLogo` with `Logo` everywhere, delete `purple_logo.py`
 - [ ] 3.2 Replace `CompetitionIDCategorie` with `Categorie` in `CompetitionID`, delete `competition_id_categorie.py`
@@ -33,6 +36,7 @@
 - [ ] 3.14 Commit: `refactor(models): deduplicate models, create CompetitionBase hierarchy`
 
 ## 4. Phase 2 — Enum value fixes
+<!-- depends_on: Phase 1 -->
 
 - [ ] 4.1 Add `DIV_3X3 = "DIV 3x3"` and `PLAT = "PLAT"` to `TypeCompetitionEnum`
 - [ ] 4.2 Add `POINT = "Point"` to `PratiquesHitTypeEnum`
@@ -44,6 +48,7 @@
 - [ ] 4.8 Commit: `fix(models): add missing enum values, convert DocumentFlyerType to str`
 
 ## 5. Phase 3 — Model renaming
+<!-- depends_on: Phase 1, Phase 2 -->
 
 - [ ] 5.1 Rename `ExternalCompetitionID` to `ExternalCompetition` (`external_competition.py`)
 - [ ] 5.2 Rename `ExternalID` to `ExternalRencontre` (`external_rencontre.py`)
@@ -56,6 +61,7 @@
 - [ ] 5.9 Commit: `refactor(models): rename ID/Class-suffixed models to descriptive names`
 
 ## 6. Phase 4 — FK from_obj to scalar converter fixes
+<!-- depends_on: Phase 3 -->
 
 - [ ] 6.1 Fix Competition models: `CompetitionBase.logo`->`UUID`, `Competition.competition_origine`->`str`, `CompetitionDetail.saison`/`.organisateur`->`str`
 - [ ] 6.2 Fix `CompetitionRencontre`: `id_organisme_equipe1/2`, `gs_id`, `id_engagement_equipe1/2`, `salle` -> `str`
@@ -68,6 +74,7 @@
 - [ ] 6.9 Commit: `fix(models): convert FK from_obj to scalar converters for Directus FK fields`
 
 ## 7. Phase 5 — Value type fixes
+<!-- depends_on: Phase 4 -->
 
 - [ ] 7.1 Fix `Commune.commune_id`: `int | None` -> `str | None` with `from_str`
 - [ ] 7.2 Fix `PratiquesHit.id`: `int | None` -> `str | None` with `from_str`
@@ -77,12 +84,14 @@
 - [ ] 7.6 Commit: `fix(models): correct value type mismatches (int -> str)`
 
 ## 8. Phase 6 — Missing OrganismeFields
+<!-- depends_on: Phase 5 -->
 
 - [ ] 8.1 Add 8 fields to `OrganismeFields.get_fields()`: `dateAffiliation`, `entreprise`, `handibasket`, `horsAssociation`, `logo_base64`, `omnisport`, `saison_en_cours`, `url_competition`
 - [ ] 8.2 Verify: compile check
 - [ ] 8.3 Commit: `fix(models): add 8 missing fields to OrganismeFields`
 
 ## 9. Phase 7 — Tests, scripts, examples update
+<!-- depends_on: Phase 0, Phase 1, Phase 2, Phase 3, Phase 4, Phase 5, Phase 6 -->
 
 - [ ] 9.1 Update all test files in `tests/` for renamed classes/modules
 - [ ] 9.2 Update `scripts/discover_types.py` and other scripts for renamed classes
@@ -91,6 +100,7 @@
 - [ ] 9.5 Commit: `refactor(tests): update tests, scripts, examples for model renames`
 
 ## 10. Phase 8 — Final cleanup and verification
+<!-- depends_on: Phase 7 -->
 
 - [ ] 10.1 Verify no orphaned model files remain (grep for old class names)
 - [ ] 10.2 Verify all `__init__.py` exports are consistent

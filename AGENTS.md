@@ -70,6 +70,19 @@ Keep this managed block so `openspec update` can refresh the instructions.
 6. If a check fails, fix on the same branch and loop back to step 2 until all checks are green.
 <!-- END:DELIVERY_SEQUENCE_RULES -->
 
+<!-- BEGIN:AGENT_ROUTING_TABLE -->
+## Agent Routing Table (Managed)
+
+| User Intent / Situation | Route To | Context to Pass |
+|------------------------|----------|-----------------|
+| API contract review, model field changes, backward compatibility | `api-contract-guardian` | changed files, model diffs, __init__.py exports |
+| Code review, Python quality, type checking, pattern compliance | `python-reviewer` | changed .py files, branch diff, review focus |
+| Release readiness, version bump, CHANGELOG, tag creation | `release-manager-lite` | CHANGELOG.md, git tags, CI status |
+| API endpoint changes, from_dict/to_dict modifications | `api-contract-guardian` | model files, test fixtures, endpoint config |
+| New module or refactor, architecture changes | `python-reviewer` | module structure, import graph, architecture docs |
+| PR to master, publish request, SemVer question | `release-manager-lite` | target branch, CHANGELOG, quality gate status |
+<!-- END:AGENT_ROUTING_TABLE -->
+
 <!-- BEGIN:GLOBAL_USER_RULES -->
 ## Global User Rules Inheritance (Managed)
 

@@ -1,0 +1,43 @@
+# Token Optimization Configuration
+# FFBBApiClientV2_Python
+
+context_compression:
+  rtk_enabled: true
+  summarization_threshold: 4000  # tokens before triggering summarization
+  compress_tool_outputs: true
+  preserve_recent_context: 3  # keep last N tool results uncompressed
+
+context_pruning:
+  max_claude_md_lines: 200
+  max_agent_prompt_words: 500
+  prune_stale_results: true
+  stale_threshold_minutes: 15
+
+code_chunking:
+  max_lines_per_read: 300
+  context_lines: 5  # lines of context around matches
+  prefer_ast_extraction: true  # use Serena symbolic tools over full-file reads
+
+retrieval:
+  max_files_per_query: 10
+  prefer_repo_map: true
+  search_order:
+    - repo-map.yml lookup
+    - Glob/Grep targeted search
+    - Serena find_symbol / get_symbols_overview
+    - Full directory exploration (last resort)
+
+caching:
+  tool_result_ttl_seconds: 300  # 5 minutes
+  invalidation_trigger: file_change  # invalidate on file modification
+
+tool_first:
+  enforce: true
+  preferred_tools:
+    - Glob: file pattern matching
+    - Grep: content search with regex
+    - Read: direct file reading with line ranges
+    - Serena: symbolic code navigation and AST extraction
+  avoid:
+    - LLM-based file content guessing
+    - Bash grep/find/cat when dedicated tools exist
