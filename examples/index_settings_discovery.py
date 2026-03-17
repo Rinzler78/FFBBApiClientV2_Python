@@ -3,10 +3,17 @@
 
 Discover filterable/sortable attributes at runtime for all 9 indexes.
 
+Note: The ``get_index_settings`` / ``get_all_index_settings`` endpoints
+require an admin-level Meilisearch API key.  With a public search-only
+token the server returns 401/403 and the functions raise
+``ffbb_api_client_v2.exceptions.FFBBAuthError``.  All demos below
+handle that case gracefully so the script never crashes.
+
 Usage: python examples/index_settings_discovery.py
 """
 
 from ffbb_api_client_v2 import FFBBAPIClientV2, TokenManager
+from ffbb_api_client_v2.exceptions import FFBBAuthError
 
 
 def create_client() -> FFBBAPIClientV2:
@@ -36,7 +43,12 @@ def demo_single_index_settings(client: FFBBAPIClientV2) -> None:
     print("1. Single Index Settings (ffbbserver_organismes)")
     print("=" * 60)
 
-    settings = client.get_index_settings("ffbbserver_organismes")
+    try:
+        settings = client.get_index_settings("ffbbserver_organismes")
+    except FFBBAuthError as exc:
+        print(f"[SKIP] get_index_settings requires an admin Meilisearch key: {exc}")
+        return
+
     if not settings:
         print("Could not retrieve settings.")
         return
@@ -63,7 +75,12 @@ def demo_all_index_settings(client: FFBBAPIClientV2) -> None:
     print("2. All Index Settings Summary")
     print("=" * 60)
 
-    all_settings = client.get_all_index_settings()
+    try:
+        all_settings = client.get_all_index_settings()
+    except FFBBAuthError as exc:
+        print(f"[SKIP] get_all_index_settings requires an admin Meilisearch key: {exc}")
+        return
+
     print(
         f"\n{'Index':<35} | {'Filterable':>10} | {'Sortable':>8} | {'Searchable':>10}"
     )
@@ -88,8 +105,12 @@ def demo_filterable_sortable(client: FFBBAPIClientV2) -> None:
     print("=" * 60)
 
     for uid in INDEX_UIDS:
-        filterable = client.get_filterable_attributes(uid)
-        sortable = client.get_sortable_attributes(uid)
+        try:
+            filterable = client.get_filterable_attributes(uid)
+            sortable = client.get_sortable_attributes(uid)
+        except FFBBAuthError as exc:
+            print(f"\n{uid}: [SKIP] admin key required — {exc}")
+            continue
         f_count = len(filterable) if filterable else 0
         s_count = len(sortable) if sortable else 0
         print(f"\n{uid}:")
@@ -104,7 +125,14 @@ def demo_practical_use_case(client: FFBBAPIClientV2) -> None:
     print("4. Practical Use Case: Dynamic Filter Discovery")
     print("=" * 60)
 
-    filterable = client.get_filterable_attributes("ffbbserver_organismes")
+    try:
+        filterable = client.get_filterable_attributes("ffbbserver_organismes")
+    except FFBBAuthError as exc:
+        print(
+            f"[SKIP] get_filterable_attributes requires an admin Meilisearch key: {exc}"
+        )
+        return
+
     if not filterable:
         print("No filterable attributes discovered.")
         return

@@ -22,6 +22,7 @@ import json
 import time
 
 from ffbb_api_client_v2 import FFBBAPIClientV2, TokenManager
+from ffbb_api_client_v2.exceptions import FFBBAuthError
 
 DELAY = 0.3
 methods_called: set[str] = set()
@@ -610,12 +611,15 @@ def journey_8_metadata_auxiliary(client: FFBBAPIClientV2) -> None:
     if lives:
         print(f"  Lives: {len(lives)} match(es) en cours")
         first = lives[0]
-        if first.match_id:
-            track("get_rencontre")
-            r = client.get_rencontre(first.match_id)
-            time.sleep(DELAY)
-            if r:
-                print(f"    Live match: {r.nomEquipe1} vs {r.nomEquipe2}")
+        # NOTE: Live.match_id is the live-scores API identifier, NOT the
+        # Directus rencontre item ID (which looks like 200000012286822).
+        # Passing match_id directly to get_rencontre() would return a 403.
+        # To fetch a live rencontre via Directus, use list_rencontres() and
+        # match on team names or use the `external_id` field of the Live object.
+        print(
+            f"    Live match: {first.team_name_home} vs {first.team_name_out}"
+            f" (status={first.match_status})"
+        )
     else:
         print("  Lives: aucun match en cours")
 
@@ -650,26 +654,38 @@ def journey_8_metadata_auxiliary(client: FFBBAPIClientV2) -> None:
     time.sleep(DELAY)
     print(f"  list_communes: {len(comms)} items")
 
-    # Index settings
+    # Index settings — require admin Meilisearch key; skip gracefully otherwise
     track("get_all_index_settings")
-    all_settings = client.get_all_index_settings()
+    try:
+        all_settings = client.get_all_index_settings()
+        print(f"  get_all_index_settings: {len(all_settings)} indexes")
+    except FFBBAuthError:
+        print("  get_all_index_settings: [SKIP] admin key required")
     time.sleep(DELAY)
-    print(f"  get_all_index_settings: {len(all_settings)} indexes")
 
     track("get_index_settings")
-    settings = client.get_index_settings("ffbbserver_organismes")
+    try:
+        settings = client.get_index_settings("ffbbserver_organismes")
+        print(f"  get_index_settings: {'ok' if settings else 'none'}")
+    except FFBBAuthError:
+        print("  get_index_settings: [SKIP] admin key required")
     time.sleep(DELAY)
-    print(f"  get_index_settings: {'ok' if settings else 'none'}")
 
     track("get_filterable_attributes")
-    fa = client.get_filterable_attributes("ffbbserver_organismes")
+    try:
+        fa = client.get_filterable_attributes("ffbbserver_organismes")
+        print(f"  get_filterable_attributes: {len(fa) if fa else 0} attrs")
+    except FFBBAuthError:
+        print("  get_filterable_attributes: [SKIP] admin key required")
     time.sleep(DELAY)
-    print(f"  get_filterable_attributes: {len(fa) if fa else 0} attrs")
 
     track("get_sortable_attributes")
-    sa = client.get_sortable_attributes("ffbbserver_organismes")
+    try:
+        sa = client.get_sortable_attributes("ffbbserver_organismes")
+        print(f"  get_sortable_attributes: {len(sa) if sa else 0} attrs")
+    except FFBBAuthError:
+        print("  get_sortable_attributes: [SKIP] admin key required")
     time.sleep(DELAY)
-    print(f"  get_sortable_attributes: {len(sa) if sa else 0} attrs")
 
     # list_all_* demos (max_items=5 to avoid overload)
     print("\n  --- list_all_* demos (max_items=5) ---")
@@ -701,9 +717,17 @@ def journey_9_batch_operations(client: FFBBAPIClientV2) -> None:
     print("Journey 9: Batch Operations (chunked _in filters)")
     print("=" * 60)
 
-    # Get an organisme to harvest engagement IDs
+    # Get an organisme to harvest engagement IDs.
+    # ID 1 often does not exist or is access-restricted; resolve a real ID
+    # from a Meilisearch hit instead.
     track("get_organisme")
-    org = client.get_organisme(1)  # Try organisme ID 1
+    _org_result = client.search_organismes("Paris", limit=1)
+    _org_id = (
+        int(_org_result.hits[0].id)
+        if (_org_result and _org_result.hits and _org_result.hits[0].id)
+        else None
+    )
+    org = client.get_organisme(_org_id) if _org_id else None
     time.sleep(DELAY)
 
     # list_engagements_by_ids (from organisme.engagements)

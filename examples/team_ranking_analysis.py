@@ -10,6 +10,7 @@ Usage: python examples/team_ranking_analysis.py
 from datetime import datetime
 
 from ffbb_api_client_v2 import FFBBAPIClientV2, TokenManager
+from ffbb_api_client_v2.directus.exceptions import DirectusAuthError
 
 _EPOCH = datetime(1970, 1, 1)
 
@@ -41,7 +42,12 @@ def find_team_and_poule(
         if not hit.id:
             continue
 
-        organisme = client.get_organisme(int(hit.id))
+        try:
+            organisme = client.get_organisme(int(hit.id))
+        except DirectusAuthError:
+            # Some organismes (e.g. Ligue HANDI, LNB) exist in Meilisearch
+            # but have restricted access in Directus — skip them silently.
+            continue
         if not organisme or not organisme.engagements:
             continue
 
@@ -77,7 +83,10 @@ def find_team_and_poule(
     for hit in result.hits[:5]:
         if not hit.id:
             continue
-        organisme = client.get_organisme(int(hit.id))
+        try:
+            organisme = client.get_organisme(int(hit.id))
+        except DirectusAuthError:
+            continue
         if not organisme or not organisme.engagements:
             continue
 
