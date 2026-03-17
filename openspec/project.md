@@ -21,13 +21,29 @@ Use TDD by default for new behavior and keep unit/integration/e2e coverage align
 Git Flow with master/develop, feature branches in dedicated worktrees, and Conventional Commits.
 
 ## Domain Context
-French basketball federation data ecosystem. The API serves club management, competition tracking, match scheduling, venue/court geolocation, coach/official registries, 3x3 tournaments, and training/formation catalogs. Data is accessed via dual backends: Directus (relational, FK-based) and Meilisearch (denormalized, full-text + geo-spatial search). Token-based authentication with automatic token management via TokenManager.
+French basketball federation (FFBB) data ecosystem. The API serves club management, competition tracking, match scheduling, venue/court geolocation, coach/official registries, 3x3 tournaments, and training/formation catalogs.
+
+Data is accessed via dual backends:
+- **Directus REST API** (`https://api.ffbb.app/`): 14 collections (`ffbbserver_*`), relational FK-based queries with field selection, deep parameters for nested resources, and pagination.
+- **Meilisearch**: 9 search indexes (clubs, competitions, salles, terrains, rencontres, organismes, tournois, engagements, formations), denormalized full-text + faceted + geo-spatial search.
+
+Authentication uses bearer tokens (API + Meilisearch) with automatic token management via `TokenManager`. Tokens are resolved from environment variables or fetched from the FFBB configuration endpoint.
+
+The client library provides a unified facade (`FFBBAPIClientV2`) that abstracts both backends behind a single Python API with typed models for all response structures.
 
 ## Important Constraints
-Preserve backward compatibility, enforce quality/security gates, and follow Git Flow/worktree policy.
+- **Backward compatibility**: Public API surface (`__all__` exports, method signatures, model fields) must not break without a major version bump.
+- **Quality gates**: Pre-commit (ruff, black, isort, pyright, gitleaks), pytest (96% branch coverage), and CI (quality-gates.yml + ci.yml) must pass before any merge.
+- **Git Flow**: master=production, develop=integration. Feature branches in dedicated worktrees. No direct pushes to master/develop.
+- **Conventional commits**: Enforced by commitizen pre-commit hook. SemVer from git tags via setuptools_scm.
+- **Type safety**: All public APIs must have complete type annotations (Pyright standard mode).
 
 ## External Dependencies
-FFBB Directus REST API (https://api.ffbb.app/), FFBB Meilisearch instance, requests, requests-cache (HTTP caching), python-dateutil, python-dotenv.
+- **FFBB Directus REST API** (`https://api.ffbb.app/`): Primary data source. No versioned API — upstream schema changes can break models silently.
+- **FFBB Meilisearch instance**: Full-text search backend. Index schema controlled by FFBB.
+- **PyPI**: Package distribution target (`ffbb-api-client-v2`).
+- **GitHub Actions**: CI/CD (ci.yml for test+publish, quality-gates.yml for lint+security).
+- **Runtime Python packages**: requests, requests-cache, python-dateutil, python-dotenv, readme_renderer.
 
 <!-- BEGIN:OPENSPEC_DELIVERY_RULES -->
 ## Delivery Rules (Managed)

@@ -2,26 +2,15 @@
 
 Pending tag and release tasks that must be performed on `master` by a maintainer.
 
-## Missing Annotated Tags
+## Annotated Tags — Resolved
 
-Tags v1.3.0 and v1.4.0 were never created. They must be created as annotated tags on the correct merge commits in `master`.
+Tags v1.3.0 and v1.4.0 have been created locally as annotated tags (2026-03-17):
+- `v1.3.0` at `ead8b40` (2026-02-18) — unit tests verified (1334 passed)
+- `v1.4.0` at `f8193f0` (2026-03-02) — unit tests verified (1668 passed)
 
-```bash
-# After merging the release containing v1.3.0 changes:
-git checkout master
-git log --oneline  # identify the correct commit
-git tag -a v1.3.0 <commit-sha> -m "Release v1.3.0"
-git push origin v1.3.0
-
-# Same for v1.4.0:
-git tag -a v1.4.0 <commit-sha> -m "Release v1.4.0"
-git push origin v1.4.0
-```
-
-Once tags exist, update CHANGELOG.md comparison links:
-- `[1.4.0]` -> `compare/v1.3.0...v1.4.0`
-- `[1.3.0]` -> `compare/v1.2.0...v1.3.0`
-- `[Unreleased]` -> `compare/v1.4.0...HEAD`
+CHANGELOG.md comparison links fixed on `feature/onboarding-remediation` branch.
+Note: Links at tag commits still point to `v1.2.0...HEAD` (historical state — cannot alter past commits).
+Tags need to be pushed to origin after merge to develop/master.
 
 ## Lightweight Tag v1.1.1
 
