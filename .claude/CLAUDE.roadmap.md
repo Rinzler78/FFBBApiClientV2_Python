@@ -5,10 +5,12 @@ Pending tag and release tasks that must be performed on `master` by a maintainer
 ## Annotated Tags — Resolved
 
 Tags v1.3.0 and v1.4.0 have been created locally as annotated tags (2026-03-17):
-- `v1.3.0` at `d24aab4` (2026-02-11)
-- `v1.4.0` at `f8193f0` (2026-03-02)
+- `v1.3.0` at `ead8b40` (2026-02-18) — unit tests verified (1334 passed)
+- `v1.4.0` at `f8193f0` (2026-03-02) — unit tests verified (1668 passed)
 
-CHANGELOG.md comparison links have been fixed. Tags need to be pushed to origin after merge to develop/master.
+CHANGELOG.md comparison links fixed on `feature/onboarding-remediation` branch.
+Note: Links at tag commits still point to `v1.2.0...HEAD` (historical state — cannot alter past commits).
+Tags need to be pushed to origin after merge to develop/master.
 
 ## Lightweight Tag v1.1.1
 
