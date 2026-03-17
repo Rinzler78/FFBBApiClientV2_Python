@@ -26,6 +26,21 @@ ignore_missing_imports = true
 [tool.pyright]
 pythonVersion = "3.10"
 typeCheckingMode = "standard"
+venvPath = "."
+venv = ".venv"
+
+[tool.ruff]
+line-length = 140
+target-version = "py310"
+
+[tool.ruff.lint]
+# Mirror the pylint E/W scope + pyflakes; exclude generated/example dirs.
+select = ["E", "F", "W"]
+ignore = [
+    # E501: line too long — length enforced by black (line-length = 140 above)
+    "E501",
+]
+exclude = ["tests", "scripts", "examples"]
 
 [tool.pylint.messages_control]
 # Disable categories and warnings for API model patterns

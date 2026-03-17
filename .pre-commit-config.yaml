@@ -55,29 +55,16 @@ repos:
 #   - id: blacken-docs
 #     additional_dependencies: [black]
 
-- repo: https://github.com/PyCQA/flake8
-  rev: 7.3.0
+# ruff replaces both flake8 and pylint:
+# - import-agnostic (no E0401 "Unable to import" failures)
+# - system-binary (no venv dependency)
+# - covers E/F/W (pycodestyle + pyflakes + pycodestyle warnings)
+# - 10-100x faster
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.15.6
   hooks:
-  - id: flake8
-
-- repo: local
-  hooks:
-  - id: pylint
-    name: pylint
-    entry: pylint
-    language: system
-    types: [python]
-    args: [
-      --rcfile=pyproject.toml,
-      --disable=all,
-      --enable=E,
-      --enable=W,
-      --max-line-length=140,
-      --disable=redefined-builtin,
-      --disable=try-except-raise,
-      --disable=unused-argument,
-      --disable=unnecessary-ellipsis,
-    ]
+  - id: ruff
+    args: [--fix]
     exclude: ^(tests|scripts|examples)/
 
 - repo: local
