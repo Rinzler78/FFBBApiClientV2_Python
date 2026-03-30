@@ -7,7 +7,6 @@ import unittest
 from unittest.mock import Mock, patch
 
 import requests
-import requests_mock
 
 from ffbb_api_client_v2.facade.client import FFBBAPIClientV2
 from ffbb_api_client_v2.utils.cache_manager import CacheManager
@@ -35,20 +34,15 @@ class Test147PerformanceAndResilience(unittest.TestCase):
                 api_bearer_token="test_api_token",
             )
 
-        # Mesurer le temps d'exécution d'une méthode factice
-        # Puisque nous ne pouvons pas faire de vraies requêtes, nous allons mocker
+        # Mesurer le temps d'exécution d'une méthode factice via mock facade
+        mock_api_instance.get_lives.return_value = {"data": "test"}
+
         start_time = time.time()
-
-        # Simuler une requête rapide
-        with requests_mock.Mocker() as m:
-            m.get(requests_mock.ANY, json={"data": "test"})
-            # Appeler une méthode factice ou simulée
-            client.get_lives()
-
+        client.get_lives()
         end_time = time.time()
         duration = end_time - start_time
 
-        # Vérifier que l'opération prend moins de 1 seconde (ce qui est raisonnable pour une simulation)
+        # Vérifier que l'opération prend moins de 1 seconde
         assert duration < 1.0
 
     def test_002_cache_performance(self):
@@ -190,13 +184,9 @@ class Test147PerformanceAndResilience(unittest.TestCase):
         # Utilisé implicitement dans les appels suivants
         assert len(large_payload["data"]) == 10000
 
-        # Simuler une requête avec une grande charge utile
-        with requests_mock.Mocker() as m:
-            m.post(requests_mock.ANY, json={"status": "received"})
-
-            # Appeler une méthode qui enverrait une grande charge utile
-            # Cette logique dépendra de la structure réelle du code
-            client.get_lives()
+        # Simuler une requête avec une grande charge utile via mock facade
+        mock_api_instance.get_lives.return_value = {"status": "received"}
+        client.get_lives()
 
     def test_008_slow_response_handling(self):
         """Test de la gestion des réponses lentes"""

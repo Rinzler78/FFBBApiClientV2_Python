@@ -7,7 +7,6 @@ from unittest.mock import Mock, patch
 
 import pytest
 import requests
-import requests_mock
 
 from ffbb_api_client_v2.facade.client import FFBBAPIClientV2
 from ffbb_api_client_v2.utils.input_validation import validate_token
@@ -99,11 +98,11 @@ class Test146ErrorHandlingEdgeCases(unittest.TestCase):
                 api_bearer_token="test_api_token",
             )
 
-        # Configure mock to raise HTTP error
-        mock_api_instance.get_lives.side_effect = Exception("Internal Server Error")
+            # Configure mock to raise HTTP error
+            mock_api_instance.get_lives.side_effect = Exception("Internal Server Error")
 
-        with self.assertRaises(Exception):
-            client.get_lives()
+            with self.assertRaises(Exception):
+                client.get_lives()
 
     def test_006_retry_mechanism_failure(self):
         """Test du mécanisme de retry en cas d'échec persistant"""
@@ -145,14 +144,11 @@ class Test146ErrorHandlingEdgeCases(unittest.TestCase):
                 api_bearer_token="test_api_token",
             )
 
-        # Simuler une réponse vide
-        with requests_mock.Mocker() as m:
-            m.get(requests_mock.ANY, json={})
+            # Simuler une réponse vide via le mock facade
+            mock_api_instance.get_lives.return_value = {}
 
-            # Tester une méthode susceptible de traiter une réponse
-            # Cette logique dépendra de la structure réelle du code
             result = client.get_lives()
-            assert result is not None  # ou toute autre logique appropriée
+            assert result is not None
 
     def test_009_api_client_with_malformed_response(self):
         """Test de la gestion d'une réponse mal formée de l'API"""
@@ -172,17 +168,13 @@ class Test146ErrorHandlingEdgeCases(unittest.TestCase):
                 api_bearer_token="test_api_token",
             )
 
-        # Simuler une réponse mal formée
-        with requests_mock.Mocker() as m:
-            m.get(requests_mock.ANY, text="This is not JSON")
+            # Simuler une réponse mal formée via le mock facade
+            mock_api_instance.get_lives.side_effect = ValueError(
+                "Invalid JSON response"
+            )
 
-            # Tester une méthode susceptible de traiter une réponse JSON
-            try:
-                # Appeler une méthode qui attend une réponse JSON
+            with self.assertRaises(ValueError):
                 client.get_lives()
-            except ValueError:
-                # C'est attendu si la réponse n'est pas du JSON
-                pass
 
     def test_010_api_client_rate_limit_handling(self):
         """Test de la gestion de la limitation de débit (rate limiting)"""
@@ -202,15 +194,15 @@ class Test146ErrorHandlingEdgeCases(unittest.TestCase):
                 api_bearer_token="test_api_token",
             )
 
-        # Configure mock to raise rate limit error
-        from ffbb_api_client_v2.exceptions import FFBBRateLimitError
+            # Configure mock to raise rate limit error
+            from ffbb_api_client_v2.exceptions import FFBBRateLimitError
 
-        mock_api_instance.get_lives.side_effect = FFBBRateLimitError(
-            "Rate limit exceeded"
-        )
+            mock_api_instance.get_lives.side_effect = FFBBRateLimitError(
+                "Rate limit exceeded"
+            )
 
-        with self.assertRaises(FFBBRateLimitError):
-            client.get_lives()
+            with self.assertRaises(FFBBRateLimitError):
+                client.get_lives()
 
     def test_011_api_client_with_special_characters_in_input(self):
         """Test de la gestion d'entrées contenant des caractères spéciaux"""
@@ -230,14 +222,9 @@ class Test146ErrorHandlingEdgeCases(unittest.TestCase):
                 api_bearer_token="test_api_token",
             )
 
-        # Tester une recherche avec des caractères spéciaux
+            # Simuler une requête réussie via le mock facade
+            mock_api_instance.get_lives.return_value = {"results": []}
 
-        # Simuler une requête réussie pour cette recherche
-        with requests_mock.Mocker() as m:
-            m.get(requests_mock.ANY, json={"results": []})
-
-            # Appeler une méthode de recherche avec des caractères spéciaux
-            # Cette logique dépendra de la structure réelle du code
             result = client.get_lives()
             assert result is not None
 
@@ -265,12 +252,9 @@ class Test146ErrorHandlingEdgeCases(unittest.TestCase):
         assert len(extremely_long_input) == 10000
 
         # Tester la validation ou le traitement de cette entrée
-        # Selon la logique métier, cela pourrait lever une exception ou être tronqué
         try:
-            # Appeler une méthode susceptible de valider cette entrée
             client.get_lives()
         except Exception:
-            # Cela pourrait être attendu selon la validation en place
             pass
 
     def test_013_api_client_with_null_bytes_in_input(self):
@@ -293,15 +277,11 @@ class Test146ErrorHandlingEdgeCases(unittest.TestCase):
 
         # Créer une chaîne avec des null bytes
         input_with_null_bytes = "hello\x00world"
-        # Utilisé implicitement dans les appels suivants
         assert "\x00" in input_with_null_bytes
 
-        # Tester la validation ou le traitement de cette entrée
         try:
-            # Appeler une méthode susceptible de valider cette entrée
             client.get_lives()
         except Exception:
-            # Cela pourrait être attendu selon la validation en place
             pass
 
     def test_014_api_client_with_unicode_in_input(self):
@@ -322,14 +302,9 @@ class Test146ErrorHandlingEdgeCases(unittest.TestCase):
                 api_bearer_token="test_api_token",
             )
 
-        # Créer une chaîne avec des caractères Unicode
+            # Simuler une requête réussie via le mock facade
+            mock_api_instance.get_lives.return_value = {"results": []}
 
-        # Simuler une requête réussie pour cette recherche
-        with requests_mock.Mocker() as m:
-            m.get(requests_mock.ANY, json={"results": []})
-
-            # Appeler une méthode de recherche avec des caractères Unicode
-            # Cette logique dépendra de la structure réelle du code
             result = client.get_lives()
             assert result is not None
 
@@ -351,14 +326,10 @@ class Test146ErrorHandlingEdgeCases(unittest.TestCase):
                 api_bearer_token="test_api_token",
             )
 
-        # Simuler une réponse JSON invalide
-        with requests_mock.Mocker() as m:
-            # Réponse avec JSON mal formé
-            m.get(requests_mock.ANY, content=b'{ "invalid": json, "missing": quote }')
+            # Simuler une réponse JSON invalide via le mock facade
+            mock_api_instance.get_lives.side_effect = ValueError(
+                "Invalid JSON in response"
+            )
 
-            try:
-                # Appeler une méthode qui attend une réponse JSON
+            with self.assertRaises(ValueError):
                 client.get_lives()
-            except Exception:
-                # Cela pourrait être géré par le code existant
-                pass
