@@ -36,7 +36,7 @@ class Competition(CompetitionBase):
                 ),
                 nom_extended=from_str(obj, "nomExtended"),
             )
-        except Exception as e:
+        except (TypeError, KeyError, AttributeError, ValueError) as e:
             raise ValueError("Invalid Competition object") from e
 
     def to_dict(self) -> dict:

@@ -170,7 +170,7 @@ class CompetitionsHit(Hit):
                 slug=slug,
                 to_update=to_update,
             )
-        except Exception as e:
+        except (TypeError, KeyError, AttributeError, ValueError) as e:
             raise ValueError(f"Invalid `Hit.from_dict` input: {e}") from e
 
     def to_dict(self) -> dict:

@@ -15,6 +15,7 @@ from ..config import (
 )
 from ..directus.client import DEFAULT_USER_AGENT
 from ..utils.cache_manager import CacheManager
+from ..utils.input_validation import validate_token
 from ..utils.retry_utils import RetryConfig, TimeoutConfig
 from ..utils.secure_logging import get_secure_logger, mask_token
 from .models.federated_search_result import FederatedSearchResult
@@ -49,8 +50,7 @@ class MeilisearchClient:
             timeout_config (TimeoutConfig, optional): Timeout configuration.
                 Defaults to None.
         """
-        if not bearer_token or not bearer_token.strip():
-            raise ValueError("bearer_token cannot be None, empty, or whitespace-only")
+        validate_token(bearer_token, field_name="bearer_token")
 
         # Store token securely (private attribute)
         self._bearer_token = bearer_token

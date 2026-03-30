@@ -200,7 +200,7 @@ class RencontresHit(Hit):
                 unique_key=unique_key,
                 url_competition=url_competition,
             )
-        except Exception as e:
+        except (TypeError, KeyError, AttributeError, ValueError) as e:
             raise ValueError(f"Invalid `Hit` object: {e}") from e
 
     def to_dict(self) -> dict:

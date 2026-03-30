@@ -127,7 +127,7 @@ class OrganismesHit(Hit):
                 saison=saison,
                 url_competition=url_competition,
             )
-        except Exception as e:
+        except (TypeError, KeyError, AttributeError, ValueError) as e:
             raise ValueError(f"Invalid `OrganismesHit` object: {e}") from e
 
     def to_dict(self) -> dict:

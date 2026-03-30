@@ -84,7 +84,7 @@ def validate_url(url: str, field_name: str = "url") -> str:
         parsed = urlparse(url_stripped)
         if not parsed.scheme or not parsed.netloc:
             raise ValidationError(f"{field_name} must be a valid URL")
-    except Exception as e:
+    except (ValueError, TypeError) as e:
         raise ValidationError(f"{field_name} is not a valid URL: {e}") from e
 
     # Check scheme
